@@ -7,6 +7,8 @@ All-in-one repository for the project. Includes such as frontend, backend, docum
 
 **Collaborators**: Haaga-Helia University of Applied Sciences 2025.
 
+---
+
 ## Table of contents
 
 01. Introduction
@@ -14,7 +16,8 @@ All-in-one repository for the project. Includes such as frontend, backend, docum
 03. Tools
 04. Frontend
 05. Backend
-06.
+
+---
 
 ## 01. Introduction
 
@@ -24,3 +27,7 @@ Majority of the team justified the decision, as it is much easier
 to find essential files and data from one and only repository.
 Having two or more repository makes the finding troublesome,
 and in some case can cause merging problems in Github.
+
+---
+
+## 02. Algorithm
