@@ -1,9 +1,10 @@
-# 9f4ac4a (Spring initial setup)
+# ee73f2d (Spring initial setup)
 
+documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/benefit-app/commit/ee73f2dcbe6835d609fbe895b23482090298a118)
 
 ### Dependencies
 
-![img.png](img/9f4ac4a-1.png)
+![img.png](img/ee73f2d-1.png)
 
 #### Actuator
 
@@ -31,12 +32,12 @@
 
 ### Testaukseen parempi log
 
-![img.png](img/9f4ac4a-2.png)
+![img.png](img/ee73f2d-2.png)
 
 ---
 
 ### application.yaml
 
-![img.png](img/9f4ac4a-3.png)
+![img.png](img/ee73f2d-3.png)
 
 Ilman datasourcea ei lähde päälle. Datasource määritetty dockerin Postgrehen. 
