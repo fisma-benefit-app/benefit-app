@@ -5,7 +5,16 @@ All-in-one repository for the project. Includes such as frontend, backend, docum
 
 **Representive supervisor**: Heikki Naski.
 
-**Collaborators**: Haaga-Helia University of Applied Sciences 2025. 
+**Collaborators**: Haaga-Helia University of Applied Sciences 2025.
+
+## Table of contents
+
+01 Introduction
+02 Algorithm
+03 Tools
+04 Frontend
+05 Backend
+05
 
 ## 01 Introduction
 
