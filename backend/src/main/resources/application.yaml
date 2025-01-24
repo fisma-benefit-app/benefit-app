@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    username: myuser
+    password: secret
+    url: "jdbc:postgresql://127.0.0.1:5432/thyme_db "
+
+  sql:
+    init:
+      mode: always
