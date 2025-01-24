@@ -3,7 +3,7 @@ All-in-one repository for the project. Includes such as frontend, backend, docum
 
 **Product owner**: FiSMA ry 2025.
 
-**Edustajavalvoja**: Heikki Naski.
+**Representive supervisor**: Heikki Naski.
 
 **Collaborators**: Haaga-Helia University of Applied Sciences 2025. 
 
