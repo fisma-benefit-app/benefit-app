@@ -9,7 +9,8 @@ Collaborators: Haaga-Helia University of Applied Sciences.
 
 ## 01 Introduction
 
-Our team decided to have only one repository on 24th January 2025.
+Our team decided to have only one repository for the project on 24th January 2025.
+
 Majority of the team justified the decision, as it is much easier
 to find essential files and data from one and only repository.
 Having two or more repository makes the finding troublesome,
