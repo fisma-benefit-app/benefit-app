@@ -9,14 +9,14 @@ All-in-one repository for the project. Includes such as frontend, backend, docum
 
 ## Table of contents
 
-01 Introduction
-02 Algorithm
-03 Tools
-04 Frontend
-05 Backend
-05
+01. Introduction
+02. Algorithm
+03. Tools
+04. Frontend
+05. Backend
+06.
 
-## 01 Introduction
+## 01. Introduction
 
 Our team decided to have only one repository for the project on 24th January 2025.
 
