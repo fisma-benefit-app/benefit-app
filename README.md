@@ -36,10 +36,10 @@ Benefit application is a project by FisMA ry 2025. It is a software size mesurem
 Picture 1: A visual re-presentation of the Benefit application's UI. [Placeholder]
 
 **Whom is application is made for?**
-...
+Add explaination ...
 
-**What are prerequisetes?**
-...
+**What are prerequisites?**
+Add explaniation ...
 
 **Why only one repository for the project?**
 
