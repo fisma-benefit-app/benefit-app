@@ -2,12 +2,16 @@
 All-in-one repository for the Benefit application. Includes such as frontend, backend, documents, etc.
 
 **Product owner**: FiSMA ry 2025.
-![cropped-Fisma_logo-1](https://github.com/user-attachments/assets/1e27c748-70f5-4e89-9b1a-57cba6ff9945)
+
+<img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" width="48">
 
 **Representative supervisor**: Heikki Naski.
 
+
+
 **Collaborators**: Haaga-Helia University of Applied Sciences, 2025.
-![logo-1](https://github.com/user-attachments/assets/ec322cda-cc1b-4461-8f5d-261674eb62ce)
+
+<img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" width="48">
 
 
 ---
