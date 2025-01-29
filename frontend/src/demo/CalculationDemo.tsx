@@ -12,7 +12,8 @@ const CalculationDemo = () => {
     dataElements: number,
     readingReferences: number,
     writingReferences: number,
-    functionalityMultiplier: number
+    functionalityMultiplier: number,
+    operations: number
   }
 
   //state where collected form data is stored
@@ -22,7 +23,8 @@ const CalculationDemo = () => {
     dataElements: 1,
     readingReferences: 1,
     writingReferences: 1,
-    functionalityMultiplier: 1
+    functionalityMultiplier: 1,
+    operations: 1
   })
 
   //state for storing and rendering calculated result
@@ -43,33 +45,34 @@ const CalculationDemo = () => {
   const calculateFunctionalPoints = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(calculationData)
-    switch(calculationData.baseFunctionalComponentClass) {
+    switch (calculationData.baseFunctionalComponentClass) {
       case "Interactive end-user navigation and query service":
-        setResult(0.2 + calculationData.dataElements/7 + calculationData.readingReferences/2);
-        if (calculationData.baseFunctionalComponentType !== "function designators" || 
-          calculationData.baseFunctionalComponentType !== "function lists" || 
-          calculationData.baseFunctionalComponentType !== "selection lists") {
-        setResult(0.2 + (calculationData.dataElements + 1)/7 + calculationData.readingReferences/2);
-      }
+        if (calculationData.baseFunctionalComponentType === "function designators" ||
+          calculationData.baseFunctionalComponentType === "function lists" ||
+          calculationData.baseFunctionalComponentType === "selection lists") {
+          setResult(0.2 + calculationData.dataElements / 7 + calculationData.readingReferences / 2);
+          break;
+        }
+        setResult(0.2 + (calculationData.dataElements + 1) / 7 + calculationData.readingReferences / 2);
         break;
       case "Interactive end-user input service":
-        setResult(calculationData.functionalityMultiplier * (0.2 + calculationData.dataElements/5 + calculationData.writingReferences/1.5 + calculationData.readingReferences/2));
+        setResult(calculationData.functionalityMultiplier * (0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2));
         break;
       case "Non-interactive end-user output service":
-        setResult(1 + calculationData.dataElements/5 + calculationData.readingReferences/2);
+        setResult(1 + calculationData.dataElements / 5 + calculationData.readingReferences / 2);
         break;
       case "Interface service to other applications":
-        setResult(0.5 + calculationData.dataElements/7 + calculationData.readingReferences/2);
+        setResult(0.5 + calculationData.dataElements / 7 + calculationData.readingReferences / 2);
         break;
       case "Interface service from other applications":
-        setResult(0.2 + calculationData.dataElements/5 + calculationData.writingReferences/1.5 + calculationData.readingReferences/2);
+        setResult(0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2);
         break;
       case "Data storage service":
-        setResult(1.5 + calculationData.dataElements/4);
+        setResult(1.5 + calculationData.dataElements / 4);
         break;
       case "Algorithmic or manipulation service":
-      setResult(0.1 + calculationData.dataElements/5 + o/3);
-      break;
+        setResult(0.1 + calculationData.dataElements / 5 + calculationData.operations / 3);
+        break;
     }
   }
 
@@ -138,6 +141,17 @@ const CalculationDemo = () => {
             type="number"
             id="functionalityMultiplier"
             value={calculationData.functionalityMultiplier}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="flex flex-col gap-5 items-center">
+          <label htmlFor="operations">Operations</label>
+          <input
+            className="border-2 rounded-2xl px-4 py-2 w-48"
+            type="number"
+            id="operations"
+            value={calculationData.operations}
             onChange={handleChange}
           />
         </div>
