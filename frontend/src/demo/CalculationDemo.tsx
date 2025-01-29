@@ -46,10 +46,30 @@ const CalculationDemo = () => {
     switch(calculationData.baseFunctionalComponentClass) {
       case "Interactive end-user navigation and query service":
         setResult(0.2 + calculationData.dataElements/7 + calculationData.readingReferences/2);
+        if (calculationData.baseFunctionalComponentType !== "function designators" || 
+          calculationData.baseFunctionalComponentType !== "function lists" || 
+          calculationData.baseFunctionalComponentType !== "selection lists") {
+        setResult(0.2 + (calculationData.dataElements + 1)/7 + calculationData.readingReferences/2);
+      }
         break;
       case "Interactive end-user input service":
-        setResult(calculationData.functionalityMultiplier * (0.2 + calculationData.dataElements/5 + calculationData.writingReferences/1,5 + calculationData.readingReferences/2));
+        setResult(calculationData.functionalityMultiplier * (0.2 + calculationData.dataElements/5 + calculationData.writingReferences/1.5 + calculationData.readingReferences/2));
         break;
+      case "Non-interactive end-user output service":
+        setResult(1 + calculationData.dataElements/5 + calculationData.readingReferences/2);
+        break;
+      case "Interface service to other applications":
+        setResult(0.5 + calculationData.dataElements/7 + calculationData.readingReferences/2);
+        break;
+      case "Interface service from other applications":
+        setResult(0.2 + calculationData.dataElements/5 + calculationData.writingReferences/1.5 + calculationData.readingReferences/2);
+        break;
+      case "Data storage service":
+        setResult(1.5 + calculationData.dataElements/4);
+        break;
+      case "Algorithmic or manipulation service":
+      setResult(0.1 + calculationData.dataElements/5 + o/3);
+      break;
     }
   }
 
