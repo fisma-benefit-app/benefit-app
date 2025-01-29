@@ -58,7 +58,9 @@ The mathematical algorithm has the following logic...
 
 ## 3. Tools
 
-We used following tools...
+We have used following tools in the project:
+
+a) PostgreSQL for the database. Most of our team is familiar with SQL...
 
 ## 4. Frontend
 
@@ -74,7 +76,7 @@ Please read [add a backend manual] from documents -directory for more informatio
 
 ## 6. Database
 
-The database is structured following...
+The SQL database is structured in following...
 
 ## 7. CD/CI
 
