@@ -91,7 +91,7 @@ const CalculationDemo = () => {
           <select className="border-2 rounded-2xl px-4 py-2 w-48" id="baseFunctionalComponentClass" value={calculationData.baseFunctionalComponentClass} onChange={handleBaseFunctionalComponentClass}>
             {/* Dynamically render options for base functional component class */}
             {baseFunctionalComponentClasses.map((componentClass, index) => {
-              return <option key={index} value={componentClass}>{componentClass}</option>
+              return <option key={index} value={componentClass.value}>{componentClass.displayName}</option>
             })}
           </select>
         </div>

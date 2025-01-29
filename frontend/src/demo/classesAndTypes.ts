@@ -1,24 +1,34 @@
 //array of all base functional component classes, used to render the options for corresponding select field
-export const baseFunctionalComponentClasses: string[] = [
-    "Interactive end-user navigation and query service",
-    "Interactive end-user input service",
-    "Non-interactive end-user output service",
-    "Interface service to other applications",
-    "Interface service from other applications",
-    "Data storage service",
-    "Algorithmic or manipulation service"
+export const baseFunctionalComponentClasses = [
+    {
+        value: "Interactive end-user navigation and query service",
+        displayName: "Vuorovaikutteinen navigointi- tai kyselytoiminto"
+    },
+    {
+        value: "Interactive end-user input service",
+        displayName: "Vuorovaikutteinen syöttötoiminto"
+    },
+    {
+        value: "Non-interactive end-user output service",
+        displayName: "Yksisuuntainen tulostetoiminto"
+    },
+    {
+        value: "Interface service to other applications",
+        displayName: "Lähetettävä liittymätoiminto"
+    },
+    {
+        value: "Interface service from other applications",
+        displayName: "Vastaanotettava liittymätoiminto"
+    },
+    {
+        value: "Data storage service",
+        displayName: "Tiedonvarastointitoiminto"
+    },
+    {
+        value: "Algorithmic or manipulation service",
+        displayName: "Algoritminen toiminto tai käsittelytoiminto"
+    }
 ]
-
-//maybe using this object and dot notation it's easier to write each class correctly in the future
-export const componentClassesObject = {
-    "Interactive end-user navigation and query service": "Interactive end-user navigation and query service",
-    "Interactive end-user input service": "Interactive end-user input service",
-    "Non-interactive end-user output service": "Non-interactive end-user output service",
-    "Interface service to other applications": "Interface service to other applications",
-    "Interface service from other applications": "Interface service from other applications",
-    "Data storage service": "Data storage service",
-    "Algorithmic or manipulation service": "Algorithmic or manipulation service"
-}
 
 //object for storing all base functional component types for corresponding class, used to render the options for corresponding select field
 export const baseFunctionalComponentTypes = {
@@ -68,89 +78,68 @@ export const baseFunctionalComponentTypes = {
 
 //object for storing the rendered input fields info depending on selected component class
 //todo implement conditional rendering using this
-export const componentClassFields = {
-    "Interactive end-user navigation and query service": [
-        {
-            name: "dataElements",
-            uiName: "Data Elements",
-        },
-        {
-            name: "readingReferences",
-            uiName: "Reading References"
-        }
-    ],
-    "Interactive end-user input service": [
-        {
-            name: "functionalityMultiplier",
-            uiName: "Functionality Multiplier"
-        },
-        {
-            name: "dataElements",
-            uiName: "Data Elements",
-        },
-        {
-            name: "writingReferences",
-            uiName: "Writing References"
-        },
-        {
-            name: "readingReferences",
-            uiName: "Reading References"
-        }
-    ],
-    "Non-interactive end-user output service": [
-        {
-            name: "dataElements",
-            uiName: "Data Elements",
-        },
-        {
-            name: "readingReferences",
-            uiName: "Reading References"
-        }
-    ],
-    "Interface service to other applications": [
-        {
-            name: "dataElements",
-            uiName: "Data Elements",
-        },
-        {
-            name: "readingReferences",
-            uiName: "Reading References"
-        }
-    ],
-    "Interface service from other applications": [
-        {
-            name: "dataElements",
-            uiName: "Data Elements",
-        },
-        {
-            name: "writingReferences",
-            uiName: "Writing References"
-        },
-        {
-            name: "readingReferences",
-            uiName: "Reading References"
-        }
-    ],
-    "Data storage service": [
-        {
-            name: "dataElements",
-            uiName: "Data Elements",
-        },
-    ],
-    "Algorithmic or manipulation service": [
-        {
-            name: "dataElements",
-            uiName: "Data Elements",
-        },
-        {
-            name: "operations",
-            uiName: "Operations"
-        }
-    ]
-}
+export const componentClassInputs = [
+    {
+        inputName: "dataElements",
+        displayName: "Tietoelementtien määrä",
+        componentClasses: [
+            "Interactive end-user navigation and query service",
+            "Interactive end-user input service",
+            "Non-interactive end-user output service",
+            "Interface service to other applications",
+            "Interface service from other applications",
+            "Data storage service",
+            "Algorithmic or manipulation service"
+        ]
+    },
+    {
+        inputName: "readingReferences",
+        displayName: "Lukuviittaukset",
+        componentClasses: [
+            "Interactive end-user navigation and query service",
+            "Interactive end-user input service",
+            "Non-interactive end-user output service",
+            "Interface service to other applications",
+            "Interface service from other applications"
+        ]
+    },
+    {
+        inputName: "writingReferences",
+        displayName: "Kirjoitusviittaukset",
+        componentClasses: [
+            "Interactive end-user input service",
+            "Interface service from other applications",
+        ]
+    },
+    {
+        inputName: "functionalityMultiplier",
+        displayName: "Toimintokerroin",
+        componentClasses: [
+            "Interactive end-user input service",
+        ]
+    },
+    {
+        inputName: "operations",
+        displayName: "Operaatiot",
+        componentClasses: [
+            "Algorithmic or manipulation service"
+        ]
+    }
+]
 
 //type for baseFunctionalComponentTypes
 export type ComponentTypes = typeof baseFunctionalComponentTypes;
 
-//type for componentClassFields
-export type ClassFields = typeof componentClassFields;
+//type for componentClassInputs
+export type ClassInputs = typeof componentClassInputs;
+
+//maybe using this object and dot notation it's easier to write each class correctly in the future
+export const componentClassesObject = {
+    "Interactive end-user navigation and query service": "Interactive end-user navigation and query service",
+    "Interactive end-user input service": "Interactive end-user input service",
+    "Non-interactive end-user output service": "Non-interactive end-user output service",
+    "Interface service to other applications": "Interface service to other applications",
+    "Interface service from other applications": "Interface service from other applications",
+    "Data storage service": "Data storage service",
+    "Algorithmic or manipulation service": "Algorithmic or manipulation service"
+}
