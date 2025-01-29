@@ -2,10 +2,13 @@
 All-in-one repository for the Benefit application. Includes such as frontend, backend, documents, etc.
 
 **Product owner**: FiSMA ry 2025.
+![cropped-Fisma_logo-1](https://github.com/user-attachments/assets/1e27c748-70f5-4e89-9b1a-57cba6ff9945)
 
 **Representative supervisor**: Heikki Naski.
 
-**Collaborators**: Haaga-Helia University of Applied Sciences 2025.
+**Collaborators**: Haaga-Helia University of Applied Sciences, 2025.
+![logo-1](https://github.com/user-attachments/assets/ec322cda-cc1b-4461-8f5d-261674eb62ce)
+
 
 ---
 
@@ -60,7 +63,10 @@ The mathematical algorithm has the following logic...
 
 We have used following tools in the project:
 
-a) PostgreSQL for the database. Most of our team is familiar with SQL...
+a) PostgreSQL for the database. Everyone of our team has used SQL for databases. 
+Thus production will be most effective when working with familiar language.
+
+We chose PostgreSQL over other SQL DBMS, due... 
 
 ## 4. Frontend
 
@@ -82,7 +88,11 @@ The SQL database is structured in following...
 
 The CD/CI pipeline is following:
 
-a) MVP and KISS.
+a) MVP and KISS. In the first sprints (i.e. from Sprint 01 to ...),
+our product owner required our team to keep Benefit application simple as possible
+in every development.
+
+Thus we developed a very basic calculator (MVP), that only read one row of elements.
 
 b) ...
 
