@@ -2,6 +2,8 @@ package fi.fisma.backend.project;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 @Data
@@ -11,9 +13,9 @@ public class FunctionalComponent {
     private Long id;
     private String className;
     private String componentType;
-    private int dataElements;
-    private int readinReferences;
-    private int writeinReferences;
-    private int functionalMultiplier;
-    private int operations;
+    private Integer dataElements;
+    private Integer readingReferences;
+    private Integer writingReferences;
+    private Integer functionalMultiplier;
+    private Integer operations;
 }

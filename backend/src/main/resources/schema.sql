@@ -10,9 +10,10 @@ create table if not exists app_user
 create table if not exists project
 (
     id            bigserial primary key,
-    project_name  text   not null,
-    creation_date text   not null,
-    app_user_id   bigint not null references app_user (id)
+    project_name  text      not null,
+    creation_date timestamp not null,
+    total_points  decimal   not null,
+    app_user_id   bigint    not null references app_user (id)
 );
 
 create table if not exists functional_component
@@ -21,7 +22,7 @@ create table if not exists functional_component
     class_name            text    not null,
     component_type        text    not null,
     data_element          integer not null,
-    reading_reference     integer,
+    reading_references     integer,
     writing_references    integer,
     functional_multiplier integer,
     operations            integer,

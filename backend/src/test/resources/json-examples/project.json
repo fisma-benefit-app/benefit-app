@@ -1,7 +1,29 @@
 {
-    "id": 44,
-    "appUserId": 99,
-    "cratedDate": "12.01.2025",
-    "projectName": "project-x",
-    "totalPoinsts": 100
+  "id": 44,
+  "projectName": "project-x",
+  "creationDate": "2025-01-28T17:23:19",
+  "totalPoints": 100.12,
+  "appUserId": 99,
+  "functionalComponents": [
+    {
+      "id": 99,
+      "className": "Interactive end-user input service",
+      "componentType": "1-functional",
+      "dataElements": 2,
+      "readingReferences": 4,
+      "writingReferences": 3,
+      "functionalMultiplier": 1,
+      "operations": null
+    },
+    {
+      "id": 100,
+      "className": "Data storage service",
+      "componentType": "entities or classes",
+      "dataElements": 4,
+      "readingReferences": null,
+      "writingReferences": null,
+      "functionalMultiplier": null,
+      "operations": null
+    }
+  ]
 }
