@@ -14,7 +14,7 @@ public class Project {
    @Id
    private Long id;
    private String projectName;
-   private LocalDateTime creationDate;
+   private LocalDateTime createdDate;
    private double totalPoints;
    private Long appUserId;
    @MappedCollection(idColumn = "functional_component_id")

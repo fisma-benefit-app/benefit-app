@@ -11,7 +11,7 @@ create table if not exists project
 (
     id            bigserial primary key,
     project_name  text      not null,
-    creation_date timestamp not null,
+    created_date timestamp not null,
     total_points  decimal   not null,
     app_user_id   bigint    not null references app_user (id)
 );

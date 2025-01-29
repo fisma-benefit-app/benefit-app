@@ -32,6 +32,7 @@ class ProjectJsonTest {
         assertThat(json.write(project)).isEqualToJson("/json-examples/project.json");
         assertThat(json.write(project)).hasJsonPathNumberValue("@.id");
         assertThat(json.write(project)).hasJsonPathStringValue("@.projectName");
+        assertThat(json.write(project)).hasJsonPathStringValue("@.createdDate");
         assertThat(json.write(project)).hasJsonPathNumberValue("@.totalPoints");
         assertThat(json.write(project)).hasJsonPathNumberValue("@.appUserId");
         assertThat(json.write(project)).hasJsonPathArrayValue("$.functionalComponents");
@@ -44,7 +45,7 @@ class ProjectJsonTest {
                 {
                   "id": 44,
                   "projectName": "project-x",
-                  "creationDate": "2025-01-28T17:23:19",
+                  "createdDate": "2025-01-28T17:23:19",
                   "totalPoints": 100.12,
                   "appUserId": 99,
                   "functionalComponents": [
