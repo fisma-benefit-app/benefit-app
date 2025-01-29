@@ -56,7 +56,13 @@ const CalculationDemo = () => {
         setResult(0.2 + (calculationData.dataElements + 1) / 7 + calculationData.readingReferences / 2);
         break;
       case "Interactive end-user input service":
-        setResult(calculationData.functionalityMultiplier * (0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2));
+        if (calculationData.baseFunctionalComponentType === "1-functional") {
+          setResult(0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2)
+        } else if (calculationData.baseFunctionalComponentType === "2-functional") {
+          setResult(2 * (0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2));
+        } else if (calculationData.baseFunctionalComponentType === "3-functional") {
+          setResult(3 * (0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2));
+        }
         break;
       case "Non-interactive end-user output service":
         setResult(1 + calculationData.dataElements / 5 + calculationData.readingReferences / 2);
