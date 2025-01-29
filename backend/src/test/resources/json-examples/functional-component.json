@@ -1,0 +1,22 @@
+[
+  {
+    "id": 99,
+    "className": "Interactive end-user input service",
+    "componentType": "1-functional",
+    "dataElements": 2,
+    "readingReferences": 4,
+    "writinReferences": 3,
+    "functionalityMultiplier": 1,
+    "operations": null
+  },
+  {
+    "id": 100,
+    "className": "Data storage service",
+    "componentType": "entities or classes",
+    "dataElements": 4,
+    "readingReferences": null,
+    "writinReferences": null,
+    "functionalityMultiplier": null,
+    "operations": null
+  }
+]
