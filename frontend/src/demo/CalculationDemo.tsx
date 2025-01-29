@@ -43,6 +43,14 @@ const CalculationDemo = () => {
   const calculateFunctionalPoints = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(calculationData)
+    switch(calculationData.baseFunctionalComponentClass) {
+      case "Interactive end-user navigation and query service":
+        setResult(0.2 + calculationData.dataElements/7 + calculationData.readingReferences/2);
+        break;
+      case "Interactive end-user input service":
+        setResult(calculationData.functionalityMultiplier * (0.2 + calculationData.dataElements/5 + calculationData.writingReferences/1,5 + calculationData.readingReferences/2));
+        break;
+    }
   }
 
   return (
