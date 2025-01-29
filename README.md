@@ -38,9 +38,9 @@ All-in-one repository for the Benefit application. Includes such as frontend, ba
 
 Benefit application is a project by FisMA ry 2025. It is a software size mesurement program, that will calculate...
 
-![fisma-benefit-UI-sketch-01](https://github.com/user-attachments/assets/0295183b-29ba-44f5-a2f9-6f8e5cf948c7)
+![fisma-benefit-UI-sketch-01](https://github.com/user-attachments/assets/73792802-5266-4e85-b4ef-f872406493e8)
 
-Picture 1: A visual re-presentation of the Benefit application's UI. [Placeholder]
+Picture 1: A visual re-presentation of the Benefit application's UI. [Placeholder, must be updated]
 
 **Whom is application is made for?**
 Add explaination ...
@@ -54,8 +54,8 @@ Our team decided to have only one repository for the project on 24th January 202
 
 Majority of the team justified the decision, as it is much easier
 to find essential files and data from one and only repository.
-Having two or more repository makes the finding troublesome,
-and in some case can cause merging problems in Github.
+Having two or more repository makes the finding of files very troublesome,
+and in some case can even cause merging problems in Github.
 
 ---
 
@@ -63,14 +63,23 @@ and in some case can cause merging problems in Github.
 
 The mathematical algorithm has the following logic...
 
+---
+
 ## 3. Tools
 
 We have used following tools in the project:
 
-a) PostgreSQL for the database. Everyone of our team has used SQL for databases. 
-Thus production will be most effective when working with familiar language.
+* Docker, due it will automatically install required languages and libraries 
+(e.g. PostgreSQL) for the new member.
 
-We chose PostgreSQL over other SQL DBMS, due... 
+Thus it will save both time and hussle for future groups.  
+
+* PostgreSQL for the database. Everyone of our team has used SQL for databases. 
+Thus production will be most effective, when we are working with familiar language.
+
+We used PostgreSQL over other SQL DBMS, due product owner's requirements. 
+
+---
 
 ## 4. Frontend
 
@@ -78,15 +87,25 @@ In short, frontend works following...
 
 Please read [add a frontend manual] from documents -directory for more information.
 
+---
+
 ## 5. Backend
 
 In short, backend works following...
 
 Please read [add a backend manual] from documents -directory for more information.
 
+---
+
 ## 6. Database
 
-The SQL database is structured in following...
+The structure of Benefit's SQL database is shown in the below diagram:
+
+
+
+Picture #: Diagram of Benefit's database. [Placeholder, must be updated]
+
+---
 
 ## 7. CD/CI
 
@@ -96,21 +115,29 @@ a) MVP and KISS. In the first sprints (i.e. from Sprint 01 to ...),
 our product owner required our team to keep Benefit application simple as possible
 in every development.
 
-Thus we developed a very basic calculator (MVP), that only read one row of elements.
+Thus we developed a very basic calculator (MVP), that only calulates one row of elements.
 
-b) ...
+b) More...
+
+---
 
 ## 8. Quality assurance
 
-The assured quality of application by ... testing, end-user, ...
+The assured quality of application by ... testing? end-users? ...
+
+---
 
 ## 9. Results
 
-The application is working following...
+The application is working fine/lagging/ok and why...
 
-## 10. Known bugs
+---
+
+## 10. Known bugs and technical issues
 
 So far, we have discovered following bugs...
+
+---
 
 ## 11. Future improvements
 
