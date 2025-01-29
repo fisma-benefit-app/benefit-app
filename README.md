@@ -3,7 +3,7 @@ All-in-one repository for the Benefit application. Includes such as frontend, ba
 
 **Product owner**: FiSMA ry 2025.
 
-<img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" width="48">
+<img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" width="200">
 
 **Representative supervisor**: Heikki Naski.
 
@@ -11,7 +11,7 @@ All-in-one repository for the Benefit application. Includes such as frontend, ba
 
 **Collaborators**: Haaga-Helia University of Applied Sciences, 2025.
 
-<img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" width="48">
+<img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" width="200">
 
 
 ---
@@ -38,7 +38,7 @@ All-in-one repository for the Benefit application. Includes such as frontend, ba
 
 Benefit application is a project by FisMA ry 2025. It is a software size mesurement program, that will calculate...
 
-
+![fisma-benefit-UI-sketch-01](https://github.com/user-attachments/assets/0295183b-29ba-44f5-a2f9-6f8e5cf948c7)
 
 Picture 1: A visual re-presentation of the Benefit application's UI. [Placeholder]
 
