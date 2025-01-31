@@ -9,7 +9,7 @@ import org.springframework.boot.test.json.JacksonTester;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
-class AppUserTest {
+class AppUserJsonTest {
     
     @Autowired
     private JacksonTester<AppUser> json;
@@ -28,6 +28,9 @@ class AppUserTest {
         assertThat(json.write(user)).hasJsonPathNumberValue("@.id");
         assertThat(json.write(user)).hasJsonPathStringValue("@.username");
         assertThat(json.write(user)).hasJsonPathStringValue("@.password");
+        assertThat(json.write(user)).extractingJsonPathNumberValue("@.id").isEqualTo(1);
+        assertThat(json.write(user)).extractingJsonPathStringValue("@.username").isEqualTo("Pekka");
+        assertThat(json.write(user)).extractingJsonPathStringValue("@.password").isEqualTo("1234");
     }
     
     @Test
