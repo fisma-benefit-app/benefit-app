@@ -1,5 +1,14 @@
 import { ChangeEvent, FormEvent, useState } from "react"
 import { baseFunctionalComponentClasses, baseFunctionalComponentTypes, ComponentTypes, componentClassInputs } from "./classesAndTypes"
+import {
+  calculateInteractiveEndUserNavigationAndQueryService,
+  calculateInteractiveEndUserInputService,
+  calculateNonInteractiveEndUserOutputService,
+  calculateInterfaceServiceToOtherApplications,
+  calculateInterfaceServiceFromOtherApplications,
+  calculateDataStorageService,
+  calculateAlgorithmicOrManipulationService
+} from "./calculations"
 
 const CalculationDemoConditionalRendering = () => {
 
@@ -45,41 +54,45 @@ const CalculationDemoConditionalRendering = () => {
   const calculateFunctionalPoints = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(calculationData)
-    switch (calculationData.baseFunctionalComponentClass) {
+
+    const {
+      baseFunctionalComponentClass,
+      baseFunctionalComponentType,
+      dataElements,
+      readingReferences,
+      writingReferences,
+      operations
+    } = calculationData
+
+    let result: number;
+
+    switch (baseFunctionalComponentClass) {
       case "Interactive end-user navigation and query service":
-        if (calculationData.baseFunctionalComponentType === "function designators" ||
-          calculationData.baseFunctionalComponentType === "function lists" ||
-          calculationData.baseFunctionalComponentType === "selection lists") {
-          setResult(0.2 + calculationData.dataElements / 7 + calculationData.readingReferences / 2);
-          break;
-        }
-        setResult(0.2 + (calculationData.dataElements + 1) / 7 + calculationData.readingReferences / 2);
+        result = calculateInteractiveEndUserNavigationAndQueryService(baseFunctionalComponentType, dataElements, readingReferences);
         break;
       case "Interactive end-user input service":
-        if (calculationData.baseFunctionalComponentType === "1-functional") {
-          setResult(0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2)
-        } else if (calculationData.baseFunctionalComponentType === "2-functional") {
-          setResult(2 * (0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2));
-        } else if (calculationData.baseFunctionalComponentType === "3-functional") {
-          setResult(3 * (0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2));
-        }
+        result = calculateInteractiveEndUserInputService(baseFunctionalComponentType, dataElements, writingReferences, readingReferences);
         break;
       case "Non-interactive end-user output service":
-        setResult(1 + calculationData.dataElements / 5 + calculationData.readingReferences / 2);
+        result = calculateNonInteractiveEndUserOutputService(dataElements, readingReferences);
         break;
       case "Interface service to other applications":
-        setResult(0.5 + calculationData.dataElements / 7 + calculationData.readingReferences / 2);
+        result = calculateInterfaceServiceToOtherApplications(dataElements, readingReferences);
         break;
       case "Interface service from other applications":
-        setResult(0.2 + calculationData.dataElements / 5 + calculationData.writingReferences / 1.5 + calculationData.readingReferences / 2);
+        result = calculateInterfaceServiceFromOtherApplications(dataElements, writingReferences, readingReferences);
         break;
       case "Data storage service":
-        setResult(1.5 + calculationData.dataElements / 4);
+        result = calculateDataStorageService(dataElements);
         break;
       case "Algorithmic or manipulation service":
-        setResult(0.1 + calculationData.dataElements / 5 + calculationData.operations / 3);
+        result = calculateAlgorithmicOrManipulationService(dataElements, operations);
         break;
+      default:
+        throw new Error("Unknown component class selected!");
     }
+
+    setResult(result);
   }
 
   return (
