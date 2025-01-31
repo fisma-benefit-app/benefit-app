@@ -23,7 +23,13 @@ jobs:
 
     services:
       postgres:
-        image: 'postgres:latest'
+        image: postgres:latest
+        env:
+          POSTGRES_DB: fisma_db
+          POSTGRES_PASSWORD: secret
+          POSTGRES_USER: myuser
+        ports:
+        - 5432:5432
         
 
 # Source:https://docs.github.com/en/actions/use-cases-and-examples/using-containerized-services/creating-postgresql-service-containers
