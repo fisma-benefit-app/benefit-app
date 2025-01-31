@@ -14,6 +14,7 @@ public class Project {
    @Id
    private Long id;
    private String projectName;
+   private int version;
    private LocalDateTime createdDate;
    private double totalPoints;
    private Long appUserId;
