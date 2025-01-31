@@ -1,7 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from "react"
-import { baseFunctionalComponentClasses, baseFunctionalComponentTypes, ComponentTypes } from "./classesAndTypes"
+import { baseFunctionalComponentClasses, baseFunctionalComponentTypes, ComponentTypes, componentClassInputs } from "./classesAndTypes"
 
-const CalculationDemo = () => {
+const CalculationDemoConditionalRendering = () => {
 
   //TODO: maybe finnish language in the ui for this demo, refactoring as issues are noticed, implement calculation logic based on collected info
 
@@ -107,60 +107,21 @@ const CalculationDemo = () => {
           </select>
         </div>
 
-        <div className="flex flex-col gap-5 items-center">
-          <label htmlFor="dataElements">Tietoelementit</label>
-          <input
-            className="border-2 rounded-2xl px-4 py-2 w-48"
-            type="number"
-            id="dataElements"
-            value={calculationData.dataElements}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="flex flex-col gap-5 items-center">
-          <label htmlFor="readingReferences">Lukuviittaukset</label>
-          <input
-            className="border-2 rounded-2xl px-4 py-2 w-48"
-            type="number"
-            id="readingReferences"
-            value={calculationData.readingReferences}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="flex flex-col gap-5 items-center">
-          <label htmlFor="writingReferences">Kirjoitusviittaukset</label>
-          <input
-            className="border-2 rounded-2xl px-4 py-2 w-48"
-            type="number"
-            id="writingReferences"
-            value={calculationData.writingReferences}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="flex flex-col gap-5 items-center">
-          <label htmlFor="functionalityMultiplier">Toimintokerroin</label>
-          <input
-            className="border-2 rounded-2xl px-4 py-2 w-48"
-            type="number"
-            id="functionalityMultiplier"
-            value={calculationData.functionalityMultiplier}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="flex flex-col gap-5 items-center">
-          <label htmlFor="operations">Operaatiot</label>
-          <input
-            className="border-2 rounded-2xl px-4 py-2 w-48"
-            type="number"
-            id="operations"
-            value={calculationData.operations}
-            onChange={handleChange}
-          />
-        </div>
+        {/* Dynamically render only relevant input fields depending on selected component class */}
+        {componentClassInputs.filter(input => input.componentClasses.includes(calculationData.baseFunctionalComponentClass)).map((input, index) => {
+          return (
+            <div key={index} className="flex flex-col gap-5 items-center">
+              <label htmlFor={input.inputName}>{input.displayName}</label>
+              <input
+                className="border-2 rounded-2xl px-4 py-2 w-48"
+                type="number"
+                id={input.inputName}
+                value={calculationData[input.inputName as keyof CalculationData]}
+                onChange={handleChange}
+              />
+            </div>
+          )
+        })}
       </div>
 
       <button className="border-2 py-2 px-2 bg-gray-500 text-white cursor-pointer" type="submit">Laske pisteet</button>
@@ -169,4 +130,6 @@ const CalculationDemo = () => {
   )
 }
 
-export default CalculationDemo
+
+
+export default CalculationDemoConditionalRendering
