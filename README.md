@@ -73,7 +73,14 @@ The mathematical algorithm has the following logic...
 
 ## 3. Tools
 
-We have used following tools in the project:
+We have used following tools in the project, alphabetically:
+
+* sad
+* 
+
+* Figma for preliminary sketching UI design. 
+
+* Java for backend.
 
 * Docker, due it will automatically install required languages and libraries 
 (e.g. PostgreSQL) for the new member.
@@ -84,6 +91,14 @@ Thus it will save both time and hussle for future groups.
 Thus production will be most effective, when we are working with familiar language.
 
 We used PostgreSQL over other SQL DBMS as product owner's wishes. 
+
+* React for frontend.
+
+* Spring boot for backend.
+
+* Visual Studio Code (version 1.96.4) as our team's main IDE for coding. 
+
+
 
 ---
 
@@ -123,7 +138,9 @@ in every development.
 
 Thus we developed a very basic calculator (MVP), that only calulates one row of elements.
 
-b) More...
+b) We have three branches: dev, main and qa.
+  **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
+  **Main** is our official branch, where project has been deployed (finaliszed) and refactor all unnecessary, broken solutions and tools.
 
 ---
 
