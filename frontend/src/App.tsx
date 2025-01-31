@@ -1,5 +1,5 @@
 import CalculationDemoConditionalRendering from "./demo/CalculationDemoConditionalRendering"
-import CalculationDemo from "./demo/CalculationDemo"
+import CalculationDemo from "./demo/old/CalculationDemo"
 
 export default function App() {
 

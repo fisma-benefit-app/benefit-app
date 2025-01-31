@@ -1,7 +1,8 @@
 import { ChangeEvent, FormEvent, useState } from "react"
-import { baseFunctionalComponentClasses, baseFunctionalComponentTypes, ComponentTypes } from "./classesAndTypes"
+import { baseFunctionalComponentClasses, baseFunctionalComponentTypes, ComponentTypes } from "../classesAndTypes"
 
 const CalculationDemo = () => {
+  //Older version maybe needed for something
 
   //TODO: maybe finnish language in the ui for this demo, refactoring as issues are noticed, implement calculation logic based on collected info
 
