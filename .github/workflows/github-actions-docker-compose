@@ -1,0 +1,12 @@
+name: Third Github Actions Demo, Testing Docker Compose
+run-name: ${{ github.actor }} is testing out Docker Compose with github-actions-docker-compose.yaml
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+
+
+# Source: https://akarshseggemu.medium.com/ci-how-to-test-docker-compose-in-github-actions-workflow-e557b60481ce
