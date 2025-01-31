@@ -92,7 +92,7 @@ Thus production will be most effective, when we are working with familiar langua
 
 We used PostgreSQL over other SQL DBMS as product owner's wishes. 
 
-* React for frontend.
+* Typescript for frontend.
 
 * Spring boot for backend.
 
