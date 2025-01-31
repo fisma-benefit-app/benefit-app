@@ -1,5 +1,5 @@
 name: First GitHub Actions Demo for Benefit app
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+run-name: ${{ github.actor }} is testing out GitHub Actions with github-actions-demo.yaml 🚀
 on: [push]
 jobs:
   Explore-GitHub-Actions:
@@ -16,4 +16,4 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
-
+# Source: https://docs.github.com/en/actions/writing-workflows/quickstart
