@@ -1,4 +1,4 @@
-# Sprint 1 backlog
+![image](https://github.com/user-attachments/assets/1d97d867-cfc4-4c7a-b583-408590b33230)# Sprint 1 backlog
 
 Team members: 
   * FiSMA ry: Heikki Naski.
@@ -23,83 +23,124 @@ Overall number of tasks for sprint 1 was 35.
 
 
 **1. Small demo to test calculations.**
+
 Description: Product owner wishes mathematical algorithm solutions for the calculations.
+
 Priority: High.
+
 Status: Done.
 
 
 **2. Figma UI draft.**
+
 Description: Draw preliminary wireframe of UI for Benefit application in Figma.
+
 Priority: High.
+
 Status: Done.
 
 
 **3. Prepare README.md(s).**
+
 Description: Create and write necessary README.mds and other documents about Benefit application.
+
 Priority: High.
+
 Status: Done.
 
 
 **4. Create all-in-one-repository in English.**
+
 Description: Create one repo for everything in Benefit app, such ass frontend, backend, documents, etc. The repo name should be "benefit-app".
+
 Priority: High.
+
 Status: Done.
 
 
 
 **5. Configure Github-settings**
+
 Description: Configure Github-settings so that Main-branch is protected and validation is on.
+
 Priority: High.
+
 Status: Done.
 
 
-6. sad
+**6. React-vite: Add tailwind.**
+
 Description: .
+
 Priority: High.
+
 Status: Done.
 
 
-7. sad
+**7. Typescript.**
+
 Description: .
+
 Priority: High.
+
 Status: Done.
 
 
-8. sad
+**8. React-router**
+
 Description: .
-Priority: High.
+
+Priority: Mid.
+
 Status: Done.
 
 
-9.
-Description: .
-Priority: High.
+**9. Add a CI/CD pipeline for dev-branch.**
+
+Description: Add a preliminiary test for dev-branch as part of CI/CD pipeline. We used for example "Java With Gradle"-workflow from Github Actions.
+
+Priority: Mid.
+
 Status: Done.
 
 
-10.
-Description: .
-Priority: High.
+**10. Slack PRO-license.**
+
+Description: Check if student discount version of Slack PRO-license is worth and inexpensive enough for our team. If not, other platforms for weekly meetings should be considered, such as Discord or Teams.
+
+Priority: Low.
+
 Status: Done.
 
 
-11.
-Description: .
-Priority: High.
+**11. Create PostgreSQL.**
+
+Description: Create a PostgreSQL database for application.
+
+Priority: Mid.
+
 Status: Done.
 
 
-12.
+**12. PostgreSQL integration.**
+
 Description: .
-Priority: High.
+
+Priority: Mid.
+
 Status: Done.
 
 
 13.
+
 Description: .
+
 Priority: High.
+
 Status: Done.
 
+
+14. 
 ---
 
 ## 3. Sprint review
@@ -114,6 +155,7 @@ There is issues to get backend and PostgreSQL database to work in every workstat
 
 ### 3.3 Review notes
 
+Notes from the Wednesday's sprint review meeting (5.2.2025), icluding feedback from product owner, representives and stakeholders.
 
 ## 4. Sprint retrospective
 
