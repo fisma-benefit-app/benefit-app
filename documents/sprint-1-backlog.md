@@ -141,6 +141,8 @@ Status: Done.
 
 
 14. 
+
+
 ---
 
 ## 3. Sprint review
@@ -156,6 +158,9 @@ There is issues to get backend and PostgreSQL database to work in every workstat
 ### 3.3 Review notes
 
 Notes from the Wednesday's sprint review meeting (5.2.2025), icluding feedback from product owner, representives and stakeholders.
+
+
+---
 
 ## 4. Sprint retrospective
 
@@ -174,6 +179,8 @@ Communication? ...
 
 We have taken action by ... / No actions are required.
 
+
+---
 
 ## 5. Metrics and reports
 
