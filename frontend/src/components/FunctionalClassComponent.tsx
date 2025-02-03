@@ -18,6 +18,7 @@ export default function FunctionalClassComponent({componentProp}: FunctionalClas
 
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
+  //@ts-expect-error(TODO - component should be typed before it goes to the calculation)
   const points = calculateFunction ? calculateFunction(component) : 0;
 
   const handleClassNameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
