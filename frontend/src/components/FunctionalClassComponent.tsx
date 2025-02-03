@@ -6,7 +6,7 @@ import {
   getCalculateFuntion,
   getComponentTypeOptions,
   getEmptyComponent,
-  getEmptyComponentWithoutType,
+  getResetedComponentWithClassName,
 } from "../lib/fc-service-functions.ts";
 
 type FunctionalClassComponentProps = {
@@ -23,15 +23,20 @@ export default function FunctionalClassComponent({componentProp}: FunctionalClas
 
   const handleClassNameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newClassName = e.target.value;
+    // component that doesn't have a className is an "empty"-comoponent
     if (newClassName === "") {
       setComponent((prev) => getEmptyComponent(prev));
       return;
     }
-    setComponent((prev) => getEmptyComponentWithoutType(prev, newClassName));
+    // if className changes, component gets reseted (it has only className and ids)
+    setComponent((prev) => getResetedComponentWithClassName(prev, newClassName));
   };
 
   const handleOptionTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newOptionType = e.target.value;
+    if (newOptionType === "" && component.className) {
+      setComponent((prev) => getResetedComponentWithClassName(prev, component.className as string));
+    }
     setComponent((prev) => ({ ...prev, componentType: newOptionType || null }));
   };
 

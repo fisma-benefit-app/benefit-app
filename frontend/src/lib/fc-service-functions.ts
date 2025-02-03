@@ -27,10 +27,10 @@ export const getEmptyComponent = (component: TGenericComponent) => {
   };
 };
 
-export const getEmptyComponentWithoutType = (component: TGenericComponent, newClassName: string) => {
-  const emptyComponentWithoutType = componentTemplates.find((template) => template.className === newClassName)?.componentWithoutTypeTemplate;
-  if (!emptyComponentWithoutType) {
+export const getResetedComponentWithClassName = (component: TGenericComponent, newClassName: string) => {
+  const resetedComponentWithClassName = componentTemplates.find((template) => template.className === newClassName)?.resetedComponentWithClassName;
+  if (!resetedComponentWithClassName) {
     throw new Error("Something went wrong when creating functional-component without type");
   }
-  return {...emptyComponentWithoutType, id: component.id, projectId: component.projectId};
+  return {...resetedComponentWithClassName, id: component.id, projectId: component.projectId};
 }

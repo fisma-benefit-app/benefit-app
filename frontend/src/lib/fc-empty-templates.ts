@@ -6,8 +6,8 @@ import {
 export const componentTemplates = [
   {
     className: "Interactive end-user navigation and query service",
-    componentWithoutTypeTemplate: {
-      id: 0,
+    resetedComponentWithClassName: {
+      id: 0, // TODO - better option than 0?
       className: "Interactive end-user navigation and query service",
       componentType: null,
       dataElements: 0,
@@ -15,13 +15,13 @@ export const componentTemplates = [
       writingReferences: null,
       functionalMultiplier: null,
       operations: null,
-      projectId: 0,
+      projectId: 0, // TODO - better option than 0?
     } as TInteractiveEndUserNavigatioinAndQueryService
   },
   {
     className: "Interactive end-user input service",
-    componentWithoutTypeTemplate: {
-      id: 0, // TODO - 0 is probably evil here
+    resetedComponentWithClassName: {
+      id: 0,
       className: "Interactive end-user input service",
       componentType: null,
       dataElements: 0,
@@ -34,8 +34,8 @@ export const componentTemplates = [
   },
   {
     className: "Data storage service",
-    componentWithoutTypeTemplate: {
-      id: 0, // TODO - 0 is probably evil here
+    resetedComponentWithClassName: {
+      id: 0,
       className: "Data storage service",
       componentType: null,
       dataElements: 0,
