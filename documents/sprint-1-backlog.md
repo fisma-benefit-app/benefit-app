@@ -153,7 +153,7 @@ We have managed to get a functional algorithm to work for benefit application. A
 
 ### 3.2 Incompleted tasks in overall (and reasons why)
 
-There is issues to get backend and PostgreSQL database to work in every workstation, despite them being dockerized. Known issues have been some docker's configuration in individual workstations and Java with Gradle version [PLEASE DOUBLE CHECK IF THIS STATEMENT IS CORRECT].
+There are known issues to get backend and PostgreSQL database to work in every workstation, despite them being dockerized. Known issues have been some docker's configuration in individual workstations and Java with Gradle version [PLEASE DOUBLE CHECK IF THIS STATEMENT IS CORRECT].
 
 ### 3.3 Review notes
 
