@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/1d97d867-cfc4-4c7a-b583-408590b33230)# Sprint 1 backlog
+# Sprint 1 backlog
 
 Team members: 
   * FiSMA ry: Heikki Naski.
