@@ -131,7 +131,7 @@ Priority: Mid.
 Status: Done.
 
 
-13.
+**13. A**
 
 Description: .
 
@@ -140,7 +140,212 @@ Priority: High.
 Status: Done.
 
 
-14. 
+**14. B PostgreSQL integration.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**15. C PostgreSQL integration.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**16. D PostgreSQL integration.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**17. E PostgreSQL integration.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**18. F PostgreSQL integration.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**19. G PostgreSQL integration.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**20. Calculators UI: Navigation/question screen 2.a.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**21. Calculators UI: Input screen 2.b.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**22. Calculators UI: Output 2.c.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**23. Calculators UI: Interface outwards 2.d.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**24. Calculators UI: Interface inwards 2.e.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**25. Calculators UI: Data storage function 2.f.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**26. Calculators UI: Algorithm function or handling function. 2.g.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**27. CSV output 3.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**28. A**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**29. B**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**30. C**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**31. D**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**32. E**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**33. F**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**34. G**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**35. H**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
+
+**12. PostgreSQL integration.**
+
+Description: .
+
+Priority: Mid.
+
+Status: Done.
+
 
 
 ---
