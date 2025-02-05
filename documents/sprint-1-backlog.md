@@ -388,7 +388,9 @@ Sprint 2 review, held on Wednesday 19.2.2025. Team members, product owner, repre
 Sprint 2, ends on Wednesday 19.2.2025, after Sprint 2 review.
 
 Sprint 3, begins... etc.
-[---]
+
+
+[_End of example_]
 
 * The high level of the benefit's code was considered great quality.
 
