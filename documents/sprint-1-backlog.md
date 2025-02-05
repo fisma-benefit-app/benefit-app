@@ -372,8 +372,8 @@ So far, react-tailwind & postgreSQL & spring-framework is ok.
 
 * We clarified for representitives that sprints are _two weeks' intervall_ between each sprint reviews. Each sprints has then _one week iterations_, where minimum one weekly scrum meeting is held on wednesday between each iterations.
 
-///
-_An example_
+
+[_An example_]
 
 Sprint 2, begins on Wednesday 5.2.2025.
 
@@ -388,15 +388,23 @@ Sprint 2 review, held on Wednesday 19.2.2025. Team members, product owner, repre
 Sprint 2, ends on Wednesday 19.2.2025, after Sprint 2 review.
 
 Sprint 3, begins... etc.
-///
+[---]
 
 * The high level of the benefit's code was considered great quality.
 
-* Naming convention in the project got high praises. They were business standard. Keep up good convention.
+* Naming convention in the project got high praises. They followed exactly according to business standard. Keep up with good work quality!.
+
+![image](https://github.com/user-attachments/assets/59a4e49f-1901-4716-8db0-7d2ddb68d151)
+
+Picture 01: First example of naming convention in the benefit application.
+
+![image](https://github.com/user-attachments/assets/ddad7590-da7b-498c-aa57-c6b140151e35)
+
+Picture 02: Second example of naming convention in the benefit application.
+
+Notice how each name describes very clearly its main function and purpose.
 
 * Overall, the application is in excellent condition. Stakeholders praised for great work. One stakeholder was positively suprised.
-
-Picture #: An exm
 
 
 ---
@@ -413,6 +421,8 @@ Communication and scheduling has worked well. Tasks have been distributed quite 
 
 * Some scrum meeting were overextended from decided time schedule, due some tasks were discussed for long time, almost an hour. Scrum meetings need to stick to the planned time.
 
+* Last friday's lunch break was skipped, thus made some team members hungry and exhausted. We need to have regural timing for lunch breaks.
+
 
 ### 4.3 Actions to address improvements?
 
@@ -422,7 +432,7 @@ Each prepare **before scrum meeting** a small brief of what has been done and wh
 
 Scrum master will take responsible of ending discussion, if it overextends maximum time limit. If topic needs to be discussed more, then it can be continued _after_ scrum meeting (so that other team members can go and do other things, while volunteers can further discuss the topic in the meeting place).
 
-* We will _regularly and continous_ half hour lunch break at 12:45 p.m. every time.   
+* We will keep a half hour lunch break _regularly_ at 12:45 p.m. in each work day and meeting.   
 
 
 ---
