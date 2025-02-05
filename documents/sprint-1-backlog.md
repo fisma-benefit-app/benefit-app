@@ -131,139 +131,139 @@ Priority: Mid.
 Status: Done.
 
 
-**13. A**
+**13. Calculator's feature insertion: navigation / query screen [1.a].**
 
-Description: .
+Description: Add a browsing function for action points.
 
 Priority: High.
 
 Status: Done.
 
 
-**14. B PostgreSQL integration.**
+**14. Calculator's feature insertion: input screen [1.b].**
 
-Description: .
+Description: Add an input function for action points.
+
+Priority: High.
+
+Status: Done.
+
+
+**15. Calculator's feature insertion: output [1.c].**
+
+Description: Add an output function for action points. 
+
+Priority: High.
+
+Status: Done.
+
+
+**16. Calculator's feature insertion: interface outwards [1.d].**
+
+Description: Add an outbound integration function for action points.
+
+Priority: High.
+
+Status: Done.
+
+
+**17. Calculator's feature insertion: interface inwards [1.e].**
+
+Description: Add an inboud integration function for action points.
 
 Priority: Mid.
 
 Status: Done.
 
 
-**15. C PostgreSQL integration.**
+**18. Calculator's feature insertion: data storage function [1.f].**
 
-Description: .
+Description: Add a data storage function for action points.
 
-Priority: Mid.
-
-Status: Done.
-
-
-**16. D PostgreSQL integration.**
-
-Description: .
-
-Priority: Mid.
+Priority: High.
 
 Status: Done.
 
 
-**17. E PostgreSQL integration.**
+**19. Calculator's feature insertion: algorithmic / handling function [1.f].**
 
-Description: .
+Description: Add an algorithmic or handling function for action points.
 
-Priority: Mid.
-
-Status: Done.
-
-
-**18. F PostgreSQL integration.**
-
-Description: .
-
-Priority: Mid.
+Priority: High.
 
 Status: Done.
 
 
-**19. G PostgreSQL integration.**
+**20. Calculator's feature Navigation/question screen [2.a].**
 
-Description: .
+Description: UI and save option for task number 13.
 
-Priority: Mid.
+Priority: High.
 
-Status: Done.
-
-
-**20. Calculators UI: Navigation/question screen 2.a.**
-
-Description: .
-
-Priority: Mid.
-
-Status: Done.
+Status: Todo.
 
 
-**21. Calculators UI: Input screen 2.b.**
+**21. Calculator's feature UI: Input screen [2.b].**
 
-Description: .
+Description: UI and save option for task number 14.
 
-Priority: Mid.
+Priority: High.
 
-Status: Done.
-
-
-**22. Calculators UI: Output 2.c.**
-
-Description: .
-
-Priority: Mid.
-
-Status: Done.
+Status: Todo.
 
 
-**23. Calculators UI: Interface outwards 2.d.**
+**22.Calculator's feature UI: Output [2.c].**
 
-Description: .
+Description: UI and save option for task number 15.
 
-Priority: Mid.
+Priority: High.
 
-Status: Done.
-
-
-**24. Calculators UI: Interface inwards 2.e.**
-
-Description: .
-
-Priority: Mid.
-
-Status: Done.
+Status: Todo.
 
 
-**25. Calculators UI: Data storage function 2.f.**
+**23. Calculator's feature UI: Interface outwards [2.d].**
 
-Description: .
+Description: UI and save option for task number 16.
 
-Priority: Mid.
+Priority: High.
 
-Status: Done.
+Status: Todo.
 
 
-**26. Calculators UI: Algorithm function or handling function. 2.g.**
+**24. Calculator's feature UI: Interface inwards [2.e].**
 
-Description: .
+Description: UI and save option for task number 17.
 
-Priority: Mid.
+Priority: High.
 
-Status: Done.
+Status: Todo.
+
+
+**25.Calculator's feature UI: Data storage function [2.f].**
+
+Description: UI and save option for task number 18.
+
+Priority: High.
+
+Status: Todo.
+
+
+**26. Calculator's feature UI: Algorithm function or handling function [2.g].**
+
+Description: UI and save option for task number 19.
+
+Priority: High.
+
+Status: Todo.
 
 
 **27. CSV output 3.**
 
-Description: .
+Description: Action points' calculator needs to print out all inputed values and data to CSV -file.
 
-Priority: Mid.
+Priority: High.
 
-Status: Done.
+Status: Todo.
 
 
 **28. A**
