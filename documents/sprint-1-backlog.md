@@ -356,12 +356,20 @@ There are known issues to get backend and PostgreSQL database to work in every w
 ### 3.3 Review notes
 
 Notes from the Wednesday's sprint review meeting (5.2.2025), icluding feedback from product owner, representives and stakeholders:
-* simple codes, which everyone understands, **is better than** new technologies and / or libraries, that are decomissioned after a year.
-* transferability of the application for future groups and situations was discussed.
-* the drafted framework of calculator's UI got very positive feedback. The right column "summary" is a good feature, but requires more details of what is calculated. 
-* the drafted framework of calculator's UI seems have a lot of scrolling when having many calculations. Add a feature, that packs many calculations to smaller rows, so that user does not need to scroll a lot.
-* the class diagram of the benefit's database is valid. Though, it requires a description about n-to-n users/project relation (i.e. relation diagram).
+* Simple codes, which everyone understands, **is better than** new technologies and / or libraries, that are decomissioned after a year. Also, the choice of what technology to choose and integrate must be carefully consider and discussed. It is imperative to think, what technologies and tools are still trending and available in next ten years (not to mention, how familiar and easy they are for next developers).
+
+So far, react-tailwind & postgreSQL & spring-framework is ok.
+
+* transferability of the application and system for future groups and situations was discussed.
+
+* The drafted framework of calculator's UI got very positive feedback. The right column "summary" is a good feature, but requires more details of what is calculated. 
+
+* The drafted framework of calculator's UI seems have a lot of scrolling when having many calculations. Add a feature, that packs many calculations to smaller rows, so that user does not need to scroll a lot.
+
+* The class diagram of the benefit's database is valid. Though, it requires a description about n-to-n users/project relation (i.e. relation diagram).
+
 * Overall, the application is in excellent condition. One stakeholder was positively suprised.
+
 * 
 
 
