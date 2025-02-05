@@ -3,6 +3,7 @@
 Team members: 
   * FiSMA ry: Heikki Naski.
   * Haaga-Helia University of Applied Sciences: Elias Helin, Erkki Tiili, Janne Puukko, Johannes Haapanen, Kaj Jansson, Kirstin Luik, Oskar and Petteri Pinkkilä.
+  * Sprint's scrum master: Erkki Tiili.
 
 Duration: 22.1.2025 - 5.2.2025.
 
@@ -373,12 +374,14 @@ Communication? Tasks' distribution between team members? Scheduling?
 
 ### 4.2 What could be improved?
 
-Communication? ...
+* Some scrum meeting were overextended from decided time schedule, due some tasks were discussed for long time, almost an hour. Scrum meetings need to stick to the planned time.
+* 
 
 
 ### 4.3 Actions to address improvements?
 
-We have taken action by ... / No actions are required.
+* Jukka Juslin recommends so called **timed daily blocks** during scrum meetings. This means that each topic/problem/idea etc. will take max. and **only max.** 10 minutes per meeting, no matter how complex the discussion. Scrum master will take responsible of ending discussion, when it overextends maximum time limit.
+*   
 
 
 ---
