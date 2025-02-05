@@ -354,7 +354,11 @@ There are known issues to get backend and PostgreSQL database to work in every w
 
 ### 3.3 Review notes
 
-Notes from the Wednesday's sprint review meeting (5.2.2025), icluding feedback from product owner, representives and stakeholders.
+Notes from the Wednesday's sprint review meeting (5.2.2025), icluding feedback from product owner, representives and stakeholders:
+* simple codes, which everyone understands, **is better than** new technologies and / or libraries, that are out of function after a year.
+* more..
+* more..
+* more..
 
 
 ---
