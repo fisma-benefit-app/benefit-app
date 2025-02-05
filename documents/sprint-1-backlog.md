@@ -357,7 +357,6 @@ There are known issues to get backend and PostgreSQL database to work in every w
 
 Notes from the Wednesday's sprint review meeting (5.2.2025), icluding feedback from product owner, representives and stakeholders:
 * Simple codes, which everyone understands, **is better than** new technologies and / or libraries, that are decomissioned after a year. Also, the choice of what technology to choose and integrate must be carefully consider and discussed. It is imperative to think, what technologies and tools are still trending and available in next ten years (not to mention, how familiar and easy they are for next developers).
-
 So far, react-tailwind & postgreSQL & spring-framework is ok.
 
 * transferability of the application and system for future groups and situations was discussed.
@@ -370,7 +369,7 @@ So far, react-tailwind & postgreSQL & spring-framework is ok.
 
 * Overall, the application is in excellent condition. One stakeholder was positively suprised.
 
-* 
+* A live version of application, that is integrated to project management (especially most imported tasks / highest priority), would be very useful.
 
 
 ---
