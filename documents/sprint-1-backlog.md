@@ -370,7 +370,7 @@ So far, react-tailwind & postgreSQL & spring-framework is ok.
 
 * Overall, the application is in excellent condition. One stakeholder was positively suprised.
 
-* A live version of application, that is integrated to project management (especially most imported tasks / highest priority), would be very useful.
+* A live version of fisma benefit demo, that is integrated to project management (especially most imported tasks / highest priority), would be very useful.
 
 
 ---
