@@ -70,7 +70,7 @@ Status: Done.
 
 **6. React-vite: Add tailwind.**
 
-Description: .
+Description: Add tailwind into react-vite.
 
 Priority: High.
 
@@ -79,7 +79,7 @@ Status: Done.
 
 **7. Typescript.**
 
-Description: .
+Description: Install and configure Typescript for the project.
 
 Priority: High.
 
@@ -88,7 +88,7 @@ Status: Done.
 
 **8. React-router**
 
-Description: .
+Description: Add a router to react.
 
 Priority: Mid.
 
@@ -124,7 +124,7 @@ Status: Done.
 
 **12. PostgreSQL integration.**
 
-Description: .
+Description: Integrate postgreSQL to the application.
 
 Priority: Mid.
 
@@ -302,13 +302,13 @@ Priority: Mid.
 Status: Done.
 
 
-**32. E**
+**32. Clean backlog**
 
-Description: .
+Description: Clean and update backlog in more state-of-art and readable state.
 
 Priority: Mid.
 
-Status: Done.
+Status: Todo.
 
 
 **33. F**
