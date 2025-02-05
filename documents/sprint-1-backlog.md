@@ -1,6 +1,7 @@
 # Sprint 1 backlog
 
-Team members: 
+Team members & representives:
+
   * FiSMA ry: Heikki Naski.
   * Haaga-Helia University of Applied Sciences: Elias Helin, Erkki Tiili, Janne Puukko, Johannes Haapanen, Kaj Jansson, Kirstin Luik, Oskar and Petteri Pinkkilä.
   * Sprint's scrum master: Erkki Tiili.
