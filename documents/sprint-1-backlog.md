@@ -266,40 +266,40 @@ Priority: High.
 Status: Todo.
 
 
-**28. A**
+**28. Data class design.**
 
-Description: .
+Description: Design a first draft of the tables, which are needed in the database.
 
-Priority: Mid.
-
-Status: Done.
-
-
-**29. B**
-
-Description: .
-
-Priority: Mid.
+Priority: High.
 
 Status: Done.
 
 
-**30. C**
+**28. Data class coding.**
 
-Description: .
-
-Priority: Mid.
-
-Status: Done.
-
-
-**31. D**
-
-Description: .
+Description: Code the draft of the tables, which are needed in the database.
 
 Priority: Mid.
 
-Status: Done.
+Status: In progress.
+
+
+**30. Conditional render.**
+
+Description: Add a conditional render for application.
+
+Priority: Mid.
+
+Status: In progress.
+
+
+**31. Operational postgreSQL in every developer's workstations.**
+
+Description: Verify that postgreSQL is operational in every developer's workstations.
+
+Priority: High.
+
+Status: In progress.
 
 
 **32. Clean backlog**
@@ -311,40 +311,32 @@ Priority: Mid.
 Status: Todo.
 
 
-**33. F**
 
-Description: .
+**33. Refactor calculation's function.**
 
-Priority: Mid.
-
-Status: Done.
-
-
-**34. G**
-
-Description: .
+Description: Refractor calculation's function in the application. Check https://github.com/fisma-benefit-app/benefit-app/tree/refactor-demo.
 
 Priority: Mid.
 
 Status: Done.
 
 
-**35. H**
+**34. Refactor input's render.**
 
-Description: .
-
-Priority: Mid.
-
-Status: Done.
-
-
-**12. PostgreSQL integration.**
-
-Description: .
+Description: Refactor input's function in the application. Check https://github.com/fisma-benefit-app/benefit-app/tree/refactor-demo.
 
 Priority: Mid.
 
 Status: Done.
+
+
+**35. CI/CD Docker compose testing in dev-branch.**
+
+Description: Add a docker compose worklow for CI/CD testings in dev-bracnh.
+
+Priority: Mid.
+
+Status: Todo.
 
 
 
