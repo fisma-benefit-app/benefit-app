@@ -380,8 +380,8 @@ Communication? Tasks' distribution between team members? Scheduling?
 
 ### 4.3 Actions to address improvements?
 
-* Jukka Juslin recommends so called **timed daily blocks** during scrum meetings. This means that each topic/problem/idea etc. will take max. and **only max.** 10 minutes per meeting, no matter how complex the discussion. Scrum master will take responsible of ending discussion, when it overextends maximum time limit.
-*   
+* Jukka Juslin recommends so called **timed daily blocks** during scrum meetings. This means that each topic/problem/idea etc. will take max. and **only max.** 10 minutes per meeting, no matter how complex the discussion. Scrum master will take responsible of ending discussion, when it overextends maximum time limit. If topic needs to be discussed more, then it can be continued _after_ scrum meeting (so that other team members can go and do other things, while volunteers can further discuss the topic in the meeting place).
+*    
 
 
 ---
