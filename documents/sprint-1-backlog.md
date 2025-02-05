@@ -368,12 +368,11 @@ So far, react-tailwind & postgreSQL & spring-framework is ok.
 
 * The class diagram of the benefit's database is valid. Though, it requires a description about n-to-n users/project relation (i.e. relation diagram).
 
-* Overall, the application is in excellent condition. One stakeholder was positively suprised.
-
 * A live version of fisma benefit demo, that is integrated to project management (especially most imported tasks / highest priority), would be very useful.
 
 * We clarified for representitives that sprints are _two weeks' intervall_ between each sprint reviews. Each sprints has then _one week iterations_, where minimum one weekly scrum meeting is held on wednesday between each iterations.
 
+///
 _An example_
 
 Sprint 2, begins on Wednesday 5.2.2025.
@@ -389,8 +388,15 @@ Sprint 2 review, held on Wednesday 19.2.2025. Team members, product owner, repre
 Sprint 2, ends on Wednesday 19.2.2025, after Sprint 2 review.
 
 Sprint 3, begins... etc.
+///
 
 * The high level of the benefit's code was considered great quality.
+
+* Naming convention in the project got high praises. They were business standard. Keep up good convention.
+
+* Overall, the application is in excellent condition. Stakeholders praised for great work. One stakeholder was positively suprised.
+
+Picture #: An exm
 
 
 ---
