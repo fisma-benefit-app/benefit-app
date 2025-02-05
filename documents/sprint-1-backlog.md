@@ -406,19 +406,23 @@ Picture #: An exm
 
 ### 4.1 What went well?
 
-Communication? Tasks' distribution between team members? Scheduling? 
+Communication and scheduling has worked well. Tasks have been distributed quite evenly.
 
 
 ### 4.2 What could be improved?
 
 * Some scrum meeting were overextended from decided time schedule, due some tasks were discussed for long time, almost an hour. Scrum meetings need to stick to the planned time.
-* 
 
 
 ### 4.3 Actions to address improvements?
 
-* Jukka Juslin recommends so called **timed daily blocks** during scrum meetings. This means that each topic/problem/idea etc. will take max. and **only max.** 10 minutes per meeting, no matter how complex the discussion. Scrum master will take responsible of ending discussion, when it overextends maximum time limit. If topic needs to be discussed more, then it can be continued _after_ scrum meeting (so that other team members can go and do other things, while volunteers can further discuss the topic in the meeting place).
-*    
+* Jukka Juslin recommends so called **timed daily blocks** during scrum meetings. This means that each topic/problem/idea etc. will take max. and **only max.** 2 minutes for small coffee meeting, and 5-7 minutes for long sprint review, no matter how complex the discussion. 
+
+Each prepare **before scrum meeting** a small brief of what has been done and what is gonna do forward, written e.g. in notepad or piece of paper. Then in scrum meeting just repeat vocally all writings.
+
+Scrum master will take responsible of ending discussion, if it overextends maximum time limit. If topic needs to be discussed more, then it can be continued _after_ scrum meeting (so that other team members can go and do other things, while volunteers can further discuss the topic in the meeting place).
+
+* We will _regularly and continous_ half hour lunch break at 12:45 p.m. every time.   
 
 
 ---
