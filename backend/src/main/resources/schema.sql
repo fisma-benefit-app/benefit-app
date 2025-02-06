@@ -21,7 +21,7 @@ create table if not exists functional_component
     id                    bigserial primary key,
     class_name            text    not null,
     component_type        text    not null,
-    data_element          integer not null,
+    data_elements         integer not null,
     reading_references    integer,
     writing_references    integer,
     functional_multiplier integer,

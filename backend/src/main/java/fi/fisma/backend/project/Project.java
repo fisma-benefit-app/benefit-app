@@ -17,7 +17,7 @@ public class Project {
    private int version;
    private LocalDateTime createdDate;
    private double totalPoints;
-   @MappedCollection(idColumn = "functional_component_id")
+   @MappedCollection(idColumn = "project_id")
    private Set<FunctionalComponent> functionalComponents;
    @MappedCollection(idColumn = "project_id")
    private Set<ProjectAppUser> appUsers;

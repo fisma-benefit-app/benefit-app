@@ -21,7 +21,7 @@ public class ProjectController {
     @GetMapping("/{requestedId}")
     private ResponseEntity<Project> getProject(@PathVariable Long requestedId, Principal principal) {
         var user = appUserRepository.findByUsername(principal.getName()).get();
-        Optional<Project> project = projectRepository.findByProjectIdAndAppUserId(requestedId, user.getId());
+        var project = projectRepository.findByProjectIdAndAppUserId(requestedId, user.getId());
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
    }
     
