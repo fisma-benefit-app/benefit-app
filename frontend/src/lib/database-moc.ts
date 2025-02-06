@@ -1,0 +1,32 @@
+export const projectFromDb = {
+  id: 44,
+  projectName: "project-x",
+  version: 1,
+  createdDate: "2025-01-28T17:23:19",
+  totalPoints: 100.12,
+  appUserId: 99,
+  functionalComponents: [
+    {
+      id: 99,
+      className: "Interactive end-user input service",
+      componentType: "1-functional",
+      dataElements: 2,
+      readingReferences: 4,
+      writingReferences: 3,
+      functionalMultiplier: 1,
+      operations: null,
+      projectId: 44,
+    },
+    {
+      id: 100,
+      className: "Data storage service",
+      componentType: "entities or classes",
+      dataElements: 4,
+      readingReferences: null,
+      writingReferences: null,
+      functionalMultiplier: null,
+      operations: null,
+      projectId: 44,
+    },
+  ],
+};
