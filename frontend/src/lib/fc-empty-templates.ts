@@ -27,7 +27,7 @@ export const componentTemplates = [
       dataElements: 0,
       readingReferences: 0,
       writingReferences: 0,
-      functionalMultiplier: 0,
+      functionalMultiplier: null,
       operations: null,
       projectId: 0,
     } as TInteractiveEndUserInputService,

@@ -103,7 +103,7 @@ export default function FunctionalClassComponent({componentProp}: FunctionalClas
                     onChange={(e) =>
                       setComponent((prev) => ({
                         ...prev,
-                        [key]: +e.target.value,
+                        [key]: e.target.value,
                       }))
                     }
                     className="mx-3"

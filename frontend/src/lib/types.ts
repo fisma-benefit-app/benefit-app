@@ -37,7 +37,7 @@ export type TInteractiveEndUserInputService = {
   dataElements: number;
   readingReferences: number;
   writingReferences: number;
-  functionalMultiplier: number;
+  functionalMultiplier: null;
   operations: null;
   projectId: number;
 }
