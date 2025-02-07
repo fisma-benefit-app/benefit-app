@@ -38,7 +38,7 @@ class ProjectControllerTest {
     @BeforeEach
     void setUp() {
         AppUser appUser = new AppUser(13L, "user", "password");
-        when(appUserRepository.findByUsername("user")).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByUsername("user")).thenReturn(appUser);
         
         Project project = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
@@ -51,7 +51,6 @@ class ProjectControllerTest {
     
     @Test
     void shouldReturnAProjectWithAKnowId() {
-//        var response = mockMvc.get().uri("/projects/77").with(jwt());
         var response = mockMvc.get().uri("/projects/77").with(jwt());
         
         assertThat(response).hasStatusOk();
