@@ -76,8 +76,8 @@ class ProjectControllerTest {
                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null),
                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null)
                ),
-               Set.of(new ProjectAppUser(13L)));
-       when(projectRepository.findByProjectIdAndAppUserId(77L, 88L)).thenReturn(Optional.of(someonesProject));
+               Set.of(new ProjectAppUser(15L)));
+       when(projectRepository.findByProjectIdAndAppUserId(88L, 15L)).thenReturn(Optional.of(someonesProject));
        
        assertThat(mockMvc.get().uri("/projects/88").with(jwt().jwt(jwt -> jwt.subject("test-user")))).hasStatus(HttpStatus.NOT_FOUND);{}
    }
