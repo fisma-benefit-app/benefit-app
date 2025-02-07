@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -22,10 +23,19 @@ public class ProjectController {
     private ResponseEntity<Project> getProject(@PathVariable Long requestedId, Principal principal) {
         var user = appUserRepository.findByUsername(principal.getName()); // No Optional because findByUsername is also used in UserDetailsServiceImpl
         if (user == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build(); // TODO - or unauthorized?
         }
         var project = projectRepository.findByProjectIdAndAppUserId(requestedId, user.getId());
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-   }
+    }
     
+    @GetMapping
+    private ResponseEntity<List<Project>> getAllProjects(Principal principal) {
+        var user = appUserRepository.findByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.notFound().build(); // TODO - or unauthorized?
+        }
+        var projects = projectRepository.findAllByAppUserId(user.getId());
+        return ResponseEntity.ok(projects);
+    }
 }
