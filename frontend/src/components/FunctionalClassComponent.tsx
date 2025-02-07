@@ -13,8 +13,9 @@ type FunctionalClassComponentProps = {
   componentProp: TGenericComponent;
 };
 
-export default function FunctionalClassComponent({componentProp}: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({ componentProp }: FunctionalClassComponentProps) {
   const [component, setComponent] = useState<TGenericComponent>(componentProp);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
@@ -41,39 +42,34 @@ export default function FunctionalClassComponent({componentProp}: FunctionalClas
   };
 
   return (
-    <div className="mt-3">
-      <form onSubmit={(e) => e.preventDefault()}>
-        <label htmlFor="functionalClassSelection" className="mx-3">
-          Valitse toimintoluokka:
-        </label>
-        <select
-          id="functionalClassSelection"
-          value={component.className || ""}
-          onChange={handleClassNameChange}
-        >
-          <option key="empty" value=""></option>
-          {classNameOptions.map((className) => {
-            return (
-              <option key={className} value={className}>
-                {className}
-              </option>
-            );
-          })}
-        </select>
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-5 border-3 my-5 rounded w-[800px] mx-10 p-5">
+      <div className="flex items-center justify-between">
+        <div className="flex gap-2 items-center">
+          <select
+            id="functionalClassSelection"
+            value={component.className || ""}
+            onChange={handleClassNameChange}
+            className="w-52 border-2 border-gray-400 rounded p-1"
+          >
+            <option key="empty" disabled value="">Valitse toimintoluokka</option>
+            {classNameOptions.map((className) => {
+              return (
+                <option key={className} value={className}>
+                  {className}
+                </option>
+              );
+            })}
+          </select>
 
-        <br />
-
-        {component.className && (
-          <>
-            <label htmlFor="functionalClassTypeOption" className="mx-3">
-              Valitse tyyppi
-            </label>
+          {component.className && (
             <select
               id="functionalClassTypeOption"
               value={component.componentType || ""}
               onChange={handleOptionTypeChange}
+              className="w-52 border-2 border-gray-400 rounded p-1"
             >
-              <option key="empty" value=""></option>
+              <option key="empty" disabled value="">Valitse toimintotyyppi</option>
+              <option key="empty" value="">Ei tyyppiä</option>
               {componentTypeOptions.map((option) => {
                 return (
                   <option key={option} value={option}>
@@ -82,38 +78,54 @@ export default function FunctionalClassComponent({componentProp}: FunctionalClas
                 );
               })}
             </select>
-          </>
-        )}
+          )}
+        </div>
 
-        {component.componentType && (
-          <>
-            {Object.entries(component)
-              .filter(
-                ([key, value]) =>
-                  !["id", "className", "componentType", "projectId"].includes(key) &&
-                  value !== null,
-              )
-              .map(([key, value]) => (
-                <div key={key} className="mx-3">
-                  <label htmlFor={key}>{key}</label>
-                  <input
-                    id={key}
-                    type="number"
-                    value={value as number}
-                    onChange={(e) =>
-                      setComponent((prev) => ({
-                        ...prev,
-                        [key]: e.target.value,
-                      }))
-                    }
-                    className="mx-3"
-                  />
-                </div>
-              ))}
-          </>
-        )}
-      </form>
-      <><p>Pisteet: {points}</p></>
-    </div>
+        <div className="flex gap-5 items-center">
+          {/* Only show collapse button if class for row is selected */}
+          {component.className && (
+            <button
+              onClick={() => setIsCollapsed((prev) => !prev)}
+              className="font-medium cursor-pointer"
+            >
+              <span className={`inline-block text-3xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
+                ^
+              </span>
+            </button>
+          )}
+
+          <p>= {points} TP</p>
+        </div>
+      </div>
+
+      {/* The rest of the options are only rendered if row has a selected type and it is collapsed */}
+      {component.componentType && isCollapsed && (
+        <div className="flex gap-10">
+          {Object.entries(component)
+            .filter(
+              ([key, value]) =>
+                !["id", "className", "componentType", "projectId"].includes(key) &&
+                value !== null,
+            )
+            .map(([key, value]) => (
+              <div key={key} className="flex flex-col gap-3 items-center">
+                <label htmlFor={key}>{key}:</label>
+                <input
+                  id={key}
+                  type="number"
+                  value={value as number}
+                  onChange={(e) =>
+                    setComponent((prev) => ({
+                      ...prev,
+                      [key]: e.target.value,
+                    }))
+                  }
+                  className="w-14 border-2 border-gray-400 rounded p-1"
+                />
+              </div>
+            ))}
+        </div>
+      )}
+    </form>
   );
 }
