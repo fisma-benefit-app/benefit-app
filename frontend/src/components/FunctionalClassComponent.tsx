@@ -2,12 +2,8 @@ import { useState } from "react";
 import * as React from "react";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import { TGenericComponent } from "../lib/types.ts";
-import {
-  getCalculateFuntion,
-  getComponentTypeOptions,
-  getEmptyComponent,
-  getResetedComponentWithClassName,
-} from "../lib/fc-service-functions.ts";
+import { deleteCalculationRow, saveCalculationRow } from "../api/apiCalls.ts";
+import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
 
 type FunctionalClassComponentProps = {
   componentProp: TGenericComponent;
@@ -42,16 +38,16 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
   };
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-5 border-3 my-5 rounded w-[800px] mx-10 p-5">
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 bg-[#fafaf5] my-5 rounded-2xl w-[800px] p-4">
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">
           <select
             id="functionalClassSelection"
             value={component.className || ""}
             onChange={handleClassNameChange}
-            className="w-52 border-2 border-gray-400 rounded p-1"
+            className="w-52 border-2 border-gray-400 rounded-xl p-1"
           >
-            <option key="empty" disabled value="">Valitse toimintoluokka</option>
+            <option disabled value="">Valitse toimintoluokka</option>
             {classNameOptions.map((className) => {
               return (
                 <option key={className} value={className}>
@@ -66,10 +62,10 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
               id="functionalClassTypeOption"
               value={component.componentType || ""}
               onChange={handleOptionTypeChange}
-              className="w-52 border-2 border-gray-400 rounded p-1"
+              className="w-52 border-2 border-gray-400 rounded-xl p-1"
             >
-              <option key="empty" disabled value="">Valitse toimintotyyppi</option>
-              <option key="empty" value="">Ei tyyppiä</option>
+              <option disabled value="">Valitse toimintotyyppi</option>
+              <option value="">Ei tyyppiä</option>
               {componentTypeOptions.map((option) => {
                 return (
                   <option key={option} value={option}>
@@ -81,25 +77,38 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
           )}
         </div>
 
-        <div className="flex gap-5 items-center">
+        <div className="flex gap-4 items-center">
+          <p>= {points} TP</p>
+
           {/* Only show collapse button if class for row is selected */}
           {component.className && (
             <button
               onClick={() => setIsCollapsed((prev) => !prev)}
-              className="font-medium cursor-pointer"
+              className="flex text-white p-1 rounded items-center cursor-pointer gap-1 bg-[#1e73be]"
             >
-              <span className={`inline-block text-3xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
+              {isCollapsed ? "Sulje" : "Avaa"}
+              <span className={`inline-block text-1xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
                 ^
               </span>
             </button>
           )}
-
-          <p>= {points} TP</p>
+          <button
+            className="text-white p-1 rounded bg-[#1e73be]"
+            onClick={saveCalculationRow}
+          >
+            Tallenna
+          </button>
+          <button
+            className="bg-red-500 text-white py-1 px-3 rounded"
+            onClick={deleteCalculationRow}
+          >
+            X
+          </button>
         </div>
       </div>
 
       {/* The rest of the options are only rendered if row has a selected type and it is collapsed */}
-      {component.componentType && isCollapsed && (
+      {component.className && isCollapsed && (
         <div className="flex gap-10">
           {Object.entries(component)
             .filter(
@@ -108,9 +117,10 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
                 value !== null,
             )
             .map(([key, value]) => (
-              <div key={key} className="flex flex-col gap-3 items-center">
+              <div key={key} className="flex flex-col gap-2 items-center">
                 <label htmlFor={key}>{key}:</label>
                 <input
+                  className="w-16 border-2 border-gray-400 p-1 rounded-xl"
                   id={key}
                   type="number"
                   value={value as number}
@@ -120,7 +130,6 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
                       [key]: e.target.value,
                     }))
                   }
-                  className="w-14 border-2 border-gray-400 rounded p-1"
                 />
               </div>
             ))}
