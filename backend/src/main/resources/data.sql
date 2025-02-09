@@ -23,3 +23,8 @@ insert into project_app_user (project_id, app_user_id)
 values (99, 23),
        (100, 13),
        (101, 23);
+
+
+SELECT setval('app_user_id_seq', (SELECT MAX(id) FROM app_user));
+SELECT setval('project_id_seq', (SELECT MAX(id) FROM project));
+SELECT setval('functional_component_id_seq', (SELECT MAX(id) FROM functional_component));

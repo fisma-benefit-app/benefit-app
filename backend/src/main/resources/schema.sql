@@ -19,9 +19,9 @@ create table if not exists project
 create table if not exists functional_component
 (
     id                    bigserial primary key,
-    class_name            text    not null,
-    component_type        text    not null,
-    data_elements         integer not null,
+    class_name            text,
+    component_type        text,
+    data_elements         integer,
     reading_references    integer,
     writing_references    integer,
     functional_multiplier integer,
