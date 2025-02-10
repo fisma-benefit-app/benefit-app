@@ -4,7 +4,6 @@
   "version": 1,
   "createdDate": "2025-01-28T17:23:19",
   "totalPoints": 100.12,
-  "appUserId": 99,
   "functionalComponents": [
     {
       "id": 99,
@@ -25,6 +24,11 @@
       "writingReferences": null,
       "functionalMultiplier": null,
       "operations": null
+    }
+  ],
+  "appUsers": [
+    {
+      "appUserId": 13
     }
   ]
 }

@@ -21,10 +21,10 @@ class ProjectJsonTest {
     
     @BeforeEach
     void setUp() {
-        project = new Project(44L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12, 99L, Set.of(
+        project = new Project(44L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12, Set.of(
                 new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null),
                 new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null)
-        ));
+        ), Set.of(new ProjectAppUser(13L)));
     }
     
     @Test
@@ -34,8 +34,8 @@ class ProjectJsonTest {
         assertThat(json.write(project)).hasJsonPathStringValue("@.projectName");
         assertThat(json.write(project)).hasJsonPathStringValue("@.createdDate");
         assertThat(json.write(project)).hasJsonPathNumberValue("@.totalPoints");
-        assertThat(json.write(project)).hasJsonPathNumberValue("@.appUserId");
         assertThat(json.write(project)).hasJsonPathArrayValue("$.functionalComponents");
+        assertThat(json.write(project)).hasJsonPathArrayValue("$.appUsers");
 //      TODO - assert remaining values
     }
     
@@ -48,7 +48,6 @@ class ProjectJsonTest {
                   "version": 1,
                   "createdDate": "2025-01-28T17:23:19",
                   "totalPoints": 100.12,
-                  "appUserId": 99,
                   "functionalComponents": [
                     {
                       "id": 99,
@@ -69,6 +68,11 @@ class ProjectJsonTest {
                       "writingReferences": null,
                       "functionalMultiplier": null,
                       "operations": null
+                    }
+                  ],
+                  "appUsers": [
+                    {
+                      "appUserId": 13
                     }
                   ]
                 }
