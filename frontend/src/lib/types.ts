@@ -53,3 +53,59 @@ export type TDataStrorageService = {
   operations: null;
   projectId: number;
 };
+
+/////uudet
+export type TNonInteractiveEndUserOutputService = {
+  id: number;
+  className: "Non-interactive end-user output service";
+  componentType: null | "forms" | "reports" | "emails or text messages" | "monitor screens";
+  dataElements: number;
+  readingReferences: number;
+  writingReferences: null;
+  functionalMultiplier: null;
+  operations: null;
+  projectId: number;
+};
+
+export type TInterfaceServiceToOtherApplications = {
+  id: number;
+  className: "Interface service to other applications";
+  componentType: null | "messages to other applications" | "batch records to other applications" | "signals to devices or other applications";
+  dataElements: number;
+  readingReferences: number;
+  writingReferences: null;
+  functionalMultiplier: null;
+  operations: null;
+  projectId: number;
+};
+
+export type TInterfaceServiceFromOtherApplications = {
+  id: number;
+  className: "Interface service from other applications";
+  componentType: null | "messages from other applications" | "batch records from other applications" | "signals from devices or other applications";
+  dataElements: number;
+  readingReferences: number;
+  writingReferences: number;
+  functionalMultiplier: null;
+  operations: null;
+  projectId: number;
+};
+
+export type TAlgorithmicOrManipulationService = {
+  id: number;
+  className: "Algorithmic or manipulation service";
+  componentType: 
+  | null
+  | "security routines"
+  | "calculation routines"
+  | "simulation routines"
+  | "formatting routines"
+  | "database cleaning routines"
+  | "other manipulation routines";
+  dataElements: number;
+  readingReferences: null;
+  writingReferences: null;
+  functionalMultiplier: null;
+  operations: number;
+  projectId: number;
+};

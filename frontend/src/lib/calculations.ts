@@ -1,7 +1,11 @@
 import {
   TDataStrorageService,
   TInteractiveEndUserInputService,
-  TInteractiveEndUserNavigatioinAndQueryService
+  TInteractiveEndUserNavigatioinAndQueryService,
+  TNonInteractiveEndUserOutputService,
+  TInterfaceServiceToOtherApplications,
+  TInterfaceServiceFromOtherApplications,
+  TAlgorithmicOrManipulationService
 } from "./types.ts";
 
 const calculateInteractiveEndUserNavigationAndQueryService = (functionalComponent: TInteractiveEndUserNavigatioinAndQueryService,) => {
@@ -35,19 +39,19 @@ const calculateInteractiveEndUserInputService = (functionalComponent: TInteracti
   return functionalityMultiplier * (0.2 + (dataElements / 5) + (writingReferences / 1.5) + (readingReferences / 2));
 }
 
-const calculateNonInteractiveEndUserOutputService = (functionalComponent) => {
+const calculateNonInteractiveEndUserOutputService = (functionalComponent: TNonInteractiveEndUserOutputService) => {
   const { dataElements, readingReferences } = functionalComponent;
 
   return (1 + (dataElements / 5) + (readingReferences / 2));
 }
 
-const calculateInterfaceServiceToOtherApplications = (functionalComponent) => {
+const calculateInterfaceServiceToOtherApplications = (functionalComponent: TInterfaceServiceToOtherApplications) => {
   const { dataElements, readingReferences } = functionalComponent;
 
   return 0.5 + (dataElements / 7) + (readingReferences / 2);
 }
 
-const calculateInterfaceServiceFromOtherApplications = (functionalComponent) => {
+const calculateInterfaceServiceFromOtherApplications = (functionalComponent: TInterfaceServiceFromOtherApplications) => {
   const { dataElements, writingReferences, readingReferences } = functionalComponent;
 
   return 0.2 + (dataElements / 5) + (writingReferences / 1.5) + (readingReferences / 2);
@@ -59,7 +63,7 @@ const calculateDataStorageService = (functionalComponent: TDataStrorageService) 
   return 1.5 + (dataElements / 4);
 }
 
-const calculateAlgorithmicOrManipulationService = (functionalComponent) => {
+const calculateAlgorithmicOrManipulationService = (functionalComponent: TAlgorithmicOrManipulationService) => {
   const { dataElements, operations } = functionalComponent;
 
   return 0.1 + (dataElements / 5) + (operations / 3);
