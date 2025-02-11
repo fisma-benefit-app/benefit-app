@@ -1,6 +1,7 @@
 // import { useState } from "react";
 import { projectFromDb } from "../lib/database-moc.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
+import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 
 export default function Project() {
   // const [project, setProject] = useState(prjectFromDb);
@@ -8,12 +9,17 @@ export default function Project() {
   const project = projectFromDb;
 
   return (
-    <>
-      {project.functionalComponents.map((component) => {
-        return(
-          <FunctionalClassComponent componentProp={component} key={component.id} />
-        );
-      })}
-    </>
+    <div className="flex gap-5">
+      <div className="flex-1">
+        {project.functionalComponents.map((component) => {
+          return (
+            <FunctionalClassComponent componentProp={component} key={component.id} />
+          );
+        })}
+      </div>
+      <div className="flex-auto">
+        <FunctionalPointSummary functionalComponents={project.functionalComponents} />
+      </div>
+    </div>
   );
 }
