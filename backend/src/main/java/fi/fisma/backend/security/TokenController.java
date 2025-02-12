@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -18,9 +20,16 @@ public class TokenController {
     private final JwtEncoder encoder;
     
     @PostMapping("/token")
-    public String token(Authentication authentication) {
+    private ResponseEntity<?> getToken(Authentication authentication) {
+        String token = generateToken(authentication);
+        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
+                .build();
+    }
+    
+    private String generateToken(Authentication authentication) {
         Instant now = Instant.now();
-        long expiry = 36000L;
+        long expiry = 3600L;
         // @formatter:off
         String scope = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
