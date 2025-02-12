@@ -12,24 +12,29 @@ export default function LoginForm() {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+    
+        const url = "http://localhost:8080/token";
+        const headers = {
+            Authorization: `Basic ${btoa(`${username}:${password}`)}`
+        };
+    
         try {
-            const response = await fetch(
-                "http://localhost:8080/token", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Basic ${btoa(`${username}:${password}`)}`
-                    }
-                }
-            )
-            const responseToken = await response.text();
-            console.log(responseToken);
-            setSessionToken(responseToken);
+            const response = await fetch(url, { method: "POST", headers });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            const token = await response.text();
+            console.log("Token received:", token);
+            setSessionToken(token);
         } catch (error) {
-            console.error(error);
+            console.error("Login failed:", error);
         }
-    }
+        //TODO: Login failed prompt!
+    };
 
-    const getProjectsTest = async () => {
+    const getProjectsTest = async () => {//TODO: REMOVE!
         console.log(sessionToken);
         try {
             const response = await fetch(
@@ -50,6 +55,7 @@ export default function LoginForm() {
     }
 
     return (
+        <>
         <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-4 border-2 border-gray-400 shadow-md ">
             <h1 className="text-2xl text-gray-700 font-bold mb-4">Kirjaudu sisään</h1>
 
@@ -103,13 +109,17 @@ export default function LoginForm() {
             >
                 Kirjaudu
             </button>
-            <button 
-                type="submit" 
-                onClick={() => getProjectsTest}
-                className="w-full bg-sky-600 text-white p-2 hover:bg-zinc-600"
-            >
-                ANNA PROJEKTIT
-            </button>
+            
         </form>
+
+        {/* TODO REMOVE TEST BUTTON! */}
+        <button 
+        type="submit" 
+        onClick={getProjectsTest}
+        className="w-full bg-sky-600 text-white p-2 hover:bg-zinc-600"
+        >
+        ANNA PROJEKTIT
+        </button>
+    </>
     );
 }
