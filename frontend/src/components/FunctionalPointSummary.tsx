@@ -1,6 +1,5 @@
-import React from 'react'
 import { TGenericComponent } from '../lib/types';
-import { getCalculateFuntion, getComponentTypeOptions } from '../lib/fc-service-functions';
+import { getCalculateFuntion } from '../lib/fc-service-functions';
 
 type FunctionalClassComponentProps = {
   functionalComponents: TGenericComponent[];
@@ -9,13 +8,12 @@ type FunctionalClassComponentProps = {
 const calculateFunctionalComponentPoints = (component: TGenericComponent) => {
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
   //@ts-expect-error(TODO - component should be typed before it goes to the calculation)
-  const points = calculateFunction ? calculateFunction(component) : 0;
-  return points;
+  return calculateFunction ? calculateFunction(component) : 0;
 }
 
 const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]) => {
   let totalPoints = 0;
-  for (var x of components) {
+  for (const x of components) {
     totalPoints += calculateFunctionalComponentPoints(x)
   }
   return totalPoints;

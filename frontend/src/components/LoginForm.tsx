@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { EyeIcon, EyeSlashIcon, LockClosedIcon, UserIcon } from "@heroicons/react/24/solid";
+// import { EyeIcon, EyeSlashIcon, LockClosedIcon, UserIcon } from "@heroicons/react/24/solid";
 
 export default function LoginForm() {
     const [username, setUsername] = useState<string>('');
@@ -18,7 +18,7 @@ export default function LoginForm() {
             <h1 className="text-2xl text-gray-700 font-bold mb-4">Kirjaudu sisään</h1>
 
             <div className="mb-4 relative">
-                <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                {/*<UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />*/}
                 <input 
                     type="text" 
                     placeholder="Käyttäjänimi" 
@@ -30,7 +30,7 @@ export default function LoginForm() {
             </div>
 
             <div className="mb-4 relative">
-                <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                {/*<LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />*/}
                 <input 
                     type={showPassword ? "text" : "password"} 
                     placeholder="Salasana" 
@@ -44,7 +44,7 @@ export default function LoginForm() {
                     onClick={() => setShowPassword(!showPassword)} 
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
-                    {showPassword ? <EyeSlashIcon className="w-6 h-6" /> : <EyeIcon className="w-6 h-6" />}
+                    {/*{showPassword ? <EyeSlashIcon className="w-6 h-6" /> : <EyeIcon className="w-6 h-6" />}*/}
                 </button>
             </div>
 
