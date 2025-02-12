@@ -1,15 +1,18 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useContext } from 'react';
 import { EyeIcon, EyeSlashIcon, LockClosedIcon, UserIcon } from "@heroicons/react/24/solid";
+import { AppUserContext } from '../context/AppUserProvider';
+import useAppUser from '../hooks/useAppUser';
 
 export default function LoginForm() {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [rememberMe, setRememberMe] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
+    const {appUser, loggedIn, sessionToken } = useAppUser();
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log({ username, password, rememberMe });
+        console.log({ appUser, loggedIn, sessionToken });
         //TODO: Add authentication logic
     };
 
