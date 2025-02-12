@@ -78,7 +78,7 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
         </div>
 
         <div className="flex gap-4 items-center">
-          <p>= {points} TP</p>
+          <p>= {points.toFixed(2)} TP</p>
 
           {/* Only show collapse button if class for row is selected */}
           {component.className && (
