@@ -14,22 +14,40 @@ export default function LoginForm() {
         e.preventDefault();
         try {
             const response = await fetch(
-                "http:localhost:8080/token", {
+                "http://localhost:8080/token", {
                     method: "POST",
                     headers: {
-                        "Authorization": `Basic ${btoa(`${username}:${password}`)}`,
-                        "Content-Type": "application/json"
+                        "Authorization": `Basic ${btoa(`${username}:${password}`)}`
                     }
                 }
             )
-            const responseToken = await response.json();
+            const responseToken = await response.text();
             console.log(responseToken);
+            setSessionToken(responseToken);
         } catch (error) {
             console.error(error);
         }
-        
-        
-    };
+    }
+
+    const getProjectsTest = async () => {
+        console.log(sessionToken);
+        try {
+            const response = await fetch(
+                "http://localhost:8080/projects", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${sessionToken}`
+                    }
+                }
+            )
+            console.log(response);
+            const projects = await response.json();
+            console.log(projects);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-4 border-2 border-gray-400 shadow-md ">
@@ -84,6 +102,13 @@ export default function LoginForm() {
                 className="w-full bg-sky-600 text-white p-2 hover:bg-zinc-600"
             >
                 Kirjaudu
+            </button>
+            <button 
+                type="submit" 
+                onClick={() => getProjectsTest}
+                className="w-full bg-sky-600 text-white p-2 hover:bg-zinc-600"
+            >
+                ANNA PROJEKTIT
             </button>
         </form>
     );
