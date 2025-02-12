@@ -5,7 +5,7 @@ export default function Layout({children}: {children: ReactNode}) {
       <div className="relative min-h-screen">
         
         {/* Header */}
-        <header className="fixed top-0 left-0 w-full bg-sky-600 text-white shadow-md flex items-stretch">
+        <header className="fixed top-0 left-0 w-full bg-sky-600 text-white shadow-md flex items-stretch z-1">
           {/* FISMA Logo on the upper left*/}
           <img src="/Fisma_logo.png" alt="FISMA Logo" className="h-15 w-auto mb-2 ml-2"/>
           <h1 className="text-lg flex items-end pb-1.5">Toimintopistelaskuri</h1>
@@ -22,7 +22,7 @@ export default function Layout({children}: {children: ReactNode}) {
         </main>
   
         {/* Footer */}
-        <footer className="fixed bottom-0 left-0 w-full bg-sky-600 text-white py-4 shadow-md flex justify-center items-center">
+        <footer className="fixed bottom-0 left-0 w-full bg-sky-600 text-white py-4 shadow-md flex justify-center items-center z-1">
           <p>Footer</p>
         </footer>
       </div>
