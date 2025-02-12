@@ -8,12 +8,27 @@ export default function LoginForm() {
     const [password, setPassword] = useState<string>('');
     const [rememberMe, setRememberMe] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
-    const {appUser, loggedIn, sessionToken } = useAppUser();
+    const {appUser, loggedIn, sessionToken, setSessionToken } = useAppUser();
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log({ appUser, loggedIn, sessionToken });
-        //TODO: Add authentication logic
+        try {
+            const response = await fetch(
+                "http:localhost:8080/token", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Basic ${btoa(`${username}:${password}`)}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            )
+            const responseToken = await response.json();
+            console.log(responseToken);
+        } catch (error) {
+            console.error(error);
+        }
+        
+        
     };
 
     return (
