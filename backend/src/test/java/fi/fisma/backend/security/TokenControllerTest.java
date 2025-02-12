@@ -20,7 +20,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest({TokenController.class, ProjectController.class})
-@Import({SecurityConfig.class, UserDetailsServiceImpl.class})
+@Import({SecurityConfig.class, UserDetailsServiceImpl.class, TokenService.class})
 class TokenControllerTest {
     
     @Autowired
