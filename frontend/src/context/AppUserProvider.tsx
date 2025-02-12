@@ -3,8 +3,8 @@ import { createContext, ReactNode, useState } from "react"
 type AppUserContextType = {
     appUser: AppUser | null,
     loggedIn: boolean,
-    sessionToken: string,
-    setSessionToken: React.Dispatch<React.SetStateAction<string>>
+    sessionToken: string | null,
+    setSessionToken: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 type AppUserProviderProps = {
@@ -22,7 +22,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
     const [appUser, setAppUser] = useState<AppUser | null>(null);
     const [loggedIn, setLoggedIn] = useState<boolean>(false);
-    const [sessionToken, setSessionToken] = useState<string>('');
+    const [sessionToken, setSessionToken] = useState<string | null>(null);
 
     const appUserProviderValue: AppUserContextType = {
         appUser,
