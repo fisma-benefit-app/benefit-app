@@ -9,10 +9,11 @@ export default function App() {
 
   const { loggedIn } = useAppUser()
 
+  //TODO: Refactor structure?
   return (
     <>
       <Header />
-      <main className="pt-20 pb-20 w-full flex justify-center">
+      <main className="pt-20 pb-20">
         <Routes>
           {/* If user is logged in, show main page, if not, go to login page */}
           <Route path="/" element={loggedIn ? <Project /> : <Navigate to="/login" />} />

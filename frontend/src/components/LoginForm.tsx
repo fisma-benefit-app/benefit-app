@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import useAppUser from '../hooks/useAppUser';
 import { fetchJWT } from '../api/authorization';
 import { useNavigate } from 'react-router';
@@ -10,7 +10,7 @@ export default function LoginForm() {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [loginError, setLoginError] = useState<string | null>(null)
     const [showLoginError, setShowLoginError] = useState<boolean>(false);
-    const { sessionToken, setSessionToken, setLoggedIn } = useAppUser();
+    const { setSessionToken, setLoggedIn } = useAppUser();
 
     let navigate = useNavigate();
 
@@ -36,10 +36,11 @@ export default function LoginForm() {
         navigate("/")
     };
 
-/*     useEffect(() => {
-        alert("Kirjautuminen onnistui!");
-        navigate("/")
-    }, [sessionToken]) */
+    // TODO: Handle redirect etc in useEffect?
+    // useEffect(() => {
+    //     alert("Kirjautuminen onnistui!");
+    //     navigate("/")
+    // }, [sessionToken])
 
     return (
         <>
