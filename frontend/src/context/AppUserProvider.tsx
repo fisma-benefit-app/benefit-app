@@ -1,10 +1,13 @@
 import { createContext, ReactNode, useState } from "react"
 
+//TODO: add logic for session token and handling it when the application is started
+
 type AppUserContextType = {
     appUser: AppUser | null,
     loggedIn: boolean,
     sessionToken: string | null,
-    setSessionToken: React.Dispatch<React.SetStateAction<string | null>>
+    setSessionToken: React.Dispatch<React.SetStateAction<string | null>>,
+    setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 type AppUserProviderProps = {
@@ -28,7 +31,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
         appUser,
         loggedIn,
         sessionToken,
-        setSessionToken
+        setSessionToken,
+        setLoggedIn
     }
 
     return (
