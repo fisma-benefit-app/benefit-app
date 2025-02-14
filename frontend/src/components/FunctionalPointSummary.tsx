@@ -15,7 +15,7 @@ const calculateFunctionalComponentPoints = (component: TGenericComponent) => {
 
 const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]) => {
   let totalPoints = 0;
-  for (var x of components) {
+  for (const x of components) {
     totalPoints += calculateFunctionalComponentPoints(x)
   }
   return totalPoints;
@@ -28,9 +28,9 @@ export const FunctionalPointSummary = ({ functionalComponents }: FunctionalClass
       <div className="flex flex-col">
         {functionalComponents.map((component, i) => {
           return (
-            <div className="flex justify-between w-full">
+            <div className="flex justify-center gap-15 w-full">
               <div>
-                {i + 1}
+                {i + 1}.
               </div>
               <div>
                 {calculateFunctionalComponentPoints(component)}
@@ -39,7 +39,7 @@ export const FunctionalPointSummary = ({ functionalComponents }: FunctionalClass
           );
         })}
       </div>
-      <div className="flex justify-between w-full">
+      <div className="flex justify-center w-full gap-5">
         <div>
           Yhteensä
         </div>
