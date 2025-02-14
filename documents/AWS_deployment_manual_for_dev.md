@@ -24,7 +24,19 @@ according to Ubertas Consulting. Hence, the serverless Fargate is beneficial
 for project, that contains docker composes.
 
 Sources:
+
 https://medium.com/7code/why-i-prefer-aws-ecs-over-beanstalk-a-personal-perspective-55b3ebc444e1
 https://ubertasconsulting.com/modernising-in-aws-elastic-beanstalk-to-fargate/
+
+### 1.3 What sources did you use for deployment?
+As any professional developer knows, the most essential tool for doing any coding and infrastructure
+solution is reading the official documentation by the company, specifically about certain 
+topic or problem.
+
+Hence, we used official AWS documentation about Amazon Elastic Container Service as
+one of primary sources:
+https://docs.aws.amazon.com/ecs/?icmpid=docs_homepage_containers
+
+
 
 
