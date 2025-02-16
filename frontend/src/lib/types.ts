@@ -7,6 +7,8 @@ export type TGenericComponent = {
   writingReferences: number | null;
   functionalMultiplier: number | null;
   operations: number | null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 }
 
@@ -27,6 +29,8 @@ export type TInteractiveEndUserNavigatioinAndQueryService = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -39,6 +43,8 @@ export type TInteractiveEndUserInputService = {
   writingReferences: number;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 }
 
@@ -51,6 +57,8 @@ export type TDataStrorageService = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -64,6 +72,8 @@ export type TNonInteractiveEndUserOutputService = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -76,6 +86,8 @@ export type TInterfaceServiceToOtherApplications = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -88,6 +100,8 @@ export type TInterfaceServiceFromOtherApplications = {
   writingReferences: number;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -107,5 +121,7 @@ export type TAlgorithmicOrManipulationService = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: number;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };

@@ -13,7 +13,7 @@ export default function App() {
   return (
     <>
       <Header />
-      <main className="pt-20 pb-20">
+      <main className="pt-20 pb-20 flex justify-center">
         <Routes>
           {/* If user is logged in, show main page, if not, go to login page */}
           <Route path="/" element={loggedIn ? <Project /> : <Navigate to="/login" />} />

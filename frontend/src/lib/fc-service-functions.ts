@@ -23,10 +23,13 @@ export const getEmptyComponent = (component: TGenericComponent) => {
     writingReferences: null,
     functionalMultiplier: null,
     operations: null,
+    degreeOfCompletion: null,
+    comment: null,
     projectId: component.projectId,
   };
 };
 
+//todo: does selecting new class override degree of completion and comment for the row or not?
 export const getResetedComponentWithClassName = (component: TGenericComponent, newClassName: string) => {
   const resetedComponentWithClassName = componentTemplates.find((template) => template.className === newClassName)?.resetedComponentWithClassName;
   if (!resetedComponentWithClassName) {

@@ -15,6 +15,8 @@ export const projectFromDb = {
       writingReferences: 3,
       functionalMultiplier: 1,
       operations: null,
+      degreeOfCompletion: 0.13,
+      comment: "This is an exceptional functional component!",
       projectId: 44,
     },
     {
@@ -26,6 +28,8 @@ export const projectFromDb = {
       writingReferences: null,
       functionalMultiplier: null,
       operations: null,
+      degreeOfCompletion: 0.27,
+      comment: "Needs further adjustment!",
       projectId: 44,
     },
   ],

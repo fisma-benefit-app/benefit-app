@@ -1,6 +1,5 @@
-import React from 'react'
 import { TGenericComponent } from '../lib/types';
-import { getCalculateFuntion, getComponentTypeOptions } from '../lib/fc-service-functions';
+import { getCalculateFuntion } from '../lib/fc-service-functions';
 
 type FunctionalClassComponentProps = {
   functionalComponents: TGenericComponent[];
@@ -21,14 +20,13 @@ const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]
   return totalPoints;
 }
 export const FunctionalPointSummary = ({ functionalComponents }: FunctionalClassComponentProps) => {
-  console.log(functionalComponents)
   return (
     <div className="flex flex-col gap-3 border-2 bg-[#fafaf5] my-5 rounded-2xl p-4 sticky top-20">
       Yhteenveto
       <div className="flex flex-col">
         {functionalComponents.map((component, i) => {
           return (
-            <div className="flex justify-center gap-15 w-full">
+            <div key={i} className="flex justify-center gap-15 w-full">
               <div>
                 {i + 1}.
               </div>
