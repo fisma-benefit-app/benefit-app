@@ -10,9 +10,9 @@ export default function LoginForm() {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [loginError, setLoginError] = useState<string | null>(null)
     const [showLoginError, setShowLoginError] = useState<boolean>(false);
-    const { setSessionToken, setLoggedIn } = useAppUser();
+    const { setSessionToken, setLoggedIn, setAppUser } = useAppUser();
 
-    let navigate = useNavigate();
+    const navigate = useNavigate();
 
     const login = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -26,12 +26,15 @@ export default function LoginForm() {
 
             setTimeout(() => {
                 setShowLoginError(false);
-                setTimeout(() => setLoginError(null), 500); 
+                setTimeout(() => setLoginError(null), 500);
             }, 2500);
             return;
         }
 
+        sessionStorage.setItem("loginToken", loginToken);
+        sessionStorage.setItem("userInfo", username);
         setSessionToken(loginToken);
+        setAppUser({ username: username });
         setLoggedIn(true);
         navigate("/")
     };
@@ -52,7 +55,7 @@ export default function LoginForm() {
                         <label className={`text-sm text-red-700 bg-red-100 border border-red-400 p-1 rounded transition-opacity duration-500 ease-in-out ${showLoginError ? 'opacity-100' : 'opacity-0'}`}>
                             {loginError}
                         </label>
-                     )}
+                    )}
                 </div>
 
                 <div className="mb-4 relative">
