@@ -85,7 +85,7 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
                 type="number"
                 min={0.01}
                 max={1}
-                step={0.05}
+                step={0.01}
                 value={component.degreeOfCompletion || ""}
                 onChange={(e) =>
                   setComponent((prev) => ({
