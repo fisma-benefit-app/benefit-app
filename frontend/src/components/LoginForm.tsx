@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import useAppUser from '../hooks/useAppUser';
 import { fetchJWT } from '../api/authorization';
 import { useNavigate } from 'react-router';
+// import { EyeIcon, EyeSlashIcon, LockClosedIcon, UserIcon } from "@heroicons/react/24/solid";
 
 export default function LoginForm() {
     const [username, setUsername] = useState<string>('');
@@ -49,7 +50,6 @@ export default function LoginForm() {
         <>
             <form onSubmit={login} className="max-w-sm mx-auto p-4 border-2 border-gray-400 shadow-md ">
                 <h1 className="text-2xl text-gray-700 font-bold mb-4">Kirjaudu sisään</h1>
-
                 <div className="h-8 mb-4 flex items-center justify-center">
                     {loginError && (
                         <label className={`text-sm text-red-700 bg-red-100 border border-red-400 p-1 rounded transition-opacity duration-500 ease-in-out ${showLoginError ? 'opacity-100' : 'opacity-0'}`}>
@@ -69,26 +69,24 @@ export default function LoginForm() {
                         className="w-full p-2 pl-10 border-2 border-gray-400 bg-grey-700"
                     />
                 </div>
-
-                <div className="mb-4 relative">
-                    {/*                 <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" /> */}
-                    <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Salasana"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full p-2 pl-10 border-2 border-gray-400 pr-10"
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    >
-                        {/*                     {showPassword ? <EyeSlashIcon className="w-6 h-6" /> : <EyeIcon className="w-6 h-6" />} */}
-                    </button>
-                </div>
-
+            <div className="mb-4 relative">
+                {/*<LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />*/}
+                <input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="Salasana" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required 
+                    className="w-full p-2 pl-10 border-2 border-gray-400 pr-10"
+                />
+                <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                    {/*{showPassword ? <EyeSlashIcon className="w-6 h-6" /> : <EyeIcon className="w-6 h-6" />}*/}
+                </button>
+            </div>
                 <div className="flex justify-between items-center mb-4 text-gray-700">
                     <label className="flex items-center">
                         <input
@@ -101,7 +99,6 @@ export default function LoginForm() {
                     </label>
                     <a href="#" className="text-blue-500 text-sm hover:underline">Unohditko salasanan?</a>
                 </div>
-
                 <button
                     type="submit"
                     className="w-full bg-sky-600 text-white p-2 hover:bg-zinc-600"

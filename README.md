@@ -24,7 +24,7 @@ All-in-one repository for the Benefit application. Includes such as frontend, ba
 4. Frontend
 5. Backend
 6. Database
-7. CD/CI
+7. CI/CD
 8. Quality Assurance
 9. Results
 10. Known bugs
@@ -41,7 +41,7 @@ Benefit application is a project by FisMA ry 2025. It is a software size mesurem
 that will calculate function points of navigation and query, interfaces to/from other,
 inputs and outputs, etc.
 
-![fisma-benefit-UI-sketch-01](https://github.com/user-attachments/assets/73792802-5266-4e85-b4ef-f872406493e8)
+![fisma_frontend_home_page_14_02_2024](https://github.com/user-attachments/assets/50d90e91-6d70-4b11-b9be-ac36b82894ea)
 
 Picture 1: A visual re-presentation of the Benefit application's UI. [Placeholder, must be updated]
 
@@ -75,12 +75,12 @@ The mathematical algorithm has the following logic...
 
 We have used following tools in the project, alphabetically:
 
-* sad
+* 
 * 
 
 * Figma for preliminary sketching UI design. 
 
-* Java for backend.
+* Java with Gradle for backend.
 
 * Docker, due it will automatically install required languages and libraries 
 (e.g. PostgreSQL) for the new member.
@@ -93,10 +93,10 @@ Thus production will be most effective, when we are working with familiar langua
 We used PostgreSQL over other SQL DBMS as product owner's wishes. 
 
 * Typescript for frontend.
-
+* 
 * Spring boot for backend.
 
-* Visual Studio Code (version 1.96.4) as our team's main IDE for coding. 
+* Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding. 
 
 
 
@@ -140,6 +140,7 @@ Thus we developed a very basic calculator (MVP), that only calulates one row of 
 
 b) We have three branches: dev, main and qa.
   **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
+  **Qa** is our product review branch, where we pull all _functional_ codes for Sprint Review together with product owners.
   **Main** is our official branch, where project has been deployed (finaliszed) and refactor all unnecessary, broken solutions and tools.
 
 ---

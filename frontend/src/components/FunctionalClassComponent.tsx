@@ -102,7 +102,6 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
           {/* Calculate this somewhere else? */}
           <p>= {((component.degreeOfCompletion || 0) * points).toFixed(2)} TP</p>
           <p>= {points.toFixed(2)} TP (valmis)</p>
-
           {/* Only show collapse button if class for row is selected */}
           {component.className && (
             <button

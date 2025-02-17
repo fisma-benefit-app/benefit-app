@@ -8,8 +8,7 @@ type FunctionalClassComponentProps = {
 const calculateFunctionalComponentPoints = (component: TGenericComponent) => {
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
   //@ts-expect-error(TODO - component should be typed before it goes to the calculation)
-  const points = calculateFunction ? calculateFunction(component) : 0;
-  return points;
+  return calculateFunction ? calculateFunction(component) : 0;
 }
 
 const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]) => {
