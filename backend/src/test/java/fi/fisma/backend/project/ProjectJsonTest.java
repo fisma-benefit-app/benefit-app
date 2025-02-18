@@ -22,8 +22,8 @@ class ProjectJsonTest {
     @BeforeEach
     void setUp() {
         project = new Project(44L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12, Set.of(
-                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null),
-                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null)
+                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.13, "This is an exceptional functional component!"),
+                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.27, "Needs further adjustment!")
         ), Set.of(new ProjectAppUser(13L)));
     }
     
@@ -57,7 +57,9 @@ class ProjectJsonTest {
                       "readingReferences": 4,
                       "writingReferences": 3,
                       "functionalMultiplier": 1,
-                      "operations": null
+                      "operations": null,
+                      "degreeOfCompletion": 0.13,
+                      "comment": "This is an exceptional functional component!"
                     },
                     {
                       "id": 100,
@@ -67,7 +69,9 @@ class ProjectJsonTest {
                       "readingReferences": null,
                       "writingReferences": null,
                       "functionalMultiplier": null,
-                      "operations": null
+                      "operations": null,
+                      "degreeOfCompletion": 0.27,
+                      "comment": "Needs further adjustment!"
                     }
                   ],
                   "appUsers": [

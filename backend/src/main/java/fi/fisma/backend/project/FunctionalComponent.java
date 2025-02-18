@@ -18,4 +18,6 @@ public class FunctionalComponent {
     private Integer writingReferences;
     private Integer functionalMultiplier;
     private Integer operations;
+    private Double degreeOfCompletion;
+    private String comment;
 }

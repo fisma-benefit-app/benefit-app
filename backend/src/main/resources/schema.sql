@@ -26,7 +26,9 @@ create table if not exists functional_component
     writing_references    integer,
     functional_multiplier integer,
     operations            integer,
-    project_id            bigint  not null references project (id)
+    degree_of_completion  decimal,
+    comment               text,
+    project_id            bigint not null references project (id)
 );
 
 create table if not exists project_app_user
