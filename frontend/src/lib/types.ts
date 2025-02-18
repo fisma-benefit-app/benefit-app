@@ -7,10 +7,12 @@ export type TGenericComponent = {
   writingReferences: number | null;
   functionalMultiplier: number | null;
   operations: number | null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 }
 
-export type TInteractiveEndUserNavigatioinAndQueryService = {
+export type TInteractiveEndUserNavigationAndQueryService = {
   id: number;
   className: "Interactive end-user navigation and query service";
   componentType:
@@ -27,6 +29,8 @@ export type TInteractiveEndUserNavigatioinAndQueryService = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -39,10 +43,12 @@ export type TInteractiveEndUserInputService = {
   writingReferences: number;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 }
 
-export type TDataStrorageService = {
+export type TDataStorageService = {
   id: number;
   className: "Data storage service";
   componentType: null | "entities or classes" | "other record types";
@@ -51,10 +57,11 @@ export type TDataStrorageService = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
-/////uudet
 export type TNonInteractiveEndUserOutputService = {
   id: number;
   className: "Non-interactive end-user output service";
@@ -64,6 +71,8 @@ export type TNonInteractiveEndUserOutputService = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -76,6 +85,8 @@ export type TInterfaceServiceToOtherApplications = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -88,6 +99,8 @@ export type TInterfaceServiceFromOtherApplications = {
   writingReferences: number;
   functionalMultiplier: null;
   operations: null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };
 
@@ -107,5 +120,7 @@ export type TAlgorithmicOrManipulationService = {
   writingReferences: null;
   functionalMultiplier: null;
   operations: number;
+  degreeOfCompletion: number | null;
+  comment: string | null;
   projectId: number;
 };

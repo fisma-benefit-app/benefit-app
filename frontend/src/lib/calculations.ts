@@ -1,14 +1,14 @@
 import {
-  TDataStrorageService,
+  TDataStorageService,
   TInteractiveEndUserInputService,
-  TInteractiveEndUserNavigatioinAndQueryService,
+  TInteractiveEndUserNavigationAndQueryService,
   TNonInteractiveEndUserOutputService,
   TInterfaceServiceToOtherApplications,
   TInterfaceServiceFromOtherApplications,
   TAlgorithmicOrManipulationService
 } from "./types.ts";
 
-const calculateInteractiveEndUserNavigationAndQueryService = (functionalComponent: TInteractiveEndUserNavigatioinAndQueryService,) => {
+const calculateInteractiveEndUserNavigationAndQueryService = (functionalComponent: TInteractiveEndUserNavigationAndQueryService,) => {
   if (!functionalComponent.componentType) {
     throw new Error("ComponentType missing when calculateInteractiveEndUserNavigationAndQueryService");
   }
@@ -57,7 +57,7 @@ const calculateInterfaceServiceFromOtherApplications = (functionalComponent: TIn
   return 0.2 + (dataElements / 5) + (writingReferences / 1.5) + (readingReferences / 2);
 }
 
-const calculateDataStorageService = (functionalComponent: TDataStrorageService) => {
+const calculateDataStorageService = (functionalComponent: TDataStorageService) => {
   const { dataElements } = functionalComponent;
 
   return 1.5 + (dataElements / 4);

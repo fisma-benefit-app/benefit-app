@@ -1,7 +1,7 @@
 import {
-  TDataStrorageService,
+  TDataStorageService,
   TInteractiveEndUserInputService,
-  TInteractiveEndUserNavigatioinAndQueryService,
+  TInteractiveEndUserNavigationAndQueryService,
   TNonInteractiveEndUserOutputService,
   TInterfaceServiceToOtherApplications,
   TInterfaceServiceFromOtherApplications,
@@ -20,8 +20,10 @@ export const componentTemplates = [
       writingReferences: null,
       functionalMultiplier: null,
       operations: null,
+      degreeOfCompletion: null,
+      comment: null,
       projectId: 0, // TODO - better option than 0?
-    } as TInteractiveEndUserNavigatioinAndQueryService
+    } as TInteractiveEndUserNavigationAndQueryService
   },
   {
     className: "Interactive end-user input service",
@@ -34,6 +36,8 @@ export const componentTemplates = [
       writingReferences: 0,
       functionalMultiplier: null,
       operations: null,
+      degreeOfCompletion: null,
+      comment: null,
       projectId: 0,
     } as TInteractiveEndUserInputService,
   },
@@ -48,8 +52,10 @@ export const componentTemplates = [
       writingReferences: null,
       functionalMultiplier: null,
       operations: null,
+      degreeOfCompletion: null,
+      comment: null,
       projectId: 0,
-    } as TDataStrorageService,
+    } as TDataStorageService,
   },
   {
     className: "Non-interactive end-user output service",
@@ -62,6 +68,8 @@ export const componentTemplates = [
       writingReferences: null,
       functionalMultiplier: null,
       operations: null,
+      degreeOfCompletion: null,
+      comment: null,
       projectId: 0,
     } as TNonInteractiveEndUserOutputService,
   },
@@ -76,6 +84,8 @@ export const componentTemplates = [
       writingReferences: null,
       functionalMultiplier: null,
       operations: null,
+      degreeOfCompletion: null,
+      comment: null,
       projectId: 0,
     } as TInterfaceServiceToOtherApplications,
   },
@@ -90,6 +100,8 @@ export const componentTemplates = [
       writingReferences: 0,
       functionalMultiplier: null,
       operations: null,
+      degreeOfCompletion: null,
+      comment: null,
       projectId: 0,
     } as TInterfaceServiceFromOtherApplications,
   },
@@ -104,6 +116,8 @@ export const componentTemplates = [
       writingReferences: null,
       functionalMultiplier: null,
       operations: 0,
+      degreeOfCompletion: null,
+      comment: null,
       projectId: 0,
     } as TAlgorithmicOrManipulationService,
   }
