@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as React from "react";
 import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
 import { TGenericComponent } from "../lib/types.ts";
-import { deleteCalculationRow, saveCalculationRow } from "../api/apiCalls.ts";
+import { deleteCalculationRow, saveCalculationRow } from "../api/functionalComponent.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
 
 type FunctionalClassComponentProps = {
