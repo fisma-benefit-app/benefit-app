@@ -11,12 +11,12 @@ const fetchJWT = async (username: string, password: string) => {
 
     try {
         const response = await fetch(fetchURL, { method: "POST", headers });
-
+        
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        const token = await response.text();
+        const token = response.headers.get("Authorization");
         console.log("Token received: ", token);
         return token;
     } catch (error) {

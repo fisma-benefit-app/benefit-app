@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as React from "react";
-import { classNameOptions } from "../lib/fc-constants.ts";
+import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
 import { TGenericComponent } from "../lib/types.ts";
 import { deleteCalculationRow, saveCalculationRow } from "../api/apiCalls.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
@@ -51,8 +51,8 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
             <option disabled value="">Valitse toimintoluokka</option>
             {classNameOptions.map((className) => {
               return (
-                <option key={className} value={className}>
-                  {className}
+                <option key={className.value} value={className.value}>
+                  {className.displayName}
                 </option>
               );
             })}
@@ -71,8 +71,8 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
                 {/* todo: add option for no component type if needed */}
                 {componentTypeOptions.map((option) => {
                   return (
-                    <option key={option} value={option}>
-                      {option}
+                    <option key={option.value} value={option.value}>
+                      {option.displayName}
                     </option>
                   );
                 })}
@@ -150,12 +150,13 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
           {Object.entries(component)
             .filter(
               ([key, value]) =>
-                !["id", "className", "componentType", "degreeOfCompletion", "comment", "projectId"].includes(key) &&
+                !["id", "className", "componentType", "degreeOfCompletion", "comment", "projectId", "functionalMultiplier"].includes(key) &&
                 value !== null,
             )
             .map(([key, value]) => (
               <div key={key} className="flex flex-col gap-2 items-center">
-                <label htmlFor={key}>{key}:</label>
+                 {/* Display finnish name for parameters */}
+                <label htmlFor={key}>{parameterDisplayNames[key as keyof TParameterDisplayNames]}:</label>
                 <input
                   className="w-16 border-2 border-gray-400 p-1 rounded-xl"
                   id={key}

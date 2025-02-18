@@ -12,7 +12,7 @@ export type TGenericComponent = {
   projectId: number;
 }
 
-export type TInteractiveEndUserNavigatioinAndQueryService = {
+export type TInteractiveEndUserNavigationAndQueryService = {
   id: number;
   className: "Interactive end-user navigation and query service";
   componentType:
@@ -48,7 +48,7 @@ export type TInteractiveEndUserInputService = {
   projectId: number;
 }
 
-export type TDataStrorageService = {
+export type TDataStorageService = {
   id: number;
   className: "Data storage service";
   componentType: null | "entities or classes" | "other record types";
@@ -62,7 +62,6 @@ export type TDataStrorageService = {
   projectId: number;
 };
 
-/////uudet
 export type TNonInteractiveEndUserOutputService = {
   id: number;
   className: "Non-interactive end-user output service";

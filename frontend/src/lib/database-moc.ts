@@ -16,7 +16,7 @@ export const projectFromDb = {
       functionalMultiplier: 1,
       operations: null,
       degreeOfCompletion: 0.13,
-      comment: "This is an exceptional functional component!",
+      comment: "Poikkeuksellinen komponentti!",
       projectId: 44,
     },
     {
@@ -29,7 +29,7 @@ export const projectFromDb = {
       functionalMultiplier: null,
       operations: null,
       degreeOfCompletion: 0.27,
-      comment: "Needs further adjustment!",
+      comment: "Tämä täytyy tarkistaa myöhemmin uudelleen.",
       projectId: 44,
     },
   ],

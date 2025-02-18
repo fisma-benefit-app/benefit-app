@@ -1,7 +1,7 @@
 import {
-  TDataStrorageService,
+  TDataStorageService,
   TInteractiveEndUserInputService,
-  TInteractiveEndUserNavigatioinAndQueryService,
+  TInteractiveEndUserNavigationAndQueryService,
   TNonInteractiveEndUserOutputService,
   TInterfaceServiceToOtherApplications,
   TInterfaceServiceFromOtherApplications,
@@ -23,7 +23,7 @@ export const componentTemplates = [
       degreeOfCompletion: null,
       comment: null,
       projectId: 0, // TODO - better option than 0?
-    } as TInteractiveEndUserNavigatioinAndQueryService
+    } as TInteractiveEndUserNavigationAndQueryService
   },
   {
     className: "Interactive end-user input service",
@@ -55,7 +55,7 @@ export const componentTemplates = [
       degreeOfCompletion: null,
       comment: null,
       projectId: 0,
-    } as TDataStrorageService,
+    } as TDataStorageService,
   },
   {
     className: "Non-interactive end-user output service",

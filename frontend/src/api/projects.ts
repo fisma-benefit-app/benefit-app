@@ -8,7 +8,7 @@ const fetchAllProjects = async (sessionToken: string | null) => {
 
     const fetchURL = `${apiURL}/projects`;
     const headers = {
-        "Authorization": `Bearer ${sessionToken}`
+        "Authorization": sessionToken
     }
 
     try {
@@ -18,7 +18,6 @@ const fetchAllProjects = async (sessionToken: string | null) => {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        console.log(response);
         const projects = await response.json();
         console.log(projects);
     } catch (error) {
