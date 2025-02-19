@@ -1,17 +1,24 @@
 package fi.fisma.backend.project;
 
+import fi.fisma.backend.appuser.AppUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/projects")
 public class ProjectController {
     private final ProjectRepository projectRepository;
+    private final AppUserRepository appUserRepository;
     
     @GetMapping("/{requestedId}")
     private ResponseEntity<Project> getProject(@PathVariable Long requestedId, Principal principal) {
@@ -36,4 +43,21 @@ public class ProjectController {
         }
         return ResponseEntity.notFound().build();
     }
+    
+    @PostMapping
+    private ResponseEntity<Void> createProject(@RequestBody Project newProjectRequest, UriComponentsBuilder ucb, Principal principal) {
+        var appUser = appUserRepository.findByUsername(principal.getName());
+        if (appUser != null) {
+            var savedProject = projectRepository.save(
+                    new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), LocalDateTime.now(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
+            );
+            URI locationOfNewProject = ucb
+                    .path("/projects/{id}")
+                    .buildAndExpand(savedProject.getId())
+                    .toUri();
+            return ResponseEntity.created(locationOfNewProject).build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Todo - refactor with exception handling
+    }
+    
 }
