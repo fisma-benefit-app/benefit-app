@@ -52,7 +52,7 @@ class ProjectControllerTest {
                         new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null,  0.34, "hakijan valinnat")
                 ),
                 Set.of(new ProjectAppUser(13L)));
-        when(projectRepository.findByProjectIdAndAppUserId(77L, 13L)).thenReturn(Optional.of(project));
+        when(projectRepository.findByProjectIdAndUsername(77L, "test-user")).thenReturn(Optional.of(project));
     }
     
     @Test
@@ -86,17 +86,21 @@ class ProjectControllerTest {
     
     @Test
     void shouldNotReturnAProjectWhereUserIsNotListedAsAnProjectAppUser() {
+        var someoneAppUser = new AppUser(15L, "someone", "someone-password");
+        when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
         var someonesProject = new Project(88L, "someones project", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
                         new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
                         new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
                 ),
                 Set.of(new ProjectAppUser(15L)));
-        when(projectRepository.findByProjectIdAndAppUserId(88L, 15L)).thenReturn(Optional.of(someonesProject));
-        
+        when(projectRepository.findByProjectIdAndUsername(88L, "someone")).thenReturn(Optional.of(someonesProject));
+
         assertThat(mockMvc.get().uri("/projects/88").with(jwt().jwt(jwt -> jwt.subject("test-user")))).hasStatus(HttpStatus.NOT_FOUND);
+        
+        assertThat(mockMvc.get().uri("/projects/88").with(jwt().jwt(jwt -> jwt.subject("someone")))).hasStatusOk();
     }
-    
+
     @Test
     void shouldReturnAllProjectsWhereAppUserIsListedAsAnProjectAppUser() {
         var projects = List.of(
@@ -112,29 +116,31 @@ class ProjectControllerTest {
                                 new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null,  0.34, "hakijan valinnat")
                         ),
                         Set.of(new ProjectAppUser(13L))));
-        when(projectRepository.findAllByAppUserId(13L)).thenReturn(projects);
-        
+        when(projectRepository.findAllByUsername("test-user")).thenReturn(projects);
+
         var response = mockMvc.get().uri("/projects").with(jwt().jwt(jwt -> jwt.subject("test-user"))).exchange();
-        
+
         assertThat(response).hasStatusOk();
-        
+
         assertThat(response).bodyJson().extractingPath("$.length()").isEqualTo(2);
-        
+
         assertThat(response).bodyJson().extractingPath("$[0].id").isEqualTo(88);
         assertThat(response).bodyJson().extractingPath("$[0].projectName").isEqualTo("project one");
         assertThat(response).bodyJson().extractingPath("$[0].version").isEqualTo(1);
         assertThat(response).bodyJson().extractingPath("$[0].createdDate").isEqualTo("2025-01-28T17:23:19");
         assertThat(response).bodyJson().extractingPath("$[0].totalPoints").isEqualTo(100.12);
-        
+
         assertThat(response).bodyJson().extractingPath("$[1].id").isEqualTo(98);
         assertThat(response).bodyJson().extractingPath("$[1].projectName").isEqualTo("project two");
         assertThat(response).bodyJson().extractingPath("$[1].version").isEqualTo(1);
         assertThat(response).bodyJson().extractingPath("$[1].createdDate").isEqualTo("2025-01-28T17:23:19");
         assertThat(response).bodyJson().extractingPath("$[1].totalPoints").isEqualTo(100.12);
     }
-    
+
     @Test
     void shouldNotReturnAProjectsWhereAppUserIsNotListedAsAProjectAppUserAndReturnEmptyList() {
+        var someoneAppUser = new AppUser(15L, "someone", "someone-password");
+        when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
         var projects = List.of(
                 new Project(88L, "project one", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                         Set.of(
@@ -148,15 +154,15 @@ class ProjectControllerTest {
                                 new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null,  0.34, "hakijan valinnat")
                         ),
                         Set.of(new ProjectAppUser(15L))));
-        when(projectRepository.findAllByAppUserId(15L)).thenReturn(projects);
-        
+        when(projectRepository.findAllByUsername("someone")).thenReturn(projects);
+
         var response = mockMvc.get().uri("/projects").with(jwt().jwt(jwt -> jwt.subject("test-user"))).exchange();
-        
+
         assertThat(response).hasStatusOk();
-        
+
         assertThat(response).bodyJson().extractingPath("$.length()").isEqualTo(0);
     }
-    
+
     @Test
     void shouldUpdateAndReturnAProjectWithAKnowId() throws JsonProcessingException {
         var updatedProject = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
@@ -167,16 +173,16 @@ class ProjectControllerTest {
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(updatedProject)).thenReturn(updatedProject);
-        
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         String updatedProjectJson = objectMapper.writeValueAsString(updatedProject);
 
         var response = mockMvc.put().uri("/projects/77").with(jwt().jwt(jwt -> jwt.subject("test-user"))).contentType(MediaType.APPLICATION_JSON).content(updatedProjectJson).exchange();
-        
+
         assertThat(response).hasStatusOk();
-        
+
         assertThat(response).bodyJson().extractingPath("$.id").isEqualTo(77);
         assertThat(response).bodyJson().extractingPath("$.projectName").isEqualTo("project-x");
         assertThat(response).bodyJson().extractingPath("$.version").isEqualTo(1);
@@ -184,13 +190,13 @@ class ProjectControllerTest {
         assertThat(response).bodyJson().extractingPath("$.totalPoints").isEqualTo(100.12);
 
 //        assertThat(response).bodyJson().extractingPath("$.functionalComponents[*].id"); TODO - continue here and find out how to test functionalComponents (Set doesn't have an order).
-        
+
         assertThat(response).bodyJson().extractingPath("$.functionalComponents.length()").isEqualTo(3);
-        
+
         assertThat(response).bodyJson().extractingPath("$.appUsers.length()").isEqualTo(1);
         assertThat(response).bodyJson().extractingPath("$.appUsers[0].appUserId").isEqualTo(13);
     }
-    
+
    @Test
    void shoudNotUpdateAProjectThatDoesNotExist() throws JsonProcessingException {
        var projectThatDoesNotExist = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
@@ -201,27 +207,29 @@ class ProjectControllerTest {
                ),
                Set.of(new ProjectAppUser(13L)));
        when(projectRepository.save(projectThatDoesNotExist)).thenReturn(projectThatDoesNotExist);
-       
+
        ObjectMapper objectMapper = new ObjectMapper();
        objectMapper.registerModule(new JavaTimeModule());
        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
        String updatedProjectJson = objectMapper.writeValueAsString(projectThatDoesNotExist);
-       
+
        var response = mockMvc.put().uri("/projects/999").with(jwt().jwt(jwt -> jwt.subject("test-user"))).contentType(MediaType.APPLICATION_JSON).content(updatedProjectJson).exchange();
-       
+
        assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
    }
-   
+
    @Test
     void shouldNotUpdateAProjectWhereAppUserIsNotListedAsAProjectAppUser() throws JsonProcessingException {
+       var someoneAppUser = new AppUser(13L, "someone", "someone-password");
+       when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
        var someonesProject = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                Set.of(
                        new FunctionalComponent(49L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
                        new FunctionalComponent(400L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
                ),
                Set.of(new ProjectAppUser(16L)));
-       when(projectRepository.findByProjectIdAndAppUserId(999L, 16L)).thenReturn(Optional.of(someonesProject));
-       
+       when(projectRepository.findByProjectIdAndUsername(999L, "someone")).thenReturn(Optional.of(someonesProject));
+
        var projectThatIsTriedToUpdate = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                Set.of(
                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
@@ -230,16 +238,16 @@ class ProjectControllerTest {
                ),
                Set.of(new ProjectAppUser(13L)));
        when(projectRepository.save(projectThatIsTriedToUpdate)).thenReturn(projectThatIsTriedToUpdate);
-       
+
        ObjectMapper objectMapper = new ObjectMapper();
        objectMapper.registerModule(new JavaTimeModule());
        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
        String updatedProjectJson = objectMapper.writeValueAsString(projectThatIsTriedToUpdate);
-       
+
        var response = mockMvc.put().uri("/projects/999").with(jwt().jwt(jwt -> jwt.subject("test-user"))).contentType(MediaType.APPLICATION_JSON).content(updatedProjectJson).exchange();
-       
+
        assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
-       
+
    }
    
 }

@@ -1,6 +1,5 @@
 package fi.fisma.backend.project;
 
-import fi.fisma.backend.appuser.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,35 +12,22 @@ import java.util.List;
 @RequestMapping("/projects")
 public class ProjectController {
     private final ProjectRepository projectRepository;
-    private final AppUserRepository appUserRepository;
     
     @GetMapping("/{requestedId}")
     private ResponseEntity<Project> getProject(@PathVariable Long requestedId, Principal principal) {
-        var user = appUserRepository.findByUsername(principal.getName()); // No Optional because findByUsername is also used in UserDetailsServiceImpl
-        if (user == null) {
-            return ResponseEntity.notFound().build(); // TODO - refactor ProjectAppUser to use username?
-        }
-        var project = projectRepository.findByProjectIdAndAppUserId(requestedId, user.getId());
+        var project = projectRepository.findByProjectIdAndUsername(requestedId, principal.getName());
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
     
     @GetMapping
     private ResponseEntity<List<Project>> getAllProjects(Principal principal) {
-        var user = appUserRepository.findByUsername(principal.getName());
-        if (user == null) {
-            return ResponseEntity.notFound().build(); // TODO - refactor ProjectAppUser to use username?
-        }
-        var projects = projectRepository.findAllByAppUserId(user.getId());
+        var projects = projectRepository.findAllByUsername(principal.getName());
         return ResponseEntity.ok(projects);
     }
     
     @PutMapping("/{requestedId}")
     private ResponseEntity<Project> updateProject(@PathVariable Long requestedId, @RequestBody Project projectUpdate, Principal principal) {
-        var user = appUserRepository.findByUsername(principal.getName());
-        if (user == null) {
-            return ResponseEntity.notFound().build(); // TODO - refactor ProjectAppUser to use username?
-        }
-        var projectOptional = projectRepository.findByProjectIdAndAppUserId(requestedId, user.getId());
+        var projectOptional = projectRepository.findByProjectIdAndUsername(requestedId, principal.getName());
         if (projectOptional.isPresent()) {
             var project = projectOptional.get();
             var updatedProject = projectRepository.save(

@@ -43,7 +43,7 @@ class TokenControllerTest {
                         new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
                 ),
                 Set.of(new ProjectAppUser(13L)));
-        when(projectRepository.findByProjectIdAndAppUserId(77L, 13L)).thenReturn(Optional.of(project));
+        when(projectRepository.findByProjectIdAndUsername(77L, "test-user")).thenReturn(Optional.of(project));
         
         var tokenResponse = mockMvc.post().uri("/token").with(httpBasic("test-user", "user")).exchange();
         
