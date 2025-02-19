@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 
@@ -300,6 +300,57 @@ class ProjectControllerTest {
         var createResponse = mockMvc.post().uri("/projects").contentType(MediaType.APPLICATION_JSON).content(newProjectJson).exchange();
         
         assertThat(createResponse).hasStatus(HttpStatus.FORBIDDEN);
+    }
+    
+    @Test
+    void shouldDeleteProject() {
+        when(projectRepository.existsByProjectIdAndUsername(77L, "test-user")).thenReturn(true);
+        
+        doNothing().when(projectRepository).deleteById(77L);
+        
+        var response = mockMvc.delete().uri("/projects/77").with(jwt().jwt(jwt -> jwt.subject("test-user"))).exchange();
+        
+        assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
+        
+        verify(projectRepository, times(1)).deleteById(77L);
+    }
+    
+    @Test
+    void shouldNotDeleteProjectWithoutCredentials() {
+        when(projectRepository.existsByProjectIdAndUsername(77L, "test-user")).thenReturn(true);
+        
+        doNothing().when(projectRepository).deleteById(77L);
+        
+        var response = mockMvc.delete().uri("/projects/77").exchange();
+        
+        assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
+    }
+    
+    @Test
+    void shouldNotDeleteProjectWhereAppUserIsNotListedAsAProjectAppUser() {
+        when(projectRepository.existsByProjectIdAndUsername(77L, "test-user")).thenReturn(true);
+        
+        doNothing().when(projectRepository).deleteById(77L);
+        
+        var someoneAppUser = new AppUser(15L, "someone", "someone-password");
+        when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
+        
+        var response = mockMvc.delete().uri("/projects/77").with(jwt().jwt(jwt -> jwt.subject("someone"))).exchange();
+        
+        assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+    }
+    
+    @Test
+    void shouldNotDeleteProjectThatDoesNotExist() {
+        when(projectRepository.existsByProjectIdAndUsername(777L, "test-user")).thenReturn(false);
+        
+        doNothing().when(projectRepository).deleteById(777L);
+        
+        var response = mockMvc.delete().uri("/projects/777").with(jwt().jwt(jwt -> jwt.subject("test-user"))).exchange();
+        
+        assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+        
+        verify(projectRepository, times(0)).deleteById(777L);
     }
     
 }

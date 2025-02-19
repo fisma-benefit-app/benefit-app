@@ -60,4 +60,13 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Todo - refactor with exception handling
     }
     
+    @DeleteMapping("/{requestedId}")
+    private ResponseEntity<Void> deleteProject(@PathVariable Long requestedId, Principal principal) {
+        if (projectRepository.existsByProjectIdAndUsername(requestedId, principal.getName())) {
+            projectRepository.deleteById(requestedId);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+    
 }

@@ -18,11 +18,22 @@ public interface ProjectRepository extends ListCrudRepository<Project, Long> {
     Optional<Project> findByProjectIdAndUsername(@Param("projectId") Long projectId, @Param("username") String username);
     
     @Query("""
-                SELECT p.*
+            SELECT p.*
+            FROM project p
+            JOIN project_app_user pau ON p.id = pau.project_id
+            JOIN app_user u ON pau.app_user_id = u.id
+            WHERE u.username = :username
+            """)
+    List<Project> findAllByUsername(@Param("username") String username);
+    
+    @Query("""
+            SELECT EXISTS(
+                SELECT 1
                 FROM project p
                 JOIN project_app_user pau ON p.id = pau.project_id
                 JOIN app_user u ON pau.app_user_id = u.id
-                WHERE u.username = :username
+                WHERE p.id = :projectId AND u.username = :username
+                )
             """)
-    List<Project> findAllByUsername(@Param("username") String username);
+    boolean existsByProjectIdAndUsername(@Param("projectId") Long projectId, @Param("username") String username);
 }
