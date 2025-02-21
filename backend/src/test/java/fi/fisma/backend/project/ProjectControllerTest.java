@@ -306,8 +306,6 @@ class ProjectControllerTest {
     void shouldDeleteProject() {
         when(projectRepository.existsByProjectIdAndUsername(77L, "test-user")).thenReturn(true);
         
-        doNothing().when(projectRepository).deleteById(77L);
-        
         var response = mockMvc.delete().uri("/projects/77").with(jwt().jwt(jwt -> jwt.subject("test-user"))).exchange();
         
         assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
@@ -319,18 +317,16 @@ class ProjectControllerTest {
     void shouldNotDeleteProjectWithoutCredentials() {
         when(projectRepository.existsByProjectIdAndUsername(77L, "test-user")).thenReturn(true);
         
-        doNothing().when(projectRepository).deleteById(77L);
-        
         var response = mockMvc.delete().uri("/projects/77").exchange();
         
         assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
+        
+        verify(projectRepository, times(0)).deleteById(77L);
     }
     
     @Test
     void shouldNotDeleteProjectWhereAppUserIsNotListedAsAProjectAppUser() {
         when(projectRepository.existsByProjectIdAndUsername(77L, "test-user")).thenReturn(true);
-        
-        doNothing().when(projectRepository).deleteById(77L);
         
         var someoneAppUser = new AppUser(15L, "someone", "someone-password");
         when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
@@ -338,13 +334,13 @@ class ProjectControllerTest {
         var response = mockMvc.delete().uri("/projects/77").with(jwt().jwt(jwt -> jwt.subject("someone"))).exchange();
         
         assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+        
+        verify(projectRepository, times(0)).deleteById(77L);
     }
     
     @Test
     void shouldNotDeleteProjectThatDoesNotExist() {
         when(projectRepository.existsByProjectIdAndUsername(777L, "test-user")).thenReturn(false);
-        
-        doNothing().when(projectRepository).deleteById(777L);
         
         var response = mockMvc.delete().uri("/projects/777").with(jwt().jwt(jwt -> jwt.subject("test-user"))).exchange();
         

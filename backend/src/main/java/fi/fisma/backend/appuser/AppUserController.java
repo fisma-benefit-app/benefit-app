@@ -1,5 +1,6 @@
 package fi.fisma.backend.appuser;
 
+import fi.fisma.backend.project.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,6 +13,7 @@ import java.security.Principal;
 @RequestMapping("/appusers")
 public class AppUserController {
     private final AppUserRepository appUserRepository;
+    private final ProjectRepository projectRepository;
     
     @PutMapping
     private ResponseEntity<Void> changePassword(@RequestBody String updatedPassword, Principal principal, BCryptPasswordEncoder passwordEncoder) {
@@ -24,4 +26,21 @@ public class AppUserController {
         }
         return ResponseEntity.notFound().build(); // Todo - refactor with exception handling
     }
+    
+    @DeleteMapping
+    private ResponseEntity<Void> deleteAppUser(Principal principal) {
+        var appUser = appUserRepository.findByUsername(principal.getName());
+        if (appUser != null) {
+            var appUsersPrjects = projectRepository.findAllByUsername(principal.getName());
+            appUsersPrjects.forEach(project -> {
+                if (project.getAppUsers().size() == 1 ) {
+                    projectRepository.deleteById(project.getId());
+                }
+            });
+            appUserRepository.deleteById(appUser.getId());
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build(); // Todo - refactor with exception handling
+    }
+    
 }
