@@ -9,18 +9,31 @@ import java.util.Optional;
 
 public interface ProjectRepository extends ListCrudRepository<Project, Long> {
     @Query("""
-        SELECT p.*
-        FROM project p
-        JOIN project_app_user pau ON p.id = pau.project_id
-        WHERE p.id = :projectId AND pau.app_user_id = :appUserId
-    """)
-    Optional<Project> findByProjectIdAndAppUserId(@Param("projectId") Long projectId, @Param("appUserId") Long appUserId);
+            SELECT p.*
+            FROM project p
+            JOIN project_app_user pau ON p.id = pau.project_id
+            JOIN app_user u ON pau.app_user_id = u.id
+            WHERE p.id = :projectId AND u.username = :username
+            """)
+    Optional<Project> findByProjectIdAndUsername(@Param("projectId") Long projectId, @Param("username") String username);
     
     @Query("""
-    SELECT p.*
-    FROM project p
-    JOIN project_app_user pau ON p.id = pau.project_id
-    WHERE pau.app_user_id = :appUserId
-""")
-    List<Project> findAllByAppUserId(@Param("appUserId") Long appUserId);
+            SELECT p.*
+            FROM project p
+            JOIN project_app_user pau ON p.id = pau.project_id
+            JOIN app_user u ON pau.app_user_id = u.id
+            WHERE u.username = :username
+            """)
+    List<Project> findAllByUsername(@Param("username") String username);
+    
+    @Query("""
+            SELECT EXISTS(
+                SELECT 1
+                FROM project p
+                JOIN project_app_user pau ON p.id = pau.project_id
+                JOIN app_user u ON pau.app_user_id = u.id
+                WHERE p.id = :projectId AND u.username = :username
+                )
+            """)
+    boolean existsByProjectIdAndUsername(@Param("projectId") Long projectId, @Param("username") String username);
 }
