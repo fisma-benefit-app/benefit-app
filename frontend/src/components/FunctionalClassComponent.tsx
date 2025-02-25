@@ -2,7 +2,6 @@ import { useState } from "react";
 import * as React from "react";
 import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
 import { TGenericComponent } from "../lib/types.ts";
-import { deleteCalculationRow, saveCalculationRow } from "../api/functionalComponent.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
 
 type FunctionalClassComponentProps = {
@@ -116,13 +115,11 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
           )}
           <button
             className="text-white p-1 rounded bg-[#1e73be]"
-            onClick={() => saveCalculationRow(component)}
           >
             Tallenna
           </button>
           <button
             className="bg-red-500 text-white py-1 px-3 rounded"
-            onClick={deleteCalculationRow}
           >
             X
           </button>
