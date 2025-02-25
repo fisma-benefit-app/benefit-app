@@ -1,10 +1,12 @@
+import { Project } from "./types";
+
 export const projectFromDb = {
-  id: 44,
+  id: 99,
   projectName: "project-x",
   version: 1,
   createdDate: "2025-01-28T17:23:19",
   totalPoints: 100.12,
-  appUserId: 99,
+  appUsers: [],
   functionalComponents: [
     {
       id: 99,
@@ -33,4 +35,4 @@ export const projectFromDb = {
       projectId: 44,
     },
   ],
-};
+}satisfies Project;
