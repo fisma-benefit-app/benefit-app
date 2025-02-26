@@ -47,7 +47,7 @@ export default function ProjectPage() {
             })}
           </div>
           <div className="flex-auto">
-            <FunctionalPointSummary functionalComponents={project.functionalComponents} />
+            <FunctionalPointSummary project={project} />
           </div>
         </>
       ) : (
