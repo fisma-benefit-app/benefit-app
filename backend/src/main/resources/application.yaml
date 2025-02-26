@@ -23,3 +23,10 @@ logging:
   level:
     org.springframework:
       security: trace
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info

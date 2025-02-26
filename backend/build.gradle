@@ -41,6 +41,11 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+// This disables plain archive built
+tasks.named('jar') {
+    enabled = false
+}
+
 // This section causes useful test output to go to the terminal.
 test {
     testLogging {
