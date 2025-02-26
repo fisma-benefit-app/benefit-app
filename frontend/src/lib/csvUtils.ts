@@ -26,4 +26,4 @@ export const downloadProjectComponentsCsv = async (id: string) => {
     const project = await fetchProject(sessionToken, id);
     const csvData = convertToCSV(project.functionalComponents);
     downloadCSV(csvData, 'project.csv');
-  }
+}

@@ -1,7 +1,6 @@
 import { apiURL } from "../constants/constants"
 import { Project } from "../lib/types";
 
-//api calls for fetching all projects
 const fetchAllProjects = async (sessionToken: string | null) => {
 
     if (!sessionToken) throw new Error("User needs to be logged in to fetch projects!");
@@ -25,7 +24,6 @@ const fetchAllProjects = async (sessionToken: string | null) => {
     }
 }
 
-//api call for fetching a specific project with an id
 const fetchProject = async (sessionToken: string | null, projectId: string | undefined) => {
 
     if (!sessionToken) throw new Error("User needs to be logged in to fetch projects!");
@@ -51,7 +49,6 @@ const fetchProject = async (sessionToken: string | null, projectId: string | und
     }
 }
 
-//api call for project crud operations
 const updateProject = async (sessionToken: string | null, project: Project) => {
 
     if (!sessionToken) throw new Error("User needs to be logged in to update project!");

@@ -1,8 +1,8 @@
-import { useState } from "react";
 import * as React from "react";
+import { useState } from "react";
 import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
-import { TGenericComponent } from "../lib/types.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
+import { TGenericComponent } from "../lib/types.ts";
 
 type FunctionalClassComponentProps = {
   componentProp: TGenericComponent;
@@ -15,17 +15,18 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
   //todo: does the user need to explicitly select component type for points to be calculated?
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
-  //@ts-expect-error(TODO - component should be typed before it goes to the calculation)
+  //@ts-expect-error(TODO - component should be typed before it goes to the calculation).
   const points = calculateFunction ? calculateFunction(component) : 0;
 
   const handleClassNameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newClassName = e.target.value;
-    // component that doesn't have a className is an "empty"-comoponent
+    // Component that doesn't have a className is an "empty"-component, 
+    // this is used for id generation in backend.
     if (newClassName === "") {
       setComponent((prev) => getEmptyComponent(prev));
       return;
     }
-    // if className changes, component gets reseted (it has only className and ids)
+    // If className changes, component gets reseted (it has only className and ids).
     setComponent((prev) => getResetedComponentWithClassName(prev, newClassName));
   };
 
@@ -57,7 +58,8 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
             })}
           </select>
 
-          {/* Show option for component type and degree of completion only if component class is selected first */}
+          {/* Show option for component type and degree of completion 
+          only if component class is selected first */}
           {component.className && (
             <>
               <select
@@ -98,7 +100,8 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
         </div>
 
         <div className="flex gap-4 items-center">
-          {/* Calculate this somewhere else? */}
+          {/* todo: now calculate logic blends into render logic. This is not good. 
+          Need to move up component (to derived state). */}
           <p>= {((component.degreeOfCompletion || 0) * points).toFixed(2)} TP</p>
           <p>= {points.toFixed(2)} TP (valmis)</p>
           {/* Only show collapse button if class for row is selected */}
@@ -140,7 +143,8 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
         />
       </div>
 
-      {/* The rest of the options are only rendered if row has a selected type and it is collapsed */}
+      {/* The rest of the options are only rendered 
+      if row has a selected type and it is collapsed */}
       {component.className && isCollapsed && (
         <div className="flex gap-10">
           {Object.entries(component)
@@ -151,7 +155,7 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
             )
             .map(([key, value]) => (
               <div key={key} className="flex flex-col gap-2 items-center">
-                 {/* Display finnish name for parameters */}
+                {/* Display finnish name for parameters */}
                 <label htmlFor={key}>{parameterDisplayNames[key as keyof TParameterDisplayNames]}:</label>
                 <input
                   className="w-16 border-2 border-gray-400 p-1 rounded-xl"

@@ -1,10 +1,10 @@
-import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
-import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
-import { useParams } from "react-router";
-import { Project } from "../lib/types.ts";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router";
 import { fetchProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
+import { Project } from "../lib/types.ts";
+import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
+import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 
 export default function ProjectPage() {
 
@@ -22,7 +22,7 @@ export default function ProjectPage() {
         const projectFromDb = await fetchProject(sessionToken, selectedProjectId);
         setProject(projectFromDb)
       } catch (err) {
-        setError((err instanceof Error ? err.message : "Unexpected error occurred!"));
+        setError((err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend."));
       } finally {
         setLoadingProject(false);
       }

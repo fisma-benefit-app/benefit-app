@@ -40,6 +40,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
     //get login data from the session storage when application is refreshed
     useEffect(() => {
+        setLoadingAuth(true);
         const loginToken = sessionStorage.getItem("loginToken");
         const userInfo = sessionStorage.getItem("userInfo");
 

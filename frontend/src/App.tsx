@@ -1,11 +1,10 @@
-import { Routes, Route, Navigate } from "react-router";
-import useAppUser from "./hooks/useAppUser.tsx";
-import LoginForm from "./components/LoginForm.tsx";
-import ProtectedLayout from "./components/ProtectedLayout.tsx"
-import Project from "./components/Project.tsx";
-import ProjectPage from "./components/ProjectPage.tsx";
-import Header from "./components/Header.tsx";
+import { Navigate, Route, Routes } from "react-router";
 import Footer from "./components/Footer.tsx";
+import Header from "./components/Header.tsx";
+import LoginForm from "./components/LoginForm.tsx";
+import ProjectPage from "./components/ProjectPage.tsx";
+import ProtectedLayout from "./components/ProtectedLayout.tsx";
+import useAppUser from "./hooks/useAppUser.tsx";
 
 export default function App() {
 
@@ -23,18 +22,17 @@ export default function App() {
 
   return (
     <>
-      <Header/>
-          <Routes>
-            <Route path="/login" element={loggedIn ? <Navigate to="/"/>: <LoginForm/>} />
-            
-            <Route element={<ProtectedLayout loggedIn={loggedIn} />} >
-              <Route path="/" element={<Project/>} />
-              <Route path="/project/:selectedProjectId" element={<ProjectPage/>} />
-            </Route>
+      <Header />
+      <Routes>
+        <Route path="/login" element={loggedIn ? <Navigate to="/" /> : <LoginForm />} />
 
-          <Route path="*" element={<Navigate to={loggedIn ? "/" : "/login"} />} />
-        </Routes>  
-      <Footer/>
+        <Route element={<ProtectedLayout loggedIn={loggedIn} />} >
+          <Route path="/project/:selectedProjectId" element={<ProjectPage />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to={loggedIn ? "/" : "/login"} />} />
+      </Routes>
+      <Footer />
     </>
   )
 }
