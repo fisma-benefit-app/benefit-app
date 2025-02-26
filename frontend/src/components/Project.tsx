@@ -9,7 +9,7 @@ export default function Project() {
   const project = projectFromDb;
 
   return (
-    <div className="flex gap-5">
+    <div className="flex justify-center items-center h-screen gap-5">
       <div className="flex-1">
         {project.functionalComponents.map((component) => {
           return (
