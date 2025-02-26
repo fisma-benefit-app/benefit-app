@@ -105,9 +105,8 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
           {component.className && (
             <button
               onClick={() => setIsCollapsed((prev) => !prev)}
-              className="flex text-white p-1 rounded items-center cursor-pointer gap-1 bg-[#1e73be]"
+              className="flex text-white py-1 px-3 rounded items-center cursor-pointer gap-1 bg-[#1e73be]"
             >
-              {isCollapsed ? "Sulje" : "Avaa"}
               <span className={`inline-block text-1xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
                 ^
               </span>

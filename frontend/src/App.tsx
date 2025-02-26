@@ -1,34 +1,40 @@
-import Header from "./components/Header.tsx";
-import Footer from "./components/Footer.tsx";
-import ProjectPage from "./components/ProjectPage.tsx";
 import { Routes, Route, Navigate } from "react-router";
 import useAppUser from "./hooks/useAppUser.tsx";
 import LoginForm from "./components/LoginForm.tsx";
+import ProtectedLayout from "./components/ProtectedLayout.tsx"
 import Project from "./components/Project.tsx";
+import ProjectPage from "./components/ProjectPage.tsx";
+import Header from "./components/Header.tsx";
+import Footer from "./components/Footer.tsx";
 
 export default function App() {
 
-  const { loadingAuth, loggedIn } = useAppUser()
+  const { loadingAuth, loggedIn } = useAppUser();
 
-  //TODO: Refactor structure?
+  if (loadingAuth) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="blue" strokeWidth="4" strokeDasharray="31.4" strokeLinecap="round"></circle>
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <>
-      <Header />
-      <main className="pt-20 pb-20 flex justify-center">
-        {loadingAuth ? (
-          //TODO: probably should have some better loading screen
-          <p>Checking login...</p>
-        ) : (
+      <Header/>
           <Routes>
-            {/* If user is logged in, show the page, if not, go to login page */}
-            <Route path="/" element={loggedIn ? <Project /> : <Navigate to="/login" />} />
-            <Route path="/project/:selectedProjectId" element={loggedIn ? <ProjectPage /> : <Navigate to="/login" />} />
-            {/* If user is logged in, go to main page, if not, show login form */}
-            <Route path="/login" element={loggedIn ? <Navigate to="/" /> : <LoginForm />} />
-          </Routes>
-        )}
-      </main>
-      <Footer />
+            <Route path="/login" element={loggedIn ? <Navigate to="/"/>: <LoginForm/>} />
+            
+            <Route element={<ProtectedLayout loggedIn={loggedIn} />} >
+              <Route path="/" element={<Project/>} />
+              <Route path="/project/:selectedProjectId" element={<ProjectPage/>} />
+            </Route>
+
+          <Route path="*" element={<Navigate to={loggedIn ? "/" : "/login"} />} />
+        </Routes>  
+      <Footer/>
     </>
   )
 }
