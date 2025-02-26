@@ -1,5 +1,4 @@
-//todo: maybe better naming but appuser is already reserved in the usecontext
-export type projectUser = {
+export type projectAppUser = {
   appUserId: number
 }
 
@@ -10,7 +9,7 @@ export type Project = {
   createdDate: string,
   totalPoints: number,
   functionalComponents: TGenericComponent[],
-  appUsers: projectUser[]
+  appUsers: projectAppUser[]
 }
 
 export type TGenericComponent = {
