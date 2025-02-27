@@ -1,11 +1,11 @@
-import { apiURL } from "../constants/constants"
 import { Project, ProjectWithUpdate } from "../lib/types";
+const API_URL =  import.meta.env.VITE_API_URL;
 
 const fetchAllProjects = async (sessionToken: string | null) => {
 
     if (!sessionToken) throw new Error("User needs to be logged in to fetch projects!");
 
-    const fetchURL = `${apiURL}/projects`;
+    const fetchURL = `${API_URL}/projects`;
     const headers = {
         "Authorization": sessionToken
     }
@@ -29,7 +29,7 @@ const fetchProject = async (sessionToken: string | null, projectId: string | und
     if (!sessionToken) throw new Error("User needs to be logged in to fetch projects!");
     if (!projectId) throw new Error("Request needs the id of the project!");
 
-    const fetchURL = `${apiURL}/projects/${projectId}`;
+    const fetchURL = `${API_URL}/projects/${projectId}`;
     const headers = {
         "Authorization": sessionToken
     }
@@ -53,7 +53,7 @@ const updateProject = async (sessionToken: string | null, project: Project | Pro
 
     if (!sessionToken) throw new Error("User needs to be logged in to update project!");
 
-    const fetchURL = `${apiURL}/projects/${project.id}`;
+    const fetchURL = `${API_URL}/projects/${project.id}`;
     const headers = {
         "Authorization": sessionToken,
         "Content-Type": "application/json"
