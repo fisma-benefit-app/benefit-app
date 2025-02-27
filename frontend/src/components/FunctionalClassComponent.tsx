@@ -6,9 +6,11 @@ import { TGenericComponent } from "../lib/types.ts";
 
 type FunctionalClassComponentProps = {
   componentProp: TGenericComponent;
+  deleteFunctionalComponent: (componentId: number) => Promise<void>;
+  saveFunctionalComponent: (updatedComponent: TGenericComponent) => Promise<void>
 };
 
-export default function FunctionalClassComponent({ componentProp }: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({ componentProp, deleteFunctionalComponent, saveFunctionalComponent }: FunctionalClassComponentProps) {
   const [component, setComponent] = useState<TGenericComponent>(componentProp);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
@@ -108,7 +110,7 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
           {component.className && (
             <button
               onClick={() => setIsCollapsed((prev) => !prev)}
-              className="flex text-white py-1 px-3 rounded items-center cursor-pointer gap-1 bg-[#1e73be]"
+              className="flex text-white py-1 px-3 rounded items-center gap-1 bg-sky-600 hover:bg-sky-700 cursor-pointer"
             >
               <span className={`inline-block text-1xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
                 ^
@@ -116,12 +118,14 @@ export default function FunctionalClassComponent({ componentProp }: FunctionalCl
             </button>
           )}
           <button
-            className="text-white p-1 rounded bg-[#1e73be]"
+            className="text-white py-1 px-3 rounded bg-sky-600 hover:bg-sky-700 cursor-pointer"
+            onClick={() =>saveFunctionalComponent(component)}
           >
             Tallenna
           </button>
           <button
-            className="bg-red-500 text-white py-1 px-3 rounded"
+            className="bg-red-500 hover:bg-red-600 cursor-pointer text-white py-1 px-3 rounded"
+            onClick={() => deleteFunctionalComponent(component.id)}
           >
             X
           </button>

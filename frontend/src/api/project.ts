@@ -1,5 +1,5 @@
 import { apiURL } from "../constants/constants"
-import { Project } from "../lib/types";
+import { Project, ProjectWithUpdate } from "../lib/types";
 
 const fetchAllProjects = async (sessionToken: string | null) => {
 
@@ -49,7 +49,7 @@ const fetchProject = async (sessionToken: string | null, projectId: string | und
     }
 }
 
-const updateProject = async (sessionToken: string | null, project: Project) => {
+const updateProject = async (sessionToken: string | null, project: Project | ProjectWithUpdate) => {
 
     if (!sessionToken) throw new Error("User needs to be logged in to update project!");
 
