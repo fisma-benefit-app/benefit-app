@@ -1,6 +1,28 @@
-//todo: maybe better naming but appuser is already reserved in the usecontext
-export type projectUser = {
+export type projectAppUser = {
   appUserId: number
+}
+
+//TODO: the following 2 types are up for change but backend expects this type of data when changing functional components of a project
+export type TGenericComponentNoId = {
+  className: string | null,
+  componentType: string | null,
+  dataElements: number | null;
+  readingReferences: number | null;
+  writingReferences: number | null;
+  functionalMultiplier: number | null;
+  operations: number | null;
+  degreeOfCompletion: number | null;
+  comment: string | null;
+}
+
+export type ProjectWithUpdate = {
+  id: number,
+  projectName: string,
+  version: number,
+  createdDate: string,
+  totalPoints: number,
+  functionalComponents: (TGenericComponent | TGenericComponentNoId)[],
+  appUsers: projectAppUser[]
 }
 
 export type Project = {
@@ -10,7 +32,7 @@ export type Project = {
   createdDate: string,
   totalPoints: number,
   functionalComponents: TGenericComponent[],
-  appUsers: projectUser[]
+  appUsers: projectAppUser[]
 }
 
 export type TGenericComponent = {

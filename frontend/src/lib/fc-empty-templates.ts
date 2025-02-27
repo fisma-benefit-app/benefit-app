@@ -1,18 +1,18 @@
 import {
+  TAlgorithmicOrManipulationService,
   TDataStorageService,
   TInteractiveEndUserInputService,
   TInteractiveEndUserNavigationAndQueryService,
-  TNonInteractiveEndUserOutputService,
-  TInterfaceServiceToOtherApplications,
   TInterfaceServiceFromOtherApplications,
-  TAlgorithmicOrManipulationService
+  TInterfaceServiceToOtherApplications,
+  TNonInteractiveEndUserOutputService
 } from "./types.ts";
 
 export const componentTemplates = [
   {
     className: "Interactive end-user navigation and query service",
     resetedComponentWithClassName: {
-      id: 0, // TODO - better option than 0?
+      id: 0, // TODO - better option than 0? 
       className: "Interactive end-user navigation and query service",
       componentType: null,
       dataElements: 0,
@@ -22,7 +22,7 @@ export const componentTemplates = [
       operations: null,
       degreeOfCompletion: null,
       comment: null,
-      projectId: 0, // TODO - better option than 0?
+      projectId: 0, // TODO - better option than 0? Is this needed when we already have id?
     } as TInteractiveEndUserNavigationAndQueryService
   },
   {

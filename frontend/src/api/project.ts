@@ -1,7 +1,5 @@
 import { apiURL } from "../constants/constants"
-import { Project } from "../lib/types";
-
-//api calls for project crud operations
+import { Project, ProjectWithUpdate } from "../lib/types";
 
 const fetchAllProjects = async (sessionToken: string | null) => {
 
@@ -26,7 +24,32 @@ const fetchAllProjects = async (sessionToken: string | null) => {
     }
 }
 
-const updateProject = async (sessionToken: string | null, project: Project) => {
+const fetchProject = async (sessionToken: string | null, projectId: string | undefined) => {
+
+    if (!sessionToken) throw new Error("User needs to be logged in to fetch projects!");
+    if (!projectId) throw new Error("Request needs the id of the project!");
+
+    const fetchURL = `${apiURL}/projects/${projectId}`;
+    const headers = {
+        "Authorization": sessionToken
+    }
+
+    try {
+        const response = await fetch(fetchURL, { method: "GET", headers })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const project = await response.json();
+        return project;
+    } catch (error) {
+        console.error("Error fetching project:", error);
+        throw error;
+    }
+}
+
+const updateProject = async (sessionToken: string | null, project: Project | ProjectWithUpdate) => {
 
     if (!sessionToken) throw new Error("User needs to be logged in to update project!");
 
@@ -52,5 +75,6 @@ const updateProject = async (sessionToken: string | null, project: Project) => {
 
 export {
     fetchAllProjects,
+    fetchProject,
     updateProject
 }
