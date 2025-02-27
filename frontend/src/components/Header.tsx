@@ -14,8 +14,8 @@ const Header = () => {
   }
 
   return (
-    <header className="fixed top-0 w-full bg-sky-600 text-white shadow-md flex items-stretch z-1">
-      <img src="../assets/Fisma_logo.png" alt="FISMA Logo" className="h-15 w-auto mb-2 ml-2" />
+    <header className="fixed top-0 w-full bg-sky-600 text-white flex ">
+      <img src="../../public/Fisma_logo.png" alt="FISMA Logo" className="h-15 w-auto mb-2 ml-2" />
       <h1 className="text-lg flex items-end pb-1.5">Toimintopistelaskuri</h1>
       <div className='absolute top-0 right-0 h-full flex items-center'>
         {loggedIn &&
