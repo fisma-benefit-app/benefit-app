@@ -122,9 +122,7 @@ Please read [add a backend manual] from documents -directory for more informatio
 
 The structure of Benefit's SQL database is shown in the below diagram:
 
-![fisma-benefit-database-diagram-01](https://github.com/user-attachments/assets/d47a503f-ef6f-4ca6-8c7b-2afcb7de5538)
-
-Picture #: Diagram of Benefit's database. [Placeholder, must be updated]
+![FiSMA db diagram](https://github.com/user-attachments/assets/0a503ab0-fe85-4d01-af8b-601663ff2205)
 
 ---
 
