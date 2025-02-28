@@ -2,7 +2,6 @@ import { Project, TGenericComponent } from '../lib/types';
 import { getCalculateFuntion } from '../lib/fc-service-functions';
 import { downloadProjectComponentsCsv } from '../lib/csvUtils';
 
-
 type FunctionalClassComponentProps = {
   project: Project;
 };
@@ -24,7 +23,7 @@ const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]
 export const FunctionalPointSummary = ({ project}: FunctionalClassComponentProps) => {
 
   return (
-    <div className="flex flex-col gap-3 border-2 bg-[#fafaf5] my-5 rounded-2xl p-4 sticky top-40">
+    <div className="flex flex-col gap-3 border-2 bg-[#fafaf5] my-5 rounded-2xl p-4 sticky top-60">
       Yhteenveto
       <div className="flex flex-col">
         {project.functionalComponents.map((component, i) => {

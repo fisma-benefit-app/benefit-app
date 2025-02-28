@@ -1,22 +1,26 @@
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
-import { TGenericComponent } from "../lib/types.ts";
+import { TGenericComponent, Project } from "../lib/types.ts";
 
 type FunctionalClassComponentProps = {
   componentProp: TGenericComponent;
   deleteFunctionalComponent: (componentId: number) => Promise<void>;
-  saveFunctionalComponent: (updatedComponent: TGenericComponent) => Promise<void>
+  project: Project | null,
+  setProject: React.Dispatch<React.SetStateAction<Project | null>>
 };
 
-export default function FunctionalClassComponent({ componentProp, deleteFunctionalComponent, saveFunctionalComponent }: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({ componentProp, deleteFunctionalComponent, project, setProject }: FunctionalClassComponentProps) {
+
   const [component, setComponent] = useState<TGenericComponent>(componentProp);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
+
   //todo: does the user need to explicitly select component type for points to be calculated?
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
+
   //@ts-expect-error(TODO - component should be typed before it goes to the calculation).
   const points = calculateFunction ? calculateFunction(component) : 0;
 
@@ -39,6 +43,15 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
     }
     setComponent((prev) => ({ ...prev, componentType: newOptionType || null }));
   };
+
+  //this is a first attempt to get whole project saving working, there is probably a better way which we should discuss
+  useEffect(() => {
+    if (project) {
+      const componentsWithUpdatedComponent = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? component : functionalComponent);
+      const projectWithUpdatedcomponent: Project = { ...project, functionalComponents: componentsWithUpdatedComponent };
+      setProject(projectWithUpdatedcomponent);
+    }
+  }, [component])
 
   return (
     <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 bg-[#fafaf5] my-5 rounded-2xl w-[1075px] p-4">
@@ -117,12 +130,6 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
               </span>
             </button>
           )}
-          <button
-            className="text-white py-1 px-3 rounded bg-sky-600 hover:bg-sky-700 cursor-pointer"
-            onClick={() =>saveFunctionalComponent(component)}
-          >
-            Tallenna
-          </button>
           <button
             className="bg-red-500 hover:bg-red-600 cursor-pointer text-white py-1 px-3 rounded"
             onClick={() => deleteFunctionalComponent(component.id)}
