@@ -2,15 +2,11 @@ spring:
   application:
     name: backend
 
-  config:
-    import: optional:aws-secretsmanager:/secrets/fismadb-secrets;/secrets/fismajwt-secrets
-
 
   datasource:
-    username: ${username:myuser}
-    password: ${password:secret}
-    url: jdbc:postgresql://${host:127.0.0.1}:${port:5432}/${dbname:fisma_db}
-#    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
+    username: myuser
+    password: secret
+    url: jdbc:postgresql://127.0.0.1:5432/fisma_db
 
 
   sql:
@@ -19,8 +15,8 @@ spring:
 
 
 jwt:
-  private.key: ${JWT_PRIVATE_KEY:classpath:./local-dev-keys/app.key}
-  public.key: ${JWT_PUBLIC_KEY:classpath:./local-dev-keys/app.pub}
+  private.key: classpath:./jwt-keys/app.key
+  public.key: classpath:./jwt-keys/app.pub
 
 
 logging:
