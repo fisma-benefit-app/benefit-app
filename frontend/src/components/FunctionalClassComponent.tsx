@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
 import { TGenericComponent, Project } from "../lib/types.ts";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
 type FunctionalClassComponentProps = {
   componentProp: TGenericComponent;
@@ -32,7 +34,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
       setComponent((prev) => getEmptyComponent(prev));
       return;
     }
-    // If className changes, component gets reseted (it has only className and ids).
+    // If className changes, component gets reset (it has only className and ids).
     setComponent((prev) => getResetedComponentWithClassName(prev, newClassName));
   };
 
@@ -54,14 +56,14 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
   }, [component])
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 bg-[#fafaf5] my-5 rounded-2xl w-[1075px] p-4">
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 border-fisma-dark-blue bg-white my-5 w-[1075px] p-4">
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">
           <select
             id="functionalClassSelection"
             value={component.className || ""}
             onChange={handleClassNameChange}
-            className="w-52 border-2 border-gray-400 rounded-xl p-1"
+            className="w-52 border-2 border-gray-400 p-1"
           >
             <option disabled value="">Valitse toimintoluokka</option>
             {classNameOptions.map((className) => {
@@ -81,7 +83,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
                 id="functionalClassTypeOption"
                 value={component.componentType || ""}
                 onChange={handleOptionTypeChange}
-                className="w-52 border-2 border-gray-400 rounded-xl p-1"
+                className="w-52 border-2 border-gray-400 p-1"
               >
                 <option disabled value="">Valitse toimintotyyppi</option>
                 {/* todo: add option for no component type if needed */}
@@ -95,7 +97,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
               </select>
 
               <input
-                className="w-36 border-2 border-gray-400 p-1 rounded-xl"
+                className="w-36 border-2 border-gray-400 p-1"
                 id="degreeOfCompletion"
                 placeholder="Valmistumisaste"
                 type="number"
@@ -118,32 +120,33 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
           {/* todo: now calculate logic blends into render logic. This is not good. 
           Need to move up component (to derived state). */}
           <p>= {((component.degreeOfCompletion || 0) * points).toFixed(2)} TP</p>
-          <p>= {points.toFixed(2)} TP (valmis)</p>
+          <p>= {points.toFixed(2)} TP (Valmis)</p>
           {/* Only show collapse button if class for row is selected */}
+          {/* TODO: FIX RENDERING BUG ISSUE THAT MAKES BUTTON INTERACTABLE THROUGH HEADER */}
           {component.className && (
             <button
               onClick={() => setIsCollapsed((prev) => !prev)}
-              className="flex text-white py-1 px-3 rounded items-center gap-1 bg-sky-600 hover:bg-sky-700 cursor-pointer"
+              className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer rounded text-white py-1 px-3 items-center gap-1"
             >
               <span className={`inline-block text-1xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
-                ^
+                <FontAwesomeIcon icon={faCaretDown}/>
               </span>
             </button>
           )}
           <button
-            className="bg-red-500 hover:bg-red-600 cursor-pointer text-white py-1 px-3 rounded"
+            className="bg-fisma-red hover:brightness-130 cursor-pointer rounded text-white py-1 px-3"
             onClick={() => deleteFunctionalComponent(component.id)}
           >
-            X
+            <FontAwesomeIcon icon={faTrash}/>
           </button>
         </div>
       </div>
 
       <div>
         <input
-          className="w-full border-2 border-gray-400 p-1 rounded-xl"
+          className="w-full border-2 border-gray-400 p-1"
           id="comment"
-          placeholder="Kommentti."
+          placeholder="Kommentti"
           value={component.comment || ""}
           onChange={(e) =>
             setComponent((prev) => ({
@@ -169,7 +172,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
                 {/* Display finnish name for parameters */}
                 <label htmlFor={key}>{parameterDisplayNames[key as keyof TParameterDisplayNames]}:</label>
                 <input
-                  className="w-16 border-2 border-gray-400 p-1 rounded-xl"
+                  className="w-16 border-2 border-gray-400 p-1"
                   id={key}
                   type="number"
                   value={value as number}

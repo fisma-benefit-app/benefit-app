@@ -29,7 +29,8 @@ export const getEmptyComponent = (component: TGenericComponent) => {
   };
 };
 
-//todo: does selecting new class override degree of completion and comment for the row or not?
+//TODO: does selecting new class override degree of completion and comment for the row or not?
+//TODO: better name? Proper past tense is also reset
 export const getResetedComponentWithClassName = (component: TGenericComponent, newClassName: string) => {
   const resetedComponentWithClassName = componentTemplates.find((template) => template.className === newClassName)?.resetedComponentWithClassName;
   if (!resetedComponentWithClassName) {
