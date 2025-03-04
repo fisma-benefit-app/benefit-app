@@ -29,7 +29,7 @@ const Header = () => {
             <button className='h-full text-lg px-5 bg-fisma-chathams-blue hover:bg-fisma-gray' onClick={() => navigate("/")}>
               <FontAwesomeIcon icon={faHome}/>
             </button>
-            <button className='h-full text-lg px-5 bg-fisma-dark-blue hover:bg-fisma-gray'>
+            <button className='h-full text-lg px-5 bg-fisma-dark-blue hover:bg-fisma-gray' onClick={() => alert("TODO: Create new!")}>
               <FontAwesomeIcon icon={faPenToSquare}/>
             </button>
             <button className='h-full text-lg px-5 bg-fisma-blue hover:bg-fisma-red' onClick={logout}>
