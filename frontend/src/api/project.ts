@@ -24,7 +24,7 @@ const fetchAllProjects = async (sessionToken: string | null) => {
     }
 }
 
-const fetchProject = async (sessionToken: string | null, projectId: string | undefined) => {
+const fetchProject = async (sessionToken: string | null, projectId: number | undefined) => {
 
     if (!sessionToken) throw new Error("User needs to be logged in to fetch projects!");
     if (!projectId) throw new Error("Request needs the id of the project!");
@@ -73,8 +73,31 @@ const updateProject = async (sessionToken: string | null, project: Project | Pro
     }
 }
 
+const deleteProject = async (sessionToken: string | null, projectId: number | undefined) => {
+
+    if (!sessionToken) throw new Error("User needs to be logged in to delete project!");
+    if (!projectId) throw new Error("Request needs the id of the project!");
+
+    const fetchURL = `${API_URL}/projects/${projectId}`;
+    const headers = {
+        "Authorization": sessionToken
+    }
+
+    try {
+        const response = await fetch(fetchURL, { method: "DELETE", headers })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("Error deleting project:", error);
+        throw error;
+    }
+}
+
 export {
     fetchAllProjects,
     fetchProject,
-    updateProject
+    updateProject,
+    deleteProject
 }

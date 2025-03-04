@@ -50,7 +50,7 @@ export const FunctionalPointSummary = ({ project}: FunctionalClassComponentProps
         </div>
       </div>
       <button 
-        onClick={() => downloadProjectComponentsCsv(project.id.toString())}
+        onClick={() => downloadProjectComponentsCsv(project.id)}
         className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
         CSV <FontAwesomeIcon icon={faDownload}/>
       </button>

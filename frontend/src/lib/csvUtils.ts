@@ -20,10 +20,10 @@ export const downloadCSV = (csvData: string, filename: string = 'data.csv') => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 };
-
-export const downloadProjectComponentsCsv = async (id: string) => {
+//TODO: Should the project be passed here instead of making new request?
+export const downloadProjectComponentsCsv = async (id: number) => {
     const sessionToken = sessionStorage.getItem("loginToken");
     const project = await fetchProject(sessionToken, id);
     const csvData = convertToCSV(project.functionalComponents);
-    downloadCSV(csvData, 'project.csv');
+    downloadCSV(csvData, `${project.projectName}.csv`);
 }
