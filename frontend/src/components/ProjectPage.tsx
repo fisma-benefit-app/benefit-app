@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { fetchProject, updateProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import { Project, ProjectWithUpdate, TGenericComponentNoId, TGenericComponent } from "../lib/types.ts";
+import { Project, ProjectWithUpdate, TGenericComponentNoId } from "../lib/types.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
-//maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own file
+//maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
 //maybe better placeholder component when project is being loaded
-//expand saving so that the whole project update is saved instead of an update in a single component.
 export default function ProjectPage() {
 
   const { sessionToken } = useAppUser();
@@ -18,6 +17,9 @@ export default function ProjectPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
+
+  //sort functional components by id (order of creation from oldest to newest)
+  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
 
   useEffect(() => {
     const getProject = async () => {
@@ -73,45 +75,54 @@ export default function ProjectPage() {
     }
   }
 
-  const saveFunctionalComponent = async (updatedComponent: TGenericComponent) => {
+  const saveProject = async () => {
     if (project) {
-      const componentsWithUpdatedComponent = project.functionalComponents.map(component => component.id === updatedComponent.id ? updatedComponent : component);
-      const projectWithUpdatedcomponent: Project = { ...project, functionalComponents: componentsWithUpdatedComponent };
       try {
-        const savedProject = await updateProject(sessionToken, projectWithUpdatedcomponent)
+        const savedProject = await updateProject(sessionToken, project)
         setProject(savedProject);
-        alert("Component saved!");
+        alert("Project saved!");
       } catch (err) {
-        console.error(err);
+        console.error(err)
       }
     }
   }
 
   return (
-    <div className="flex gap-5">
+    <div className="gap-5 flex justify-center my-20">
       {loadingProject ? (
-        <p>Ladataan projektia...</p>
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
+          <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" fill="none" stroke="blue" strokeWidth="4" strokeDasharray="31.4" strokeLinecap="round"></circle>
+          </svg>
+        </div>
       ) : error ? (
         <p>{error}</p>
       ) : project ? (
         <>
           <div>
-            {project.functionalComponents.map((component) => {
+            {sortedComponents?.map((component) => {
               return (
-                <FunctionalClassComponent componentProp={component} saveFunctionalComponent={saveFunctionalComponent} deleteFunctionalComponent={deleteFunctionalComponent} key={component.id} />
+                <FunctionalClassComponent
+                  project={project}
+                  setProject={setProject}
+                  componentProp={component}
+                  deleteFunctionalComponent={deleteFunctionalComponent}
+                  key={component.id}
+                />
               );
             })}
           </div>
           <div className="my-5 flex flex-col">
             {/* Create functionality for this button */}
             <button
-              className="bg-sky-600 hover:bg-zinc-600 text-white px-4 py-4 cursor-pointer my-2 sticky top-20"
+              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
+              onClick={saveProject}
             >
               Tallenna projekti
             </button>
             <button
               onClick={createFunctionalComponent}
-              className="bg-sky-600 hover:bg-zinc-600 text-white px-4 py-4 cursor-pointer my-2 sticky top-20"
+              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer my-2 sticky top-40"
             >
               Uusi funktionaalinen komponentti
             </button>

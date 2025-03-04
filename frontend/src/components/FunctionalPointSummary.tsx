@@ -1,7 +1,8 @@
 import { Project, TGenericComponent } from '../lib/types';
 import { getCalculateFuntion } from '../lib/fc-service-functions';
 import { downloadProjectComponentsCsv } from '../lib/csvUtils';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 
 type FunctionalClassComponentProps = {
   project: Project;
@@ -24,7 +25,7 @@ const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]
 export const FunctionalPointSummary = ({ project}: FunctionalClassComponentProps) => {
 
   return (
-    <div className="flex flex-col gap-3 border-2 bg-[#fafaf5] my-5 rounded-2xl p-4 sticky top-40">
+    <div className="flex flex-col gap-3 border-2 my-5 p-4 sticky top-60">
       Yhteenveto
       <div className="flex flex-col">
         {project.functionalComponents.map((component, i) => {
@@ -50,8 +51,8 @@ export const FunctionalPointSummary = ({ project}: FunctionalClassComponentProps
       </div>
       <button 
         onClick={() => downloadProjectComponentsCsv(project.id.toString())}
-        className="mt-3 px-4 py-2 bg-sky-600 hover:bg-zinc-600 text-white rounded-lg cursor-pointer">
-        CSV
+        className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
+        CSV <FontAwesomeIcon icon={faDownload}/>
       </button>
     </div>
   );
