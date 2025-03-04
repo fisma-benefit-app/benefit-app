@@ -18,7 +18,7 @@
 
 5. Setup environment variables:
     1. Create a file called .env to the frontend project root.
-    2. Add the following environment variable: VITE_API_URL. It's value should match the locally running backend development server URL e.g. VITE_API_URL = http://localhost:8080
+    2. Add the following environment variable: VITE_API_URL. Its value should match the locally running backend development server URL e.g. VITE_API_URL = http://localhost:8080
 
 6. Start the frontend development server:
     ```sh
@@ -45,7 +45,7 @@ Header.tsx
 
 LoginForm.tsx
 
-- Login page for the frontend where the user inputs their account credentials. First thing the user sees when opening the application if theyy are not logged in.
+- Login page for the frontend where the user inputs their account credentials. First thing the user sees when opening the application if they are not logged in.
 
 ProjectList.tsx
 
@@ -53,7 +53,7 @@ ProjectList.tsx
 
 ProjectPage.tsx
 
-- Page that shows the data for a specific project. Functional components of the project are mapped to the page using FunctionalClassComponent.tsx and the summary of the components is shown using FunctionalPointSummary.tsx. Has buttons for saving the project and adding a new functional component to it.
+- Page that shows the data for a specific project. Functional components of the project are mapped to the page using FunctionalClassComponent.tsx and the summary of the component points is shown using FunctionalPointSummary.tsx. Has buttons for saving the project and adding a new functional component to it.
 
 ProtectedLayout.tsx
 
