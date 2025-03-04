@@ -25,7 +25,7 @@ export default function ProjectPage() {
     const getProject = async () => {
       setLoadingProject(true);
       try {
-        const projectFromDb = await fetchProject(sessionToken, selectedProjectId);
+        const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
         setProject(projectFromDb)
       } catch (err) {
         setError((err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend."));
