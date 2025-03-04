@@ -1,4 +1,4 @@
-import { fetchProject } from "../api/project";
+import { Project } from "./types";
 
 export const convertToCSV = (data: any[]) => {
     if (data.length === 0) return '';
@@ -20,10 +20,8 @@ export const downloadCSV = (csvData: string, filename: string = 'data.csv') => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 };
-//TODO: Should the project be passed here instead of making new request?
-export const downloadProjectComponentsCsv = async (id: number) => {
-    const sessionToken = sessionStorage.getItem("loginToken");
-    const project = await fetchProject(sessionToken, id);
+
+export const downloadProjectComponentsCsv = async (project: Project) => {
     const csvData = convertToCSV(project.functionalComponents);
     downloadCSV(csvData, `${project.projectName}.csv`);
 }

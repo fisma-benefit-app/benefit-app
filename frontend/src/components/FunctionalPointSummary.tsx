@@ -3,13 +3,17 @@ import { getCalculateFuntion } from '../lib/fc-service-functions';
 import { downloadProjectComponentsCsv } from '../lib/csvUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { classNameOptions } from '../lib/fc-constants';
 
 type FunctionalClassComponentProps = {
   project: Project;
 };
 
+const getClassDisplayName = (value: string | null) => classNameOptions.find(option => value === option.value)?.displayName
+
 const calculateFunctionalComponentPoints = (component: TGenericComponent) => {
-  const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
+  if (!component.className || !component.componentType) return 0
+  const calculateFunction = getCalculateFuntion(component.className);
   //@ts-expect-error(TODO - component should be typed before it goes to the calculation)
   return calculateFunction ? calculateFunction(component) : 0;
 };
@@ -22,37 +26,41 @@ const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]
   return totalPoints;
 };
 
-export const FunctionalPointSummary = ({ project}: FunctionalClassComponentProps) => {
 
+export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProps) => {
+  const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
   return (
-    <div className="flex flex-col gap-3 border-2 my-5 p-4 sticky top-60">
-      Yhteenveto
-      <div className="flex flex-col">
+    <div className="flex flex-col gap-3 border-2 my-5 p-4 sticky top-60 text-fisma-dark-blue">
+      <div>
         {project.functionalComponents.map((component, i) => {
+          const points = calculateFunctionalComponentPoints(component);
+
           return (
-            <div key={i} className="flex justify-center gap-15 w-full">
+            <div key={i} className="flex gap-7 justify-between w-full fill-fisma-dark-blue">
               <div>
-                {i + 1}.
+                {getClassDisplayName(component.className)}
               </div>
               <div>
-                {calculateFunctionalComponentPoints(component)}
+                {points.toFixed(2)}
               </div>
             </div>
           );
         })}
       </div>
-      <div className="flex justify-center w-full gap-5">
-        <div>
+
+      <div className="flex gap-7 justify-between w-full border-t pt-4">
+        <b>
           Yhteensä
-        </div>
-        <div>
-          {calculateTotalFunctionalComponentPoints(project.functionalComponents)}
-        </div>
+        </b>
+        <b>
+          {totalPoints.toFixed(2)} TP
+        </b>
       </div>
-      <button 
-        onClick={() => downloadProjectComponentsCsv(project.id)}
+
+      <button
+        onClick={() => downloadProjectComponentsCsv(project)}
         className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
-        CSV <FontAwesomeIcon icon={faDownload}/>
+        CSV <FontAwesomeIcon icon={faDownload} />
       </button>
     </div>
   );
