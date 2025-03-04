@@ -19,7 +19,7 @@ const Header = () => {
 
   //TODO: Save before redirecting or logging out?
   return (
-    <header className="fixed top-0 w-full bg-fisma-blue text-white flex ">
+    <header className="fixed top-0 w-full bg-fisma-blue text-white flex z-999">
       <Link to="/">
         <img src="../Fisma_logo.png" alt="FISMA Logo" className="h-15 w-auto mb-2 ml-10 hover:brightness-90" />
       </Link>

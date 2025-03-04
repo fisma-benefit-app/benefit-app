@@ -18,6 +18,9 @@ export default function ProjectPage() {
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
+  //sort functional components by id (order of creation from newest to oldest)
+  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
+
   useEffect(() => {
     const getProject = async () => {
       setLoadingProject(true);
@@ -85,7 +88,7 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="gap-5 flex justify-center items-center h-screen">
+    <div className="gap-5 flex justify-center my-20">
       {loadingProject ? (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
           <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
@@ -97,7 +100,7 @@ export default function ProjectPage() {
       ) : project ? (
         <>
           <div>
-            {project.functionalComponents.map((component) => {
+            {sortedComponents?.map((component) => {
               return (
                 <FunctionalClassComponent
                   project={project}
@@ -112,7 +115,7 @@ export default function ProjectPage() {
           <div className="my-5 flex flex-col">
             {/* Create functionality for this button */}
             <button
-              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer my-2 sticky top-20"
+              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
               onClick={saveProject}
             >
               Tallenna projekti
