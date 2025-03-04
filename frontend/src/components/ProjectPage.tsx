@@ -18,7 +18,7 @@ export default function ProjectPage() {
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
-  //sort functional components by id (order of creation from newest to oldest)
+  //sort functional components by id (order of creation from oldest to newest)
   const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
 
   useEffect(() => {
