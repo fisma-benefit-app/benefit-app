@@ -21,7 +21,7 @@ const Header = () => {
   return (
     <header className="fixed top-0 w-full bg-fisma-blue text-white flex z-999">
       <Link to="/">
-        <img src="../Fisma-benefit_logo.png" alt="FISMA Logo" className="h-15 w-auto mb-2 ml-10 hover:brightness-90" />
+        <img src="/Fisma-benefit_logo.png" alt="FISMA Logo" className="h-15 w-auto mb-2 ml-10 hover:brightness-90" />
       </Link>
       <div className='absolute top-0 right-0 h-full flex items-center'>
         {loggedIn &&
