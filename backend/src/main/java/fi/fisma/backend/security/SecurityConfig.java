@@ -2,13 +2,18 @@ package fi.fisma.backend.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
+import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import com.nimbusds.jose.jwk.JWK;
@@ -45,14 +50,24 @@ public class SecurityConfig {
     @Value("${jwt.public.key}")
     RSAPublicKey key;
     
-    @Value("${jwt.private.key}")
-    RSAPrivateKey priv;
+    @Bean
+    @Profile("default")
+    public RSAPrivateKey privateKey(@Value("${jwt.private.key}") RSAPrivateKey privateKey) {
+        return privateKey;
+    }
+    
+    @Bean
+    @Profile("aws")
+    public RSAPrivateKey privateKeyAws(@Value("${jwt.private.key}") String privateKeyStr) throws Exception {
+        return parsePrivateKey(privateKeyStr);
+    }
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/actuator/healt").permitAll()
                         .anyRequest().authenticated()
                 )
                 .cors(Customizer.withDefaults())
@@ -88,8 +103,17 @@ public class SecurityConfig {
     }
     
     @Bean
-    JwtEncoder jwtEncoder() {
-        JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
+    @Profile("default")
+    JwtEncoder jwtEncoder(RSAPrivateKey privateKey) {
+        JWK jwk = new RSAKey.Builder(this.key).privateKey(privateKey).build();
+        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwks);
+    }
+    
+    @Bean
+    @Profile("aws")
+    JwtEncoder jwtEncoderAws(RSAPrivateKey privateKeyAws) {
+        JWK jwk = new RSAKey.Builder(this.key).privateKey(privateKeyAws).build();
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
@@ -97,12 +121,25 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("https://benefit.pinkkhub.com", "http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
+    
+    private RSAPrivateKey parsePrivateKey(String privateKeyStr) throws Exception {
+        String privateKeyPEM = privateKeyStr
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s+", "");
+        
+        byte[] decodedKey = Base64.getDecoder().decode(privateKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        
+        return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+    }
+    
 }

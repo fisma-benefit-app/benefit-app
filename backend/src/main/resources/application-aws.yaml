@@ -1,0 +1,12 @@
+spring:
+  config:
+    import: aws-secretsmanager:/secrets/fismadb-secrets;/secrets/fismajwt-secrets
+
+  datasource:
+    username: ${username}
+    password: ${password}
+    url: jdbc:postgresql://${host}:${port}/${dbname}
+
+jwt:
+  private.key: ${private}
+  public.key: classpath:./jwt-keys/aws.pub
