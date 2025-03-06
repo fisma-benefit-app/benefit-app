@@ -29,6 +29,17 @@ jobs:
       image_tag: ${{ steps.image_tag.outputs.image_tag }}
       image: ${{ steps.full_tag.outputs.image }}
 
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: fisma_db
+          POSTGRES_PASSWORD: secret
+          POSTGRES_USER: myuser
+        ports:
+          - 5432:5432
+
     defaults:
       run:
         working-directory: ./backend
