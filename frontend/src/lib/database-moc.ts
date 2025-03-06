@@ -5,6 +5,7 @@ export const projectFromDb = {
   projectName: "project-x",
   version: 1,
   createdDate: "2025-01-28T17:23:19",
+  editedDate: "2025-01-28T17:23:19",
   totalPoints: 100.12,
   appUsers: [],
   functionalComponents: [

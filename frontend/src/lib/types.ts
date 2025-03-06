@@ -20,6 +20,7 @@ export type ProjectWithUpdate = {
   projectName: string,
   version: number,
   createdDate: string,
+  editedDate: string,
   totalPoints: number,
   functionalComponents: (TGenericComponent | TGenericComponentNoId)[],
   appUsers: projectAppUser[]
@@ -30,6 +31,7 @@ export type Project = {
   projectName: string,
   version: number,
   createdDate: string,
+  editedDate: string,
   totalPoints: number,
   functionalComponents: TGenericComponent[],
   appUsers: projectAppUser[]

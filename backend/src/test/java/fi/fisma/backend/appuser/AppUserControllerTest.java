@@ -39,8 +39,7 @@ class AppUserControllerTest {
         
         when(appUserRepository.findByUsername("test-user")).thenReturn(appUser);
         
-        var response = mockMvc.put().uri("/appusers").with(jwt().jwt(jwt -> jwt.subject("test-user"))).contentType(MediaType.APPLICATION_JSON).content("\"new-password\"").exchange();
-        
+        var response = mockMvc.put().uri("/appusers").with(jwt().jwt(jwt -> jwt.subject("test-user"))).contentType(MediaType.APPLICATION_JSON).content("\"new-password\"").exchange()
         assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
     }
     

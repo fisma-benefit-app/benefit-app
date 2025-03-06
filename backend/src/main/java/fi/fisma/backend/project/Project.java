@@ -16,6 +16,7 @@ public class Project {
     private String projectName;
     private int version;
     private LocalDateTime createdDate;
+    private LocalDateTime editedDate;
     private double totalPoints;
     @MappedCollection(idColumn = "project_id")
     private Set<FunctionalComponent> functionalComponents;

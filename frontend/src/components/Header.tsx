@@ -1,7 +1,7 @@
 import useAppUser from "../hooks/useAppUser";
 import { Link, useNavigate } from "react-router";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faPenToSquare, faHome } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faHome, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const Header = () => {
 
@@ -30,7 +30,7 @@ const Header = () => {
               <FontAwesomeIcon icon={faHome}/>
             </button>
             <button className='h-full text-lg px-5 bg-fisma-dark-blue hover:bg-fisma-gray' onClick={() => alert("TODO: Create new!")}>
-              <FontAwesomeIcon icon={faPenToSquare}/>
+              <FontAwesomeIcon icon={faPlus}/>
             </button>
             <button className='h-full text-lg px-5 bg-fisma-blue hover:bg-fisma-red' onClick={logout}>
               Kirjaudu ulos

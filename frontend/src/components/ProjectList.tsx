@@ -16,12 +16,15 @@ export default function ProjectList() {
 
     const navigate = useNavigate();
 
+    const now = new Date();
+    const correctDate = new Intl.DateTimeFormat('sv-SV').format(now);
+
     useEffect(() => {
         const getAllProjects = async () => {
             setLoading(true);
             try {
                 const allProjectsFromDb = await fetchAllProjects(sessionToken);
-                const sortedProjects = allProjectsFromDb.sort((a: Project, b: Project) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime());
+                const sortedProjects = allProjectsFromDb.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());
                 setProjects(sortedProjects);
                 setFilteredProjects(allProjectsFromDb);
             } catch (err) {
@@ -76,17 +79,27 @@ export default function ProjectList() {
             />
             <table className="w-auto border-collapse">
                 <thead>
-                    <tr>
-                        <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Projektin nimi :</th>
-                        <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">Versio :</th>
-                        <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">Muokattu :</th>
-                        <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Kokonaispisteet :</th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Projektin nimi :
+                    </th>
+                    <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">Versio
+                        :
+                    </th>
+                    <th className="bg-fisma-gray border-2 border-fisma-gray p-3 text-left text-white">Luotu
+                        :
+                    </th>
+                    <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">Muokattu
+                        :
+                    </th>
+                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Kokonaispisteet
+                        :
+                    </th>
+                    <th></th>
+                </tr>
                 </thead>
                 <tbody>
-                    {filteredProjects.length > 0 ? (
-                        filteredProjects.map((project) => (
+                {filteredProjects.length > 0 ? (
+                    filteredProjects.map((project) => (
                             <tr key={project.id}>
                                 <td className="border-2 border-gray-400 p-1">
                                     {project.projectName}
@@ -99,6 +112,18 @@ export default function ProjectList() {
                                         day: "2-digit",
                                     })}{" "}
                                     {new Date(project.createdDate).toLocaleTimeString("fi-FI", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                    }).replace('.', ':')}
+                                </td>
+                                <td className="border-2 border-gray-400 p-1">
+                                    {new Date(project.editedDate).toLocaleDateString("fi-FI", {
+                                        year: "numeric",
+                                        month: "2-digit",
+                                        day: "2-digit",
+                                    })}{" "}
+                                    {new Date(project.editedDate).toLocaleTimeString("fi-FI", {
                                         hour: "2-digit",
                                         minute: "2-digit",
                                         hour12: false,
