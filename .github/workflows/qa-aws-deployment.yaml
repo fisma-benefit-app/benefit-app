@@ -105,8 +105,8 @@ jobs:
           ECR_REPOSITORY: benefit # Change this to your ECR repository
           IMAGE_TAG: ${{ steps.image_tag.outputs.image_tag }}
         run: |
-          echo "image=${{ steps.login_ecr.outputs.registry }}/benefit:${{ steps.image_tag.outputs.image_tag }}" >> $GITHUB_OUTPUT
-#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#          echo "image=${{ steps.login_ecr.outputs.registry }}/benefit:${{ steps.image_tag.outputs.image_tag }}" >> $GITHUB_OUTPUT
 
       - name: Build, tag and push image to Amazon ECR
         uses: docker/build-push-action@v6
@@ -125,6 +125,11 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Debug final output in make_image
+        run: |
+          echo "Final output image: ${{ steps.full_tag.outputs.image }}"
+          echo "Final output image_tag: ${{ steps.image_tag.outputs.image }}"
 
   deploy:   #if possible rename deploy_backend
     name: Deploy to ECS
