@@ -13,11 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
 
-
-    # Do not run on dependabot PRs or any PRs
-    # if: ${{ github.event_name != 'pull_request' }} kommentoin pois. poista
-    # if: ${{ github.actor != 'dependabot[bot]' }}
-
     # Permissions needed for OIDC
     # See: https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect#adding-permissions-settings
     permissions:
@@ -26,6 +21,7 @@ jobs:
 
     # Outputs to be used by other jobs
     outputs:
+      context: ./backend
       image_tag: ${{ steps.image_tag.outputs.image_tag }}
       image: ${{ steps.full_tag.outputs.image }}
 
@@ -76,7 +72,7 @@ jobs:
         with:
           audience: sts.amazonaws.com
           aws-region: eu-north-1
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_IAM_ID }}:role/github-oidc-provider-aws-benefit # TODO - Must match name of IAM Role
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_IAM_ID }}:role/github-oidc-provider-aws-benefit # Must match name of IAM Role
 
       - name: Login to Amazon ECR
         id: login_ecr
@@ -107,7 +103,7 @@ jobs:
         id: full_tag
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-          ECR_REPOSITORY: benefit # TODO - Change this to your ECR repository
+          ECR_REPOSITORY: benefit # Change this to your ECR repository
           IMAGE_TAG: ${{ steps.image_tag.outputs.image_tag }}
         run: |
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -120,7 +116,7 @@ jobs:
           tags: ${{ steps.full_tag.outputs.image }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          platforms: linux/arm64 # TODO - remove this line if you are not using arm64 in aws
+          platforms: linux/arm64 # Remove this line if you are not using arm64 in aws
 
       - # Temp fix
         # https://github.com/docker/build-push-action/issues/252
@@ -130,7 +126,7 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  deploy:
+  deploy:   #if possible rename deploy_backend
     name: Deploy to ECS
     runs-on: ubuntu-latest
     needs: [make_image]
@@ -154,11 +150,11 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           audience: sts.amazonaws.com
-          aws-region: eu-north-1 # TODO - AWS region
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_IAM_ID }}:role/github-oidc-provider-aws-benefit # TODO - Must match name of IAM Role
+          aws-region: eu-north-1 # AWS region
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_IAM_ID }}:role/github-oidc-provider-aws-benefit # Must match name of IAM Role
 
       - name: Download task definition
-        # TODO - Task definition (... --task-definition your-task-definition \)
+        # Task definition (... --task-definition your-task-definition \)
         run: |
           aws ecs describe-task-definition --task-definition benefit-task-definition \
           --query taskDefinition > /tmp/app-task-definition.json
@@ -168,7 +164,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: /tmp/app-task-definition.json
-          container-name: benefit # TODO - Must match name of container in Task definition ("containerDefinitions": [{"name": "container-name", ...}]
+          container-name: benefit # Must match name of container in Task definition ("containerDefinitions": [{"name": "container-name", ...}]
           image: ${{ needs.make_image.outputs.image }}
           docker-labels: |
             SERVICE=benefit
@@ -179,7 +175,48 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-app.outputs.task-definition }}
-          cluster: benefit-ecs-cluster # TODO - Cluster name ( cluster and service are also defined in the policy: "arn:aws:ecs:eu-north-1:571600864498:service/CleanCluster/clean-service")
-          service: benefit-service # TODO - Service name
+          cluster: benefit-ecs-cluster # Cluster name ( cluster and service are also defined in the policy: "arn:aws:ecs:eu-north-1:571600864498:service/CleanCluster/clean-service")
+          service: benefit-service # Service name
           wait-for-service-stability: true
           wait-for-minutes: 10
+
+
+  deploy_frontend:
+    name: Deploy frontend to S3 and CloudFront
+    runs-on: ubuntu-latest
+#    needs: [make_image]  # Adjust as necessary
+    environment: production
+
+    permissions:
+      contents: read
+      id-token: write
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          audience: sts.amazonaws.com
+          aws-region: eu-north-1  # Change to your AWS region
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_IAM_ID }}:role/github-oidc-provider-aws-benefit
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Deploy to S3
+        run: aws s3 sync ./dist s3://your-s3-bucket-name --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
