@@ -137,9 +137,9 @@ jobs:
       contents: read
       id-token: write
 
-    defaults:
-      run:
-        working-directory: ./backend
+#    defaults:
+#      run:
+#        working-directory: ./backend
 
     steps:
       - name: Checkout code
@@ -212,7 +212,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to S3
-        run: aws s3 sync ./dist s3://your-s3-bucket-name --delete
+        run: aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
       - name: Invalidate CloudFront cache
         run: |
