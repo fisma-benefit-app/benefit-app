@@ -21,7 +21,6 @@ jobs:
 
     # Outputs to be used by other jobs
     outputs:
-      context: ./backend
       image_tag: ${{ steps.image_tag.outputs.image_tag }}
       image: ${{ steps.full_tag.outputs.image }}
 
