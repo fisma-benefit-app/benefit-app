@@ -145,6 +145,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Debug received image
+        run: |
+          echo "Received image: ${{ needs.make_image.outputs.image }}"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
