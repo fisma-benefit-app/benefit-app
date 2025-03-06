@@ -115,7 +115,7 @@ jobs:
       - name: Build, tag and push image to Amazon ECR
         uses: docker/build-push-action@v6
         with:
-          context: ./
+          context: ./backend
           push: true
           tags: ${{ steps.full_tag.outputs.image }}
           cache-from: type=local,src=/tmp/.buildx-cache
