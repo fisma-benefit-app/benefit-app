@@ -106,7 +106,6 @@ jobs:
           IMAGE_TAG: ${{ steps.image_tag.outputs.image_tag }}
         run: |
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-#          echo "image=${{ steps.login_ecr.outputs.registry }}/benefit:${{ steps.image_tag.outputs.image_tag }}" >> $GITHUB_OUTPUT
 
       - name: Build, tag and push image to Amazon ECR
         uses: docker/build-push-action@v6
@@ -129,7 +128,8 @@ jobs:
       - name: Debug final output in make_image
         run: |
           echo "Final output image: ${{ steps.full_tag.outputs.image }}"
-          echo "Final output image_tag: ${{ steps.image_tag.outputs.image }}"
+          echo "Final output image_tag: ${{ steps.image_tag.outputs.image_tag }}"
+          
 
   deploy:   #if possible rename deploy_backend
     name: Deploy to ECS
@@ -143,10 +143,6 @@ jobs:
       contents: read
       id-token: write
 
-#    defaults:
-#      run:
-#        working-directory: ./backend
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -155,13 +151,9 @@ jobs:
         run: |
           echo "Received image: ${{ needs.make_image.outputs.image }}"
 
-      - name: Debug received with steps
-        run: |
-          echo "Received image: ${{ steps.make_image.outputs.image }}"     
-
       - name: Debug full_tag output
         run: | 
-          echo "Full tag output: ${{ steps.full_tag.outputs.image }}"
+          echo "Full tag output: ${{ needs.make_image.outputs.image_tag }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -185,14 +177,14 @@ jobs:
           image: ${{ needs.make_image.outputs.image }}
           docker-labels: |
             SERVICE=benefit
-            VERSION=${{ steps.image_tag.outputs.image_tag }}
+            VERSION=${{ needs.make_image.outputs.image_tag }}
 
       - name: Deploy Amazon ECS task definition workers
         id: deploy-workers
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-app.outputs.task-definition }}
-          cluster: benefit-ecs-cluster # Cluster name ( cluster and service are also defined in the policy: "arn:aws:ecs:eu-north-1:571600864498:service/CleanCluster/clean-service")
+          cluster: benefit-ecs-cluster # Cluster name
           service: benefit-service # Service name
           wait-for-service-stability: true
           wait-for-minutes: 10
@@ -201,7 +193,6 @@ jobs:
   deploy_frontend:
     name: Deploy frontend to S3 and CloudFront
     runs-on: ubuntu-latest
-#    needs: [make_image]  # Adjust as necessary
     environment: production
 
     permissions:
