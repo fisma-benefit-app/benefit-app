@@ -208,6 +208,9 @@ jobs:
       run:
         working-directory: ./frontend
 
+    env:
+      VITE_API_URL: https://benefitapi.pinkkhub.com
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
