@@ -23,7 +23,7 @@ jobs:
     outputs:
       image_tag: ${{ steps.image_tag.outputs.image_tag }}
       image: ${{ steps.full_tag.outputs.image }}
-      masked_image: ${{ steps.maksed_full_tag.outputs.masked_image  }}
+      masked_image: ${{ steps.masked_full_tag.outputs.masked_image  }}
 
 
     services:
