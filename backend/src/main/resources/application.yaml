@@ -2,11 +2,38 @@ spring:
   application:
     name: backend
 
+
   datasource:
     username: myuser
     password: secret
-    url: "jdbc:postgresql://127.0.0.1:5432/fisma_db"
+    url: jdbc:postgresql://127.0.0.1:5432/fisma_db
+
 
   sql:
     init:
       mode: always
+
+  cloud:
+    aws:
+      secretsmanager:
+        region: eu-north-1
+
+jwt:
+  private.key: classpath:./jwt-keys/app.key
+  public.key: classpath:./jwt-keys/app.pub
+
+
+logging:
+  level:
+    org.springframework:
+      security: trace
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+
+
+

@@ -25,3 +25,6 @@ dist-ssr
 
 # IntelliJ IDEA
 /frontend.iml
+
+#Environment variables
+.env
