@@ -78,7 +78,23 @@ export default function ProjectPage() {
   const saveProject = async () => {
     if (project) {
       try {
-        const savedProject = await updateProject(sessionToken, project)
+        // Update edited date to current date when saving project
+        const now = new Date();
+        const currentDate = new Intl.DateTimeFormat('sv-SV', {
+          timeZone: "Europe/Helsinki",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }).format(now);
+        const editedProject = {
+          ...project,
+          editedDate: currentDate.replace(" ", "T"),
+        }
+        const savedProject = await updateProject(sessionToken, editedProject)
         setProject(savedProject);
         alert("Project saved!");
       } catch (err) {

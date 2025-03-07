@@ -25,3 +25,34 @@ export const downloadProjectComponentsCsv = async (project: Project) => {
     const csvData = convertToCSV(project.functionalComponents);
     downloadCSV(csvData, `${project.projectName}.csv`);
 }
+
+export const createPdf = (project: Project) => {
+
+    //TODO: write raport HTML/CSS/JS
+    const pdfContent: string = `
+  <html>
+    <head>
+      <title>Project</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; display: flex; justify-content: center }
+        #name { font-size: 45; }
+      </style>
+    </head>
+    <body>
+      <p id="name">${project.projectName}</p>
+    </body>
+  </html>
+`
+
+    const printingWindow = window.open("", "_blank", "width=800,height=600");
+
+    if (printingWindow) {
+        printingWindow.document.write(pdfContent);
+        printingWindow.document.close();
+        printingWindow.print();
+
+        //if you just call .close() without timeout the window closes before the print dialogue can open
+        //this also allows the window to close automatically after user prints or cancels printing
+        setTimeout(() => printingWindow.close(), 500);
+    }
+}

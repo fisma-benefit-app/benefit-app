@@ -40,7 +40,6 @@ class AppUserControllerTest {
         when(appUserRepository.findByUsername("test-user")).thenReturn(appUser);
         
         var response = mockMvc.put().uri("/appusers").with(jwt().jwt(jwt -> jwt.subject("test-user"))).contentType(MediaType.APPLICATION_JSON).content("\"new-password\"").exchange();
-        
         assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
     }
     
@@ -60,7 +59,7 @@ class AppUserControllerTest {
         var appUser = new AppUser(13L, "test-user", "password");
         when(appUserRepository.findByUsername("test-user")).thenReturn(appUser);
         
-        var projects = List.of( new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var projects = List.of( new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
                         new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
                         new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
@@ -81,7 +80,7 @@ class AppUserControllerTest {
         var appUser = new AppUser(13L, "test-user", "password");
         when(appUserRepository.findByUsername("test-user")).thenReturn(appUser);
         
-        var projects = List.of( new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var projects = List.of( new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                 Set.of(
                         new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
                         new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
@@ -102,7 +101,7 @@ class AppUserControllerTest {
         var appUser = new AppUser(13L, "test-user", "password");
         when(appUserRepository.findByUsername("test-user")).thenReturn(appUser);
         
-        var projects = List.of( new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var projects = List.of( new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
                         new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
                         new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")

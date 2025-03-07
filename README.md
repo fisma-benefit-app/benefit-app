@@ -122,9 +122,9 @@ Please read [add a backend manual] from documents -directory for more informatio
 
 The structure of Benefit's SQL database is shown in the below diagram:
 
-![image](https://github.com/user-attachments/assets/611727fa-ba96-406b-ae10-19047d533e72)
+![database-img](https://github.com/user-attachments/assets/5a40b948-4ea3-45f4-bc1c-3f5d3a54e2c3)
 
-Picture #: Diagram of Benefit's database. [Placeholder, must be updated]
+Picture #: Diagram of Benefit's database.
 
 ---
 
