@@ -151,6 +151,10 @@ jobs:
         run: |
           echo "Received image: ${{ needs.make_image.outputs.image }}"
 
+      - name: Debug received image with conditional output
+        run: |
+          echo "Received image: '${{ needs.make_image.outputs.image || '' }}'"
+
       - name: Debug full_tag output
         run: | 
           echo "Full tag output: ${{ needs.make_image.outputs.image_tag }}"
