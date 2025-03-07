@@ -136,7 +136,10 @@ jobs:
         run: |
           FULL_IMAGE="${{ steps.full_tag.outputs.image }}"
           echo "encoded_image=$(echo -n $FULL_IMAGE | base64)" >> $GITHUB_OUTPUT
-          
+
+      - name: Debug encoded image output
+        run: |
+          echo "Final output image_tag: ${{ steps.encoded_full_tag.outputs.encoded_image }}"
 
   deploy:   #if possible rename deploy_backend
     name: Deploy to ECS
