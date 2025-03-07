@@ -22,9 +22,9 @@ jobs:
     # Outputs to be used by other jobs
     outputs:
       image_tag: ${{ steps.image_tag.outputs.image_tag }}
-      image: ${{ steps.full_tag.outputs.image }}
-      masked_image: ${{ steps.masked_full_tag.outputs.masked_image  }}
+#      image: ${{ steps.full_tag.outputs.image }}
       encoded_image: ${{ steps.encode_full_tag.outputs.encoded_image }}
+#      masked_image: ${{ steps.masked_full_tag.outputs.masked_image  }}
 
 
     services:
@@ -96,9 +96,9 @@ jobs:
           chmod +x image-tag.sh
           echo "image_tag=$(./image-tag.sh)" >> $GITHUB_OUTPUT
 
-      - name: Clean up commit message
-        id: commit
-        run: echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+#      - name: Clean up commit message
+#        id: commit
+#        run: echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
 
       - name: Create the full tag
         id: full_tag
@@ -127,21 +127,21 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      - name: Debug final output in make_image
-        run: |
-          echo "Final output image: ${{ steps.full_tag.outputs.image }}"
-          echo "Final output image_tag: ${{ steps.image_tag.outputs.image_tag }}"
+#      - name: Debug final output in make_image
+#        run: |
+#          echo "Final output image: ${{ steps.full_tag.outputs.image }}"
+#          echo "Final output image_tag: ${{ steps.image_tag.outputs.image_tag }}"
 
-      - name: Mask image output
-        id: masked_full_tag
-        run: |
-          FULL_IMAGE="${{ steps.full_tag.outputs.image }}"
-          echo "::add-mask::$FULL_IMAGE" 
-          echo "masked_image=$FULL_IMAGE" >> $GITHUB_OUTPUT  
-
-      - name: Debug encoded image output
-        run: |
-          echo "Final output image_tag: ${{ steps.masked_full_tag.outputs.masked_image }}"
+#      - name: Mask image output
+#        id: masked_full_tag
+#        run: |
+#          FULL_IMAGE="${{ steps.full_tag.outputs.image }}"
+#          echo "::add-mask::$FULL_IMAGE"
+#          echo "masked_image=$FULL_IMAGE" >> $GITHUB_OUTPUT
+#
+#      - name: Debug encoded image output
+#        run: |
+#          echo "Final output image_tag: ${{ steps.masked_full_tag.outputs.masked_image }}"
 
       - name: Encode image twice
         id: encode_full_tag
@@ -165,17 +165,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debug received image
-        run: |
-          echo "Received image: ${{ needs.make_image.outputs.masked_image }}"
+#      - name: Debug received image
+#        run: |
+#          echo "Received image: ${{ needs.make_image.outputs.masked_image }}"
 
-      - name: Debug received image with conditional output
-        run: |
-          echo "Received image: '${{ needs.make_image.outputs.masked_image || '' }}'"
+#      - name: Debug received image with conditional output
+#        run: |
+#          echo "Received image: '${{ needs.make_image.outputs.masked_image || '' }}'"
 
-      - name: Debug full_tag output
-        run: | 
-          echo "Full tag output: ${{ needs.make_image.outputs.image_tag }}"
+#      - name: Debug full_tag output
+#        run: |
+#          echo "Full tag output: ${{ needs.make_image.outputs.image_tag }}"
 
       - name: Decode and debug image
         id: decoded_image
