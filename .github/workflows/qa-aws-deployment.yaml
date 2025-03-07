@@ -178,10 +178,11 @@ jobs:
           echo "Full tag output: ${{ needs.make_image.outputs.image_tag }}"
 
       - name: Decode and debug image
+        id: decoded_image
         run: |
           IMAGE=$(echo "${{ needs.make_image.outputs.encoded_image }}" | base64 -di | base64 -di)
           echo "Decoded image: $IMAGE"
-    
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -202,7 +203,7 @@ jobs:
         with:
           task-definition: /tmp/app-task-definition.json
           container-name: benefit # Must match name of container in Task definition ("containerDefinitions": [{"name": "container-name", ...}]
-          image: ${{ needs.make_image.outputs.masked_image }}
+          image: ${{ steps.decoded_image.outputs.image }}
           docker-labels: |
             SERVICE=benefit
             VERSION=${{ needs.make_image.outputs.image_tag }}
