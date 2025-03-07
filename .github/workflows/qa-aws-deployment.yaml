@@ -23,6 +23,7 @@ jobs:
     outputs:
       image_tag: ${{ steps.image_tag.outputs.image_tag }}
       image: ${{ steps.full_tag.outputs.image }}
+      encoded_image: ${{ steps.encoded_full_tag.outputs.ecoded_image  }}
 
 
     services:
@@ -129,6 +130,12 @@ jobs:
         run: |
           echo "Final output image: ${{ steps.full_tag.outputs.image }}"
           echo "Final output image_tag: ${{ steps.image_tag.outputs.image_tag }}"
+
+      - name: Encode image output
+        id: encoded_full_tag
+        run: |
+          FULL_IMAGE="${{ steps.full_tag.outputs.image }}"
+          echo "encoded_image=$(echo -n $FULL_IMAGE | base64)" >> $GITHUB_OUTPUT
           
 
   deploy:   #if possible rename deploy_backend
@@ -158,6 +165,11 @@ jobs:
       - name: Debug full_tag output
         run: | 
           echo "Full tag output: ${{ needs.make_image.outputs.image_tag }}"
+
+      - name: Decode image output
+        run: |
+          IMAGE=$(echo "${{ needs.make_image.outputs.encoded_image }}" | base64 --decode)
+          echo "Decoded image: $IMAGE"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
