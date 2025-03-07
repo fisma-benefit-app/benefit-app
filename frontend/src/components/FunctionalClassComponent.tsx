@@ -24,7 +24,8 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
 
   //@ts-expect-error(TODO - component should be typed before it goes to the calculation).
-  const points = calculateFunction ? calculateFunction(component) : 0;
+  const fullPoints = calculateFunction ? calculateFunction(component) : 0;
+  const pointsByDegreeOfCompletion = (component.degreeOfCompletion || 0) * fullPoints;
 
   const handleClassNameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newClassName = e.target.value;
@@ -117,12 +118,9 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
         </div>
 
         <div className="flex gap-4 items-center">
-          {/* todo: now calculate logic blends into render logic. This is not good. 
-          Need to move up component (to derived state). */}
-          <p>= {((component.degreeOfCompletion || 0) * points).toFixed(2)} TP</p>
-          <p>= {points.toFixed(2)} TP (Valmis)</p>
+          <p>= {pointsByDegreeOfCompletion.toFixed(2)} TP</p>
+          <p>= {fullPoints.toFixed(2)} TP (Valmis)</p>
           {/* Only show collapse button if class for row is selected */}
-          {/* TODO: FIX RENDERING BUG ISSUE THAT MAKES BUTTON INTERACTABLE THROUGH HEADER */}
           {component.className && (
             <button
               onClick={() => setIsCollapsed((prev) => !prev)}
