@@ -38,7 +38,7 @@ public class ProjectController {
         if (projectOptional.isPresent()) {
             var project = projectOptional.get();
             var updatedProject = projectRepository.save(
-                    new Project(project.getId(), projectUpdate.getProjectName(), projectUpdate.getVersion(), projectUpdate.getCreatedDate(), projectUpdate.getTotalPoints(), projectUpdate.getFunctionalComponents(), projectUpdate.getAppUsers()));
+                    new Project(project.getId(), projectUpdate.getProjectName(), projectUpdate.getVersion(), projectUpdate.getCreatedDate(), projectUpdate.getEditedDate(), projectUpdate.getTotalPoints(), projectUpdate.getFunctionalComponents(), projectUpdate.getAppUsers()));
             return ResponseEntity.ok(updatedProject);
         }
         return ResponseEntity.notFound().build();
@@ -49,7 +49,7 @@ public class ProjectController {
         var appUser = appUserRepository.findByUsername(principal.getName());
         if (appUser != null) {
             var savedProject = projectRepository.save(
-                    new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), LocalDateTime.now(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
+                    new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), LocalDateTime.now(), LocalDateTime.now(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
             );
             URI locationOfNewProject = ucb
                     .path("/projects/{id}")
