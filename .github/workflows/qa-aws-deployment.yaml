@@ -22,9 +22,7 @@ jobs:
     # Outputs to be used by other jobs
     outputs:
       image_tag: ${{ steps.image_tag.outputs.image_tag }}
-#      image: ${{ steps.full_tag.outputs.image }}
       encoded_image: ${{ steps.encode_full_tag.outputs.encoded_image }}
-#      masked_image: ${{ steps.masked_full_tag.outputs.masked_image  }}
 
 
     services:
@@ -40,6 +38,7 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
+
 
     steps:
       - name: Checkout code
@@ -90,15 +89,12 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: ${{ runner.os }}-buildx-
 
+
       - name: Calculate image tag
         id: image_tag
         run: |
           chmod +x image-tag.sh
           echo "image_tag=$(./image-tag.sh)" >> $GITHUB_OUTPUT
-
-#      - name: Clean up commit message
-#        id: commit
-#        run: echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
 
       - name: Create the full tag
         id: full_tag
@@ -119,37 +115,29 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           platforms: linux/arm64 # Remove this line if you are not using arm64 in aws
 
-      - # Temp fix
+
+        # Temp fix
         # https://github.com/docker/build-push-action/issues/252
         # https://github.com/moby/buildkit/issues/1896
-        name: Move cache to avoid growing forever
+      - name: Move cache to avoid growing forever
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          
 
-#      - name: Debug final output in make_image
-#        run: |
-#          echo "Final output image: ${{ steps.full_tag.outputs.image }}"
-#          echo "Final output image_tag: ${{ steps.image_tag.outputs.image_tag }}"
+      - name: Debug final output in make_image
+        run: |
+          echo "Final output image: ${{ steps.full_tag.outputs.image }}"
+          echo "Final output image_tag: ${{ steps.image_tag.outputs.image_tag }}"
 
-#      - name: Mask image output
-#        id: masked_full_tag
-#        run: |
-#          FULL_IMAGE="${{ steps.full_tag.outputs.image }}"
-#          echo "::add-mask::$FULL_IMAGE"
-#          echo "masked_image=$FULL_IMAGE" >> $GITHUB_OUTPUT
-#
-#      - name: Debug encoded image output
-#        run: |
-#          echo "Final output image_tag: ${{ steps.masked_full_tag.outputs.masked_image }}"
-
+        # https://github.com/orgs/community/discussions/13082
       - name: Encode image twice
         id: encode_full_tag
         run: |
           FULL_IMAGE="${{ steps.full_tag.outputs.image }}" 
           echo "encoded_image=$(echo $FULL_IMAGE | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
 
-  deploy:   #if possible rename deploy_backend
+  deploy:
     name: Deploy to ECS
     runs-on: ubuntu-latest
     needs: [make_image]
@@ -164,18 +152,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-#      - name: Debug received image
-#        run: |
-#          echo "Received image: ${{ needs.make_image.outputs.masked_image }}"
-
-#      - name: Debug received image with conditional output
-#        run: |
-#          echo "Received image: '${{ needs.make_image.outputs.masked_image || '' }}'"
-
-#      - name: Debug full_tag output
-#        run: |
-#          echo "Full tag output: ${{ needs.make_image.outputs.image_tag }}"
 
       - name: Decode and debug image
         id: decoded_image
