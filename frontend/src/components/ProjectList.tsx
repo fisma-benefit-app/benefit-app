@@ -16,9 +16,6 @@ export default function ProjectList() {
 
     const navigate = useNavigate();
 
-    const now = new Date();
-    const correctDate = new Intl.DateTimeFormat('sv-SV').format(now);
-
     useEffect(() => {
         const getAllProjects = async () => {
             setLoading(true);
