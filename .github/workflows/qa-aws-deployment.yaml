@@ -23,7 +23,7 @@ jobs:
     outputs:
       image_tag: ${{ steps.image_tag.outputs.image_tag }}
       image: ${{ steps.full_tag.outputs.image }}
-      encoded_image: ${{ steps.encoded_full_tag.outputs.ecoded_image  }}
+      masked_image: ${{ steps.maksed_full_tag.outputs.masked_image  }}
 
 
     services:
@@ -106,7 +106,7 @@ jobs:
           ECR_REPOSITORY: benefit # Change this to your ECR repository
           IMAGE_TAG: ${{ steps.image_tag.outputs.image_tag }}
         run: |
-          echo "::add-mask::image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Build, tag and push image to Amazon ECR
         uses: docker/build-push-action@v6
@@ -131,15 +131,16 @@ jobs:
           echo "Final output image: ${{ steps.full_tag.outputs.image }}"
           echo "Final output image_tag: ${{ steps.image_tag.outputs.image_tag }}"
 
-      - name: Encode image output
-        id: encoded_full_tag
+      - name: Mask image output
+        id: masked_full_tag
         run: |
           FULL_IMAGE="${{ steps.full_tag.outputs.image }}"
-          echo "encoded_image=$(echo -n $FULL_IMAGE | base64)" >> $GITHUB_OUTPUT
+          echo "::add-mask::$FULL_IMAGE" 
+          echo "masked_image=$FULL_IMAGE" >> $GITHUB_OUTPUT  
 
       - name: Debug encoded image output
         run: |
-          echo "Final output image_tag: ${{ steps.encoded_full_tag.outputs.encoded_image }}"
+          echo "Final output image_tag: ${{ steps.masked_full_tag.outputs.masked_image }}"
 
   deploy:   #if possible rename deploy_backend
     name: Deploy to ECS
@@ -159,20 +160,15 @@ jobs:
 
       - name: Debug received image
         run: |
-          echo "Received image: ${{ needs.make_image.outputs.image }}"
+          echo "Received image: ${{ needs.make_image.outputs.masked_image }}"
 
       - name: Debug received image with conditional output
         run: |
-          echo "Received image: '${{ needs.make_image.outputs.image || '' }}'"
+          echo "Received image: '${{ needs.make_image.outputs.masked_image || '' }}'"
 
       - name: Debug full_tag output
         run: | 
           echo "Full tag output: ${{ needs.make_image.outputs.image_tag }}"
-
-      - name: Decode image output
-        run: |
-          IMAGE=$(echo "${{ needs.make_image.outputs.encoded_image }}" | base64 --decode)
-          echo "Decoded image: $IMAGE"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -193,7 +189,7 @@ jobs:
         with:
           task-definition: /tmp/app-task-definition.json
           container-name: benefit # Must match name of container in Task definition ("containerDefinitions": [{"name": "container-name", ...}]
-          image: ${{ needs.make_image.outputs.image }}
+          image: ${{ needs.make_image.outputs.masked_image }}
           docker-labels: |
             SERVICE=benefit
             VERSION=${{ needs.make_image.outputs.image_tag }}
