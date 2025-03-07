@@ -106,7 +106,7 @@ jobs:
           ECR_REPOSITORY: benefit # Change this to your ECR repository
           IMAGE_TAG: ${{ steps.image_tag.outputs.image_tag }}
         run: |
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "::add-mask::image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Build, tag and push image to Amazon ECR
         uses: docker/build-push-action@v6
