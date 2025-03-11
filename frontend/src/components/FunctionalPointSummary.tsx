@@ -1,6 +1,6 @@
 import { Project, TGenericComponent } from '../lib/types';
 import { getCalculateFuntion } from '../lib/fc-service-functions';
-import { downloadProjectComponentsCsv } from '../lib/csvUtils';
+import { downloadProjectComponentsCsv, createPdf } from '../lib/printUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { classNameOptions } from '../lib/fc-constants';
@@ -26,17 +26,16 @@ const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]
   return totalPoints;
 };
 
-
 export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProps) => {
   const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
   return (
-    <div className="flex flex-col gap-3 border-2 my-5 p-4 sticky top-60 text-fisma-dark-blue">
+    <div className="flex flex-col gap-3 border-2 my-5 p-4 sticky top-60">
       <div>
         {project.functionalComponents.map((component, i) => {
           const points = calculateFunctionalComponentPoints(component);
 
           return (
-            <div key={i} className="flex gap-7 justify-between w-full fill-fisma-dark-blue">
+            <div key={i} className="flex gap-7 justify-between w-full">
               <div>
                 {getClassDisplayName(component.className)}
               </div>
@@ -61,6 +60,11 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
         onClick={() => downloadProjectComponentsCsv(project)}
         className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
         CSV <FontAwesomeIcon icon={faDownload} />
+      </button>
+      <button
+        onClick={() => createPdf(project)}
+        className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
+        PDF <FontAwesomeIcon icon={faDownload} />
       </button>
     </div>
   );

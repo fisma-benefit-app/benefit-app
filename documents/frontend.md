@@ -9,7 +9,7 @@
 
 2. Setup and run the spring boot backend (see backend documentation).
 
-3. Navigate to frontend project root which is {project directory}/frontend
+3. Navigate to frontend project root which is {repository directory}/frontend
 
 4. Install frontend dependencies:
     ```sh
@@ -17,7 +17,7 @@
     ```
 
 5. Setup environment variables:
-    1. Create a file called .env to the frontend project root.
+    1. Create a file called .env in the frontend project root.
     2. Add the following environment variable: VITE_API_URL. Its value should match the locally running backend development server URL e.g. VITE_API_URL = http://localhost:8080
 
 6. Start the frontend development server:
@@ -58,3 +58,23 @@ ProjectPage.tsx
 ProtectedLayout.tsx
 
 - Helper component to redirect the user to login if they navigate to certain endpoints.
+
+## 3. Frameworks/Third-Party Libraries
+
+### Font Awesome
+
+- https://fontawesome.com/
+
+- Used for the UI icons.
+
+### React Router
+
+- https://reactrouter.com/
+
+- Used for creating the routing logic and navigation in this single-page application.
+
+### Tailwind CSS
+
+- https://tailwindcss.com/
+
+- "Utility" based CSS framework used to write CSS in this project.
