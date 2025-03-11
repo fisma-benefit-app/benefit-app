@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { fetchProject, updateProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import { Project, ProjectWithUpdate, TGenericComponentNoId } from "../lib/types.ts";
+import {
+  Project,
+  ProjectWithUpdate,
+  TGenericComponentNoId,
+} from "../lib/types.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 
@@ -10,7 +14,6 @@ import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
 //maybe better placeholder component when project is being loaded
 export default function ProjectPage() {
-
   const { sessionToken } = useAppUser();
   const { selectedProjectId } = useParams();
 
@@ -19,23 +22,32 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   //sort functional components by id (order of creation from oldest to newest)
-  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
+  const sortedComponents = project?.functionalComponents.sort(
+    (a, b) => a.id - b.id
+  );
 
   useEffect(() => {
     const getProject = async () => {
       setLoadingProject(true);
       try {
-        const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
-        setProject(projectFromDb)
+        const projectFromDb = await fetchProject(
+          sessionToken,
+          Number(selectedProjectId)
+        );
+        setProject(projectFromDb);
       } catch (err) {
-        setError((err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend."));
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Unexpected error occurred when getting project from backend."
+        );
       } finally {
         setLoadingProject(false);
       }
-    }
+    };
 
     getProject();
-  }, [])
+  }, []);
 
   const createFunctionalComponent = async () => {
     if (project) {
@@ -49,38 +61,61 @@ export default function ProjectPage() {
         operations: null,
         degreeOfCompletion: null,
         comment: null,
-      }
+      };
 
-      const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent] };
+      const projectWithNewComponent: ProjectWithUpdate = {
+        ...project,
+        functionalComponents: [
+          ...project.functionalComponents,
+          newFunctionalComponent,
+        ],
+      };
 
       try {
-        const updatedProject: Project = await updateProject(sessionToken, projectWithNewComponent);
-        setProject(updatedProject)
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  }
-
-  const deleteFunctionalComponent = async (componentId: number) => {
-    if (project) {
-      const filteredComponents = project?.functionalComponents.filter(component => component.id !== componentId);
-      const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
-      try {
-        const updatedProject = await updateProject(sessionToken, filteredProject);
+        const updatedProject: Project = await updateProject(
+          sessionToken,
+          projectWithNewComponent
+        );
         setProject(updatedProject);
       } catch (err) {
         console.error(err);
       }
     }
-  }
+  };
+
+  const deleteFunctionalComponent = async (componentId: number) => {
+    if (
+      window.confirm(
+        "Oletko varma, että haluat poistaa funktionaalisen komponentin?"
+      )
+    ) {
+      if (project) {
+        const filteredComponents = project?.functionalComponents.filter(
+          (component) => component.id !== componentId
+        );
+        const filteredProject: Project = {
+          ...project,
+          functionalComponents: filteredComponents,
+        };
+        try {
+          const updatedProject = await updateProject(
+            sessionToken,
+            filteredProject
+          );
+          setProject(updatedProject);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+  };
 
   const saveProject = async () => {
     if (project) {
       try {
         // Update edited date to current date when saving project
         const now = new Date();
-        const currentDate = new Intl.DateTimeFormat('sv-SV', {
+        const currentDate = new Intl.DateTimeFormat("sv-SV", {
           timeZone: "Europe/Helsinki",
           year: "numeric",
           month: "2-digit",
@@ -93,22 +128,31 @@ export default function ProjectPage() {
         const editedProject = {
           ...project,
           editedDate: currentDate.replace(" ", "T"),
-        }
-        const savedProject = await updateProject(sessionToken, editedProject)
+        };
+        const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
         alert("Project saved!");
       } catch (err) {
-        console.error(err)
+        console.error(err);
       }
     }
-  }
+  };
 
   return (
     <div className="gap-5 flex justify-center my-20">
       {loadingProject ? (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
           <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" fill="none" stroke="blue" strokeWidth="4" strokeDasharray="31.4" strokeLinecap="round"></circle>
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              fill="none"
+              stroke="blue"
+              strokeWidth="4"
+              strokeDasharray="31.4"
+              strokeLinecap="round"
+            ></circle>
           </svg>
         </div>
       ) : error ? (
@@ -143,7 +187,9 @@ export default function ProjectPage() {
               Uusi funktionaalinen komponentti
             </button>
             {/* Render summary only if project has functional components */}
-            {project.functionalComponents.length > 0 && <FunctionalPointSummary project={project} />}
+            {project.functionalComponents.length > 0 && (
+              <FunctionalPointSummary project={project} />
+            )}
           </div>
         </>
       ) : (
