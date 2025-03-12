@@ -75,16 +75,18 @@ const createProject = async (sessionToken: string | null, nameForProject: string
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        const locationOfNewProject = response.headers.get("Location");
+        const location = response.headers.get("Location");
 
-        if (!locationOfNewProject) {
+        if (!location) {
             throw new Error("Project created but no Location header found!");
         } 
 
-        const urlObject = new URL(locationOfNewProject);
-        const relativePath = urlObject.pathname;
+        const parts = location.split("projects/");
+        const newProjectId = parts.length > 1 ? parts[1] : null;
 
-        return relativePath;
+        if (!newProjectId) {
+            throw new Error("Project created but no Location header found!");
+        } else return newProjectId;
     } catch (error) {
         console.error("Error creating project:", error);
         throw error;

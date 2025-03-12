@@ -43,8 +43,9 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
     }
 
     try {
-      const locationOfNewProject = await createProject(sessionToken, name);
-      navigate(locationOfNewProject);
+      const idOfNewProject = await createProject(sessionToken, name);
+      console.log("NewProjectModal" + idOfNewProject);
+      navigate(`project/${idOfNewProject}`);
       setOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error occured while sending new project request to backend.");

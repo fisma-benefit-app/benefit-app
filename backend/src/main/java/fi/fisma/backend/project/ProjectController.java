@@ -52,7 +52,7 @@ public class ProjectController {
                     new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), LocalDateTime.now(), LocalDateTime.now(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
             );
             URI locationOfNewProject = ucb
-                    .path("/project/{id}")
+                    .path("/projects/{id}")
                     .buildAndExpand(savedProject.getId())
                     .toUri();
                     System.out.println("New Project Location: " + locationOfNewProject);
