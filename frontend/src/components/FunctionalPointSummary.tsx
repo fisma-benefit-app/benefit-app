@@ -52,10 +52,10 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
   return (
     <div className="flex flex-col gap-3 border-2 my-5 p-4 sticky top-60">
       <div>
-        {getGroupedFunctionalComponents(project.functionalComponents).map((component, i) => {
+        {getGroupedFunctionalComponents(project.functionalComponents).map((component) => {
 
           return (
-            <div key={i} className="flex gap-5 justify-between w-full pb-3">
+            <div key={component.id} className="flex gap-5 justify-between w-full pb-3">
               <div>
                 {component.count + "x "} 
                 {getClassDisplayName(component)} 
