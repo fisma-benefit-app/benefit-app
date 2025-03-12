@@ -1,12 +1,14 @@
 import useAppUser from "../hooks/useAppUser";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
+import NewProjectModal from "./NewProjectModal";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { appUser, loggedIn, setAppUser, setLoggedIn, setSessionToken } =
-    useAppUser();
+  const { appUser, loggedIn, setAppUser, setLoggedIn, setSessionToken } = useAppUser();
+  const [isProjectModalOpen, setProjectModalOpen] = useState(false);
 
   const logout = () => {
     if (window.confirm("Haluatko varmasti kirjautua ulos?")) {
@@ -40,7 +42,7 @@ const Header = () => {
             </button>
             <button
               className="h-full text-lg px-5 bg-fisma-dark-blue hover:bg-fisma-gray"
-              onClick={() => alert("TODO: Create new!")}
+              onClick={() => setProjectModalOpen(true)}
             >
               <FontAwesomeIcon icon={faPlus} />
             </button>
@@ -55,6 +57,7 @@ const Header = () => {
           </>
         )}
       </div>
+      <NewProjectModal open={isProjectModalOpen} setOpen={setProjectModalOpen} />
     </header>
   );
 };
