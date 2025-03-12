@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
 import { TGenericComponent, Project } from "../lib/types.ts";
@@ -6,15 +6,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
 type FunctionalClassComponentProps = {
-  componentProp: TGenericComponent;
+  component: TGenericComponent;
   deleteFunctionalComponent: (componentId: number) => Promise<void>;
-  project: Project | null,
+  project: Project,
   setProject: React.Dispatch<React.SetStateAction<Project | null>>
 };
 
-export default function FunctionalClassComponent({ componentProp, deleteFunctionalComponent, project, setProject }: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject }: FunctionalClassComponentProps) {
 
-  const [component, setComponent] = useState<TGenericComponent>(componentProp);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
@@ -26,37 +25,55 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
   const fullPoints = calculateFunction ? calculateFunction(component) : 0;
   const pointsByDegreeOfCompletion = (component.degreeOfCompletion || 0) * fullPoints;
 
-  const handleClassNameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleClassNameChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newClassName = e.target.value;
-    // Component that doesn't have a className is an "empty"-component, 
-    // this is used for id generation in backend.
+    let updatedComponents;
+
     if (newClassName === "") {
-      setComponent((prev) => getEmptyComponent(prev));
-      return;
+      // Component that doesn't have a className is an "empty"-component, 
+      // this is used for id generation in backend.
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getEmptyComponent(component) : functionalComponent);
+    } else {
+      // If className changes, component gets reset (it has only className and ids).
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getResetedComponentWithClassName(component, newClassName) : functionalComponent);
     }
-    // If className changes, component gets reset (it has only className and ids).
-    setComponent((prev) => getResetedComponentWithClassName(prev, newClassName));
-  };
 
-  const handleOptionTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    setProject(updatedProject);
+  }
+
+  const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newOptionType = e.target.value;
-    if (newOptionType === "" && component.className) {
-      setComponent((prev) => getResetedComponentWithClassName(prev, component.className as string));
-    }
-    setComponent((prev) => ({ ...prev, componentType: newOptionType || null }));
-  };
+    let updatedComponents;
 
-  //this is a first attempt to get whole project saving working, there is probably a better way which we should discuss
-  useEffect(() => {
-    if (project) {
-      const componentsWithUpdatedComponent = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? component : functionalComponent);
-      const projectWithUpdatedcomponent: Project = { ...project, functionalComponents: componentsWithUpdatedComponent };
-      setProject(projectWithUpdatedcomponent);
+    if (newOptionType === "" && component.className) {
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getResetedComponentWithClassName(component, component.className as string) : functionalComponent);
+    } else {
+      const updatedComponent = { ...component, componentType: newOptionType || null }
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
     }
-  }, [component])
+
+    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    setProject(updatedProject);
+  }
+
+  const handleComponentChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let updatedComponent;
+
+    //check if the updated attribute needs to be converted to a number for math
+    //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
+    if (["comment"].includes(e.target.id)) {
+      updatedComponent = { ...component, [e.target.id]: e.target.value };
+    } else {
+      updatedComponent = { ...component, [e.target.id]: Number(e.target.value) };
+    }
+    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
+    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    setProject(updatedProject);
+  }
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 border-fisma-dark-blue bg-white my-5 w-[1075px] p-4">
+    <form className="flex flex-col gap-3 border-2 border-fisma-dark-blue bg-white my-5 w-[1075px] p-4">
       <div className="flex gap-5 items-center justify-between">
         <div className="flex-1">
           <input
@@ -64,12 +81,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
             id="comment"
             placeholder="Kommentti"
             value={component.comment || ""}
-            onChange={(e) =>
-              setComponent((prev) => ({
-                ...prev,
-                comment: e.target.value,
-              }))
-            }
+            onChange={handleComponentChange}
           />
         </div>
 
@@ -97,7 +109,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
         <>
           <div className="flex w-full gap-2 items-center">
             <select
-              id="functionalClassSelection"
+              id="className"
               value={component.className || ""}
               onChange={handleClassNameChange}
               className="flex-content border-2 border-gray-400 p-1"
@@ -117,7 +129,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
             {component.className && (
               <>
                 <select
-                  id="functionalClassTypeOption"
+                  id="componentType"
                   value={component.componentType || ""}
                   onChange={handleOptionTypeChange}
                   className="flex-content border-2 border-gray-400 p-1"
@@ -142,12 +154,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
                   max={1}
                   step={0.01}
                   value={component.degreeOfCompletion || ""}
-                  onChange={(e) =>
-                    setComponent((prev) => ({
-                      ...prev,
-                      degreeOfCompletion: Number(e.target.value),
-                    }))
-                  }
+                  onChange={handleComponentChange}
                 />
               </>
             )}
@@ -160,7 +167,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
               {Object.entries(component)
                 .filter(
                   ([key, value]) =>
-                    !["id", "className", "componentType", "degreeOfCompletion", "comment", "projectId", "functionalMultiplier"].includes(key) &&
+                    ["dataElements", "readingReferences", "writingReferences", "operations"].includes(key) &&
                     value !== null,
                 )
                 .map(([key, value]) => (
@@ -172,12 +179,7 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
                       id={key}
                       type="text"
                       value={value as number}
-                      onChange={(e) =>
-                        setComponent((prev) => ({
-                          ...prev,
-                          [key]: Number(e.target.value),
-                        }))
-                      }
+                      onChange={handleComponentChange}
                     />
                   </div>
                 ))}
