@@ -44,7 +44,6 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
 
     try {
       const idOfNewProject = await createProject(sessionToken, name);
-      console.log("NewProjectModal" + idOfNewProject);
       navigate(`project/${idOfNewProject}`);
       setOpen(false);
     } catch (err) {
