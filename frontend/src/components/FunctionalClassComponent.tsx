@@ -73,7 +73,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
   }
 
   return (
-    <form className="flex flex-col gap-3 border-2 border-fisma-dark-blue bg-white my-5 w-[1075px] p-4">
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 border-fisma-dark-blue bg-white my-5 w-[1075px] p-4">
       <div className="flex gap-5 items-center justify-between">
         <div className="flex-1">
           <input
