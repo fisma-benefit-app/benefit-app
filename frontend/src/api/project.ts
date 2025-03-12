@@ -49,6 +49,50 @@ const fetchProject = async (sessionToken: string | null, projectId: number | und
     }
 }
 
+const createProject = async (sessionToken: string | null, nameForProject: string | null) => {
+    if (!sessionToken) throw new Error("User needs to be logged in to create a project!");
+    if (!nameForProject) throw new Error("New project needs a name!");
+
+    const fetchURL = `${API_URL}/projects`;
+    const headers = {
+        "Authorization": sessionToken,
+        "Content-Type": "application/json"
+    };
+
+    const project = {
+        projectName: nameForProject,
+        version: 1
+    };
+
+    try {
+        const response = await fetch(fetchURL, { 
+            method: "POST", 
+            headers, 
+            body: JSON.stringify(project) 
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const location = response.headers.get("Location");
+
+        if (!location) {
+            throw new Error("Project created but no Location header found!");
+        } 
+
+        const parts = location.split("projects/");
+        const newProjectId = parts.length > 1 ? parts[1] : null;
+
+        if (!newProjectId) {
+            throw new Error("Id of new project could not be parsed!");
+        } else return newProjectId;
+    } catch (error) {
+        console.error("Error creating project:", error);
+        throw error;
+    }
+}
+
 const updateProject = async (sessionToken: string | null, project: Project | ProjectWithUpdate) => {
 
     if (!sessionToken) throw new Error("User needs to be logged in to update project!");
@@ -98,6 +142,7 @@ const deleteProject = async (sessionToken: string | null, projectId: number | un
 export {
     fetchAllProjects,
     fetchProject,
+    createProject,
     updateProject,
     deleteProject
 }

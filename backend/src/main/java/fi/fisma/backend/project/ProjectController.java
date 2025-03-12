@@ -55,6 +55,7 @@ public class ProjectController {
                     .path("/projects/{id}")
                     .buildAndExpand(savedProject.getId())
                     .toUri();
+                    System.out.println("New Project Location: " + locationOfNewProject);
             return ResponseEntity.created(locationOfNewProject).build();
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Todo - refactor with exception handling

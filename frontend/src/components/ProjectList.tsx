@@ -77,21 +77,10 @@ export default function ProjectList() {
             <table className="w-auto border-collapse">
                 <thead>
                 <tr>
-                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Projektin nimi :
-                    </th>
-                    <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">Versio
-                        :
-                    </th>
-                    <th className="bg-fisma-gray border-2 border-fisma-gray p-3 text-left text-white">Luotu
-                        :
-                    </th>
-                    <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">Muokattu
-                        :
-                    </th>
-                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Kokonaispisteet
-                        :
-                    </th>
-                    <th></th>
+                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Projektin nimi</th>
+                    <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">Versio</th>
+                    <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">Luotu</th>
+                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Muokattu</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -126,7 +115,6 @@ export default function ProjectList() {
                                         hour12: false,
                                     }).replace('.', ':')}
                                 </td>
-                                <td className="border-2 border-gray-400 p-1">{project.totalPoints.toFixed(2)}</td>
                                 <td className="p-1">
                                     <button
                                         className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer rounded text-white py-1 px-3"
@@ -152,4 +140,5 @@ export default function ProjectList() {
             </table>
         </div>
     );
-}
+} 
+//TODO: Fix totalPoints and add downloading?
