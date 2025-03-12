@@ -1,4 +1,4 @@
-import { Project } from "./types";
+import { Project, TGenericComponent } from "./types";
 
 export const convertToCSV = (data: any[]) => {
     if (data.length === 0) return '';
@@ -8,6 +8,12 @@ export const convertToCSV = (data: any[]) => {
 
     return [header, ...rows].join('\n');
 };
+
+export const encodeComponentForCSV = (component: TGenericComponent) => ({
+  ...component,
+  // CSV can't handle commas inside cells without quotation marks, so let's wrap all comments with ""
+  comment: component.comment ? `"${component.comment.replace(/\"/g, "")}"` : null
+})
 
 export const downloadCSV = (csvData: string, filename: string = 'data.csv') => {
     const blob = new Blob([csvData], { type: 'text/csv' });
@@ -20,9 +26,9 @@ export const downloadCSV = (csvData: string, filename: string = 'data.csv') => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 };
-//TODO: Should the project be passed here instead of making new request?
+
 export const downloadProjectComponentsCsv = async (project: Project) => {
-    const csvData = convertToCSV(project.functionalComponents);
+    const csvData = convertToCSV(project.functionalComponents.map(encodeComponentForCSV));
     downloadCSV(csvData, `${project.projectName}.csv`);
 }
 
