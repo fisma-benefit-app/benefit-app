@@ -3,8 +3,8 @@ name: Deploy to Amazon
 on:
   push:
     branches: [ "qa" ]
-  pull_request:
-    branches: [ "qa" ]
+#  pull_request:
+#    branches: [ "qa" ]
 
 jobs:
 
