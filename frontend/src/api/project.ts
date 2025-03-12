@@ -85,7 +85,7 @@ const createProject = async (sessionToken: string | null, nameForProject: string
         const newProjectId = parts.length > 1 ? parts[1] : null;
 
         if (!newProjectId) {
-            throw new Error("Project created but no Location header found!");
+            throw new Error("Id of new project could not be parsed!");
         } else return newProjectId;
     } catch (error) {
         console.error("Error creating project:", error);
