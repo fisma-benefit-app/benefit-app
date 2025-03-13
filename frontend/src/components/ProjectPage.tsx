@@ -22,32 +22,23 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   //sort functional components by id (order of creation from oldest to newest)
-  const sortedComponents = project?.functionalComponents.sort(
-    (a, b) => a.id - b.id
-  );
+  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
 
   useEffect(() => {
     const getProject = async () => {
       setLoadingProject(true);
       try {
-        const projectFromDb = await fetchProject(
-          sessionToken,
-          Number(selectedProjectId)
-        );
+        const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
         setProject(projectFromDb);
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Unexpected error occurred when getting project from backend."
-        );
+        setError(err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend.");
       } finally {
         setLoadingProject(false);
       }
     };
 
     getProject();
-  }, []);
+  }, [selectedProjectId, sessionToken]);
 
   const createFunctionalComponent = async () => {
     if (project) {
@@ -63,19 +54,10 @@ export default function ProjectPage() {
         comment: null,
       };
 
-      const projectWithNewComponent: ProjectWithUpdate = {
-        ...project,
-        functionalComponents: [
-          ...project.functionalComponents,
-          newFunctionalComponent,
-        ],
-      };
+      const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent,] };
 
       try {
-        const updatedProject: Project = await updateProject(
-          sessionToken,
-          projectWithNewComponent
-        );
+        const updatedProject: Project = await updateProject(sessionToken, projectWithNewComponent);
         setProject(updatedProject);
       } catch (err) {
         console.error(err);
@@ -84,24 +66,12 @@ export default function ProjectPage() {
   };
 
   const deleteFunctionalComponent = async (componentId: number) => {
-    if (
-      window.confirm(
-        "Oletko varma, että haluat poistaa funktionaalisen komponentin?"
-      )
-    ) {
+    if (window.confirm("Oletko varma, että haluat poistaa funktionaalisen komponentin?")) {
       if (project) {
-        const filteredComponents = project?.functionalComponents.filter(
-          (component) => component.id !== componentId
-        );
-        const filteredProject: Project = {
-          ...project,
-          functionalComponents: filteredComponents,
-        };
+        const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
+        const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
         try {
-          const updatedProject = await updateProject(
-            sessionToken,
-            filteredProject
-          );
+          const updatedProject = await updateProject(sessionToken, filteredProject);
           setProject(updatedProject);
         } catch (err) {
           console.error(err);
@@ -125,10 +95,7 @@ export default function ProjectPage() {
           second: "2-digit",
           hour12: false,
         }).format(now);
-        const editedProject = {
-          ...project,
-          editedDate: currentDate.replace(" ", "T"),
-        };
+        const editedProject = {...project, editedDate: currentDate.replace(" ", "T")};
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
         alert("Project saved!");
@@ -165,7 +132,7 @@ export default function ProjectPage() {
                 <FunctionalClassComponent
                   project={project}
                   setProject={setProject}
-                  componentProp={component}
+                  component={component}
                   deleteFunctionalComponent={deleteFunctionalComponent}
                   key={component.id}
                 />
