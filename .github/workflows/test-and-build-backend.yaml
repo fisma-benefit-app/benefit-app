@@ -1,11 +1,11 @@
 name: Second Github Actions Demo, Testing Java with Gradle (CI)
-run-name: ${{ github.actor }} is testing out Java With Gradle with github-actions-java-with-gradle.yaml 🚀
+run-name: ${{ github.actor }} is testing out Java With Gradle with test-and-build-backend.yaml 🚀
 
 on:
   push:
     branches: [ "dev" ]
   pull_request:
-    branches: [ "dev" ]
+    branches: [ "dev", "qa" ]
 
 jobs:
   build:
