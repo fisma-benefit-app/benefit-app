@@ -28,7 +28,7 @@ const Header = () => {
         <img
           src="/Fisma-benefit_logo.png"
           alt="FISMA Logo"
-          className="h-15 w-auto mb-2 ml-10 hover:brightness-90"
+          className="h-15 w-auto mb-2 ml-10 hover:brightness-90 drop-shadow-fisma-logo"
         />
       </Link>
       <div className="absolute top-0 right-0 h-full flex items-center">

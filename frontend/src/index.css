@@ -7,6 +7,7 @@
     --color-fisma-dark-blue: #221d5e;
     --color-fisma-gray: #636363;
     --color-fisma-red: #c82026;
+    --drop-shadow-fisma-logo: 0 2px 2px rgb(0 0 0 / 0.30)
 }
 
 :root {
@@ -22,6 +23,6 @@ input:focus {
 }
 
 /* This can be used to see where the element-boxes are. */
-/** {*/
+/* * {*/
 /*    outline: 1px solid lime;*/
-/*}*/
+/*} */
