@@ -14,7 +14,7 @@ const fetchAllProjects = async (sessionToken: string | null) => {
         const response = await fetch(fetchURL, { method: "GET", headers })
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`Error fetching projects in fetchAllProjects! Status: ${response.status}`);
         }
 
         const projects = await response.json();
@@ -38,7 +38,7 @@ const fetchProject = async (sessionToken: string | null, projectId: number | und
         const response = await fetch(fetchURL, { method: "GET", headers })
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`Error fetching project in fetchProject! Status: ${response.status}`);
         }
 
         const project = await response.json();
@@ -72,7 +72,7 @@ const createProject = async (sessionToken: string | null, nameForProject: string
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
         }
 
         const location = response.headers.get("Location");
@@ -107,7 +107,7 @@ const updateProject = async (sessionToken: string | null, project: Project | Pro
         const response = await fetch(fetchURL, { method: "PUT", headers, body: JSON.stringify(project) })
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`Error updating project in updateProject! Status: ${response.status}`);
         }
 
         const updatedProject = await response.json();
@@ -131,7 +131,7 @@ const deleteProject = async (sessionToken: string | null, projectId: number | un
         const response = await fetch(fetchURL, { method: "DELETE", headers })
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`Error deleting project in deleteProject! Status: ${response.status}`);
         }
     } catch (error) {
         console.error("Error deleting project:", error);
