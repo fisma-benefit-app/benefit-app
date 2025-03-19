@@ -1,6 +1,6 @@
-# Setup for Benefit-app locally
+# Setup for Benefit-app
 
-## 1. Setup for booting up Benefit-app
+## 1. Setup for booting up Benefit-app locally
 
 In order to start Benefit-app locally,
 here are prerequisites that must
