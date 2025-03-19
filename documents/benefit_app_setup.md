@@ -1,11 +1,3 @@
-<style>
-  .responsive-image {
-    border: 2px blue;
-    width:auto;
-    height:auto;
-  }
-</style>
-
 # Setup for Benefit-app locally
 
 ## 1. Setup for booting up Benefit-app
@@ -41,13 +33,7 @@ to fork the whole application in your local workstation.
 You can find fork functionality up right corner of
 benefit-app's github repo page:
 
-<img 
-  src="https://github.com/user-attachments/assets/eb5c1c43-af25-46ee-af7b-1313f4431824" 
-  styles=
-    "border: 2px blue;
-    width:auto;
-    height:auto;"
-/>
+<img src="https://github.com/user-attachments/assets/eb5c1c43-af25-46ee-af7b-1313f4431824" style="border: 2px blue; width:auto; height:auto;"/>
   ![image](https://github.com/user-attachments/assets/eb5c1c43-af25-46ee-af7b-1313f4431824)
 |---|
 
@@ -72,15 +58,7 @@ The command should work in any git supported softwares or tools.
 Most of us used _Git Bash_ for installing and updating
 benefit-app repository in Windows workstations.
 
-<img 
-  src="https://github.com/user-attachments/assets/0fd64949-aecb-4e18-a165-276a70384dbd" 
-  styles=
-    "border: 2px blue;
-    width:auto;
-    height:auto;"
-/>
-
-
+<img src="https://github.com/user-attachments/assets/0fd64949-aecb-4e18-a165-276a70384dbd" style="border: 2px blue; width:auto; height:auto;"/>
 
 
 activated docker compose for postgresql 
