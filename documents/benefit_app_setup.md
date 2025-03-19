@@ -33,9 +33,7 @@ to fork the whole application in your local workstation.
 You can find fork functionality up right corner of
 benefit-app's github repo page:
 
-<img src="https://github.com/user-attachments/assets/eb5c1c43-af25-46ee-af7b-1313f4431824" style="border: 2px blue; width:auto; height:auto;"/>
-  ![image](https://github.com/user-attachments/assets/eb5c1c43-af25-46ee-af7b-1313f4431824)
-|---|
+<img src="https://github.com/user-attachments/assets/eb5c1c43-af25-46ee-af7b-1313f4431824" border="2px blue" width="200" height="200"/>
 
 
 
