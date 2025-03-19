@@ -57,7 +57,7 @@ The command should work in any git supported softwares or tools.
 Most of us used _Git Bash_ for installing and updating
 benefit-app repository in Windows workstations.
 
-![image](https://github.com/user-attachments/assets/6f05f526-0235-4405-a561-c825763d7ef3)
+<img source="![image](https://github.com/user-attachments/assets/6f05f526-0235-4405-a561-c825763d7ef3)" width="200" height="200"/>
 
 
 
