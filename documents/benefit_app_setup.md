@@ -33,9 +33,8 @@ to fork the whole application in your local workstation.
 You can find fork functionality up right corner of
 benefit-app's github repo page:
 
-<div style="border: 100px solid black; display: inline-block;">
-  <img src="https://github.com/user-attachments/assets/eb5c1c43-af25-46ee-af7b-1313f4431824" width="auto" height="auto"/>
-</div>
+![image](https://github.com/user-attachments/assets/c0393515-9251-432a-977f-e1db90f5be6f)
+|---|
 
 
 
@@ -58,7 +57,7 @@ The command should work in any git supported softwares or tools.
 Most of us used _Git Bash_ for installing and updating
 benefit-app repository in Windows workstations.
 
-<img src="https://github.com/user-attachments/assets/0fd64949-aecb-4e18-a165-276a70384dbd" style="border: 2px blue; width:auto; height:auto;"/>
+<img src="https://github.com/user-attachments/assets/38be504e-d0e8-481a-be45-5c5405bcddb3" width="450px" height="300px">
 
 
 activated docker compose for postgresql 
