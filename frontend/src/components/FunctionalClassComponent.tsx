@@ -1,9 +1,9 @@
+import { faCaretDown, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ChangeEvent, useState } from "react";
 import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
-import { TGenericComponent, Project } from "../lib/types.ts";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { Project, TGenericComponent } from "../lib/types.ts";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -79,7 +79,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           <input
             className="w-full border-2 border-gray-400 p-1"
             id="comment"
-            placeholder="Kommentti"
+            placeholder="Toiminnon nimi"
             value={component.comment || ""}
             onChange={handleComponentChange}
           />
