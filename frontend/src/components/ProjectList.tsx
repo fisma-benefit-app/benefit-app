@@ -5,16 +5,18 @@ import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Project } from "../lib/types.ts";
 import { fetchAllProjects, deleteProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
+import useLanguage from "../hooks/useLanguage.ts";
 
 export default function ProjectList() {
-    const { sessionToken } = useAppUser();
     const [projects, setProjects] = useState<Project[]>([]);
     const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState<string>("");
 
+    const { sessionToken } = useAppUser();
     const navigate = useNavigate();
+    const {t} = useLanguage();
 
     useEffect(() => {
         const getAllProjects = async () => {
@@ -45,7 +47,7 @@ export default function ProjectList() {
     }, [searchTerm, projects]);
 
     const handleDelete = async (projectId: number, projectName: string) => {
-        if (window.confirm(`Oletko varma, että haluat poistaa projektin "${projectName}"?`)) {
+        if (window.confirm(`${t("projectList.confirmDelete")}"${projectName}"?`)) {
             try {
                 await deleteProject(sessionToken, projectId);
                 setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
@@ -69,7 +71,7 @@ export default function ProjectList() {
         <div className="flex flex-col items-center h-screen p-4 pt-20">
             <input
                 type="text"
-                placeholder="Etsi projektia nimellä..."
+                placeholder={t("projectList.searchPlaceholder")}
                 className="mb-4 p-2 border-2 border-gray-400 rounded"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -77,10 +79,10 @@ export default function ProjectList() {
             <table className="w-auto border-collapse">
                 <thead>
                 <tr>
-                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Projektin nimi</th>
-                    <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">Versio</th>
-                    <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">Luotu</th>
-                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Muokattu</th>
+                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">{t("projectList.projectName")}</th>
+                    <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">{t("projectList.version")}</th>
+                    <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">{t("projectList.createdAt")}</th>
+                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">{t("projectList.modifiedAt")}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -141,4 +143,3 @@ export default function ProjectList() {
         </div>
     );
 } 
-//TODO: Fix totalPoints and add downloading?

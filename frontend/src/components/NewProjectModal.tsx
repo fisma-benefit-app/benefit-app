@@ -2,13 +2,13 @@ import useAppUser from "../hooks/useAppUser";
 import { useState, FormEvent, useRef, useEffect } from "react";
 import { createProject } from "../api/project.ts";
 import { useNavigate } from "react-router";
+import useLanguage from "../hooks/useLanguage.ts";
 
 interface NewProjectFormProps {
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 
-//TODO: No same names for projects? Add loading! Is there need to sanitise
 export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) {
   const navigate = useNavigate();
   const { sessionToken } = useAppUser();
@@ -18,6 +18,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
   const [showError, setShowError] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const {t} = useLanguage();
 
   useEffect(() => {
     if (open) {
@@ -31,7 +32,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
 
     if (!name.trim()) {
       setName("");
-      setError("Projekti tarvitsee nimen!");
+      setError(t("newProjectModal.error"));
       setShowError(true);
 
       setTimeout(() => {
@@ -65,7 +66,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[2px]">
       <div className="bg-white p-6 border-3 border-gray-400 shadow-2xl lg w-96">
-        <h2 className="text-fisma-dark-blue text-2xl font-bold text-center mb-4">Luo uusi projekti</h2>
+        <h2 className="text-fisma-dark-blue text-2xl font-bold text-center mb-4">{t("newProjectModal.header")}</h2>
 
         <div className="h-8 mb-4 flex items-center justify-center">
           {error && (
@@ -85,7 +86,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
             ref={inputRef}
             type="text"
             maxLength={60}
-            placeholder="Anna projektille nimi"
+            placeholder={t("newProjectModal.placeholderText")}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
@@ -99,13 +100,13 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
              disabled={loading}
              onClick={() => {setOpen(false); setName("");} } 
              className="bg-fisma-red p-2">
-              Peruuta
+              {t("newProjectModal.cancel")}
             </button>
             <button
              type="submit" 
              disabled={loading}
              className="bg-fisma-blue text-white p-2">
-              Luo uusi
+              {t("newProjectModal.createNew")}
             </button>
           </div>
         </form>

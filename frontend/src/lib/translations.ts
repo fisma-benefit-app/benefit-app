@@ -11,6 +11,21 @@ export const translations = {
             rememberMe: "Remember me",
             forgotPassword: "Did you forget password?",
             login: "Login"
+        },
+        newProjectModal: {
+            error: "Project needs a name!",
+            header: "Create a new project",
+            placeholderText: "Name the project",
+            cancel: "Cancel",
+            createNew: "Create new"
+        },
+        projectList: {
+            confirmDelete: "Are you sure you want to delete ",
+            searchPlaceholder: "Find a project by name...",
+            projectName: "Project's name",
+            version: "Version",
+            createdAt: "Created at",
+            modifiedAt: "Modified at"
         }
     },
 
@@ -26,6 +41,22 @@ export const translations = {
             rememberMe: "Muista minut",
             forgotPassword: "Unohditko salasanan?",
             login: "Kirjaudu"
+        },
+        newProjectModal: {
+            error: "Projekti tarvitsee nimen!",
+            header: "Luo uusi projekti",
+            placeholderText: "Anna projektille nimi",
+            cancel: "Peruuta",
+            createNew: "Luo uusi"
+        },
+        projectList: {
+            confirmDelete: "Oletko varma, että haluat poistaa ",
+            searchPlaceholder: "Etsi projekti nimellä...",
+            projectName: "Projektin nimi",
+            version: "Versio",
+            createdAt: "Luotu",
+            modifiedAt: "Muokattu"
+            
         }
     },
 } as const;

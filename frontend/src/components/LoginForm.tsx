@@ -49,7 +49,7 @@ export default function LoginForm() {
         if (loggedIn) {
             navigate("/");
         }
-    }, [loggedIn]);
+    }, [loggedIn, navigate]);
 
     return (//TODO: Change background!
         <div className="flex justify-center items-center h-screen bg-[#c6e5ff]"> 
