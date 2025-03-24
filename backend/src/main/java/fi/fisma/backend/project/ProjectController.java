@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.security.Principal;
+import org.springframework.security.core.Authentication;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -21,20 +21,20 @@ public class ProjectController {
     private final AppUserRepository appUserRepository;
     
     @GetMapping("/{requestedId}")
-    private ResponseEntity<Project> getProject(@PathVariable Long requestedId, Principal principal) {
-        var project = projectRepository.findByProjectIdAndUsername(requestedId, principal.getName());
+    private ResponseEntity<Project> getProject(@PathVariable Long requestedId, Authentication authentication) {
+        var project = projectRepository.findByProjectIdAndUsername(requestedId, authentication.getName());
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
     
     @GetMapping
-    private ResponseEntity<List<Project>> getAllProjects(Principal principal) {
-        var projects = projectRepository.findAllByUsername(principal.getName());
+    private ResponseEntity<List<Project>> getAllProjects(Authentication authentication) {
+        var projects = projectRepository.findAllByUsername(authentication.getName());
         return ResponseEntity.ok(projects);
     }
     
     @PutMapping("/{requestedId}")
-    private ResponseEntity<Project> updateProject(@PathVariable Long requestedId, @RequestBody Project projectUpdate, Principal principal) {
-        var projectOptional = projectRepository.findByProjectIdAndUsername(requestedId, principal.getName());
+    private ResponseEntity<Project> updateProject(@PathVariable Long requestedId, @RequestBody Project projectUpdate, Authentication authentication) {
+        var projectOptional = projectRepository.findByProjectIdAndUsername(requestedId, authentication.getName());
         if (projectOptional.isPresent()) {
             var project = projectOptional.get();
             var updatedProject = projectRepository.save(
@@ -45,8 +45,8 @@ public class ProjectController {
     }
     
     @PostMapping
-    private ResponseEntity<Void> createProject(@RequestBody Project newProjectRequest, UriComponentsBuilder ucb, Principal principal) {
-        var appUser = appUserRepository.findByUsername(principal.getName());
+    private ResponseEntity<Void> createProject(@RequestBody Project newProjectRequest, UriComponentsBuilder ucb, Authentication authentication) {
+        var appUser = appUserRepository.findByUsername(authentication.getName());
         if (appUser != null) {
             var savedProject = projectRepository.save(
                     new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), LocalDateTime.now(), LocalDateTime.now(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
@@ -62,8 +62,8 @@ public class ProjectController {
     }
     
     @DeleteMapping("/{requestedId}")
-    private ResponseEntity<Void> deleteProject(@PathVariable Long requestedId, Principal principal) {
-        if (projectRepository.existsByProjectIdAndUsername(requestedId, principal.getName())) {
+    private ResponseEntity<Void> deleteProject(@PathVariable Long requestedId, Authentication authentication) {
+        if (projectRepository.existsByProjectIdAndUsername(requestedId, authentication.getName())) {
             projectRepository.deleteById(requestedId);
             return ResponseEntity.noContent().build();
         }
