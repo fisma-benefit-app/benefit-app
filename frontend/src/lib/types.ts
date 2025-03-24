@@ -1,3 +1,9 @@
+import { ReactNode } from "react"
+
+export type ContextProviderProps = {
+  children: ReactNode
+}
+
 export type projectAppUser = {
   appUserId: number
 }
