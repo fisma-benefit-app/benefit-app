@@ -4,6 +4,7 @@ import { fetchJWT } from '../api/authorization';
 import useAppUser from '../hooks/useAppUser';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faKey, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import useLanguage from '../hooks/useLanguage';
 
 export default function LoginForm() {
     const [username, setUsername] = useState<string>('');
@@ -14,6 +15,7 @@ export default function LoginForm() {
     const [showLoginError, setShowLoginError] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
+    const {t} = useLanguage();
     const { setSessionToken, setLoggedIn, setAppUser, loggedIn } = useAppUser();
     const navigate = useNavigate();
 
@@ -25,7 +27,7 @@ export default function LoginForm() {
         const loginToken = await fetchJWT(username, password);
 
         if (!loginToken) {
-            setLoginError('Kirjautuminen epäonnistui! Tarkista käyttäjänimi ja salasana.');
+            setLoginError(t("loginForm.errorMessage"));
             setShowLoginError(true);
 
             setTimeout(() => {
@@ -52,7 +54,7 @@ export default function LoginForm() {
     return (//TODO: Change background!
         <div className="flex justify-center items-center h-screen bg-[#c6e5ff]"> 
             <form onSubmit={login} className="max-w-sm w-full mx-auto p-4 border-2 border-gray-400 shadow-md bg-white flex flex-col">
-                <h1 className="text-2xl text-fisma-dark-blue font-extrabold mb-4 text-center">Kirjaudu sisään</h1>
+                <h1 className="text-2xl text-fisma-dark-blue font-extrabold mb-4 text-center">{t("loginForm.header")}</h1>
 
                 <div className="h-8 mb-4 flex items-center justify-center">
                     {loginError && (
@@ -66,7 +68,7 @@ export default function LoginForm() {
                     <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                         type="text"
-                        placeholder="Käyttäjänimi"
+                        placeholder={t("loginForm.username")}
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
@@ -78,7 +80,7 @@ export default function LoginForm() {
                     <FontAwesomeIcon icon={faKey} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Salasana"
+                        placeholder={t("loginForm.password")}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -101,9 +103,9 @@ export default function LoginForm() {
                             onChange={(e) => setRememberMe(e.target.checked)}
                             className="mr-2 cursor-pointer"
                         />
-                        Muista minut
+                        {t("loginForm.rememberMe")}
                     </label>
-                    <a href="#" className="text-fisma-blue text-sm hover:underline">Unohditko salasanan?</a>
+                    <a href="#" className="text-fisma-blue text-sm hover:underline">{t("loginForm.forgotPassword")}</a>
                 </div>
 
                 <button
@@ -115,7 +117,7 @@ export default function LoginForm() {
                         <svg className="animate-spin h-5 w-5 mr-2 border-white border-2 rounded-full" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="10" fill="none" stroke="white" strokeWidth="4" strokeDasharray="31.4" strokeLinecap="round"></circle>
                         </svg>
-                    ) : "Kirjaudu"}
+                    ) : t("loginForm.login")}
                 </button>
             </form>
         </div>

@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useEffect, useState } from "react"
 
+//TODO: Split context to separate file!
 //TODO: add logic for session token and handling it when the application is started
 
 type AppUserContextType = {

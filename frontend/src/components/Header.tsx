@@ -1,18 +1,16 @@
 import useAppUser from "../hooks/useAppUser";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
 import NewProjectModal from "./NewProjectModal";
-import { headerTranslations } from "../lib/translations";
 import useLanguage from "../hooks/useLanguage";
-import { LanguageType } from "../context/LanguageProvider";
 
 const Header = () => {
   const navigate = useNavigate();
   const { appUser, loggedIn, setAppUser, setLoggedIn, setSessionToken } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
-  const { selectedLanguage, setSelectedLanguage, languageOptions } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
 
   const logout = () => {
     if (window.confirm("Haluatko varmasti kirjautua ulos?")) {
@@ -25,11 +23,6 @@ const Header = () => {
     }
   };
 
-  const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    //value of e is always typeof LanguageType
-    setSelectedLanguage(e.target.value as LanguageType);
-  }
-
   //TODO: Save before redirecting or logging out?
   return (
     <header className="fixed top-0 w-full bg-fisma-blue text-white flex z-999">
@@ -41,9 +34,6 @@ const Header = () => {
         />
       </Link>
       <div className="absolute top-0 right-0 h-full flex items-center">
-        <select onChange={handleLanguageChange}>
-          {languageOptions.map((option, index) => <option key={index} value={option}>{option}</option>)}
-        </select>
         {loggedIn && (
           <>
             <button
@@ -59,15 +49,21 @@ const Header = () => {
               <FontAwesomeIcon icon={faPlus} />
             </button>
             <button
-              className="h-full text-lg px-5 bg-fisma-blue hover:bg-fisma-red"
+              className="h-full text-lg px-5 bg-fisma-chathams-blue hover:bg-fisma-red"
               onClick={logout}
             >
-              {headerTranslations.logoutButton[selectedLanguage]}
+              {t("header.logout")}
               <FontAwesomeIcon icon={faUser} className="ml-2 mr-2" />({" "}
               {appUser?.username} )
             </button>
           </>
         )}
+        <button
+          className="h-full text-lg px-5 bg-fisma-dark-blue hover:bg-fisma-gray"
+          onClick={() => setLanguage(language === "fi" ? "en" : "fi")}
+        >
+          {language.toUpperCase()}
+        </button>
       </div>
       <NewProjectModal open={isProjectModalOpen} setOpen={setProjectModalOpen} />
     </header>
