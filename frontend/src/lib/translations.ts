@@ -56,7 +56,7 @@ export const translations = {
             version: "Versio",
             createdAt: "Luotu",
             modifiedAt: "Muokattu"
-            
+
         }
     },
 } as const;
@@ -64,14 +64,16 @@ export const translations = {
 export type Language = keyof typeof translations;
 
 type NestedKeyOf<T> = T extends object
-  ? { [K in keyof T]: K extends string ? `${K}` | `${K}.${NestedKeyOf<T[K]>}` : never }[keyof T]
-  : never;
+    ? { [K in keyof T]: K extends string ? `${K}` | `${K}.${NestedKeyOf<T[K]>}` : never }[keyof T]
+    : never;
 
 export type TranslationKey = NestedKeyOf<typeof translations.fi>;
 
-// export const headerTranslations = {
-//     logoutButton: {
-//         fi: "Kirjaudu ulos",
-//         en: "Logout"
-//     },
-// }
+export const headerTranslations = {
+    fi: {
+        logoutButton: "Kirjaudu ulos"
+    },
+    en: {
+        logoutButton: "Logout"
+    }
+}

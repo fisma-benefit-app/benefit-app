@@ -5,12 +5,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
 import NewProjectModal from "./NewProjectModal";
 import useLanguage from "../hooks/useLanguage";
+import { headerTranslations } from "../lib/translations";
 
 const Header = () => {
   const navigate = useNavigate();
   const { appUser, loggedIn, setAppUser, setLoggedIn, setSessionToken } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const { t, language, setLanguage } = useLanguage();
+
+  const headerTranslation = headerTranslations[language];
 
   const logout = () => {
     if (window.confirm("Haluatko varmasti kirjautua ulos?")) {
@@ -40,6 +43,7 @@ const Header = () => {
               className="h-full text-lg px-5 bg-fisma-chathams-blue hover:bg-fisma-gray"
               onClick={() => navigate("/")}
             >
+              {headerTranslation.logoutButton}
               <FontAwesomeIcon icon={faHome} />
             </button>
             <button
