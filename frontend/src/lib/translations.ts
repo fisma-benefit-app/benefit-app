@@ -125,7 +125,6 @@ export const translations = {
             version: "Versio",
             createdAt: "Luotu",
             modifiedAt: "Muokattu"
-
         },
         functionalClassComponent: {
             classNameOptions: {

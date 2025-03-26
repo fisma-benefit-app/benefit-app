@@ -3,18 +3,19 @@ import { getCalculateFuntion, getComponentTypeOptions } from '../lib/fc-service-
 import { downloadProjectComponentsCsv, createPdf } from '../lib/printUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
-import { classNameOptions} from '../lib/fc-constants';
+import { classNameOptions } from '../lib/fc-constants';
 import useLanguage from '../hooks/useLanguage';
 import { translations } from '../lib/translations';
 
 type FunctionalClassComponentProps = {
   project: Project;
 };
-type GenericComponentWithCount = TGenericComponent & { count: number , points: number}
+
+type GenericComponentWithCount = TGenericComponent & { count: number, points: number }
 
 const getClassDisplayName = (component: TGenericComponent) => classNameOptions.find(option => option.value === component.className)?.displayName
 const getComponentTypeDisplayName = (component: TGenericComponent) => {
-  if(!component.className) return null;
+  if (!component.className) return null;
   return getComponentTypeOptions(component.className).find(option => option.value === component.componentType)?.displayName
 }
 
@@ -35,22 +36,21 @@ const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]
 
 const getGroupedFunctionalComponents = (components: TGenericComponent[]) => {
   const grouped: GenericComponentWithCount[] = []
-  for (const component of components){
+  for (const component of components) {
     const existingIndex = grouped.findIndex(({ className, componentType }) => component.className === className && component.componentType === componentType)
-    if (existingIndex === -1){
-      grouped.push({...component, count: 1, points: calculateFunctionalComponentPoints(component)})
+    if (existingIndex === -1) {
+      grouped.push({ ...component, count: 1, points: calculateFunctionalComponentPoints(component) })
     } else {
-      grouped[existingIndex].count +=1
+      grouped[existingIndex].count += 1
       grouped[existingIndex].points += calculateFunctionalComponentPoints(component)
     }
   }
   return grouped;
-
 }
 
 export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProps) => {
   const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
-  const {language} = useLanguage();
+  const { language } = useLanguage();
 
   const translation = translations[language].functionalPointSummary;
 
@@ -62,8 +62,8 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
           return (
             <div key={component.id} className="flex gap-5 justify-between w-full pb-3">
               <div>
-                {component.count + "x "} 
-                {getClassDisplayName(component)} 
+                {component.count + "x "}
+                {getClassDisplayName(component)}
                 <br />
                 {getComponentTypeDisplayName(component)}
               </div>
