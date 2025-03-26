@@ -79,7 +79,8 @@ export default function ProjectList() {
                 <tr>
                     <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Projektin nimi</th>
                     <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">Versio</th>
-                    <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">Luotu</th>
+                    <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">Versio Luotu</th>
+                    <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">Projekti Luotu</th>
                     <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">Muokattu</th>
                 </tr>
                 </thead>
@@ -91,6 +92,18 @@ export default function ProjectList() {
                                     {project.projectName}
                                 </td>
                                 <td className="border-2 border-gray-400 p-1">v{project.version}</td>
+                                <td className="border-2 border-gray-400 p-1">
+                                    {new Date(project.versionDate).toLocaleDateString("fi-FI", {
+                                        year: "numeric",
+                                        month: "2-digit",
+                                        day: "2-digit",
+                                    })}{" "}
+                                    {new Date(project.versionDate).toLocaleTimeString("fi-FI", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                    }).replace('.', ':')}
+                                </td>
                                 <td className="border-2 border-gray-400 p-1">
                                     {new Date(project.createdDate).toLocaleDateString("fi-FI", {
                                         year: "numeric",

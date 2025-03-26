@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { fetchProject, updateProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
@@ -7,6 +7,7 @@ import {
   ProjectWithUpdate,
   TGenericComponentNoId,
 } from "../lib/types.ts";
+import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 
@@ -20,6 +21,8 @@ export default function ProjectPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
+
+  const navigate = useNavigate();
 
   //sort functional components by id (order of creation from oldest to newest)
   const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
@@ -105,6 +108,21 @@ export default function ProjectPage() {
     }
   };
 
+  const saveProjectVersion = async (projectVersion: number) => {
+    if (project) {
+      if (window.confirm(`Oletko varma, että haluat tallentaa projektin versiona ${projectVersion}? Vanhoja versioita ei voi enää muokata.`)) {
+      saveProject();
+      try {
+        const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
+        navigate(`project/${idOfNewProjectVersion}`);
+        console.log({project});
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+  };
+
   return (
     <div className="gap-5 flex justify-center my-20">
       {loadingProject ? (
@@ -146,6 +164,12 @@ export default function ProjectPage() {
               onClick={saveProject}
             >
               Tallenna projekti
+            </button>
+            <button
+              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
+              onClick={() => saveProjectVersion(project.version)}
+            >
+              Tallenna projekti versiona {project.version}
             </button>
             <button
               onClick={createFunctionalComponent}
