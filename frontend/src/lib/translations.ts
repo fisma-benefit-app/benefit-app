@@ -57,23 +57,53 @@ export const translations = {
             createdAt: "Luotu",
             modifiedAt: "Muokattu"
 
+        },
+        functionalClassComponent: {
+            classNameOptions: {
+                "Interactive end-user navigation and query service": "Vuorovaikutteinen navigointi- tai kyselytoiminto",
+                "Interactive end-user input service": "Vuorovaikutteinen syöttötoiminto",
+                "Non-interactive end-user output service": "Yksisuuntainen tulostetoiminto",
+                "Interface service to other applications": "Lähetettävä liittymätoiminto",
+                "Interface service from other applications": "Vastaanotettava liittymätoiminto",
+                "Data storage service": "Tiedonvarastointitoiminto",
+                "Algorithmic or manipulation service": "Algoritminen toiminto tai käsittelytoiminto",
+            },
+            componentTypeOptions: {
+                "function designators": "toiminto-osoittimet",
+                "log-in, log-out functions": "kirjautumistoiminnot",
+                "function lists": "toimintovalikot",
+                "selection lists": "valintalistat",
+                "data inquiries": "kyselynäytöt",
+                "generation indicators": "toimintojen käynnistysnäytöt",
+                "browsing lists": "selailunäytöt",
+                "1-functional": "1-toimiset",
+                "2-functional": "2-toimiset",
+                "3-functional": "3-toimiset",
+                "forms": "Lomaketulosteet",
+                "reports": "Raportit",
+                "emails for text messages": "Sähköposti- tai tekstiviestit",
+                "monitor screens": "Näyttötulosteet",
+                "messages to other applications": "Lähetettävät sanomat",
+                "batch records to other applications": "Lähetettävät erätietueet",
+                "signals to devices or other applications": "Lähetettävät signaalit",
+                "messages from other applications": "Vastaanotettavat sanomat",
+                "batch records from other applications": "Vastaanotettavat erätietueet",
+                "signals from devices or other applications": "Vastaanotettavat signaalit",
+                "entities or classes": "Käsitteet tai luokat",
+                "other record types": "Muut tietuetyypit",
+                "security routines": "Turvallisuusrutiinit",
+                "calculation routines": "Laskentarutiinit",
+                "simulation routines": "Simulointirutiinit",
+                "formatting routines": "Muotoilurutiinit",
+                "database cleaning routines": "Tietokannan hoitorutiinit",
+                "other manipulation routines": "Muut käsittelyrutiinit"
+            },
+            parameters: {
+                dataElements: "Tietoelementit",
+                writingReferences: "Kirjoitusviittaukset",
+                readingReferences: "Lukuviittaukset",
+                operations: "Operaatiot"
+            }
         }
     },
-} as const;
-
-export type Language = keyof typeof translations;
-
-type NestedKeyOf<T> = T extends object
-    ? { [K in keyof T]: K extends string ? `${K}` | `${K}.${NestedKeyOf<T[K]>}` : never }[keyof T]
-    : never;
-
-export type TranslationKey = NestedKeyOf<typeof translations.fi>;
-
-export const headerTranslations = {
-    fi: {
-        logoutButton: "Kirjaudu ulos"
-    },
-    en: {
-        logoutButton: "Logout"
-    }
 }

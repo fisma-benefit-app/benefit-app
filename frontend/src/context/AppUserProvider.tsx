@@ -1,9 +1,10 @@
-import { createContext, ReactNode, useEffect, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
+import { AppUserContext } from "./AppUserContext"
 
 //TODO: Split context to separate file!
 //TODO: add logic for session token and handling it when the application is started
 
-type AppUserContextType = {
+export type AppUserContextType = {
     loadingAuth: boolean,
     appUser: AppUser | null,
     loggedIn: boolean,
@@ -20,8 +21,6 @@ type AppUserProviderProps = {
 type AppUser = {
     username: string,
 }
-
-export const AppUserContext = createContext<AppUserContextType | null>(null);
 
 const AppUserProvider = ({ children }: AppUserProviderProps) => {
     const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
