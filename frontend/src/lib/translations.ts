@@ -90,6 +90,12 @@ export const translations = {
             saveProject: "Save Project",
             newFunctionalComponent: "New Functional Component",
             noProject: "No project information to show!"
+        },
+        functionalPointSummary: {
+            total: "Total",
+            functionalPointText: "FP",
+            csv: "Export CSV",
+            pdf: "Export PDF"
         }
     },
     fi: {
@@ -178,6 +184,12 @@ export const translations = {
             saveProject: "Tallenna projekti",
             newFunctionalComponent: "Uusi funktionaalinen komponentti",
             noProject: "Ei näytettäviä projektitietoja!"
+        },
+        functionalPointSummary: {
+            total: "Yhteensä",
+            functionalPointText: "TP",
+            csv: "Luo CSV",
+            pdf: "Luo PDF"
         }
     },
 }

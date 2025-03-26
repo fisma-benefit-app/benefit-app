@@ -4,7 +4,8 @@ import { downloadProjectComponentsCsv, createPdf } from '../lib/printUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { classNameOptions} from '../lib/fc-constants';
-
+import useLanguage from '../hooks/useLanguage';
+import { translations } from '../lib/translations';
 
 type FunctionalClassComponentProps = {
   project: Project;
@@ -49,6 +50,10 @@ const getGroupedFunctionalComponents = (components: TGenericComponent[]) => {
 
 export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProps) => {
   const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
+  const {language} = useLanguage();
+
+  const translation = translations[language].functionalPointSummary;
+
   return (
     <div className="flex flex-col gap-3 border-2 my-5 p-4 sticky top-60">
       <div>
@@ -72,22 +77,22 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
 
       <div className="flex gap-7 justify-between w-full border-t pt-4">
         <b>
-          Yhteensä
+          {translation.total}
         </b>
         <b>
-          {totalPoints.toFixed(2)} TP
+          {totalPoints.toFixed(2)} {translation.functionalPointText}
         </b>
       </div>
 
       <button
         onClick={() => downloadProjectComponentsCsv(project)}
         className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
-        CSV <FontAwesomeIcon icon={faDownload} />
+        {translation.csv} <FontAwesomeIcon icon={faDownload} />
       </button>
       <button
         onClick={() => createPdf(project)}
         className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
-        PDF <FontAwesomeIcon icon={faDownload} />
+        {translation.pdf} <FontAwesomeIcon icon={faDownload} />
       </button>
     </div>
   );
