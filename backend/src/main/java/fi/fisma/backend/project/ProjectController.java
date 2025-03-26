@@ -60,7 +60,7 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Todo - refactor with exception handling
     }
     
-    @PostMapping
+    @PostMapping("/create-version")
     private ResponseEntity<Void> createProjectVersion(@RequestBody Project newProjectVersion, Authentication authentication,UriComponentsBuilder ucb) {
         var appUser = appUserRepository.findByUsername(authentication.getName());
         if (appUser != null) {
