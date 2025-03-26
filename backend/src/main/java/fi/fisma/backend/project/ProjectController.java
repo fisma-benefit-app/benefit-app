@@ -11,9 +11,9 @@ import java.net.URI;
 
 import org.springframework.security.core.Authentication;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,6 +58,48 @@ public class ProjectController {
             return ResponseEntity.created(locationOfNewProject).build();
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Todo - refactor with exception handling
+    }
+    
+    @PostMapping
+    private ResponseEntity<Void> createProjectVersion(@RequestBody Project newProjectVersion, Authentication authentication,UriComponentsBuilder ucb) {
+        var appUser = appUserRepository.findByUsername(authentication.getName());
+        if (appUser != null) {
+            var savedNewVersionProject = projectRepository.save(
+                    new Project(
+                            null,
+                            newProjectVersion.getProjectName(),
+                            newProjectVersion.getVersion(),
+                            newProjectVersion.getCreatedDate(),
+                            newProjectVersion.getVersionDate(),
+                            newProjectVersion.getEditedDate(),
+                            newProjectVersion.getTotalPoints(),
+                            Set.of(),
+                            newProjectVersion.getAppUsers()
+                    ));
+            var functionalComponentsForNewVersion = newProjectVersion.getFunctionalComponents()
+                    .stream()
+                    .map(functionalComponent -> new FunctionalComponent(
+                            null,
+                            functionalComponent.getClassName(),
+                            functionalComponent.getComponentType(),
+                            functionalComponent.getDataElements(),
+                            functionalComponent.getReadingReferences(),
+                            functionalComponent.getWritingReferences(),
+                            functionalComponent.getFunctionalMultiplier(),
+                            functionalComponent.getOperations(),
+                            functionalComponent.getDegreeOfCompletion(),
+                            functionalComponent.getComment()
+                    ))
+                    .collect(Collectors.toSet());
+            savedNewVersionProject.setFunctionalComponents(functionalComponentsForNewVersion);
+            projectRepository.save(savedNewVersionProject);
+            URI locationOfNewProject = ucb
+                    .path("/projects/{id}")
+                    .buildAndExpand(savedNewVersionProject.getId())
+                    .toUri();
+            return ResponseEntity.created(locationOfNewProject).build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
     
     @DeleteMapping("/{requestedId}")
