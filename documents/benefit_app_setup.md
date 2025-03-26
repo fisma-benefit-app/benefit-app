@@ -228,9 +228,10 @@ continue next step.
 
 After successful build, move to following path
 
-``, 
+`Drive:/path/to/benefit-app/backend/build/libs`, 
 
 i.e. backend's builded libaries.
+
 Here, you should have jar files builded in the current
 directory. Either check in Visual Studio Code the directory
 or in CLI via `ls` or `dir` -commands
@@ -258,23 +259,28 @@ error in the backend.
 
 After activating backend, move now to frontend of
 Benefit-app via
+
 `cd Drive:/path/to/benefit-app/frontend`
 
 In this directory, you need first install all required 
 libraries and dependencies with simple command
+
 `npm install`
 
 You can check all installed dependencies
 via command
+
 `npm ls` .
 
 You should have following dependencies
 installed in the frontend
 
+![image](https://github.com/user-attachments/assets/510ac312-d7a0-403e-b71f-f4d97d37563b)
 [image: list of frontend dependencies]
 
 Afterward, you can now run the frontend
 with command
+
 `npm run dev` .
 
 **g) Opening the application in web browser.**
@@ -284,7 +290,9 @@ have Benefit-app actively and locally running in your workstation.
 You can open the Benefit-app in web browser
 via following URL:
 
+´http://localhost:5173/login´
 
 You should get similar web page as the below picture:
 
+![image](https://github.com/user-attachments/assets/bd45cd16-f755-4630-8a55-df97ca172225)
 [image: the application]
