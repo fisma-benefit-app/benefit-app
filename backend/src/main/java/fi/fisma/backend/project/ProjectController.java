@@ -49,7 +49,7 @@ public class ProjectController {
         var appUser = appUserRepository.findByUsername(authentication.getName());
         if (appUser != null) {
             var savedProject = projectRepository.save(
-                    new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
+                    new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), newProjectRequest.getCreatedDate(), newProjectRequest.getVersionDate(), newProjectRequest.getEditedDate(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
             );
             URI locationOfNewProject = ucb
                     .path("/projects/{id}")
