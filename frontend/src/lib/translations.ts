@@ -26,9 +26,67 @@ export const translations = {
             version: "Version",
             createdAt: "Created at",
             modifiedAt: "Modified at"
+        },
+        functionalClassComponent: {
+            //creates an object where keys and their values are the same
+            classNameOptions: Object.fromEntries(
+                [
+                    "Interactive end-user navigation and query service",
+                    "Interactive end-user input service",
+                    "Non-interactive end-user output service",
+                    "Interface service to other applications",
+                    "Interface service from other applications",
+                    "Data storage service",
+                    "Algorithmic or manipulation service",
+                ].map(key => [key, key])
+            ),
+            //creates an object where keys and their values are the same
+            componentTypeOptions: Object.fromEntries(
+                [
+                    "function designators",
+                    "log-in, log-out functions",
+                    "function lists",
+                    "selection lists",
+                    "data inquiries",
+                    "generation indicators",
+                    "browsing lists",
+                    "1-functional",
+                    "2-functional",
+                    "3-functional",
+                    "forms",
+                    "reports",
+                    "emails for text messages",
+                    "monitor screens",
+                    "messages to other applications",
+                    "batch records to other applications",
+                    "signals to devices or other applications",
+                    "messages from other applications",
+                    "batch records from other applications",
+                    "signals from devices or other applications",
+                    "entities or classes",
+                    "other record types",
+                    "security routines",
+                    "calculation routines",
+                    "simulation routines",
+                    "formatting routines",
+                    "database cleaning routines",
+                    "other manipulation routines",
+                ].map(key => [key, key])
+            ),
+            parameters: {
+                dataElements: "Data Elements",
+                writingReferences: "Writing References",
+                readingReferences: "Reading References",
+                operations: "Operations"
+            },
+            commentPlaceholder: "Comment",
+            functionalPointText: "FP",
+            functionalPointReadyText: "TP (Complete)",
+            classNamePlaceholder: "Select Classname",
+            componentTypePlaceholder: "Select Component Type",
+            degreeOfCompletionPlaceholder: "Degree of Completion",
         }
     },
-
     fi: {
         header: {
             logout: "Kirjaudu ulos"
@@ -103,7 +161,13 @@ export const translations = {
                 writingReferences: "Kirjoitusviittaukset",
                 readingReferences: "Lukuviittaukset",
                 operations: "Operaatiot"
-            }
+            },
+            commentPlaceholder: "Kommentti",
+            functionalPointText: "TP",
+            functionalPointReadyText: "TP (Valmis)",
+            classNamePlaceholder: "Valitse Toimintoluokka",
+            componentTypePlaceholder: "Valitse toimintotyyppi",
+            degreeOfCompletionPlaceholder: "Valmistumisaste",
         }
     },
 }

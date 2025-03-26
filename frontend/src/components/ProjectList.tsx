@@ -6,6 +6,7 @@ import { Project } from "../lib/types.ts";
 import { fetchAllProjects, deleteProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import useLanguage from "../hooks/useLanguage.ts";
+import { translations } from "../lib/translations.ts";
 
 export default function ProjectList() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -16,7 +17,8 @@ export default function ProjectList() {
 
     const { sessionToken } = useAppUser();
     const navigate = useNavigate();
-    const {t} = useLanguage();
+    const { language } = useLanguage();
+    const translation = translations[language].projectList;
 
     useEffect(() => {
         const getAllProjects = async () => {
@@ -47,7 +49,7 @@ export default function ProjectList() {
     }, [searchTerm, projects]);
 
     const handleDelete = async (projectId: number, projectName: string) => {
-        if (window.confirm(`${t("projectList.confirmDelete")}"${projectName}"?`)) {
+        if (window.confirm(`${translation.confirmDelete}"${projectName}"?`)) {
             try {
                 await deleteProject(sessionToken, projectId);
                 setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
@@ -71,23 +73,23 @@ export default function ProjectList() {
         <div className="flex flex-col items-center h-screen p-4 pt-20">
             <input
                 type="text"
-                placeholder={t("projectList.searchPlaceholder")}
+                placeholder={translation.searchPlaceholder}
                 className="mb-4 p-2 border-2 border-gray-400 rounded"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
             <table className="w-auto border-collapse">
                 <thead>
-                <tr>
-                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">{t("projectList.projectName")}</th>
-                    <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">{t("projectList.version")}</th>
-                    <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">{t("projectList.createdAt")}</th>
-                    <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">{t("projectList.modifiedAt")}</th>
-                </tr>
+                    <tr>
+                        <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">{translation.projectName}</th>
+                        <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">{translation.version}</th>
+                        <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">{translation.createdAt}</th>
+                        <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">{translation.modifiedAt}</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {filteredProjects.length > 0 ? (
-                    filteredProjects.map((project) => (
+                    {filteredProjects.length > 0 ? (
+                        filteredProjects.map((project) => (
                             <tr key={project.id}>
                                 <td className="border-2 border-gray-400 p-1">
                                     {project.projectName}
