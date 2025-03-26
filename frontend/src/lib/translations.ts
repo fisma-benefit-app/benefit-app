@@ -85,6 +85,11 @@ export const translations = {
             classNamePlaceholder: "Select Classname",
             componentTypePlaceholder: "Select Component Type",
             degreeOfCompletionPlaceholder: "Degree of Completion",
+        },
+        projectPage: {
+            saveProject: "Save Project",
+            newFunctionalComponent: "New Functional Component",
+            noProject: "No project information to show!"
         }
     },
     fi: {
@@ -165,9 +170,14 @@ export const translations = {
             commentPlaceholder: "Kommentti",
             functionalPointText: "TP",
             functionalPointReadyText: "TP (Valmis)",
-            classNamePlaceholder: "Valitse Toimintoluokka",
+            classNamePlaceholder: "Valitse toimintoluokka",
             componentTypePlaceholder: "Valitse toimintotyyppi",
             degreeOfCompletionPlaceholder: "Valmistumisaste",
+        },
+        projectPage: {
+            saveProject: "Tallenna projekti",
+            newFunctionalComponent: "Uusi funktionaalinen komponentti",
+            noProject: "Ei näytettäviä projektitietoja!"
         }
     },
 }

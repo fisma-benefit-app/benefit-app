@@ -5,7 +5,7 @@ import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Project } from "../lib/types.ts";
 import { fetchAllProjects, deleteProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import useLanguage from "../hooks/useLanguage.ts";
+import useLanguage from "../hooks/useLanguage.tsx";
 import { translations } from "../lib/translations.ts";
 
 export default function ProjectList() {

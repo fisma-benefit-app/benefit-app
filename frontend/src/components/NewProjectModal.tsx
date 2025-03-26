@@ -2,7 +2,7 @@ import useAppUser from "../hooks/useAppUser";
 import { useState, FormEvent, useRef, useEffect } from "react";
 import { createProject } from "../api/project.ts";
 import { useNavigate } from "react-router";
-import useLanguage from "../hooks/useLanguage.ts";
+import useLanguage from "../hooks/useLanguage.tsx";
 import { translations } from "../lib/translations.ts";
 
 interface NewProjectFormProps {
