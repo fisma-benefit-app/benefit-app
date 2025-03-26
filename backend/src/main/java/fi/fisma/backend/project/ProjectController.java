@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+
 import org.springframework.security.core.Authentication;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -22,8 +24,9 @@ public class ProjectController {
     
     @GetMapping("/{requestedId}")
     private ResponseEntity<Project> getProject(@PathVariable Long requestedId, Authentication authentication) {
-        var project = projectRepository.findByProjectIdAndUsername(requestedId, authentication.getName());
-        return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return projectRepository.findByProjectIdAndUsername(requestedId, authentication.getName())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
     
     @GetMapping
@@ -34,14 +37,11 @@ public class ProjectController {
     
     @PutMapping("/{requestedId}")
     private ResponseEntity<Project> updateProject(@PathVariable Long requestedId, @RequestBody Project projectUpdate, Authentication authentication) {
-        var projectOptional = projectRepository.findByProjectIdAndUsername(requestedId, authentication.getName());
-        if (projectOptional.isPresent()) {
-            var project = projectOptional.get();
-            var updatedProject = projectRepository.save(
-                    new Project(project.getId(), projectUpdate.getProjectName(), projectUpdate.getVersion(), projectUpdate.getCreatedDate(), projectUpdate.getVersionDate(), projectUpdate.getEditedDate(), projectUpdate.getTotalPoints(), projectUpdate.getFunctionalComponents(), projectUpdate.getAppUsers()));
-            return ResponseEntity.ok(updatedProject);
-        }
-        return ResponseEntity.notFound().build();
+        return projectRepository.findByProjectIdAndUsername(requestedId, authentication.getName())
+                .map(project -> projectRepository.save(
+                        new Project(project.getId(), projectUpdate.getProjectName(), projectUpdate.getVersion(), projectUpdate.getCreatedDate(), projectUpdate.getVersionDate(), projectUpdate.getEditedDate(), projectUpdate.getTotalPoints(), projectUpdate.getFunctionalComponents(), projectUpdate.getAppUsers())))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
     
     @PostMapping
@@ -49,13 +49,12 @@ public class ProjectController {
         var appUser = appUserRepository.findByUsername(authentication.getName());
         if (appUser != null) {
             var savedProject = projectRepository.save(
-                    new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), LocalDateTime.now(), LocalDateTime.now(),  LocalDateTime.now(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
+                    new Project(null, newProjectRequest.getProjectName(), newProjectRequest.getVersion(), LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(), newProjectRequest.getTotalPoints(), newProjectRequest.getFunctionalComponents(), Set.of(new ProjectAppUser(appUser.getId())))
             );
             URI locationOfNewProject = ucb
                     .path("/projects/{id}")
                     .buildAndExpand(savedProject.getId())
                     .toUri();
-                    System.out.println("New Project Location: " + locationOfNewProject);
             return ResponseEntity.created(locationOfNewProject).build();
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Todo - refactor with exception handling
