@@ -5,7 +5,7 @@ import { LanguageContext } from "./LanguageContext";
 export type Language = "fi" | "en";
 
 const LanguageProvider = ({ children }: ContextProviderProps) => {
-    const [language, setLanguage] = useState<Language>("fi");
+    const [language, setLanguage] = useState<Language>(localStorage.getItem("languagePreference") as Language || "en");
       
     return (
         <LanguageContext.Provider value={{ language, setLanguage }}>

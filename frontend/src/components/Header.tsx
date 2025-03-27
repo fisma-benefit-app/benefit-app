@@ -26,6 +26,11 @@ const Header = () => {
     }
   };
 
+  const changeLanguage = () => {
+    setLanguage(language === "fi" ? "en" : "fi")
+    localStorage.setItem("languagePreference", language === "fi" ? "en" : "fi");
+  }
+
   //TODO: Save before redirecting or logging out?
   return (
     <header className="fixed top-0 w-full bg-fisma-blue text-white flex z-999">
@@ -63,7 +68,7 @@ const Header = () => {
         )}
         <button
           className="h-full text-lg px-5 bg-fisma-dark-blue hover:bg-fisma-gray"
-          onClick={() => setLanguage(language === "fi" ? "en" : "fi")}
+          onClick={changeLanguage}
         >
           {language.toUpperCase()}
         </button>
