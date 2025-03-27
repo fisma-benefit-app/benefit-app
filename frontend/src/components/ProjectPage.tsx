@@ -10,6 +10,7 @@ import {
 import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
+import CreateCurrentDate from "../api/date.ts";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -87,18 +88,7 @@ export default function ProjectPage() {
     if (project) {
       try {
         // Update edited date to current date when saving project
-        const now = new Date();
-        const currentDate = new Intl.DateTimeFormat("sv-SV", {
-          timeZone: "Europe/Helsinki",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        }).format(now);
-        const editedProject = {...project, editedDate: currentDate.replace(" ", "T")};
+        const editedProject = {...project, editedDate: CreateCurrentDate()};
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
         alert("Project saved!");
@@ -111,11 +101,10 @@ export default function ProjectPage() {
   const saveProjectVersion = async (projectVersion: number) => {
     if (project) {
       if (window.confirm(`Oletko varma, että haluat tallentaa projektin versiona ${projectVersion}? Vanhoja versioita ei voi enää muokata.`)) {
-      saveProject();
+      saveProject(); // Save project before creating a new version if the user forgets to save their changes. Possibly do this with automatic saving instead.
       try {
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
         navigate(`project/${idOfNewProjectVersion}`);
-        console.log({project});
       } catch (err) {
         console.error(err);
       }

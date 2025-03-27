@@ -8,7 +8,8 @@ type ProjectsContext = {
   projects: Project[];
   loading: boolean;
   error: string;
-  handleDelete: (projectId: number, projectName: string) => Promise<void> ;
+  handleDelete: (projectId: number, projectName: string) => Promise<void>;
+  refetch: () => Promise<void>;
 };
 
 export const ProjectsContext = React.createContext<ProjectsContext | null>(null);
@@ -52,6 +53,13 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     loading,
     error,
     handleDelete,
+    refetch: async () => {
+      if (sessionToken) {
+        const allProjectsFromDb = await fetchAllProjects(sessionToken);
+        const sortedProjects = allProjectsFromDb.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());
+        setProjects(sortedProjects);
+      }
+    },
   }
 
   return (

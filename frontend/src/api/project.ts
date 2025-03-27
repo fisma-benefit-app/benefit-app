@@ -1,5 +1,6 @@
 import { Project, ProjectWithUpdate } from "../lib/types";
 const API_URL =  import.meta.env.VITE_API_URL;
+import CreateCurrentDate from "../api/date.ts";
 
 const fetchAllProjects = async (sessionToken: string | null) => {
 
@@ -62,9 +63,9 @@ const createProject = async (sessionToken: string | null, nameForProject: string
     const project = {
         projectName: nameForProject,
         version: 1,
-        createdDate: new Date().toISOString(),
-        versionDate: new Date().toISOString(),
-        editedDate: new Date().toISOString(),
+        createdDate: CreateCurrentDate(),
+        versionDate: CreateCurrentDate(),
+        editedDate: CreateCurrentDate(),
     };
 
     try {
@@ -110,8 +111,8 @@ const createNewProjectVersion = async (sessionToken: string | null, previousProj
         ...previousProject,
         id: null,
         version: previousProject.version + 1,
-        versionDate: new Date().toISOString(),
-        editedDate: new Date().toISOString(),
+        versionDate: CreateCurrentDate(),
+        editedDate: CreateCurrentDate(),
     };
 
     try {

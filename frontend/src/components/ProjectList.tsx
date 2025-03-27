@@ -6,23 +6,36 @@ import { Project } from "../lib/types.ts";
 import useProjects from "../hooks/useProjects.tsx";
 
 export default function ProjectList() {
-  const { projects, loading, handleDelete } = useProjects();
+  const { projects, loading, handleDelete, refetch } = useProjects();
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
-
   const navigate = useNavigate();
 
+
   useEffect(() => {
+    refetch();
+    const latestProjects = getLatestVersion(projects);
     if (searchTerm === "") {
-      setFilteredProjects(projects);
+      setFilteredProjects(latestProjects);
     } else {
       setFilteredProjects(
-        projects.filter((project) =>
+        latestProjects.filter((project) =>
           project.projectName.toLowerCase().includes(searchTerm.toLowerCase()),
         ),
       );
     }
-  }, [searchTerm, projects]);
+  }, [searchTerm, projects, refetch]);
+
+  const getLatestVersion = (projects: Project[]) => {
+    const projectMap = new Map<string, Project>();
+    projects.forEach((project) => {
+      const existing = projectMap.get(project.projectName);
+      if (!existing || project.version > existing.version) {
+        projectMap.set(project.projectName, project);
+      }
+    });
+    return Array.from(projectMap.values());
+  };
 
   if (loading)
     return (
