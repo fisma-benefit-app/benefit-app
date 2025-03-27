@@ -6,14 +6,13 @@ import { Project } from "../lib/types.ts";
 import useProjects from "../hooks/useProjects.tsx";
 
 export default function ProjectList() {
-  const { projects, loading, handleDelete, refetch } = useProjects();
+  const { projects, loading, handleDelete } = useProjects();
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const navigate = useNavigate();
 
 
   useEffect(() => {
-    refetch();
     const latestProjects = getLatestVersion(projects);
     if (searchTerm === "") {
       setFilteredProjects(latestProjects);
@@ -24,7 +23,7 @@ export default function ProjectList() {
         ),
       );
     }
-  }, [searchTerm, projects, refetch]);
+  }, [searchTerm, projects]);
 
   const getLatestVersion = (projects: Project[]) => {
     const projectMap = new Map<string, Project>();
