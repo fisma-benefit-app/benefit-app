@@ -159,9 +159,9 @@ export default function ProjectPage() {
               {translation.newFunctionalComponent}
             </button>
             {/* Render summary only if project has functional components */}
-            {project.functionalComponents.length > 0 && (
+{/*             {project.functionalComponents.length > 0 && (
               <FunctionalPointSummary project={project} />
-            )}
+            )} */}
           </div>
         </>
       ) : (
