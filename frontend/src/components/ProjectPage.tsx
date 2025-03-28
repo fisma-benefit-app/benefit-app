@@ -9,8 +9,7 @@ import {
 } from "../lib/types.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
-import { translations } from "../lib/translations.ts";
-import useLanguage from "../hooks/useLanguage.tsx";
+import useTranslations from "../hooks/useTranslations.ts";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -22,9 +21,8 @@ export default function ProjectPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
-  const { language } = useLanguage();
 
-  const translation = translations[language].projectPage;
+  const translation = useTranslations().projectPage;
 
   //sort functional components by id (order of creation from oldest to newest)
   const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
@@ -159,9 +157,9 @@ export default function ProjectPage() {
               {translation.newFunctionalComponent}
             </button>
             {/* Render summary only if project has functional components */}
-{/*             {project.functionalComponents.length > 0 && (
+            {project.functionalComponents.length > 0 && (
               <FunctionalPointSummary project={project} />
-            )} */}
+            )}
           </div>
         </>
       ) : (

@@ -4,8 +4,7 @@ import { fetchJWT } from '../api/authorization';
 import useAppUser from '../hooks/useAppUser';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faKey, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import useLanguage from '../hooks/useLanguage';
-import { translations } from '../lib/translations';
+import useTranslations from '../hooks/useTranslations';
 
 export default function LoginForm() {
     const [username, setUsername] = useState<string>('');
@@ -16,11 +15,10 @@ export default function LoginForm() {
     const [showLoginError, setShowLoginError] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const { language } = useLanguage();
     const { setSessionToken, setLoggedIn, setAppUser, loggedIn } = useAppUser();
     const navigate = useNavigate();
 
-    const translation = translations[language].loginForm;
+    const translation = useTranslations().loginForm;
 
     const login = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();

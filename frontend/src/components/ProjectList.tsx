@@ -5,8 +5,7 @@ import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Project } from "../lib/types.ts";
 import { fetchAllProjects, deleteProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import useLanguage from "../hooks/useLanguage.tsx";
-import { translations } from "../lib/translations.ts";
+import useTranslations from "../hooks/useTranslations.ts";
 
 export default function ProjectList() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -17,8 +16,7 @@ export default function ProjectList() {
 
     const { sessionToken } = useAppUser();
     const navigate = useNavigate();
-    const { language } = useLanguage();
-    const translation = translations[language].projectList;
+    const translation = useTranslations().projectList;
 
     useEffect(() => {
         const getAllProjects = async () => {

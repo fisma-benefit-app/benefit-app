@@ -2,8 +2,7 @@ import useAppUser from "../hooks/useAppUser";
 import { useState, FormEvent, useRef, useEffect } from "react";
 import { createProject } from "../api/project.ts";
 import { useNavigate } from "react-router";
-import useLanguage from "../hooks/useLanguage.tsx";
-import { translations } from "../lib/translations.ts";
+import useTranslations from "../hooks/useTranslations.ts";
 
 interface NewProjectFormProps {
   open: boolean;
@@ -19,8 +18,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
   const [showError, setShowError] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const { language } = useLanguage();
-  const translation = translations[language].newProjectModal;
+  const translation = useTranslations().newProjectModal;
 
   useEffect(() => {
     if (open) {

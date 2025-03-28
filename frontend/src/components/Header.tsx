@@ -4,8 +4,8 @@ import { Link, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
 import NewProjectModal from "./NewProjectModal";
-import useLanguage from "../hooks/useLanguage";
-import { translations } from "../lib/translations";
+import useLanguage from "../hooks/useLanguage";;
+import useTranslations from "../hooks/useTranslations";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const Header = () => {
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
 
-  const translation = translations[language].header;
+  const translation = useTranslations().header;
 
   const logout = () => {
     if (window.confirm("Haluatko varmasti kirjautua ulos?")) {

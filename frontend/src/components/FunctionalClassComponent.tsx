@@ -4,8 +4,7 @@ import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getRes
 import { TGenericComponent, Project, ClassName, ComponentType, CalculationParameter } from "../lib/types.ts";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCaretDown } from '@fortawesome/free-solid-svg-icons';
-import useLanguage from "../hooks/useLanguage.tsx";
-import { translations } from "../lib/translations.ts";
+import useTranslations from "../hooks/useTranslations.ts";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -18,8 +17,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
-  const { language } = useLanguage();
-  const translation = translations[language].functionalClassComponent;
+  const translation = useTranslations().functionalClassComponent;
 
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
 
