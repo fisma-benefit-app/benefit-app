@@ -102,7 +102,7 @@ export default function ProjectPage() {
 
   const saveProjectVersion = async (projectVersion: number) => {
     if (project) {
-      if (window.confirm(`Oletko varma, että haluat tallentaa projektin versiona ${projectVersion}? Vanhoja versioita ei voi enää muokata.`)) {
+      if (window.confirm(`${translation.saveVersionWarningBeginning}${projectVersion}?${translation.saveVersionWarningEnd}`)) {
       saveProject(); // Save project before creating a new version if the user forgets to save their changes. Possibly do this with automatic saving instead.
       try {
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
@@ -147,7 +147,7 @@ export default function ProjectPage() {
               className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
               onClick={() => saveProjectVersion(project.version)}
             >
-              Tallenna projekti versiona {project.version}
+              {translation.saveProjectAsVersion}{project.version}
             </button>
             <button
               onClick={createFunctionalComponent}

@@ -90,7 +90,10 @@ export const translations = {
         projectPage: {
             saveProject: "Save Project",
             newFunctionalComponent: "New Functional Component",
-            noProject: "No project information to show!"
+            noProject: "No project information to show!",
+            saveProjectAsVersion: "Save project as version ",
+            saveVersionWarningBeginning: "Are you sure you want to save the project as version ",
+            saveVersionWarningEnd: " Older versions cannot be modified."
         },
         functionalPointSummary: {
             total: "Total",
@@ -184,7 +187,10 @@ export const translations = {
         projectPage: {
             saveProject: "Tallenna projekti",
             newFunctionalComponent: "Uusi funktionaalinen komponentti",
-            noProject: "Ei näytettäviä projektitietoja!"
+            noProject: "Ei näytettäviä projektitietoja!",
+            saveProjectAsVersion: "Tallenna projekti versiona ",
+            saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona ",
+            saveVersionWarningEnd: " Vanhoja versioita ei voi enää muokata."
         },
         functionalPointSummary: {
             total: "Yhteensä",
