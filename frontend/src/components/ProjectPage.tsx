@@ -93,7 +93,7 @@ export default function ProjectPage() {
         const editedProject = {...project, editedDate: CreateCurrentDate()};
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
-        alert("Project saved!");
+        alert(translation.projectSaved);
       } catch (err) {
         console.error(err);
       }
