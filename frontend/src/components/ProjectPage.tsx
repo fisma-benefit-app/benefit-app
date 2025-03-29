@@ -12,6 +12,7 @@ import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import CreateCurrentDate from "../api/date.ts";
+import LoadingSpinner from "./LoadingSpinner.tsx";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -116,20 +117,7 @@ export default function ProjectPage() {
   return (
     <div className="gap-5 flex justify-center my-20">
       {loadingProject ? (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
-          <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-              fill="none"
-              stroke="blue"
-              strokeWidth="4"
-              strokeDasharray="31.4"
-              strokeLinecap="round"
-            ></circle>
-          </svg>
-        </div>
+        <LoadingSpinner/>
       ) : error ? (
         <p>{error}</p>
       ) : project ? (
