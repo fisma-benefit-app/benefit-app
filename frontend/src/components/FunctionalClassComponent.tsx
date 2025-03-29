@@ -1,5 +1,3 @@
-import { faCaretDown, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ChangeEvent, useState } from "react";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
