@@ -44,7 +44,7 @@ Benefit application is a project by FiSMA ry 2025. It is a software tool designe
 Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
 
 
-**Whom is application is made for?**
+**Whom is application made for?**
 
 The application is designed for businesses and individuals who want to estimate the size and costs of a software project.
 
