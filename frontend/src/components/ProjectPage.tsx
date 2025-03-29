@@ -10,6 +10,7 @@ import {
 import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
+import useTranslations from "../hooks/useTranslations.ts";
 import CreateCurrentDate from "../api/date.ts";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
@@ -23,6 +24,7 @@ export default function ProjectPage() {
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
+  const translation = useTranslations().projectPage;
   const navigate = useNavigate();
 
   //sort functional components by id (order of creation from oldest to newest)
@@ -87,7 +89,6 @@ export default function ProjectPage() {
   const saveProject = async () => {
     if (project) {
       try {
-        // Update edited date to current date when saving project
         const editedProject = {...project, editedDate: CreateCurrentDate()};
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
@@ -152,7 +153,7 @@ export default function ProjectPage() {
               className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
               onClick={saveProject}
             >
-              Tallenna projekti
+              {translation.saveProject}
             </button>
             <button
               className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
@@ -164,7 +165,7 @@ export default function ProjectPage() {
               onClick={createFunctionalComponent}
               className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer my-2 sticky top-40"
             >
-              Uusi funktionaalinen komponentti
+              {translation.newFunctionalComponent}
             </button>
             {/* Render summary only if project has functional components */}
             {project.functionalComponents.length > 0 && (
@@ -173,7 +174,7 @@ export default function ProjectPage() {
           </div>
         </>
       ) : (
-        <p>Ei näytettäviä projektitietoja!</p>
+        <p>{translation.noProject}</p>
       )}
     </div>
   );

@@ -1,9 +1,12 @@
 import { faCaretDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ChangeEvent, useState } from "react";
-import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
+import { classNameOptions } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
-import { Project, TGenericComponent } from "../lib/types.ts";
+import { TGenericComponent, Project, ClassName, ComponentType, CalculationParameter } from "../lib/types.ts";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import useTranslations from "../hooks/useTranslations.ts";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -15,6 +18,8 @@ type FunctionalClassComponentProps = {
 export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject }: FunctionalClassComponentProps) {
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
+
+  const translation = useTranslations().functionalClassComponent;
 
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
 
@@ -79,15 +84,15 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           <input
             className="w-full border-2 border-gray-400 p-1"
             id="comment"
-            placeholder="Toiminnon nimi"
+            placeholder={translation.commentPlaceholder}
             value={component.comment || ""}
             onChange={handleComponentChange}
           />
         </div>
 
         <div className="flex gap-4 items-center">
-          <p>= {pointsByDegreeOfCompletion.toFixed(2)} TP</p>
-          <p>= {fullPoints.toFixed(2)} TP (Valmis)</p>
+          <p>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</p>
+          <p>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</p>
           <button
             onClick={() => setIsCollapsed((prev) => !prev)}
             className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer rounded text-white py-1 px-3 items-center gap-1"
@@ -114,11 +119,11 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               onChange={handleClassNameChange}
               className="flex-content border-2 border-gray-400 p-1"
             >
-              <option disabled value="">Valitse toimintoluokka</option>
+              <option disabled value="">{translation.classNamePlaceholder}</option>
               {classNameOptions.map((className) => {
                 return (
-                  <option key={className.value} value={className.value}>
-                    {className.displayName}
+                  <option key={className} value={className}>
+                    {translation.classNameOptions[className as ClassName]}
                   </option>
                 );
               })}
@@ -134,12 +139,12 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                   onChange={handleOptionTypeChange}
                   className="flex-content border-2 border-gray-400 p-1"
                 >
-                  <option disabled value="">Valitse toimintotyyppi</option>
+                  <option disabled value="">{translation.componentTypePlaceholder}</option>
                   {/* todo: add option for no component type if needed */}
                   {componentTypeOptions.map((option) => {
                     return (
-                      <option key={option.value} value={option.value}>
-                        {option.displayName}
+                      <option key={option} value={option}>
+                        {translation.componentTypeOptions[option as ComponentType]}
                       </option>
                     );
                   })}
@@ -148,7 +153,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 <input
                   className="w-40 border-2 border-gray-400 p-1"
                   id="degreeOfCompletion"
-                  placeholder="Valmistumisaste"
+                  placeholder={translation.degreeOfCompletionPlaceholder}
                   type="number"
                   min={0.01}
                   max={1}
@@ -173,7 +178,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 .map(([key, value]) => (
                   <div key={key} className="flex flex-col gap-2 items-center">
                     {/* Display finnish name for parameters */}
-                    <label htmlFor={key}>{parameterDisplayNames[key as keyof TParameterDisplayNames]}:</label>
+                    <label htmlFor={key}>{translation.parameters[key as CalculationParameter]}:</label>
                     <input
                       className="w-16 border-2 border-gray-400 p-1"
                       id={key}
