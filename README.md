@@ -41,7 +41,7 @@ Benefit application is a project by FisMA ry 2025. It is a software size mesurem
 that will calculate function points of navigation and query, interfaces to/from other,
 inputs and outputs, etc.
 
-![fisma_frontend_home_page_14_02_2024](https://github.com/user-attachments/assets/50d90e91-6d70-4b11-b9be-ac36b82894ea)
+![fisma_frontend_project_page_29_03_2025](https://github.com/user-attachments/assets/becefb55-5342-4afb-ac4c-2885cea017a8)
 
 Picture 1: A visual re-presentation of the Benefit application's UI. [Placeholder, must be updated]
 
