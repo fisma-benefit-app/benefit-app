@@ -25,7 +25,8 @@ export const translations = {
             projectName: "Project's name",
             version: "Version",
             createdAt: "Created at",
-            modifiedAt: "Modified at"
+            modifiedAt: "Modified at",
+            noProjectsCouldBeFound: "No projects could be found."
         },
         functionalClassComponent: {
             //creates an object where keys and their values are the same
@@ -124,7 +125,8 @@ export const translations = {
             projectName: "Projektin nimi",
             version: "Versio",
             createdAt: "Luotu",
-            modifiedAt: "Muokattu"
+            modifiedAt: "Muokattu",
+            noProjectsCouldBeFound: "Projekteja ei löytynyt."
         },
         functionalClassComponent: {
             classNameOptions: {

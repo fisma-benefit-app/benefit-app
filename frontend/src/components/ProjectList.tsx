@@ -4,8 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Project } from "../lib/types.ts";
 import useTranslations from "../hooks/useTranslations.ts";
-//import { fetchAllProjects, deleteProject } from "../api/project.ts";
-//import useAppUser from "../hooks/useAppUser.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 
 export default function ProjectList() {
@@ -58,6 +56,7 @@ export default function ProjectList() {
     );
 
     // if (error) return <p className="fixed top-0 left-0 w-full h-full flex items-center justify-center">Error: {error}</p>;
+    //TODO: Error page for generic errors?
 
     return (
         <div className="flex flex-col items-center h-screen p-4 pt-20">
@@ -127,7 +126,7 @@ export default function ProjectList() {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={5} className="text-center text-fisma-gray p-4">Projekteja ei löytynyt. TODO: Translate</td>
+                            <td colSpan={5} className="text-center text-fisma-gray p-4">{translation.noProjectsCouldBeFound}</td>
                         </tr>
                     )}
                 </tbody>
