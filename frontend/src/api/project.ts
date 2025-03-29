@@ -1,5 +1,6 @@
 import { Project, ProjectWithUpdate } from "../lib/types";
 const API_URL =  import.meta.env.VITE_API_URL;
+import CreateCurrentDate from "../api/date.ts";
 
 const fetchAllProjects = async (sessionToken: string | null) => {
 
@@ -61,7 +62,10 @@ const createProject = async (sessionToken: string | null, nameForProject: string
 
     const project = {
         projectName: nameForProject,
-        version: 1
+        version: 1,
+        createdDate: CreateCurrentDate(),
+        versionDate: CreateCurrentDate(),
+        editedDate: CreateCurrentDate(),
     };
 
     try {
@@ -92,6 +96,54 @@ const createProject = async (sessionToken: string | null, nameForProject: string
         throw error;
     }
 }
+
+
+const createNewProjectVersion = async (sessionToken: string | null, previousProject: Project) => {
+    if (!sessionToken) throw new Error("User needs to be logged in to create a project!");
+
+    const fetchURL = `${API_URL}/projects/create-version`;
+    const headers = {
+        "Authorization": sessionToken,
+        "Content-Type": "application/json"
+    };
+
+    const project = {
+        ...previousProject,
+        id: null,
+        version: previousProject.version + 1,
+        versionDate: CreateCurrentDate(),
+        editedDate: CreateCurrentDate(),
+    };
+
+    try {
+        const response = await fetch(fetchURL, { 
+            method: "POST", 
+            headers, 
+            body: JSON.stringify(project) 
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
+        }
+
+        const location = response.headers.get("Location");
+
+        if (!location) {
+            throw new Error("Project created but no Location header found!");
+        } 
+
+        const parts = location.split("projects/");
+        const newProjectId = parts.length > 1 ? parts[1] : null;
+
+        if (!newProjectId) {
+            throw new Error("Id of new project could not be parsed!");
+        } else return newProjectId;
+    } catch (error) {
+        console.error("Error creating project:", error);
+        throw error;
+    }
+}
+
 
 const updateProject = async (sessionToken: string | null, project: Project | ProjectWithUpdate) => {
 
@@ -144,5 +196,6 @@ export {
     fetchProject,
     createProject,
     updateProject,
-    deleteProject
+    deleteProject,
+    createNewProjectVersion
 }

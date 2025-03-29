@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { fetchProject, updateProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
@@ -7,9 +7,11 @@ import {
   ProjectWithUpdate,
   TGenericComponentNoId,
 } from "../lib/types.ts";
+import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
+import CreateCurrentDate from "../api/date.ts";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -23,6 +25,7 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   const translation = useTranslations().projectPage;
+  const navigate = useNavigate();
 
   //sort functional components by id (order of creation from oldest to newest)
   const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
@@ -86,19 +89,7 @@ export default function ProjectPage() {
   const saveProject = async () => {
     if (project) {
       try {
-        // Update edited date to current date when saving project
-        const now = new Date();
-        const currentDate = new Intl.DateTimeFormat("sv-SV", {
-          timeZone: "Europe/Helsinki",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        }).format(now);
-        const editedProject = { ...project, editedDate: currentDate.replace(" ", "T") };
+        const editedProject = {...project, editedDate: CreateCurrentDate()};
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
         alert("Project saved!");
@@ -106,6 +97,20 @@ export default function ProjectPage() {
         console.error(err);
       }
     }
+  };
+
+  const saveProjectVersion = async (projectVersion: number) => {
+    if (project) {
+      if (window.confirm(`Oletko varma, että haluat tallentaa projektin versiona ${projectVersion}? Vanhoja versioita ei voi enää muokata.`)) {
+      saveProject(); // Save project before creating a new version if the user forgets to save their changes. Possibly do this with automatic saving instead.
+      try {
+        const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
+        navigate(`project/${idOfNewProjectVersion}`);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
   };
 
   return (
@@ -149,6 +154,12 @@ export default function ProjectPage() {
               onClick={saveProject}
             >
               {translation.saveProject}
+            </button>
+            <button
+              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
+              onClick={() => saveProjectVersion(project.version)}
+            >
+              Tallenna projekti versiona {project.version}
             </button>
             <button
               onClick={createFunctionalComponent}

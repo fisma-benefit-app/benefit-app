@@ -1,71 +1,63 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Project } from "../lib/types.ts";
-import { fetchAllProjects, deleteProject } from "../api/project.ts";
-import useAppUser from "../hooks/useAppUser.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
+//import { fetchAllProjects, deleteProject } from "../api/project.ts";
+//import useAppUser from "../hooks/useAppUser.tsx";
+import useProjects from "../hooks/useProjects.tsx";
 
 export default function ProjectList() {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string>("");
-    const [searchTerm, setSearchTerm] = useState<string>("");
+  const { projects, loading, handleDelete } = useProjects();
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const navigate = useNavigate();
+  const translation = useTranslations().projectList;
 
-    const { sessionToken } = useAppUser();
-    const navigate = useNavigate();
-    const translation = useTranslations().projectList;
+  useEffect(() => {
+    const latestProjects = getLatestVersion(projects);
+    if (searchTerm === "") {
+      setFilteredProjects(latestProjects);
+    } else {
+      setFilteredProjects(
+        latestProjects.filter((project) =>
+          project.projectName.toLowerCase().includes(searchTerm.toLowerCase()),
+        ),
+      );
+    }
+  }, [searchTerm, projects]);
 
-    useEffect(() => {
-        const getAllProjects = async () => {
-            setLoading(true);
-            try {
-                const allProjectsFromDb = await fetchAllProjects(sessionToken);
-                const sortedProjects = allProjectsFromDb.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());
-                setProjects(sortedProjects);
-                setFilteredProjects(allProjectsFromDb);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "Unexpected error occurred when getting projects from backend.");
-            } finally {
-                setLoading(false);
-            }
-        };
+  const getLatestVersion = (projects: Project[]) => {
+    const projectMap = new Map<string, Project>();
+    projects.forEach((project) => {
+      const existing = projectMap.get(project.projectName);
+      if (!existing || project.version > existing.version) {
+        projectMap.set(project.projectName, project);
+      }
+    });
+    return Array.from(projectMap.values());
+  };
 
-        getAllProjects();
-    }, []);
-
-    useEffect(() => {
-        if (searchTerm === "") {
-            setFilteredProjects(projects);
-        } else {
-            setFilteredProjects(
-                projects.filter(project => project.projectName.toLowerCase().includes(searchTerm.toLowerCase()))
-            );
-        }
-    }, [searchTerm, projects]);
-
-    const handleDelete = async (projectId: number, projectName: string) => {
-        if (window.confirm(`${translation.confirmDelete}"${projectName}"?`)) {
-            try {
-                await deleteProject(sessionToken, projectId);
-                setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "Unexpected error occurred while trying to delete project!");
-            }
-        }
-    };
-
-    if (loading) return (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
-            <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" fill="none" stroke="blue" strokeWidth="4" strokeDasharray="31.4" strokeLinecap="round"></circle>
-            </svg>
-        </div>
+  if (loading)
+    return (
+      <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
+        <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            fill="none"
+            stroke="blue"
+            strokeWidth="4"
+            strokeDasharray="31.4"
+            strokeLinecap="round"
+          ></circle>
+        </svg>
+      </div>
     );
 
-    if (error) return <p className="fixed top-0 left-0 w-full h-full flex items-center justify-center">Error: {error}</p>;
+    // if (error) return <p className="fixed top-0 left-0 w-full h-full flex items-center justify-center">Error: {error}</p>;
 
     return (
         <div className="flex flex-col items-center h-screen p-4 pt-20">
@@ -135,7 +127,7 @@ export default function ProjectList() {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={5} className="text-center text-fisma-gray p-4">Projekteja ei löytynyt.</td>
+                            <td colSpan={5} className="text-center text-fisma-gray p-4">Projekteja ei löytynyt. TODO: Translate</td>
                         </tr>
                     )}
                 </tbody>

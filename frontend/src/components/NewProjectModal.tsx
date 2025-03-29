@@ -1,8 +1,9 @@
 import useAppUser from "../hooks/useAppUser";
 import { useState, FormEvent, useRef, useEffect } from "react";
-import { createProject } from "../api/project.ts";
+import {createProject, fetchAllProjects} from "../api/project.ts";
 import { useNavigate } from "react-router";
 import useTranslations from "../hooks/useTranslations.ts";
+import useProjects from "../hooks/useProjects.tsx";
 
 interface NewProjectFormProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface NewProjectFormProps {
 export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) {
   const navigate = useNavigate();
   const { sessionToken } = useAppUser();
+  const {setProjects} = useProjects();
   const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -45,6 +47,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
 
     try {
       const idOfNewProject = await createProject(sessionToken, name);
+      await fetchAllProjects(sessionToken).then(setProjects);
       navigate(`project/${idOfNewProject}`);
       setOpen(false);
     } catch (err) {
