@@ -12,6 +12,7 @@ import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import CreateCurrentDate from "../api/date.ts";
+import LoadingSpinner from "./LoadingSpinner.tsx";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -92,7 +93,7 @@ export default function ProjectPage() {
         const editedProject = {...project, editedDate: CreateCurrentDate()};
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
-        alert("Project saved!");
+        alert(translation.projectSaved);
       } catch (err) {
         console.error(err);
       }
@@ -101,7 +102,7 @@ export default function ProjectPage() {
 
   const saveProjectVersion = async (projectVersion: number) => {
     if (project) {
-      if (window.confirm(`Oletko varma, että haluat tallentaa projektin versiona ${projectVersion}? Vanhoja versioita ei voi enää muokata.`)) {
+      if (window.confirm(`${translation.saveVersionWarningBeginning}${projectVersion}?${translation.saveVersionWarningEnd}`)) {
       saveProject(); // Save project before creating a new version if the user forgets to save their changes. Possibly do this with automatic saving instead.
       try {
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
@@ -116,20 +117,7 @@ export default function ProjectPage() {
   return (
     <div className="gap-5 flex justify-center my-20">
       {loadingProject ? (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
-          <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-              fill="none"
-              stroke="blue"
-              strokeWidth="4"
-              strokeDasharray="31.4"
-              strokeLinecap="round"
-            ></circle>
-          </svg>
-        </div>
+        <LoadingSpinner/>
       ) : error ? (
         <p>{error}</p>
       ) : project ? (
@@ -159,7 +147,7 @@ export default function ProjectPage() {
               className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
               onClick={() => saveProjectVersion(project.version)}
             >
-              Tallenna projekti versiona {project.version}
+              {translation.saveProjectAsVersion}{project.version}
             </button>
             <button
               onClick={createFunctionalComponent}
