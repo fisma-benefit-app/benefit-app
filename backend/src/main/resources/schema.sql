@@ -13,6 +13,7 @@ create table if not exists project
     project_name text      not null,
     version      integer   not null,
     created_date timestamp not null,
+    version_date timestamp not null,
     edited_date timestamp,
     total_points decimal   not null
 );

@@ -11,7 +11,7 @@ const fetchJWT = async (username: string, password: string) => {
         const response = await fetch(fetchURL, { method: "POST", headers });
         
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`Error getting JWT in fetchJWT! Status: ${response.status}`);
         }
 
         const token = response.headers.get("Authorization");

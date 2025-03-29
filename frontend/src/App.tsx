@@ -4,7 +4,6 @@ import Header from "./components/Header.tsx";
 import LoginForm from "./components/LoginForm.tsx";
 import ProjectPage from "./components/ProjectPage.tsx";
 import ProjectList from "./components/ProjectList.tsx";
-import ProtectedLayout from "./components/ProtectedLayout.tsx";
 import useAppUser from "./hooks/useAppUser.tsx";
 
 export default function App() {
@@ -24,10 +23,8 @@ export default function App() {
           <Routes>
             <Route path="/login" element={loggedIn ? <Navigate to="/" /> : <LoginForm />} />
 
-            <Route element={<ProtectedLayout loggedIn={loggedIn} />} >
-              <Route path="/" element={<ProjectList />} />
-              <Route path="/project/:selectedProjectId" element={<ProjectPage />} />
-            </Route>
+            <Route path="/" element={loggedIn ? <ProjectList /> : <Navigate to="/login" />} />
+            <Route path="/project/:selectedProjectId" element={loggedIn ? <ProjectPage /> : <Navigate to="/login" />} />
 
             <Route path="*" element={<Navigate to={loggedIn ? "/" : "/login"} />} />
           </Routes>
