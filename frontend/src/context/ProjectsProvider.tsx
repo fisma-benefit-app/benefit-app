@@ -3,16 +3,7 @@ import { Project } from "../lib/types.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {useEffect, useState} from "react";
 import { deleteProject, fetchAllProjects} from "../api/project.ts";
-
-type ProjectsContext = {
-  projects: Project[];
-  loading: boolean;
-  error: string;
-  handleDelete: (projectId: number, projectName: string) => Promise<void>;
-  setProjects: (projects: Project[]) => void;
-};
-
-export const ProjectsContext = React.createContext<ProjectsContext | null>(null);
+import { ProjectsContext } from "./ProjectsContext.ts";
 
 export default function ProjectsProvider({children,}: { children: React.ReactNode; }) {
   const { sessionToken } = useAppUser();
