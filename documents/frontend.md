@@ -27,10 +27,6 @@
 
 ## 2. Components
 
-Footer.tsx
-
-- Simple footer for the frontend site.
-
 FunctionalClassComponent.tsx
 
 - Represents a singular functional component in a project, contains the ui for representing component data and the inputs for editing and deleting it.
@@ -38,14 +34,6 @@ FunctionalClassComponent.tsx
 FunctionalPointSummary.tsx
 
 - Component which shows a summary of the points for each functional component in a project and their sum.
-
-Header.tsx
-
-- Simple header for the frontend site with options to return to main page and logout.
-
-LoginForm.tsx
-
-- Login page for the frontend where the user inputs their account credentials. First thing the user sees when opening the application if they are not logged in.
 
 ProjectList.tsx
 
@@ -55,11 +43,25 @@ ProjectPage.tsx
 
 - Page that shows the data for a specific project. Functional components of the project are mapped to the page using FunctionalClassComponent.tsx and the summary of the component points is shown using FunctionalPointSummary.tsx. Has buttons for saving the project and adding a new functional component to it.
 
-ProtectedLayout.tsx
+## 3. Lib Files
 
-- Helper component to redirect the user to login if they navigate to certain endpoints.
+fc-constants.ts
 
-## 3. Frameworks/Third-Party Libraries
+- Helper arrays/objects for FunctionalClassComponent.tsx e.g. arrays containing available component types based on on selected component class.
+
+fc-empty-templates.ts
+
+- Contains helper objects for resetting component properties in FunctionalClassComponent.tsx when user changes the component class.
+
+fc-service-functions.ts
+
+- Helper functions for FunctionalClassComponent.tsx e.g. function for getting correct calculation function depending on selected component class.
+
+printUtils.ts
+
+- Contains functions for creating csv and pdf -files based on project data.
+
+## 4. Frameworks/Third-Party Libraries
 
 ### Font Awesome
 
