@@ -5,7 +5,8 @@ from functional_component;
 
 insert into app_user (id, username, password)
 values (23, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (13, 'john', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue');
+       (13, 'john', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
+       (63, 'user2', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue');
 
 insert into project (id, project_name, version, created_date, version_date, edited_date,  total_points)
 values (99, 'project-x', 1, '2025-01-28T17:23:19', '2025-01-28T17:23:19', '2025-01-28T17:23:19', 120.20),
