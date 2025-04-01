@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { fetchProject, updateProject } from "../api/project.ts";
+import {fetchAllProjects, fetchProject, updateProject} from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
@@ -13,6 +13,7 @@ import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import CreateCurrentDate from "../api/date.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
+import useProjects from "../hooks/useProjects.tsx";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -20,6 +21,7 @@ import LoadingSpinner from "./LoadingSpinner.tsx";
 export default function ProjectPage() {
   const { sessionToken } = useAppUser();
   const { selectedProjectId } = useParams();
+  const {setProjects} = useProjects();
 
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
@@ -106,6 +108,8 @@ export default function ProjectPage() {
       saveProject(); // Save project before creating a new version if the user forgets to save their changes. Possibly do this with automatic saving instead.
       try {
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
+        const updatedProjects = await fetchAllProjects(sessionToken);
+        setProjects(updatedProjects);
         navigate(`project/${idOfNewProjectVersion}`);
       } catch (err) {
         console.error(err);

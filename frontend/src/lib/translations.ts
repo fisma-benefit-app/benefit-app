@@ -26,6 +26,7 @@ export const translations = {
             version: "Version",
             createdAt: "Created at",
             modifiedAt: "Modified at",
+            versionCreatedAt: "Version Created at",
             noProjectsCouldBeFound: "No projects could be found."
         },
         functionalClassComponent: {
@@ -130,6 +131,7 @@ export const translations = {
             version: "Versio",
             createdAt: "Luotu",
             modifiedAt: "Muokattu",
+            versionCreatedAt: "Versio Luotu",
             noProjectsCouldBeFound: "Projekteja ei löytynyt."
         },
         functionalClassComponent: {
