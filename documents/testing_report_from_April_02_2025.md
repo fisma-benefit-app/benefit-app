@@ -23,7 +23,7 @@ Jokaisesta elementeistä ovat sivukohtaisia ja kartoitetaan yksityiskohtaisia.
 
 --> Pitäisikö meidän tehdän vaatimusmääritelmästä ja itse sovelluksesta opasteet / manuaali (kuten kaikkissa tuoteissa eka kerran käyttössä).
 Jopa Fisman työntekijöille, sekä juniorit että seniorit, jotka haluavat nopee sanahaku encyclopediasta (mieluiten 10 sivua kuin 200 sivua) ja selkeitä esimerkkejä.
-Voisiko sovelluksiin olisi oma encyclopedia tai selityksiä popup kun hiiri osoitaa sanaa.
+Voisiko sovelluksiin olisi oma encyclopedia tai selityksiä popup kun hiiri osoitaa sanaa (piilotettu selitys -div).
 
 * Skaalaus ongelma. Kun selaimen on pienempi tai puolinäytönä niin ei näy kokonaan tietokoneessa, selain on Microsoft Edge.
 
@@ -48,6 +48,7 @@ collapseen sisään. Eli aina kun paina ENTERiä, valittu komponenttirivi collap
 
 * Korjattu: Piste muutuu pilkkuksi automaatisesti valmiusasteessa.
 
+* Save nappula häviää kun on tehnyt paljon, eli kun scrollaan alas. Pitää olla sticky.
 
  
 
