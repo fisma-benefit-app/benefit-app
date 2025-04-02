@@ -10,6 +10,14 @@ The testing group consists of Finnish speaking students.
 * Eri vuorovaikutuksia syöttötoiminto, kuten saunavuoroja. Lukuviitauksia eri muutamia ja tietoelementjä X määrä.
 Mitä sitten meillä kymmenen näyttöä, josta kolme sivustoja ovat syöttö ja kaksi navigointi,
 kuten esim. tarkistaa saunavuoro ilman syöttö -kyselytoiminta, varaa sauna -syöttötoiminto, peruu sauna -syöttötoiminto,
-lähettää valituksen 
-Kirjaudutaanko tähän
-. Jokaisesta elementeistä ovat sivukohtaisia ja kartoitetaan yksityiskohtaisia.
+lähettää valituksen -syöttötoiminto, jne.
+
+Kirjaudutaanko tähän samaan tai eriin. --> Vastaus: Uusi funktionaalinen komponentti tekee tämä.
+Ehkä pitäisi opastaa tästä tarkemmin.
+
+Jokaisesta elementeistä ovat sivukohtaisia ja kartoitetaan yksityiskohtaisia.
+
+* Valmistusaste oli yhdelle epäselvä.
+--> Pitäisikö meidän tehdän vaatimusmääritelmästä ja itse sovelluksesta opasteet / manuaali (kuten kaikkissa tuoteissa eka kerran käyttössä).
+
+
