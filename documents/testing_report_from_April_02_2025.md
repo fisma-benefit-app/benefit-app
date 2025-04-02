@@ -20,4 +20,11 @@ Jokaisesta elementeistä ovat sivukohtaisia ja kartoitetaan yksityiskohtaisia.
 * Valmistusaste oli yhdelle epäselvä.
 --> Pitäisikö meidän tehdän vaatimusmääritelmästä ja itse sovelluksesta opasteet / manuaali (kuten kaikkissa tuoteissa eka kerran käyttössä).
 
+* Skaalaus ongelma. Kun selaimen on pienempi tai puolinäytönä niin ei näy kokonaan tietokoneessa, selain on Microsoft Edge.
+
+* Kun kirjautuu ulos englannin käyttöliitymästä, kysymyslaatikko on suomeksi eikä englanti.
+Ts. Haluatko varmasti kirjautua ulos? --> Do you really want to logout?
+
+
+
 
