@@ -38,6 +38,16 @@ Ei pysty muutamaan tai korjaamaan heti, vaan pitää ensin maalata koko kentän 
 
 * PDF-tallennus ei toimi oikein.Tarkkaan ottaen, tulostus näyttää väärältä.
 
+* Yhdellä tuli 404 errori kun yriti editoida valmiina tehty projekti. Sitten se hävitti projekti.
+  --> Google chrome -selain ongelma: Pitkään kirjautuneena johtaa ongelmia (ei pysty luoda projektia eikä näy projektia).
+  --> Eri selaimessa pitää laatutarkistaa.
+
+* Valmiuasteen ei pysty kirjoitaa alkuun nolla. Lisäksi kun paina ENTERiä niin silloin tulee hälytyksen, mutta se joutuu ensiksi
+collapseen sisään. Eli aina kun paina ENTERiä, valittu komponenttirivi collapsaan itseään, joka pilottaa samalla virheilmoituksen.
+
+* Korjattu: Piste muutuu pilkkuksi automaatisesti valmiusasteessa.
+
+
  
 
 
