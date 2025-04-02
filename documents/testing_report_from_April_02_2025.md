@@ -25,6 +25,11 @@ Jokaisesta elementeistä ovat sivukohtaisia ja kartoitetaan yksityiskohtaisia.
 * Kun kirjautuu ulos englannin käyttöliitymästä, kysymyslaatikko on suomeksi eikä englanti.
 Ts. Haluatko varmasti kirjautua ulos? --> Do you really want to logout?
 
+* Kun kommentoi funktionaalisen nimen ja vaihtaa sitten toimintotyypin (classname), niin nimi poistetaan eikä tallennu.
+Pitä määritä koodiin, että funktionaalisen nimi tallennetaan ja pysyy toimintotyypin vaihdossa.
+
+ 
+
 
 
 
