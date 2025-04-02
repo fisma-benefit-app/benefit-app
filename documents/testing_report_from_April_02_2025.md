@@ -22,7 +22,7 @@ Jokaisesta elementeistä ovat sivukohtaisia ja kartoitetaan yksityiskohtaisia.
 * Lukuviitaus ja toimintotyypit oli monelle epäselvä. Vaatimusdokumentointi oli esimerkkejä, muttei tarkkaa ja selkeä selityksiä.
 
 --> Pitäisikö meidän tehdän vaatimusmääritelmästä ja itse sovelluksesta opasteet / manuaali (kuten kaikkissa tuoteissa eka kerran käyttössä).
-Jopa Fisman työntekijöille, sekä juniorit että seniorit, jotka haluavat nopee sanahaku encyclopediasta ja selkeitä esimerkkejä.
+Jopa Fisman työntekijöille, sekä juniorit että seniorit, jotka haluavat nopee sanahaku encyclopediasta (mieluiten 10 sivua kuin 200 sivua) ja selkeitä esimerkkejä.
 Voisiko sovelluksiin olisi oma encyclopedia tai selityksiä popup kun hiiri osoitaa sanaa.
 
 * Skaalaus ongelma. Kun selaimen on pienempi tai puolinäytönä niin ei näy kokonaan tietokoneessa, selain on Microsoft Edge.
