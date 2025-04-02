@@ -18,7 +18,13 @@ Ehkä pitäisi opastaa tästä tarkemmin.
 Jokaisesta elementeistä ovat sivukohtaisia ja kartoitetaan yksityiskohtaisia.
 
 * Valmistusaste oli yhdelle epäselvä.
+
+* Lukuviitaus oli monelle epäselvä. Vaatimusdokumentointi oli esimerkkejä, muttei tarkkaa ja selkeä selityksiä.
+
 --> Pitäisikö meidän tehdän vaatimusmääritelmästä ja itse sovelluksesta opasteet / manuaali (kuten kaikkissa tuoteissa eka kerran käyttössä).
+Jopa Fisman työntekijöille, sekä juniorit että seniorit, jotka haluavat nopee sanahaku encyclopediasta ja selkeitä esimerkkejä.
+
+
 
 * Skaalaus ongelma. Kun selaimen on pienempi tai puolinäytönä niin ei näy kokonaan tietokoneessa, selain on Microsoft Edge.
 
