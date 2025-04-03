@@ -36,6 +36,9 @@ What problem: The save buttons are mixing with summary box. Happens at mininimum
 
 ![Save_button_and_summary_mixed_up_Fisma_ry](https://github.com/user-attachments/assets/30ef755d-b839-40c4-a15d-e1f58e276d3b)
 
+* Comment disappears everytime when functional type is changed.
+
+![Comment_vanishes](https://github.com/user-attachments/assets/8ab516fe-a0d7-4d05-96dc-29e90883fd02)
 
 
 
