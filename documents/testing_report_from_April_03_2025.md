@@ -3,6 +3,6 @@
 This is a report from testing seminar together with Haaga-Helia University of Applied Sciences
 on the April 03 2025.
 
-The testing group consists of English speaking students.
+The testing group consists of English speaking students. The course is Software Requirement Analysis.
 
-## Notes from testers.
+## Notes from testers. / Feedbacks
