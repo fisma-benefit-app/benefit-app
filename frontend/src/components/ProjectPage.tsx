@@ -31,7 +31,9 @@ export default function ProjectPage() {
   const translation = useTranslations().projectPage;
 
   //get all versions of the same project
-  const allProjectVersions: Project[] = sortedProjects.filter(projectInArray => project?.projectName === projectInArray.projectName);
+  const allProjectVersions: Project[] = sortedProjects
+    .filter(projectInArray => project?.projectName === projectInArray.projectName)
+    .sort((a, b) => b.version - a.version);
 
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);

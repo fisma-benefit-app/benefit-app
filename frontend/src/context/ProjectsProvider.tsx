@@ -41,8 +41,8 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
   };
 
   const checkIfLatestVersion = (project: Project | null, allProjectVersions: Project[]) => {
-    if (project && allProjectVersions?.length > 0) {
-      //projects from backend are sorted by editedTime, so latest project is the one most recently edited
+    if (project && allProjectVersions.length > 0) {
+      //allProjectVersions is sorted by version number from highest to lowest, so latest version is in the first index
       const isLatest = project.version === allProjectVersions[0].version ? true : false;
       return isLatest;
     } else {
