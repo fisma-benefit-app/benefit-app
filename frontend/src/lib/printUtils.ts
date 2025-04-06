@@ -101,11 +101,11 @@ export const createPdf = (project: Project, translation: {
       <head>
         <title>${translation.projectReport}</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
+          body { font-family: Arial, sans-serif;  padding: 20px; }
           h1 { text-align: center; }
           .project-info { margin-bottom: 20px; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+          th, td { border: 1px solid #000; padding: 5px; text-align: left; }
           th { background-color: #f2f2f2; }
           .total-row { font-weight: bold; background-color: #ddd; }
         </style>
@@ -129,7 +129,7 @@ export const createPdf = (project: Project, translation: {
             <th>${translation.functionalMultiplier}</th>
             <th>${translation.operations}</th>
             <th>${translation.degreeOfCompletion}</th>
-            <th>${translation.functionalMultiplier}</th>
+            <th>${translation.functionalPoints}</th>
             <th>${translation.comment}</th>
           </tr>
           ${project.functionalComponents.map(comp => `
