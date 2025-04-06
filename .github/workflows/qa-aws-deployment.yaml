@@ -1,8 +1,8 @@
 name: Deploy to Amazon
 
 on:
-  push:
-    branches: [ "qa" ]
+#  push:
+#    branches: [ "qa" ]
 #  pull_request:
 #    branches: [ "qa" ]
 
