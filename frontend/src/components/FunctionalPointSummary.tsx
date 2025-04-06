@@ -106,7 +106,7 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
         CSV <FontAwesomeIcon icon={faDownload} />
       </button>
       <button
-        onClick={() => createPdf(project)}
+        onClick={() => createPdf(project, translation.printUtils)}
         className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
         PDF <FontAwesomeIcon icon={faDownload} />
       </button>

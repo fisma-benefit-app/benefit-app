@@ -1,5 +1,7 @@
 import { Project, TGenericComponent } from "./types";
-import { getCalculateFuntion } from '../lib/fc-service-functions';
+import { getCalculateFuntion } from './fc-service-functions.ts';
+
+
 
 export const convertToCSV = (data: any[]) => {
   if (data.length === 0) return '';
@@ -33,6 +35,28 @@ export const downloadProjectComponentsCsv = async (project: Project) => {
   downloadCSV(csvData, `${project.projectName}.csv`);
 }
 
+/*// Compares values for current and previous project
+let isNewValue = false;
+const valueComparer = (value1, value2) => {
+  if (value1 === value2) {
+    return value1;
+  } else {
+    isNewValue = true;
+    return value2;
+  }
+}*/
+
+const dateLocalizer = (insertedDate: string) => {
+  return new Date(insertedDate).toLocaleTimeString("fi-FI", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).replace("klo", "")
+}
+
 
 //  calculate-funktiot kopioituna (tätä vois yksinkertaistaa?)
 const calculateFunctionalComponentPoints = (component: TGenericComponent) => {
@@ -51,13 +75,31 @@ const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]
 };
 
 
-export const createPdf = (project: Project) => {
+export const createPdf = (project: Project, translation: {
+  projectReport: string,
+  projectId: string,
+  version: string,
+  createdDate: string,
+  versionCreatedDate: string,
+  lastEditedDate: string,
+  className: string,
+  componentType: string,
+  dataElements: string,
+  readingReferences: string,
+  writingReferences: string,
+  functionalMultiplier: string,
+  operations: string,
+  degreeOfCompletion: string,
+  functionalPoints: string,
+  comment: string,
+  totalFunctionalPoints: string,
+}) => {
   const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
 
   const pdfContent = `
     <html>
       <head>
-        <title>Project Report</title>
+        <title>${translation.projectReport}</title>
         <style>
           body { font-family: Arial, sans-serif; padding: 20px; }
           h1 { text-align: center; }
@@ -69,25 +111,26 @@ export const createPdf = (project: Project) => {
         </style>
       </head>
       <body>
-        <h1>Project Report: ${project.projectName}</h1>
+        <h1>${translation.projectReport}: ${project.projectName}</h1>
         <div class="project-info">
-          <p><strong>Project ID:</strong> ${project.id}</p>
-          <p><strong>Version:</strong> ${project.version}</p>
-          <p><strong>Created Date:</strong> ${project.createdDate}</p>
-          <p><strong>Last Edited Date:</strong> ${project.editedDate}</p>
+          <p><strong>${translation.projectId}:</strong> ${project.id}</p>
+          <p><strong>${translation.version}:</strong> ${project.version}</p>
+          <p><strong>${translation.createdDate}:</strong> ${dateLocalizer(project.createdDate)}</p>
+          <p><strong>${translation.versionCreatedDate}:</strong> ${dateLocalizer(project.versionDate)}</p>
+          <p><strong>${translation.lastEditedDate}:</strong> ${dateLocalizer(project.editedDate)}</p>
         </div>
         <table>
           <tr>
-            <th>Class Name</th>
-            <th>Component Type</th>
-            <th>Data Elements</th>
-            <th>Reading References</th>
-            <th>Writing References</th>
-            <th>Functional Multiplier</th>
-            <th>Operations</th>
-            <th>Degree of Completion</th>
-            <th>Functional Points</th>
-            <th>Comment</th>
+            <th>${translation.className}</th>
+            <th>${translation.componentType}</th>
+            <th>${translation.dataElements}</th>
+            <th>${translation.readingReferences}</th>
+            <th>${translation.writingReferences}</th>
+            <th>${translation.functionalMultiplier}</th>
+            <th>${translation.operations}</th>
+            <th>${translation.degreeOfCompletion}</th>
+            <th>${translation.functionalMultiplier}</th>
+            <th>${translation.comment}</th>
           </tr>
           ${project.functionalComponents.map(comp => `
             <tr>
@@ -104,7 +147,7 @@ export const createPdf = (project: Project) => {
             </tr>
           `).join('')}
           <tr class="total-row">
-            <td colspan="8"><b>Total Functional Points</b></td>
+            <td colspan="8"><b>${translation.totalFunctionalPoints}</b></td>
             <td colspan="2"><b>${totalPoints.toFixed(2)}</b></td>
           </tr>
         </table>

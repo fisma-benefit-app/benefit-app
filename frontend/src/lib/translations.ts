@@ -29,6 +29,25 @@ export const translations = {
             versionCreatedAt: "Version Created at",
             noProjectsCouldBeFound: "No projects could be found."
         },
+        printUtils: {
+            projectReport: "Project Report",
+            projectId: "Project ID",
+            version: "Version",
+            createdDate: "Created Date",
+            versionCreatedDate: "Version Created Date",
+            lastEditedDate: "Last Edited Date",
+            className: "Class Name",
+            componentType: "Component Type",
+            dataElements: "Data Elements",
+            readingReferences: "Reading References",
+            writingReferences: "Writing References",
+            functionalMultiplier: "Functional Multiplier",
+            operations: "Operations",
+            degreeOfCompletion: "Degree Of Completion",
+            functionalPoints: "Functional Points",
+            comment: "Comment",
+            totalFunctionalPoints: "Total Functional Points",
+        },
         functionalClassComponent: {
             //creates an object where keys and their values are the same
             classNameOptions: Object.fromEntries(
@@ -133,6 +152,25 @@ export const translations = {
             modifiedAt: "Muokattu",
             versionCreatedAt: "Versio Luotu",
             noProjectsCouldBeFound: "Projekteja ei löytynyt."
+        },
+        printUtils: {
+            projectReport: "Projektiraportti",
+            projectId: "Projektin ID",
+            version: "Versio",
+            createdDate: "Luotu",
+            versionCreatedDate: "Versio Luotu",
+            lastEditedDate: "Muokattu",
+            className: "Toimintoluokka",
+            componentType: "Toimintotyyppi",
+            dataElements: "Tietoelementit",
+            readingReferences: "Lukuviittaukset",
+            writingReferences: "Kirjoitusviittaukset",
+            functionalMultiplier: "Toimintokerroin",
+            operations: "Operaatiot",
+            degreeOfCompletion: "Valmistumisaste",
+            functionalPoints: "Toimintopisteet",
+            comment: "Kommentti",
+            totalFunctionalPoints: "Toimintopisteet Yhteensä",
         },
         functionalClassComponent: {
             classNameOptions: {
