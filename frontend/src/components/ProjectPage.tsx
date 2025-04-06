@@ -1,6 +1,6 @@
-import {ChangeEvent, useEffect, useState} from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import {fetchAllProjects, fetchProject, updateProject} from "../api/project.ts";
+import { fetchAllProjects, fetchProject, updateProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
@@ -21,30 +21,23 @@ import useProjects from "../hooks/useProjects.tsx";
 export default function ProjectPage() {
   const { sessionToken } = useAppUser();
   const { selectedProjectId } = useParams();
-  const {setProjects, projects} = useProjects();
+  const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
 
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
-  const [oldProjectVersions, setOldProjectVersions] = useState<Project[]>([]);
 
   const translation = useTranslations().projectPage;
 
+  //get all versions of the same project
+  const allProjectVersions: Project[] = sortedProjects.filter(projectInArray => project?.projectName === projectInArray.projectName);
+
+  //only allow user to edit project if it is the latest one
+  const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
   //sort functional components by id (order of creation from oldest to newest)
   const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
-
-  //get old versions of the same project
-  const getOldProjectVersions = (projects: Project[], currentProject: Project) => {
-    const oldList: Project[] = [];
-    projects.forEach((project) => {
-      if (project.projectName === currentProject.projectName) {
-        oldList.push(project);
-      }
-    })
-    setOldProjectVersions(oldList);
-  };
 
   useEffect(() => {
     const getProject = async () => {
@@ -52,7 +45,6 @@ export default function ProjectPage() {
       try {
         const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
         setProject(projectFromDb);
-        getOldProjectVersions(projects, projectFromDb);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend.");
       } finally {
@@ -60,7 +52,7 @@ export default function ProjectPage() {
       }
     };
     getProject();
-  }, [selectedProjectId, sessionToken, projects]);
+  }, [selectedProjectId, sessionToken]);
 
   const createFunctionalComponent = async () => {
     if (project) {
@@ -105,7 +97,7 @@ export default function ProjectPage() {
   const saveProject = async () => {
     if (project) {
       try {
-        const editedProject = {...project, editedDate: CreateCurrentDate()};
+        const editedProject = { ...project, editedDate: CreateCurrentDate() };
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
         alert(translation.projectSaved);
@@ -118,32 +110,33 @@ export default function ProjectPage() {
   const saveProjectVersion = async (projectVersion: number) => {
     if (project) {
       if (window.confirm(`${translation.saveVersionWarningBeginning}${projectVersion}?${translation.saveVersionWarningEnd}`)) {
-      saveProject(); // Save project before creating a new version if the user forgets to save their changes. Possibly do this with automatic saving instead.
-      try {
-        const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
-        const updatedProjects = await fetchAllProjects(sessionToken);
-        setProjects(updatedProjects);
-        navigate(`project/${idOfNewProjectVersion}`);
-      } catch (err) {
-        console.error(err);
+        try {
+          // Save project before creating a new version if the user forgets to save their changes. Possibly do this with automatic saving instead.
+          await saveProject();
+          const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
+          const updatedProjects = await fetchAllProjects(sessionToken);
+          setProjects(updatedProjects);
+          navigate(`/project/${idOfNewProjectVersion}`);
+        } catch (err) {
+          console.error(err);
+        }
       }
     }
-  }
   };
 
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
-    const selectedProject = projects.find((p: Project) => p.id === selectedId);
+    const selectedProject = sortedProjects.find((p: Project) => p.id === selectedId);
 
     if (selectedProject) {
-      navigate(`project/${selectedId}`);
+      navigate(`/project/${selectedId}`);
     }
   }
 
   return (
     <div className="gap-5 flex justify-center my-20">
       {loadingProject ? (
-        <LoadingSpinner/>
+        <LoadingSpinner />
       ) : error ? (
         <p>{error}</p>
       ) : project ? (
@@ -157,37 +150,40 @@ export default function ProjectPage() {
                   component={component}
                   deleteFunctionalComponent={deleteFunctionalComponent}
                   key={component.id}
+                  isLatest={isLatest}
                 />
               );
             })}
           </div>
           <div className="my-5 flex flex-col">
-            {/* Create functionality for this button */}
             <button
-              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
+              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-gray cursor-pointer" : "bg-fisma-gray"} text-white px-4 py-4 mb-2 sticky top-20`}
               onClick={saveProject}
+              disabled={!isLatest}
             >
               {translation.saveProject}
             </button>
             <button
-              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-40"
+              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-gray cursor-pointer" : "bg-fisma-gray"} text-white px-4 py-4 mb-2 sticky top-40`}
               onClick={() => saveProjectVersion(project.version)}
+              disabled={!isLatest}
             >
               {translation.saveProjectAsVersion}{project.version}
             </button>
             <select
-                className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2 sticky top-60"
-                onChange={handleVersionSelect}
-                defaultValue=""
+              className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2 sticky top-60"
+              onChange={handleVersionSelect}
+              defaultValue=""
             >
-              <option value="" disabled>Valitse Projektiversio</option>
-              {oldProjectVersions.map((project) => (
-                  <option key={project.id} value={project.id}>{project.version}</option>
+              <option value="" disabled>{translation.selectProjectVersion}</option>
+              {allProjectVersions.map((project) => (
+                <option key={project.id} value={project.id}>{project.version}</option>
               ))}
             </select>
             <button
               onClick={createFunctionalComponent}
-              className="bg-fisma-blue  hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer my-2 sticky top-80"
+              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-gray cursor-pointer" : "bg-fisma-gray"} text-white px-4 py-4 mb-2 sticky top-80`}
+              disabled={!isLatest}
             >
               {translation.newFunctionalComponent}
             </button>

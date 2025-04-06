@@ -7,13 +7,14 @@ import { faTrash, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import useTranslations from "../hooks/useTranslations.ts";
 
 type FunctionalClassComponentProps = {
-  component: TGenericComponent;
-  deleteFunctionalComponent: (componentId: number) => Promise<void>;
+  component: TGenericComponent,
+  deleteFunctionalComponent: (componentId: number) => Promise<void>,
   project: Project,
-  setProject: React.Dispatch<React.SetStateAction<Project | null>>
+  setProject: React.Dispatch<React.SetStateAction<Project | null>>,
+  isLatest: boolean
 };
 
-export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject }: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest }: FunctionalClassComponentProps) {
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
@@ -85,6 +86,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             placeholder={translation.commentPlaceholder}
             value={component.comment || ""}
             onChange={handleComponentChange}
+            disabled={!isLatest}
           />
         </div>
 
@@ -100,8 +102,9 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             </span>
           </button>
           <button
-            className="bg-fisma-red hover:brightness-130 cursor-pointer rounded text-white py-1 px-3"
+            className={`${isLatest ? "bg-fisma-red hover:brightness-130 cursor-pointer" : "bg-fisma-gray"} rounded text-white py-1 px-3`}
             onClick={() => deleteFunctionalComponent(component.id)}
+            disabled={!isLatest}
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
@@ -116,6 +119,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               value={component.className || ""}
               onChange={handleClassNameChange}
               className="flex-content border-2 border-gray-400 p-1"
+              disabled={!isLatest}
             >
               <option disabled value="">{translation.classNamePlaceholder}</option>
               {classNameOptions.map((className) => {
@@ -136,6 +140,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                   value={component.componentType || ""}
                   onChange={handleOptionTypeChange}
                   className="flex-content border-2 border-gray-400 p-1"
+                  disabled={!isLatest}
                 >
                   <option disabled value="">{translation.componentTypePlaceholder}</option>
                   {/* todo: add option for no component type if needed */}
@@ -158,6 +163,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                   step={0.01}
                   value={component.degreeOfCompletion || ""}
                   onChange={handleComponentChange}
+                  disabled={!isLatest}
                 />
               </>
             )}
@@ -183,6 +189,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       type="text"
                       value={value as number}
                       onChange={handleComponentChange}
+                      disabled={!isLatest}
                     />
                   </div>
                 ))}

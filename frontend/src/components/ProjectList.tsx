@@ -8,14 +8,14 @@ import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
 
 export default function ProjectList() {
-  const { projects, loading, handleDelete } = useProjects();
+  const { sortedProjects, loading, handleDelete } = useProjects();
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const navigate = useNavigate();
   const translation = useTranslations().projectList;
 
   useEffect(() => {
-    const latestProjects = getLatestVersion(projects);
+    const latestProjects = getLatestVersion(sortedProjects);
     if (searchTerm === "") {
       setFilteredProjects(latestProjects);
     } else {
@@ -25,7 +25,7 @@ export default function ProjectList() {
         ),
       );
     }
-  }, [searchTerm, projects]);
+  }, [searchTerm, sortedProjects]);
 
   const getLatestVersion = (projects: Project[]) => {
     const projectMap = new Map<string, Project>();
