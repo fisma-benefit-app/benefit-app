@@ -50,12 +50,24 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     }
   }
 
+  //Returns previous version if there are multiple versions, current version if there is only one version.
+  const returnLatestOrPreviousVersion = (project: Project, allProjectVersions: Project[]) => {
+    if (allProjectVersions?.length > 1) {
+      const currentIndex = allProjectVersions.findIndex(p => p.version === project.version);
+      if (currentIndex >= 0 && currentIndex < (allProjectVersions.length -1)) {
+        return allProjectVersions[currentIndex + 1];
+      }
+    }
+      return project;
+  }
+
   const contextValue = {
     sortedProjects,
     loading,
     error,
     handleDelete,
     checkIfLatestVersion,
+    returnLatestOrPreviousVersion,
     setProjects,
   }
 

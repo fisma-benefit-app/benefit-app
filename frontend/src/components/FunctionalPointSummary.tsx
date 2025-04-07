@@ -4,6 +4,7 @@ import { downloadProjectComponentsCsv, createPdf } from '../lib/printUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import useTranslations from '../hooks/useTranslations.ts';
+import useProjects from "../hooks/useProjects.tsx";
 
 type FunctionalClassComponentProps = {
   project: Project;
@@ -57,6 +58,12 @@ const getGroupedFunctionalComponents = (components: TGenericComponent[]) => {
 export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProps) => {
 
   const translation = useTranslations();
+  const {sortedProjects, returnLatestOrPreviousVersion} = useProjects();
+
+  //Get all versions of the same project
+  const allProjectVersions: Project[] = sortedProjects.filter(projectInArray => project?.projectName === projectInArray.projectName);
+  //Get previous version for PDF-report changes comparison
+  const previousOrCurrent = returnLatestOrPreviousVersion(project, allProjectVersions);
 
   const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
   return (
@@ -106,7 +113,7 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
         CSV <FontAwesomeIcon icon={faDownload} />
       </button>
       <button
-        onClick={() => createPdf(project, translation.printUtils)}
+        onClick={() => createPdf(project, previousOrCurrent, translation.printUtils)}
         className="mt-3 px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer">
         PDF <FontAwesomeIcon icon={faDownload} />
       </button>
