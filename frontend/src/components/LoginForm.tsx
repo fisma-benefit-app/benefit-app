@@ -53,39 +53,41 @@ export default function LoginForm() {
     }, [loggedIn, navigate]);
 
     return (//TODO: Change background!
-        <div className="flex justify-center items-center h-screen bg-[#c6e5ff]">
-            <form onSubmit={login} className="max-w-sm w-full mx-auto p-4 border-2 border-gray-400 shadow-md bg-white flex flex-col">
-                <h1 className="text-2xl text-fisma-dark-blue font-extrabold mb-4 text-center">{translation.header}</h1>
+        <div className="flex justify-center items-center h-screen">
+            <form onSubmit={login} className="max-w-sm w-full mx-auto p-4 shadow-md bg-fisma-blue flex flex-col">
+                <h1 className="text-2xl text-center text-white font-medium mb-4 bg-fisma-dark-blue -mx-4 -mt-4 px-4 py-2">
+                    {translation.header}
+                </h1>
 
                 <div className="h-8 mb-4 flex items-center justify-center">
                     {loginError && (
-                        <label className={`text-sm text-fisma-red bg-red-100 border border-fisma-red p-1 rounded transition-opacity duration-500 ease-in-out ${showLoginError ? 'opacity-100' : 'opacity-0'}`}>
+                        <label className={`text-sm text-fisma-red bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showLoginError ? 'opacity-100' : 'opacity-0'}`}>
                             {loginError}
                         </label>
                     )}
                 </div>
 
                 <div className="mb-4 relative">
-                    <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue" />
                     <input
                         type="text"
                         placeholder={translation.username}
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        className="w-full p-2 pl-10 border-2 border-gray-400"
+                        className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
                     />
                 </div>
 
                 <div className="mb-4 relative">
-                    <FontAwesomeIcon icon={faKey} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <FontAwesomeIcon icon={faKey} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue" />
                     <input
                         type={showPassword ? "text" : "password"}
                         placeholder={translation.password}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full p-2 pl-10 border-2 border-gray-400 pr-10"
+                        className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
                     />
                     <button
                         type="button"
@@ -96,22 +98,22 @@ export default function LoginForm() {
                     </button>
                 </div>
 
-                <div className="flex justify-between items-center mb-4 text-fisma-dark-blue">
+                <div className="flex justify-between items-center mb-4 text-white">
                     <label className="flex items-center">
                         <input
                             type="checkbox"
                             checked={rememberMe}
                             onChange={(e) => setRememberMe(e.target.checked)}
-                            className="mr-2 cursor-pointer"
+                            className="mr-2 cursor-pointer accent-fisma-dark-blue rounded"
                         />
                         {translation.rememberMe}
                     </label>
-                    <a href="#" className="text-fisma-blue text-sm hover:underline">{translation.forgotPassword}</a>
+                    <a href="#" className="text-white text-sm hover:underline">{translation.forgotPassword}</a>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-fisma-blue text-white p-2 hover:bg-fisma-gray flex justify-center items-center cursor-pointer"
+                    className="w-full p-2 text-white bg-fisma-dark-blue hover:brightness-70 flex justify-center items-center cursor-pointer"
                     disabled={loading}
                 >
                     {loading ? (

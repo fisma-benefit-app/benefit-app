@@ -76,7 +76,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
   }
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 border-fisma-dark-blue bg-white my-5 w-[1075px] p-4">
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 border-fisma-gray bg-white my-5 w-[1075px] p-4">
       <div className="flex gap-5 items-center justify-between">
         <div className="flex-1">
           <input
@@ -93,14 +93,14 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           <p>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</p>
           <button
             onClick={() => setIsCollapsed((prev) => !prev)}
-            className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer rounded text-white py-1 px-3 items-center gap-1"
+            className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white py-1 px-3 items-center gap-1"
           >
             <span className={`inline-block text-1xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
               <FontAwesomeIcon icon={faCaretDown} />
             </span>
           </button>
           <button
-            className="bg-fisma-red hover:brightness-130 cursor-pointer rounded text-white py-1 px-3"
+            className="bg-fisma-red hover:brightness-130 cursor-pointer text-white py-1 px-3"
             onClick={() => deleteFunctionalComponent(component.id)}
           >
             <FontAwesomeIcon icon={faTrash} />

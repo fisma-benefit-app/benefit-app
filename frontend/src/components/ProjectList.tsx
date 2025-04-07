@@ -48,7 +48,7 @@ export default function ProjectList() {
           <input
               type="text"
               placeholder={translation.searchPlaceholder}
-              className="mb-4 p-2 border-2 border-gray-400 rounded"
+              className="mb-4 p-2 border-2 border-gray-400"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -108,13 +108,13 @@ export default function ProjectList() {
                           </td>
                           <td className="p-1">
                               <button
-                                  className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer rounded text-white py-1 px-3"
+                                  className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white py-3 px-4"
                                   onClick={() => navigate(`/project/${project.id}`)}
                               >
                                   <FontAwesomeIcon icon={faPenToSquare}/>
                               </button>
                               <button
-                                  className="bg-fisma-red hover:brightness-130 cursor-pointer rounded text-white py-1 px-3 ml-1"
+                                  className="bg-fisma-red hover:brightness-130 cursor-pointer text-white py-3 px-4 ml-1"
                                   onClick={() => handleDelete(project.id, project.projectName)}
                               >
                                   <FontAwesomeIcon icon={faTrash}/>

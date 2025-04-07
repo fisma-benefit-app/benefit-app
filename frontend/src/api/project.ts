@@ -125,7 +125,7 @@ const createNewProjectVersion = async (sessionToken: string | null, previousProj
         if (!response.ok) {
             throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
         }
-
+        
         const location = response.headers.get("Location");
 
         if (!location) {
@@ -137,7 +137,9 @@ const createNewProjectVersion = async (sessionToken: string | null, previousProj
 
         if (!newProjectId) {
             throw new Error("Id of new project could not be parsed!");
-        } else return newProjectId;
+        }
+        
+        return newProjectId;
     } catch (error) {
         console.error("Error creating project:", error);
         throw error;
