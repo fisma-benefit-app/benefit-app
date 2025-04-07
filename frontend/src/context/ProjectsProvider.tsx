@@ -16,8 +16,7 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
       setLoading(true);
       try {
         const allProjectsFromDb = await fetchAllProjects(sessionToken);
-        const sortedProjects = allProjectsFromDb.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());
-        setProjects(sortedProjects);
+        setProjects(allProjectsFromDb);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unexpected error occurred when getting projects from backend.");
       } finally {
@@ -26,6 +25,9 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     };
     getAllProjects();
   }, [sessionToken]);
+
+  //sorted projects are derived, not sorted only in the useEffect so we dont have to sort again later, we should discuss
+  const sortedProjects = projects.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());
 
   const handleDelete = async (projectId: number, projectName: string) => {
     if (window.confirm(`Oletko varma, että haluat poistaa projektin "${projectName}"?`)) {
@@ -38,12 +40,22 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     }
   };
 
+  const checkIfLatestVersion = (project: Project | null, allProjectVersions: Project[]) => {
+    if (project && allProjectVersions?.length > 0) {
+      //projects from backend are sorted by editedTime, so latest project is the one most recently edited
+      const isLatest = project.version === allProjectVersions[0].version ? true : false;
+      return isLatest;
+    } else {
+      return false;
+    }
+  }
 
   const contextValue = {
-    projects,
+    sortedProjects,
     loading,
     error,
     handleDelete,
+    checkIfLatestVersion,
     setProjects,
   }
 

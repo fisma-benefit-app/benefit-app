@@ -78,7 +78,7 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
                 </b>
                 <br />
                 {group.components.map((groupedTypes) =>
-                  <div>
+                  <div key={groupedTypes.type}>
                     {groupedTypes.count}x {translation.functionalClassComponent.componentTypeOptions[groupedTypes.type as ComponentType]} {groupedTypes.points.toFixed(2)}
                   </div>
                 )}

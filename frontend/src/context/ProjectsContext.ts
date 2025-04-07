@@ -2,10 +2,11 @@ import { createContext } from "react";
 import { Project } from "../lib/types";
 
 type ProjectsContext = {
-    projects: Project[];
+    sortedProjects: Project[];
     loading: boolean;
     error: string;
     handleDelete: (projectId: number, projectName: string) => Promise<void>;
+    checkIfLatestVersion: (project: Project | null, oldProjectVersions: Project[]) => boolean
     setProjects: (projects: Project[]) => void;
   };
 

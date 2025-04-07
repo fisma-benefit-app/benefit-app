@@ -114,7 +114,8 @@ export const translations = {
             saveProjectAsVersion: "Save project as version ",
             saveVersionWarningBeginning: "Are you sure you want to save the project as version ",
             saveVersionWarningEnd: " Older versions cannot be modified.",
-            projectSaved: "Project saved!"
+            projectSaved: "Project saved!",
+            selectProjectVersion: "Select Project Version"
         },
         functionalPointSummary: {
             total: "Total",
@@ -232,7 +233,8 @@ export const translations = {
             saveProjectAsVersion: "Tallenna projekti versiona ",
             saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona ",
             saveVersionWarningEnd: " Vanhoja versioita ei voi enää muokata.",
-            projectSaved: "Projekti tallennettu!"
+            projectSaved: "Projekti tallennettu!",
+            selectProjectVersion: "Valitse Projektiversio"
         },
         functionalPointSummary: {
             total: "Yhteensä",
