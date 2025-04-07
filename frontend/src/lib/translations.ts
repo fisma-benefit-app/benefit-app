@@ -1,7 +1,8 @@
 export const translations = {
     en: {
         header: {
-            logout: "Logout"
+            logout: "Logout",
+            logoutWarning: "Are you sure you want to log out?"
         },
         loginForm: {
             header: "Log in",
@@ -106,7 +107,8 @@ export const translations = {
     },
     fi: {
         header: {
-            logout: "Kirjaudu ulos"
+            logout: "Kirjaudu ulos",
+            logoutWarning: "Oletko varma, että haluat kirjautua ulos?"
         },
         loginForm: {
             header: "Kirjaudu sisään",

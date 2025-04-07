@@ -16,7 +16,7 @@ const Header = () => {
   const translation = useTranslations().header;
 
   const logout = () => {
-    if (window.confirm("Haluatko varmasti kirjautua ulos?")) {
+    if (window.confirm(translation.logoutWarning)) {
       sessionStorage.removeItem("loginToken");
       sessionStorage.removeItem("userInfo");
       setSessionToken(null);
