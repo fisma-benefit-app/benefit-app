@@ -14,11 +14,12 @@ export const translations = {
             login: "Login"
         },
         newProjectModal: {
-            error: "Project needs a name!",
+            noNameError: "Project needs a name!",
             header: "Create a new project",
             placeholderText: "Name the project",
             cancel: "Cancel",
-            createNew: "Create new"
+            createNew: "Create new",
+            nameTakenError: "Name is already in use!"
         },
         projectList: {
             confirmDelete: "Are you sure you want to delete ",
@@ -120,11 +121,12 @@ export const translations = {
             login: "Kirjaudu"
         },
         newProjectModal: {
-            error: "Projekti tarvitsee nimen!",
+            noNameError: "Projekti tarvitsee nimen!",
             header: "Luo uusi projekti",
             placeholderText: "Anna projektille nimi",
             cancel: "Peruuta",
-            createNew: "Luo uusi"
+            createNew: "Luo uusi",
+            nameTakenError: "Nimi on jo käytössä!"
         },
         projectList: {
             confirmDelete: "Oletko varma, että haluat poistaa ",

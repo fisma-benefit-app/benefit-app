@@ -1,6 +1,6 @@
 import useAppUser from "../hooks/useAppUser";
 import { useState, FormEvent, useRef, useEffect } from "react";
-import {createProject, fetchAllProjects} from "../api/project.ts";
+import { createProject, fetchAllProjects } from "../api/project.ts";
 import { useNavigate } from "react-router";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
@@ -13,7 +13,7 @@ interface NewProjectFormProps {
 export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) {
   const navigate = useNavigate();
   const { sessionToken } = useAppUser();
-  const {setProjects} = useProjects();
+  const { projects, setProjects } = useProjects();
   const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -32,9 +32,12 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
     e.preventDefault();
     setLoading(true);
 
-    if (!name.trim()) {
+    const nameTaken = projects.some(project => project.projectName.toLowerCase() === name.toLowerCase());
+
+    if (!name.trim() || nameTaken) {
+
+      setError(nameTaken ? translation.nameTakenError : translation.noNameError);
       setName("");
-      setError(translation.error);
       setShowError(true);
 
       setTimeout(() => {
