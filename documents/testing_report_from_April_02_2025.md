@@ -3,9 +3,11 @@
 This is a report from our testing seminar together with Haaga-Helia University of Applied Sciences
 on the April 02 2025.
 
-The testing group consists of Finnish speaking students.
+The testing group consists of Finnish speaking students from the course Software Requirement Analysis. Hence they had no experience of writing systematical testing report.
 
-## Notes from testers
+Below list consists feedbacks and bugs, that were brought up during seminars.
+
+## Feedbacks & notes from students
 
 * Eri vuorovaikutuksia syöttötoiminto, kuten saunavuoroja. Lukuviitauksia eri muutamia ja tietoelementjä X määrä.
 Mitä sitten meillä kymmenen näyttöä, josta kolme sivustoja ovat syöttö ja kaksi navigointi,
