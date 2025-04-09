@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/b0bc5bbd-0939-4142-bf93-e2e146c9f805)# ee73f2d (Spring initial setup)
+# ee73f2d (Spring initial setup)
 
 documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/benefit-app/commit/ee73f2dcbe6835d609fbe895b23482090298a118)
 
