@@ -22,8 +22,8 @@ class ProjectJsonTest {
     @BeforeEach
     void setUp() {
         project = new Project(44L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12, Set.of(
-                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.13, "This is an exceptional functional component!"),
-                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.27, "Needs further adjustment!")
+                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.13, "This is an exceptional functional component!", 99L),
+                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.27, "Needs further adjustment!", 100L)
         ), Set.of(new ProjectAppUser(13L)));
     }
     

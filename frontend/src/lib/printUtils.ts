@@ -37,7 +37,7 @@ export const downloadProjectComponentsCsv = async (project: Project) => {
 const valueComparer = (currentValue: string | number | null, prevValue: string | number | null) => {
   const changed = prevValue !== currentValue;
   const className = changed ? 'project-data highlighted' : 'project-data';
-  return `<span class="${className}">${(changed ? currentValue : prevValue) ?? "N/A"}</span>`;
+  return `<span class="${className}">${(changed ? currentValue : prevValue) ?? ""}</span>`;
 }
 
 // Localizes the date to a readable form
@@ -96,6 +96,11 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
       oldProject.functionalComponents.map(comp => [comp.id, comp])
   );
 
+/*
+  console.log(project);
+  console.log(oldProject);
+*/
+
   const pdfContent = `
     <html>
       <head>
@@ -133,14 +138,16 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
             <th>${translation.dataElements}</th>
             <th>${translation.readingReferences}</th>
             <th>${translation.writingReferences}</th>
-            <th>${translation.functionalMultiplier}</th>
             <th>${translation.operations}</th>
             <th>${translation.degreeOfCompletion}</th>
             <th>${translation.functionalPoints}</th>
             <th>${translation.comment}</th>
           </tr>
           ${project.functionalComponents.map(comp => {
-            const prevComp = previousComponentsMap[comp.id] || {};
+            
+            // This returns an error "Type null cannot be used as an index type.", but it works for now
+            const prevComp = previousComponentsMap[comp.previousFCId] || {};
+            
             return `
             <tr>
               <td>${valueComparer(comp.className, prevComp.className)}</td>
@@ -148,7 +155,6 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
               <td>${valueComparer(comp.dataElements, prevComp.dataElements)}</td>
               <td>${valueComparer(comp.readingReferences, prevComp.readingReferences)}</td>
               <td>${valueComparer(comp.writingReferences, prevComp.writingReferences)}</td>
-              <td>${valueComparer(comp.functionalMultiplier, prevComp.functionalMultiplier)}</td>
               <td>${valueComparer(comp.operations, prevComp.operations)}</td>
               <td>${valueComparer(comp.degreeOfCompletion, prevComp.degreeOfCompletion)}</td>
               <td>${valueComparer(

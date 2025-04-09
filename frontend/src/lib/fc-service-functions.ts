@@ -25,6 +25,7 @@ export const getEmptyComponent = (component: TGenericComponent) => {
     operations: null,
     degreeOfCompletion: null,
     comment: null,
+    previousFCId: null,
     projectId: component.projectId,
   };
 };

@@ -30,6 +30,7 @@ create table if not exists functional_component
     operations            integer,
     degree_of_completion  decimal,
     comment               text,
+    previous_FC_id        bigint,
     project_id            bigint not null references project (id)
 );
 

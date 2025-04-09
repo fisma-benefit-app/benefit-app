@@ -66,6 +66,7 @@ export default function ProjectPage() {
         operations: null,
         degreeOfCompletion: null,
         comment: null,
+        previousFCId: null,
       };
 
       const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent,] };
