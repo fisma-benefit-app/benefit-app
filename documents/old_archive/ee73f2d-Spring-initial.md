@@ -1,10 +1,11 @@
-# ee73f2d (Spring initial setup)
+![image](https://github.com/user-attachments/assets/b0bc5bbd-0939-4142-bf93-e2e146c9f805)# ee73f2d (Spring initial setup)
 
 documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/benefit-app/commit/ee73f2dcbe6835d609fbe895b23482090298a118)
 
 ### Dependencies
 
-![img.png](img/ee73f2d-1.png)
+![image](https://github.com/user-attachments/assets/fc445424-9e78-4352-afab-d54e595eee88)
+
 
 #### Actuator
 
@@ -32,12 +33,13 @@ documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/bene
 
 ### Testaukseen parempi log
 
-![img.png](img/ee73f2d-2.png)
+![image](https://github.com/user-attachments/assets/039c572f-5c4e-41b8-b663-6b2debac63c0)
 
 ---
 
 ### application.yaml
 
-![img.png](img/ee73f2d-3.png)
+![image](https://github.com/user-attachments/assets/c78c74c5-a6d5-4ef0-8ba7-732dd40c6b3a)
+
 
 Ilman datasourcea ei lähde päälle. Datasource määritetty dockerin Postgrehen. 
