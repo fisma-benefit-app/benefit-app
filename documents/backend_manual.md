@@ -1,4 +1,4 @@
-# Setup for backend
+# Benefit-app backend
 
 ## 1. Setup for booting up Benefit-app's backend locally
 
