@@ -7,14 +7,30 @@
     git clone https://github.com/fisma-benefit-app/benefit-app.git
     ```
 
-2. Setup and run the spring boot backend (see backend documentation).
+2. Setup and run the spring boot backend (see **backend_setup_manula** -documentation:
+https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/backend_setup_manual.md).
 
-3. Navigate to frontend project root which is {repository directory}/frontend
+3. Navigate to frontend project root via command:
+
+`cd benefit-app/frontend`
 
 4. Install frontend dependencies:
     ```sh
     npm install
     ```
+
+You can check all installed dependencies
+via command:
+
+`npm ls`
+
+You should have following dependencies
+installed in the frontend
+
+*
+*
+*
+*
 
 5. Setup environment variables:
     1. Create a file called .env in the frontend project root.
@@ -24,6 +40,19 @@
     ```sh
     npm run dev
     ```
+
+7. Opening the application in web browser:
+
+Open the Benefit-app's frontend in web browser
+via following URL:
+
+´http://localhost:5173/login´
+
+You should get similar web page as the below picture:
+
+![image](https://github.com/user-attachments/assets/bd45cd16-f755-4630-8a55-df97ca172225)
+[image: the application]
+
 
 ## 2. Components
 

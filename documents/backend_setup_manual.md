@@ -1,10 +1,11 @@
-# Setup for Benefit-app
+# Setup for backend
 
-## 1. Setup for booting up Benefit-app locally
+## 1. Setup for booting up Benefit-app's backend locally
 
-In order to start Benefit-app locally,
+In order to start Benefit-app's backend locally,
 here are prerequisites that must
 be installed and activated in your workstation. 
+
 
 ---
 
@@ -64,11 +65,11 @@ benefit-app repository in Windows workstations.
 
 ---
 
-**c) Activate CLI tool.**
+**c) Activate CLI tool (i.e. open the terminal).**
 
-For following steps, you need to activate Command Line Interface -tool (CLI) 
-in your workstation. CLI will be used for running database, docker, building 
-application.
+For following steps, you need to activate Command Line Interface -tool (CLI),
+or open the terminal, in your workstation. CLI will be used for running database, 
+docker, building application.
 
 In your Windows workstation, you can use any CLI tools you like.
 In our group, we used following CLIs in our project:
@@ -81,6 +82,8 @@ In our group, we used following CLIs in our project:
 
 **d) Activate PostgreSQL via Docker.**
 
+///
+
 *Note:* In the following instructions, `Drive:/path/to/benefit-app/backend`
 is a placeholder. Replace `Drive:` with your actual drive letter (depending
 your workstation).
@@ -91,9 +94,7 @@ your workstation).
 
 ///
 
-When you have copied Benefit-app repository into 
-your workstation and activated your prefered CLI, 
-then you must move to the benefit-app's directory.
+Move to the benefit-app's directory.
 
 `cd Drive:/path/to/benefit-app`
 
@@ -249,11 +250,15 @@ the last line should be equivalent to following line
 "INFO 22516 --- [backend] [           main] ''.'''''.backend.BackendApplication      
 : Started BackendApplication in 8.051 seconds (process running for 8.908)"
 
-This will indicate that you have now backend of Benefit-app
+This will indicate that you have now the Benefit-app's backend 
 successfully up and running.
 
 If don't get the last line, it is indication there is
 error in the backend.
+
+---
+
+# Setup for frontend
 
 **f) Install dependencies, and run the frontend**
 
@@ -268,9 +273,9 @@ libraries and dependencies with simple command
 `npm install`
 
 You can check all installed dependencies
-via command
+via command:
 
-`npm ls` .
+`npm ls`
 
 You should have following dependencies
 installed in the frontend
@@ -279,9 +284,9 @@ installed in the frontend
 [image: list of frontend dependencies]
 
 Afterward, you can now run the frontend
-with command
+with command:
 
-`npm run dev` .
+`npm run dev`
 
 **g) Opening the application in web browser.**
 
