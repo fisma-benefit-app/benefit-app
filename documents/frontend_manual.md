@@ -3,9 +3,10 @@
 ## 1. Instructions for setting frontend up locally
 
 1. Clone the repository:
-    ```sh
-    git clone https://github.com/fisma-benefit-app/benefit-app.git
-    ```
+
+```sh
+git clone https://github.com/fisma-benefit-app/benefit-app.git
+```
 
 2. Setup and run the spring boot backend (see **backend_setup_manula** -documentation:
 https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/backend_setup_manual.md).
@@ -17,9 +18,10 @@ cd benefit-app/frontend`
 ```
 
 4. Install frontend dependencies:
-    ```sh
-    npm install
-    ```
+
+```sh
+npm install
+```
 
 You can check all installed dependencies
 via command:
@@ -29,12 +31,29 @@ npm ls
 ```
 
 You should have following dependencies
-installed in the frontend
+installed in the frontend:
 
-*
-*
-*
-*
++-- @eslint/js@9.18.0
++-- @fortawesome/fontawesome-svg-core@6.7.2
++-- @fortawesome/free-solid-svg-icons@6.7.2
++-- @fortawesome/react-fontawesome@0.2.2
++-- @tailwindcss/vite@4.0.0
++-- @types/react-dom@18.3.5
++-- @types/react@18.3.18
++-- @vitejs/plugin-react@4.3.4
++-- eslint-plugin-react-hooks@5.1.0
++-- eslint-plugin-react-refresh@0.4.18
++-- eslint@9.18.0
++-- frontend@0.0.0 -> .\
++-- globals@15.14.0
++-- prettier@3.4.2
++-- react-dom@18.3.1
++-- react-router@7.1.3
++-- react@18.3.1
++-- tailwindcss@4.0.0
++-- typescript-eslint@8.21.0
++-- typescript@5.6.3
+`-- vite@6.0.11
 
 5. Setup environment variables:
     1. Create a file called .env in the frontend project root.
@@ -42,9 +61,9 @@ installed in the frontend
 
 6. Start the frontend development server:
 
-    ```sh
-    npm run dev
-    ```
+```sh
+npm run dev
+```
 
 7. Opening the application in web browser:
 
