@@ -55,9 +55,9 @@ repository for the Fisma Ry, then you can clone
 the benefit-app repository into your workstation
 with following clone command:
 
-    ```sh
+```sh
 git clone https://github.com/fisma-benefit-app/benefit-app.git` 
-    ```
+```
 
 The command should work in any git supported softwares or tools.
 Most of us used _Git Bash_ for installing and updating
@@ -98,9 +98,9 @@ your workstation).
 
 Move to the benefit-app's directory.
 
-    ```sh
+```sh
 cd Drive:/path/to/benefit-app
-    ``
+```
 
 [IMAGE: Directory in Visual Studio Code]
 
@@ -116,7 +116,9 @@ e.g. Docker Desktop. You can check
 that have the current version of Docker
 installed via command
 
-`docker --version`
+```sh
+docker --version
+```
 
 [IMAGE: Docker desktop]
 
@@ -124,9 +126,9 @@ After all validations and checking,
 you should able to active Postgresql
 via docker compose's command
 
-    ```sh
+```sh
 docker compose up -d
-    ```
+```
 
 
 in the Drive:/path/to/benefit-app -directory.
@@ -157,7 +159,11 @@ that you have first installed Java language
 from official Java website.
 
 You can check the current version of your Java
-via `java --version`
+via command
+
+```sh
+java --version`
+```
 
 [image: java version openjdk]
 
@@ -207,7 +213,7 @@ Depending which version of Java you have installed
 in your workstation, you must update code line 12:
 
 ```sh
-languageVersion = JavaLanguageVersion.of([INSERT_NUMBER])`.
+languageVersion = JavaLanguageVersion.of([INSERT_NUMBER])
 ```
 
 Note that [INSERT_NUMBER] is a placeholder, which
