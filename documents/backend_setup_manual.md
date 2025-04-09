@@ -56,7 +56,7 @@ the benefit-app repository into your workstation
 with following clone command:
 
 ```sh
-git clone https://github.com/fisma-benefit-app/benefit-app.git` 
+git clone https://github.com/fisma-benefit-app/benefit-app.git
 ```
 
 The command should work in any git supported softwares or tools.
@@ -162,7 +162,7 @@ You can check the current version of your Java
 via command
 
 ```sh
-java --version`
+java --version
 ```
 
 [image: java version openjdk]
@@ -236,7 +236,7 @@ start building the Java application in the CLI
 via following Gradle command
 
 ```sh
-./gradlew build`
+./gradlew build
 ```
 
 If build is a failure, you need still fix some
@@ -249,7 +249,7 @@ continue next step.
 After successful build, move to following path
 
 ```sh
-Drive:/path/to/benefit-app/backend/build/libs, 
+Drive:/path/to/benefit-app/backend/build/libs 
 ```
 
 i.e. backend's builded libaries.
