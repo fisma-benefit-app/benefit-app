@@ -270,8 +270,12 @@ printing on your CLI.
 
 To validate if your jar is successfully running,
 the last line should be equivalent to following line
+```sh
+
 "INFO 22516 --- [backend] [           main] ''.'''''.backend.BackendApplication      
 : Started BackendApplication in 8.051 seconds (process running for 8.908)"
+
+```
 
 This will indicate that you have now the Benefit-app's backend 
 successfully up and running.
