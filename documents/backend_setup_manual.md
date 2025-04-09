@@ -55,7 +55,9 @@ repository for the Fisma Ry, then you can clone
 the benefit-app repository into your workstation
 with following clone command:
 
-`git clone https://github.com/fisma-benefit-app/benefit-app.git` 
+    ```sh
+git clone https://github.com/fisma-benefit-app/benefit-app.git` 
+    ```
 
 The command should work in any git supported softwares or tools.
 Most of us used _Git Bash_ for installing and updating
@@ -96,7 +98,9 @@ your workstation).
 
 Move to the benefit-app's directory.
 
-`cd Drive:/path/to/benefit-app`
+    ```sh
+cd Drive:/path/to/benefit-app
+    ``
 
 [IMAGE: Directory in Visual Studio Code]
 
@@ -120,7 +124,10 @@ After all validations and checking,
 you should able to active Postgresql
 via docker compose's command
 
-`docker compose up -d`
+    ```sh
+docker compose up -d
+    ```
+
 
 in the Drive:/path/to/benefit-app -directory.
 Please note the last option `-d`, which
@@ -138,7 +145,9 @@ keybindings CTRL+C and run docker compose again.
 After activating PostgreSQL's docker,
 move to backend of benefit-app:
 
-`cd Drive:/path/to/benefit-app/backend`
+```sh
+cd Drive:/path/to/benefit-app/backend
+```
 
 In backend directory, you need to build 
 Java application of benefit-app.
@@ -197,7 +206,9 @@ build.gradle -file in the backend.
 Depending which version of Java you have installed
 in your workstation, you must update code line 12:
 
-`languageVersion = JavaLanguageVersion.of([INSERT_NUMBER])`.
+```sh
+languageVersion = JavaLanguageVersion.of([INSERT_NUMBER])`.
+```
 
 Note that [INSERT_NUMBER] is a placeholder, which
 you add the version number of your installed Java.
@@ -218,7 +229,9 @@ in the codeline 12 inside build.grade -file, you can
 start building the Java application in the CLI
 via following Gradle command
 
-`./gradlew build`
+```sh
+./gradlew build`
+```
 
 If build is a failure, you need still fix some
 configurations in the backend (e.g. review your tools,
@@ -229,7 +242,9 @@ continue next step.
 
 After successful build, move to following path
 
-`Drive:/path/to/benefit-app/backend/build/libs`, 
+```sh
+Drive:/path/to/benefit-app/backend/build/libs, 
+```
 
 i.e. backend's builded libaries.
 
@@ -240,7 +255,9 @@ or in CLI via `ls` or `dir` -commands
 To run the java application of Benefit app,
 activate the correct jar file via command
 
-`java -jar .\backend-0.0.1-SNAPSHOT.jar`
+```sh
+java -jar .\backend-0.0.1-SNAPSHOT.jar
+```
 
 Then you should see Spring logo, Spring Boot version and other lines 
 printing on your CLI.
@@ -256,48 +273,5 @@ successfully up and running.
 If don't get the last line, it is indication there is
 error in the backend.
 
----
-
-# Setup for frontend
-
-**f) Install dependencies, and run the frontend**
-
-After activating backend, move now to frontend of
-Benefit-app via
-
-`cd Drive:/path/to/benefit-app/frontend`
-
-In this directory, you need first install all required 
-libraries and dependencies with simple command
-
-`npm install`
-
-You can check all installed dependencies
-via command:
-
-`npm ls`
-
-You should have following dependencies
-installed in the frontend
-
-![image](https://github.com/user-attachments/assets/510ac312-d7a0-403e-b71f-f4d97d37563b)
-[image: list of frontend dependencies]
-
-Afterward, you can now run the frontend
-with command:
-
-`npm run dev`
-
-**g) Opening the application in web browser.**
-
-After setting up all above mentioned steps, you should now 
-have Benefit-app actively and locally running in your workstation.
-You can open the Benefit-app in web browser
-via following URL:
-
-´http://localhost:5173/login´
-
-You should get similar web page as the below picture:
-
-![image](https://github.com/user-attachments/assets/bd45cd16-f755-4630-8a55-df97ca172225)
-[image: the application]
+Please read frontend.md manual (https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/frontend.md) 
+for instruction of activating Benefit-app's frontend.
