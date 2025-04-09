@@ -12,7 +12,9 @@ https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/backend_setu
 
 3. Navigate to frontend project root via command:
 
-`cd benefit-app/frontend`
+```sh
+cd benefit-app/frontend`
+```
 
 4. Install frontend dependencies:
     ```sh
@@ -22,7 +24,9 @@ https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/backend_setu
 You can check all installed dependencies
 via command:
 
-`npm ls`
+```sh
+npm ls
+```
 
 You should have following dependencies
 installed in the frontend
@@ -37,6 +41,7 @@ installed in the frontend
     2. Add the following environment variable: VITE_API_URL. Its value should match the locally running backend development server URL e.g. VITE_API_URL = http://localhost:8080
 
 6. Start the frontend development server:
+
     ```sh
     npm run dev
     ```
