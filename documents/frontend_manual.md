@@ -33,27 +33,27 @@ npm ls
 You should have following dependencies
 installed in the frontend:
 
-+-- @eslint/js@9.18.0
-+-- @fortawesome/fontawesome-svg-core@6.7.2
-+-- @fortawesome/free-solid-svg-icons@6.7.2
-+-- @fortawesome/react-fontawesome@0.2.2
-+-- @tailwindcss/vite@4.0.0
-+-- @types/react-dom@18.3.5
-+-- @types/react@18.3.18
-+-- @vitejs/plugin-react@4.3.4
-+-- eslint-plugin-react-hooks@5.1.0
-+-- eslint-plugin-react-refresh@0.4.18
-+-- eslint@9.18.0
-+-- frontend@0.0.0 -> .\
-+-- globals@15.14.0
-+-- prettier@3.4.2
-+-- react-dom@18.3.1
-+-- react-router@7.1.3
-+-- react@18.3.1
-+-- tailwindcss@4.0.0
-+-- typescript-eslint@8.21.0
-+-- typescript@5.6.3
-`-- vite@6.0.11
+* @eslint/js@9.18.0
+* @fortawesome/fontawesome-svg-core@6.7.2
+* @fortawesome/free-solid-svg-icons@6.7.2
+* @fortawesome/react-fontawesome@0.2.2
+* @tailwindcss/vite@4.0.0
+* @types/react-dom@18.3.5
+* @types/react@18.3.18
+* @vitejs/plugin-react@4.3.4
+* eslint-plugin-react-hooks@5.1.0
+* eslint-plugin-react-refresh@0.4.18
+* eslint@9.18.0
+* frontend@0.0.0 -> .\
+* globals@15.14.0
+* prettier@3.4.2
+* react-dom@18.3.1
+* react-router@7.1.3
+* react@18.3.1
+* tailwindcss@4.0.0
+* typescript-eslint@8.21.0
+* typescript@5.6.3
+* vite@6.0.11
 
 5. Setup environment variables:
     1. Create a file called .env in the frontend project root.
