@@ -2,11 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import {fetchAllProjects, fetchProject, updateProject} from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import {
-  Project,
-  ProjectWithUpdate,
-  TGenericComponentNoId,
-} from "../lib/types.ts";
+import { Project, ProjectWithUpdate, TGenericComponentNoId } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
@@ -14,6 +10,7 @@ import useTranslations from "../hooks/useTranslations.ts";
 import CreateCurrentDate from "../api/date.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
+import ConfirmModal from "./ConfirmModal.tsx";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -26,6 +23,8 @@ export default function ProjectPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
+
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
   const translation = useTranslations().projectPage;
   const navigate = useNavigate();
@@ -75,16 +74,14 @@ export default function ProjectPage() {
   };
 
   const deleteFunctionalComponent = async (componentId: number) => {
-    if (window.confirm("Oletko varma, että haluat poistaa funktionaalisen komponentin?")) {
-      if (project) {
-        const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
-        const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
-        try {
-          const updatedProject = await updateProject(sessionToken, filteredProject);
-          setProject(updatedProject);
-        } catch (err) {
-          console.error(err);
-        }
+    if (project) {
+      const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
+      const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
+      try {
+        const updatedProject = await updateProject(sessionToken, filteredProject);
+        setProject(updatedProject);
+      } catch (err) {
+        console.error(err);
       }
     }
   };
@@ -102,10 +99,10 @@ export default function ProjectPage() {
     }
   };
 
-  const saveProjectVersion = async (projectVersion: number) => {
+  const saveProjectVersion = async () => {
     if (project) {
-      if (window.confirm(`${translation.saveVersionWarningBeginning}${projectVersion}?${translation.saveVersionWarningEnd}`)) {
-      saveProject(); // Save project before creating a new version if the user forgets to save their changes. Possibly do this with automatic saving instead.
+      
+      saveProject(); //TODO: Automatic saving instead?
       try {
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
         const updatedProjects = await fetchAllProjects(sessionToken);
@@ -115,7 +112,6 @@ export default function ProjectPage() {
         console.error(err);
       }
     }
-  }
   };
 
   return (
@@ -148,7 +144,7 @@ export default function ProjectPage() {
             </button>
             <button
               className="bg-fisma-blue hover:bg-fisma-gray text-white py-4 cursor-pointer w-100 mb-2 fixed top-35"
-              onClick={() => saveProjectVersion(project.version)}
+              onClick={() => setConfirmModalOpen(true)}
             >
               {translation.saveProjectAsVersion}{project.version}
             </button>
@@ -159,13 +155,21 @@ export default function ProjectPage() {
               {translation.newFunctionalComponent}
             </button>
               {project.functionalComponents.length > 0 && (
-                <FunctionalPointSummary project={project} />
+                <div className="mt-50">
+                  <FunctionalPointSummary project={project} />
+                </div>
               )}
           </div>
         </>
       ) : (
-        <p>{translation.noProject}SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS</p>
+        <p>{translation.noProject}</p> //TODO: This does not show!
       )}
+      <ConfirmModal
+        message={`${translation.saveVersionWarningBeginning} ${project?.version}? ${translation.saveVersionWarningEnd}`}
+        open={isConfirmModalOpen}
+        setOpen={setConfirmModalOpen}
+        onConfirm={() => saveProjectVersion()}
+      />
     </div>
   );
 }

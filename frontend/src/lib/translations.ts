@@ -92,14 +92,15 @@ export const translations = {
             classNamePlaceholder: "Select Classname",
             componentTypePlaceholder: "Select Component Type",
             degreeOfCompletionPlaceholder: "Degree of Completion",
+            confirmDeleteMessage: "Are you sure you want to delete component"
         },
         projectPage: {
             saveProject: "Save Project",
             newFunctionalComponent: "New Functional Component",
             noProject: "No project information to show!",
             saveProjectAsVersion: "Save project as version ",
-            saveVersionWarningBeginning: "Are you sure you want to save the project as version ",
-            saveVersionWarningEnd: " Older versions cannot be modified.",
+            saveVersionWarningBeginning: "Are you sure you want to save the project as version",
+            saveVersionWarningEnd: "Older versions cannot be modified.",
             projectSaved: "Project saved!"
         },
         functionalPointSummary: {
@@ -196,14 +197,15 @@ export const translations = {
             classNamePlaceholder: "Valitse toimintoluokka",
             componentTypePlaceholder: "Valitse toimintotyyppi",
             degreeOfCompletionPlaceholder: "Valmistumisaste",
+            confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin"
         },
         projectPage: {
             saveProject: "Tallenna projekti",
             newFunctionalComponent: "Uusi funktionaalinen komponentti",
             noProject: "Ei näytettäviä projektitietoja!",
             saveProjectAsVersion: "Tallenna projekti versiona ",
-            saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona ",
-            saveVersionWarningEnd: " Vanhoja versioita ei voi enää muokata.",
+            saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona",
+            saveVersionWarningEnd: "Vanhoja versioita ei voi enää muokata.",
             projectSaved: "Projekti tallennettu!"
         },
         functionalPointSummary: {
