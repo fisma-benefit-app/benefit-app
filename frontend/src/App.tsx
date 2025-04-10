@@ -12,7 +12,7 @@ export default function App() {
   return (
     <>
       <Header />
-      <main className="flex items-center justify-center min-h-screen">
+      <main>
         {loadingAuth ? (
           <LoadingSpinner/>
         ) : (

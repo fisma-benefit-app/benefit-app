@@ -5,7 +5,7 @@ type ProjectsContext = {
     projects: Project[];
     loading: boolean;
     error: string;
-    handleDelete: (projectId: number, projectName: string) => Promise<void>;
+    handleDelete: (projectId: number) => Promise<void>;
     setProjects: (projects: Project[]) => void;
   };
 

@@ -60,7 +60,7 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
 
   const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
   return (
-    <div className="flex flex-col gap-3 border-2 my-5 p-4 sticky top-60">
+    <div className="flex flex-col border-2 my-5 p-4 sticky top-60">
       <div>
         {getGroupedFunctionalComponents(project.functionalComponents).map((group) => {
 

@@ -93,14 +93,14 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           <p>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</p>
           <button
             onClick={() => setIsCollapsed((prev) => !prev)}
-            className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white py-1 px-3 items-center gap-1"
+            className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white py-3 px-4 items-center gap-1"
           >
             <span className={`inline-block text-1xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
               <FontAwesomeIcon icon={faCaretDown} />
             </span>
           </button>
           <button
-            className="bg-fisma-red hover:brightness-130 cursor-pointer text-white py-1 px-3"
+            className="bg-fisma-red hover:brightness-130 cursor-pointer text-white py-3 px-4"
             onClick={() => deleteFunctionalComponent(component.id)}
           >
             <FontAwesomeIcon icon={faTrash} />

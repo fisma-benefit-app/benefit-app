@@ -27,14 +27,12 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     getAllProjects();
   }, [sessionToken]);
 
-  const handleDelete = async (projectId: number, projectName: string) => {
-    if (window.confirm(`Oletko varma, että haluat poistaa projektin "${projectName}"?`)) {
-      try {
-        await deleteProject(sessionToken, projectId);
-        setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unexpected error occurred while trying to delete project!");
-      }
+  const handleDelete = async (projectId: number) => {
+    try {
+      await deleteProject(sessionToken, projectId);
+      setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unexpected error occurred while trying to delete project!");
     }
   };
 

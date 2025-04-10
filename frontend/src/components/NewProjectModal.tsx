@@ -4,6 +4,7 @@ import {createProject, fetchAllProjects} from "../api/project.ts";
 import { useNavigate } from "react-router";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
+import DotLoadingSpinner from "./DotLoadingSpinner.tsx";
 
 interface NewProjectFormProps {
   open: boolean;
@@ -74,15 +75,14 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
         </h2>
 
         <div className="h-8 mb-4 flex items-center justify-center">
-          {error && (
-            <label className={`text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showError ? 'opacity-100' : 'opacity-0'}`}>
-              {error}
-            </label>
-          )}
-          {loading && (
-            <svg className="animate-spin h-5 w-5 mr-2 border-white border-2 rounded-full" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" fill="none" strokeWidth="4" strokeDasharray="31.4" strokeLinecap="round"></circle>
-            </svg>
+          {loading ? (
+            <DotLoadingSpinner/>
+          ) : (
+            error && (
+              <label className={`text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showError ? 'opacity-100' : 'opacity-0'}`}>
+                {error}
+              </label>
+            )
           )}
         </div>
 
@@ -104,13 +104,13 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
               type="button"
               disabled={loading}
               onClick={() => { setOpen(false); setName(""); }}
-              className="bg-fisma-dark-blue p-2">
+              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 disabled:brightness-70 p-2">
               {translation.cancel}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="bg-fisma-dark-blue text-white p-2">
+              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 disabled:brightness-70 p-2">
               {translation.createNew}
             </button>
           </div>

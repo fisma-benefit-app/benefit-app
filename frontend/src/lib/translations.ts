@@ -13,6 +13,10 @@ export const translations = {
             forgotPassword: "Did you forget password?",
             login: "Login"
         },
+        confirmModal: {
+            cancel: "Cancel",
+            confirm: "Confirm"
+        },
         newProjectModal: {
             error: "Project needs a name!",
             header: "Create a new project",
@@ -118,6 +122,10 @@ export const translations = {
             rememberMe: "Muista minut",
             forgotPassword: "Unohditko salasanan?",
             login: "Kirjaudu"
+        },
+        confirmModal: {
+            cancel: "Peruuta",
+            confirm: "Vahvista"
         },
         newProjectModal: {
             error: "Projekti tarvitsee nimen!",

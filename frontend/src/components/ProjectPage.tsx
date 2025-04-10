@@ -119,7 +119,7 @@ export default function ProjectPage() {
   };
 
   return (
-    <div className="gap-5 flex justify-center my-20">
+    <div className="flex gap-5 justify-center my-15">
       {loadingProject ? (
         <LoadingSpinner/>
       ) : error ? (
@@ -140,33 +140,31 @@ export default function ProjectPage() {
             })}
           </div>
           <div className="my-5 flex flex-col">
-            {/* Create functionality for this button */}
             <button
-              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
+              className="bg-fisma-blue hover:bg-fisma-gray text-white py-4 cursor-pointer w-100 mb-2 fixed top-20"
               onClick={saveProject}
             >
               {translation.saveProject}
             </button>
             <button
-              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
+              className="bg-fisma-blue hover:bg-fisma-gray text-white py-4 cursor-pointer w-100 mb-2 fixed top-35"
               onClick={() => saveProjectVersion(project.version)}
             >
               {translation.saveProjectAsVersion}{project.version}
             </button>
             <button
               onClick={createFunctionalComponent}
-              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer my-2 sticky top-40"
+              className="bg-fisma-blue hover:bg-fisma-gray text-white py-4 cursor-pointer w-100 mb-2 fixed top-50"
             >
               {translation.newFunctionalComponent}
             </button>
-            {/* Render summary only if project has functional components */}
-            {project.functionalComponents.length > 0 && (
-              <FunctionalPointSummary project={project} />
-            )}
+              {project.functionalComponents.length > 0 && (
+                <FunctionalPointSummary project={project} />
+              )}
           </div>
         </>
       ) : (
-        <p>{translation.noProject}</p>
+        <p>{translation.noProject}SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS</p>
       )}
     </div>
   );
