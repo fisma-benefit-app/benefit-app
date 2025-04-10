@@ -4,12 +4,14 @@ import useAppUser from "../hooks/useAppUser.tsx";
 import {useEffect, useState} from "react";
 import { deleteProject, fetchAllProjects} from "../api/project.ts";
 import { ProjectsContext } from "./ProjectsContext.ts";
+import useTranslations from "../hooks/useTranslations.ts";
 
 export default function ProjectsProvider({children,}: { children: React.ReactNode; }) {
   const { sessionToken } = useAppUser();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const translation = useTranslations().projectList;
 
   useEffect(() => {
     const getAllProjects = async () => {
@@ -28,7 +30,7 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
   }, [sessionToken]);
 
   const handleDelete = async (projectId: number, projectName: string) => {
-    if (window.confirm(`Oletko varma, että haluat poistaa projektin "${projectName}"?`)) {
+    if (window.confirm(`${translation.confirmDelete} "${projectName}"?`)) {
       try {
         await deleteProject(sessionToken, projectId);
         setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));

@@ -9,14 +9,14 @@ import ProjectsProvider from "./context/ProjectsProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AppUserProvider>
-      <ProjectsProvider>
-        <LanguageProvider>
+    <LanguageProvider>
+      <AppUserProvider>
+        <ProjectsProvider>
           <BrowserRouter>
             <App />
           </BrowserRouter>
-        </LanguageProvider>
-      </ProjectsProvider>
-    </AppUserProvider>
+        </ProjectsProvider>
+      </AppUserProvider>
+    </LanguageProvider>
   </StrictMode>,
 );

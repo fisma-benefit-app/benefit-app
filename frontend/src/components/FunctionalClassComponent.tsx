@@ -153,10 +153,10 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                   id="degreeOfCompletion"
                   placeholder={translation.degreeOfCompletionPlaceholder}
                   type="number"
-                  min={0.01}
+                  min={0}
                   max={1}
                   step={0.01}
-                  value={component.degreeOfCompletion || ""}
+                  value={component.degreeOfCompletion ?? ""}
                   onChange={handleComponentChange}
                 />
               </>
@@ -180,7 +180,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                     <input
                       className="w-16 border-2 border-gray-400 p-1"
                       id={key}
-                      type="text"
+                      type="number"
                       value={value as number}
                       onChange={handleComponentChange}
                     />
