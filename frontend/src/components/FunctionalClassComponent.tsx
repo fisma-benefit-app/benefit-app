@@ -62,13 +62,19 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
 
   const handleComponentChange = (e: ChangeEvent<HTMLInputElement>) => {
     let updatedComponent;
+    let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["comment"].includes(e.target.id)) {
-      updatedComponent = { ...component, [e.target.id]: e.target.value };
+      updatedComponent = { ...component, [e.target.id]: value };
     } else {
-      updatedComponent = { ...component, [e.target.id]: Number(e.target.value) };
+      if (e.target.id === "degreeOfCompletion") {
+        let num = parseFloat(value);
+        if (num < 0) value = "0";
+        if (num > 1) value = "1";
+      }
+      updatedComponent = { ...component, [e.target.id]: value };
     }
     const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
     const updatedProject = { ...project, functionalComponents: updatedComponents };
@@ -147,7 +153,6 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                     );
                   })}
                 </select>
-
                 <input
                   className="w-40 border-2 border-gray-400 p-1"
                   id="degreeOfCompletion"
