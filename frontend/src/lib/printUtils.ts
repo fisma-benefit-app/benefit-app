@@ -52,10 +52,10 @@ const dateLocalizer = (insertedDate: string) => {
   }).replace("klo", "")
 }
 
-
 //  calculate-funktiot kopioituna (tätä vois yksinkertaistaa?)
-const calculateFunctionalComponentPoints = (component: TGenericComponent) => {
-  if (!component.className || !component.componentType) return 0
+const calculateFunctionalComponentPoints = (component: TGenericComponent | null) => {
+  if (!component) return 0;
+  if (!component.className || !component.componentType) return 0;
   const calculateFunction = getCalculateFuntion(component.className);
   //@ts-expect-error(TODO - component should be typed before it goes to the calculation)
   return calculateFunction ? calculateFunction(component) : 0;
@@ -69,7 +69,6 @@ const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]
   }
   return totalPoints;
 };
-
 
 export const createPdf = (project: Project, oldProject: Project, translation: {
   projectReport: string,
@@ -95,11 +94,6 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
   const previousComponentsMap = Object.fromEntries(
       oldProject.functionalComponents.map(comp => [comp.id, comp])
   );
-
-/*
-  console.log(project);
-  console.log(oldProject);
-*/
 
   const pdfContent = `
     <html>
@@ -146,22 +140,27 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
           ${project.functionalComponents.map(comp => {
             
             // This returns an error "Type null cannot be used as an index type.", but it works for now
-            const prevComp = previousComponentsMap[comp.previousFCId] || {};
+
+            let prevComp: TGenericComponent | null = null;
+
+            if (comp.previousFCId) {
+              prevComp = previousComponentsMap[comp.previousFCId];
+            }
             
             return `
             <tr>
-              <td>${valueComparer(comp.className, prevComp.className)}</td>
-              <td>${valueComparer(comp.componentType, prevComp.componentType)}</td>
-              <td>${valueComparer(comp.dataElements, prevComp.dataElements)}</td>
-              <td>${valueComparer(comp.readingReferences, prevComp.readingReferences)}</td>
-              <td>${valueComparer(comp.writingReferences, prevComp.writingReferences)}</td>
-              <td>${valueComparer(comp.operations, prevComp.operations)}</td>
-              <td>${valueComparer(comp.degreeOfCompletion, prevComp.degreeOfCompletion)}</td>
+              <td>${valueComparer(comp.className, prevComp?.className || null)}</td>
+              <td>${valueComparer(comp.componentType, prevComp?.componentType || null)}</td>
+              <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
+              <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
+              <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
+              <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
+              <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
               <td>${valueComparer(
-                  calculateFunctionalComponentPoints(comp || {}).toFixed(2),
-                  calculateFunctionalComponentPoints(prevComp).toFixed(2)
+                  calculateFunctionalComponentPoints(comp || null).toFixed(2),
+                  calculateFunctionalComponentPoints(prevComp || null).toFixed(2)
             )}</td>
-              <td>${valueComparer(comp.comment, prevComp.comment)}</td>
+              <td>${valueComparer(comp.comment, prevComp?.comment || null)}</td>
             </tr>
             `;
           }).join('')}
@@ -176,7 +175,7 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
 
   const printingWindow = window.open("", "_blank", "width=800,height=600");
   if (printingWindow) {
-    printingWindow.document.write(pdfContent);
+    printingWindow.document.documentElement.innerHTML = pdfContent;
     printingWindow.document.close();
     printingWindow.print();
     setTimeout(() => printingWindow.close(), 500);
