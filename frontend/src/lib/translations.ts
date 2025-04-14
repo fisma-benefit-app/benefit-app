@@ -31,6 +31,25 @@ export const translations = {
             versionCreatedAt: "Version Created at",
             noProjectsCouldBeFound: "No projects could be found."
         },
+        printUtils: {
+            projectReport: "Project Report",
+            projectId: "Project ID",
+            version: "Version",
+            createdDate: "Created Date",
+            versionCreatedDate: "Version Created Date",
+            lastEditedDate: "Last Edited Date",
+            className: "Class Name",
+            componentType: "Component Type",
+            dataElements: "Data Elements",
+            readingReferences: "Reading References",
+            writingReferences: "Writing References",
+            functionalMultiplier: "Functional Multiplier",
+            operations: "Operations",
+            degreeOfCompletion: "Degree Of Completion",
+            functionalPoints: "Functional Points",
+            comment: "Comment",
+            totalFunctionalPoints: "Total Functional Points",
+        },
         functionalClassComponent: {
             //creates an object where keys and their values are the same
             classNameOptions: Object.fromEntries(
@@ -97,7 +116,8 @@ export const translations = {
             saveProjectAsVersion: "Save project as version ",
             saveVersionWarningBeginning: "Are you sure you want to save the project as version ",
             saveVersionWarningEnd: " Older versions cannot be modified.",
-            projectSaved: "Project saved!"
+            projectSaved: "Project saved!",
+            selectProjectVersion: "Select Project Version"
         },
         functionalPointSummary: {
             total: "Total",
@@ -137,6 +157,25 @@ export const translations = {
             modifiedAt: "Muokattu",
             versionCreatedAt: "Versio Luotu",
             noProjectsCouldBeFound: "Projekteja ei löytynyt."
+        },
+        printUtils: {
+            projectReport: "Projektiraportti",
+            projectId: "Projektin ID",
+            version: "Versio",
+            createdDate: "Luotu",
+            versionCreatedDate: "Versio Luotu",
+            lastEditedDate: "Muokattu",
+            className: "Toiminto-\nluokka",
+            componentType: "Toiminto-\ntyyppi",
+            dataElements: "Tieto-\nelementit",
+            readingReferences: "Luku-\nviittaukset",
+            writingReferences: "Kirjoitus-\nviittaukset",
+            functionalMultiplier: "Toiminto-\nkerroin",
+            operations: "Operaatiot",
+            degreeOfCompletion: "Valmistumis-\naste",
+            functionalPoints: "Toiminto-\npisteet",
+            comment: "Kommentti",
+            totalFunctionalPoints: "Toimintopisteet Yhteensä",
         },
         functionalClassComponent: {
             classNameOptions: {
@@ -198,7 +237,8 @@ export const translations = {
             saveProjectAsVersion: "Tallenna projekti versiona ",
             saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona ",
             saveVersionWarningEnd: " Vanhoja versioita ei voi enää muokata.",
-            projectSaved: "Projekti tallennettu!"
+            projectSaved: "Projekti tallennettu!",
+            selectProjectVersion: "Valitse Projektiversio"
         },
         functionalPointSummary: {
             total: "Yhteensä",
