@@ -10,6 +10,11 @@
     /* --drop-shadow-fisma-logo: 0 2px 2px rgb(255 255 255 / 0.30) */
 }
 
+button:disabled {
+  filter: brightness(70%);
+  pointer-events: none;
+}
+
 :root {
     font-family: 'Roboto Slab', serif;
 }

@@ -14,7 +14,6 @@ import ConfirmModal from "./ConfirmModal.tsx";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
-//maybe better placeholder component when project is being loaded
 export default function ProjectPage() {
   const { sessionToken } = useAppUser();
   const { selectedProjectId } = useParams();
@@ -114,62 +113,72 @@ export default function ProjectPage() {
     }
   };
 
+  if (loadingProject) return <LoadingSpinner/>;
+
   return (
-    <div className="flex gap-5 justify-center my-15">
-      {loadingProject ? (
-        <LoadingSpinner/>
-      ) : error ? (
-        <p>{error}</p>
-      ) : project ? (
-        <>
-          <div>
-            {sortedComponents?.map((component) => {
-              return (
-                <FunctionalClassComponent
-                  project={project}
-                  setProject={setProject}
-                  component={component}
-                  deleteFunctionalComponent={deleteFunctionalComponent}
-                  key={component.id}
-                />
-              );
-            })}
+    <>
+      <div className="pl-5 pr-5">
+        <div className="flex justify-between">
+          <div className="w-[calc(100%-340px)] mt-15"> 
+            {project ? (//TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
+              <>
+                {sortedComponents?.map((component) => (
+                  <FunctionalClassComponent
+                    project={project}
+                    setProject={setProject}
+                    component={component}
+                    deleteFunctionalComponent={deleteFunctionalComponent}
+                    key={component.id}
+                  />
+                ))}
+              </>
+            ) : error ? (
+              <p>{error}</p>
+            ) : (
+              <p>En tee mitään</p>
+              //TODO: FIX
+            )}
           </div>
-          <div className="my-5 flex flex-col">
+        </div>
+      </div>
+  
+      <div className="fixed right-5 top-20 w-[320px]">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
             <button
-              className="bg-fisma-blue hover:bg-fisma-gray text-white py-4 cursor-pointer w-100 mb-2 fixed top-20"
+              disabled={!project?.functionalComponents?.length}
+              className="bg-fisma-blue hover:bg-fisma-gray text-white py-3 px-4 cursor-pointer"
               onClick={saveProject}
             >
               {translation.saveProject}
             </button>
             <button
-              className="bg-fisma-blue hover:bg-fisma-gray text-white py-4 cursor-pointer w-100 mb-2 fixed top-35"
+              disabled={!project?.functionalComponents?.length}
+              className="bg-fisma-blue hover:bg-fisma-gray text-white py-3 px-4 cursor-pointer"
               onClick={() => setConfirmModalOpen(true)}
             >
-              {translation.saveProjectAsVersion}{project.version}
+              {translation.saveProjectAsVersion} {project?.version}
             </button>
             <button
               onClick={createFunctionalComponent}
-              className="bg-fisma-blue hover:bg-fisma-gray text-white py-4 cursor-pointer w-100 mb-2 fixed top-50"
+              className="bg-fisma-blue hover:bg-fisma-gray text-white py-3 px-4 cursor-pointer"
             >
               {translation.newFunctionalComponent}
             </button>
-              {project.functionalComponents.length > 0 && (
-                <div className="mt-50">
-                  <FunctionalPointSummary project={project} />
-                </div>
-              )}
           </div>
-        </>
-      ) : (
-        <p>{translation.noProject}</p> //TODO: This does not show!
-      )}
+  
+          {Array.isArray(project?.functionalComponents) && project.functionalComponents.length > 0 && (
+              <FunctionalPointSummary project={project} />
+          )}
+        </div>
+      </div>
+  
       <ConfirmModal
         message={`${translation.saveVersionWarningBeginning} ${project?.version}? ${translation.saveVersionWarningEnd}`}
         open={isConfirmModalOpen}
         setOpen={setConfirmModalOpen}
         onConfirm={() => saveProjectVersion()}
       />
-    </div>
+    </>
   );
 }

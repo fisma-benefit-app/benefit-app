@@ -113,7 +113,7 @@ export default function LoginForm() {
 
                 <button
                     type="submit"
-                    className="w-full min-h-[42px] p-2 text-white bg-fisma-dark-blue hover:brightness-70 disabled:brightness-70 flex justify-center items-center cursor-pointer"
+                    className="w-full min-h-[42px] p-2 text-white bg-fisma-dark-blue hover:brightness-70 flex justify-center items-center cursor-pointer"
                     disabled={loading}
                 >
                     {loading ? (

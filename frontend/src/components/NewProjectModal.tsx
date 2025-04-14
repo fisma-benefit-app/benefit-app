@@ -68,7 +68,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[4px]">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[4px] z-999">
       <div className="bg-fisma-blue p-4 shadow-2xl lg w-96">
         <h2 className="text-white text-2xl font-bold text-center bg-fisma-dark-blue mb-4 -mx-4 -mt-4 px-4 py-2">
           {translation.header}
@@ -104,13 +104,13 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
               type="button"
               disabled={loading}
               onClick={() => { setOpen(false); setName(""); }}
-              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 disabled:brightness-70 p-2">
+              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2">
               {translation.cancel}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 disabled:brightness-70 p-2">
+              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2">
               {translation.createNew}
             </button>
           </div>
