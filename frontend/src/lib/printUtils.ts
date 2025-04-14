@@ -123,7 +123,7 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
           <p><strong>${translation.version}:</strong> ${valueComparer(project.version, oldProject.version)}</p>
           <p><strong>${translation.createdDate}:</strong> ${valueComparer(dateLocalizer(project.createdDate), dateLocalizer(oldProject.createdDate))}</p>
           <p><strong>${translation.versionCreatedDate}:</strong> ${valueComparer(dateLocalizer(project.versionDate), dateLocalizer(oldProject.versionDate))}</p>
-          <p><strong>${translation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.editedDate), dateLocalizer(oldProject.createdDate))}</p>
+          <p><strong>${translation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.editedDate), dateLocalizer(oldProject.editedDate))}</p>
         </div>
         <table>
           <tr>
