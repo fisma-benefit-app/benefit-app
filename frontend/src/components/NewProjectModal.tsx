@@ -13,7 +13,7 @@ interface NewProjectFormProps {
 export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) {
   const navigate = useNavigate();
   const { sessionToken } = useAppUser();
-  const { projects, setProjects } = useProjects();
+  const { sortedProjects, setProjects } = useProjects();
   const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -32,7 +32,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
     e.preventDefault();
     setLoading(true);
 
-    const nameTaken = projects.some(project => project.projectName.toLowerCase() === name.toLowerCase());
+    const nameTaken = sortedProjects.some(project => project.projectName.toLowerCase() === name.toLowerCase());
 
     if (!name.trim() || nameTaken) {
 
