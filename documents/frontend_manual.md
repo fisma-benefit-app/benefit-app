@@ -2,22 +2,22 @@
 
 ## 1. Instructions for setting frontend up locally
 
-1. Clone the repository:
+**1.** Clone the repository:
 
 ```sh
 git clone https://github.com/fisma-benefit-app/benefit-app.git
 ```
 
-2. Setup and run the spring boot backend (see **backend_setup_manula** -documentation:
+**2.** Setup and run the spring boot backend (see **backend_setup_manula** -documentation:
 https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/backend_setup_manual.md).
 
-3. Navigate to frontend project root via command:
+**3.** Navigate to frontend project root via command:
 
 ```sh
 cd benefit-app/frontend`
 ```
 
-4. Install frontend dependencies:
+**4.** Install frontend dependencies:
 
 ```sh
 npm install
@@ -55,17 +55,17 @@ installed in the frontend:
 * typescript@5.6.3
 * vite@6.0.11
 
-5. Setup environment variables:
+**5.** Setup environment variables:
     1. Create a file called .env in the frontend project root.
     2. Add the following environment variable: VITE_API_URL. Its value should match the locally running backend development server URL e.g. VITE_API_URL = http://localhost:8080
 
-6. Start the frontend development server:
+**6.** Start the frontend development server:
 
 ```sh
 npm run dev
 ```
 
-7. Opening the application in web browser:
+**7.** Opening the application in web browser:
 
 Open the Benefit-app's frontend in web browser
 via following URL:
