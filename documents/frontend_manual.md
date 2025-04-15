@@ -56,6 +56,7 @@ installed in the frontend:
 * vite@6.0.11
 
 **5.** Setup environment variables:
+
     1. Create a file called .env in the frontend project root.
     2. Add the following environment variable: VITE_API_URL. Its value should match the locally running backend development server URL e.g. VITE_API_URL = http://localhost:8080
 
