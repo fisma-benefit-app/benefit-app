@@ -156,7 +156,7 @@ export default function ProjectPage() {
               );
             })}
           </div>
-          <div className="my-5 flex flex-col">
+          <div className="sticky top-20 z-10 flex flex-col gap-4 bg-white p-2 shadow-md rounded-xl">
             <button
               className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-gray cursor-pointer" : "bg-fisma-gray"} text-white px-4 py-4 mb-2 sticky top-20`}
               onClick={saveProject}

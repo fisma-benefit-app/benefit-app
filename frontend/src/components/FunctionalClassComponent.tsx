@@ -94,6 +94,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           <p>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</p>
           <p>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</p>
           <button
+            type="button"
             onClick={() => setIsCollapsed((prev) => !prev)}
             className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer rounded text-white py-1 px-3 items-center gap-1"
           >
@@ -102,6 +103,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             </span>
           </button>
           <button
+            type="button"
             className={`${isLatest ? "bg-fisma-red hover:brightness-130 cursor-pointer" : "bg-fisma-gray"} rounded text-white py-1 px-3`}
             onClick={() => deleteFunctionalComponent(component.id)}
             disabled={!isLatest}
