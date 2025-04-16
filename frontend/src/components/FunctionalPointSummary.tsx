@@ -97,7 +97,7 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
         </b>
       </div>
   
-      <div className="flex flex-col sm:flex-row gap-2 mt-3">
+      <div className="flex flex-row gap-2 mt-3 justify-center">
         <button
           onClick={() => downloadProjectComponentsCsv(project)}
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white cursor-pointer text-sm sm:text-base"

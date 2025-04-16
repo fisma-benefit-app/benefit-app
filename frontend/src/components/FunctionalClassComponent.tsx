@@ -118,12 +118,27 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
   
         {isCollapsed && (
           <>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 items-center">
+            <label className="font-medium">
+              {translation.degreeOfCompletionPlaceholder}:
+            </label>
+            <input
+              id="degreeOfCompletion"
+              type="number"
+              min={0.01}
+              max={1}
+              step={0.01}
+              value={component.degreeOfCompletion || ""}
+              onChange={handleComponentChange}
+              className="border-2 border-gray-400 w-[225px] p-2 text-base"
+              placeholder="0"
+            />
+
+            <div className="flex flex-row flex-wrap gap-3 items-center">
               <select
                 id="className"
                 value={component.className || ""}
                 onChange={handleClassNameChange}
-                className="border-2 border-gray-400 p-2 flex-1 min-w-[180px] text-sm sm:text-base"
+                className="border-2 border-gray-400 p-2 flex-1 min-w-[180px] text-base"
               >
                 <option disabled value="">{translation.classNamePlaceholder}</option>
                 {classNameOptions.map((className) => (
@@ -132,48 +147,40 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                   </option>
                 ))}
               </select>
-  
+              
               {component.className && (
                 <>
-                  <select
-                    id="componentType"
-                    value={component.componentType || ""}
-                    onChange={handleOptionTypeChange}
-                    className="border-2 border-gray-400 p-2 flex-1 min-w-[180px] text-sm sm:text-base"
-                  >
-                    <option disabled value="">{translation.componentTypePlaceholder}</option>
-                    {componentTypeOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {translation.componentTypeOptions[option as ComponentType]}
+                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                    <select
+                      id="componentType"
+                      value={component.componentType || ""}
+                      onChange={handleOptionTypeChange}
+                      className="border-2 border-gray-400 p-2 text-base"
+                    >
+                      <option disabled value="">
+                        {translation.componentTypePlaceholder}
                       </option>
-                    ))}
-                  </select>
-  
-                  <input
-                    id="degreeOfCompletion"
-                    type="number"
-                    min={0.01}
-                    max={1}
-                    step={0.01}
-                    value={component.degreeOfCompletion || ""}
-                    onChange={handleComponentChange}
-                    className="w-[80px] sm:w-[100px] border-2 border-gray-400 p-2 text-sm sm:text-base"
-                    placeholder={translation.degreeOfCompletionPlaceholder}
-                  />
+                      {componentTypeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {translation.componentTypeOptions[option as ComponentType]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </>
               )}
             </div>
   
             {component.className && (
-              <div className="flex flex-wrap gap-4 mt-4">
+              <div className="flex flex-wrap gap-2">
                 {Object.entries(component)
                   .filter(
                     ([key, value]) =>
                       ["dataElements", "readingReferences", "writingReferences", "operations"].includes(key) && value !== null,
                   )
                   .map(([key, value]) => (
-                    <div key={key} className="flex flex-col gap-1 items-start min-w-[80px]">
-                      <label htmlFor={key} className="font-medium text-sm sm:text-base">
+                    <div key={key} className="flex flex-col gap-1 items-start">
+                      <label htmlFor={key} className="font-medium">
                         {translation.parameters[key as CalculationParameter]}:
                       </label>
                       <input
@@ -181,7 +188,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                         type="text"
                         value={value as number}
                         onChange={handleComponentChange}
-                        className="w-full border-2 border-gray-400 p-2 text-sm sm:text-base"
+                        className="w-full border-2 border-gray-400 p-2"
                       />
                     </div>
                   ))}

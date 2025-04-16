@@ -28,6 +28,6 @@ input:focus {
 }
 
 /* This can be used to see where the element-boxes are. */
-/* * {*/
-/*    outline: 1px solid lime;*/
-/*} */
+/* * {
+ outline: 1px solid lime;
+} */
