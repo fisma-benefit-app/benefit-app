@@ -21,7 +21,7 @@ button:disabled {
 }
 
 input {
-    @apply text-fisma-dark-blue placeholder-gray-400 focus:outline-fisma-dark-blue;
+    @apply text-fisma-dark-blue placeholder-fisma-light-gray focus:outline-fisma-dark-blue;
 }
 
 input:focus {
