@@ -46,13 +46,13 @@ const Header = () => {
           {loggedIn && (
             <>
               <button
-                className="h-full text-lg px-5 hover:bg-fisma-gray"
+                className="h-full text-lg px-5 hover:bg-fisma-dark-blue"
                 onClick={() => navigate("/")}
               >
                 <FontAwesomeIcon icon={faHome} />
               </button>
               <button
-                className="h-full text-lg px-5 hover:bg-fisma-gray"
+                className="h-full text-lg px-5 hover:bg-fisma-dark-blue"
                 onClick={() => setProjectModalOpen(true)}
               >
                 <FontAwesomeIcon icon={faPlus} />
@@ -69,7 +69,7 @@ const Header = () => {
             </>
           )}
           <button
-            className="h-full w-15 text-lg px-5 hover:bg-fisma-gray"
+            className="h-full w-15 text-lg px-5 hover:bg-fisma-dark-blue"
             onClick={changeLanguage}
           >
             {language.toUpperCase()}

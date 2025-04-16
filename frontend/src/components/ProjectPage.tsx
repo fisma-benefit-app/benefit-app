@@ -135,8 +135,8 @@ export default function ProjectPage() {
             ) : error ? (
               <p>{error}</p>
             ) : (
-              <p>En tee mitään</p>
-              //TODO: FIX
+              <p></p>
+              //TODO: If no components are present show message
             )}
           </div>
         </div>
@@ -147,21 +147,21 @@ export default function ProjectPage() {
           <div className="flex flex-col gap-2">
             <button
               disabled={!project?.functionalComponents?.length}
-              className="bg-fisma-blue hover:bg-fisma-gray text-white py-3 px-4 cursor-pointer"
+              className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 cursor-pointer"
               onClick={saveProject}
             >
               {translation.saveProject}
             </button>
             <button
               disabled={!project?.functionalComponents?.length}
-              className="bg-fisma-blue hover:bg-fisma-gray text-white py-3 px-4 cursor-pointer"
+              className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 cursor-pointer"
               onClick={() => setConfirmModalOpen(true)}
             >
               {translation.saveProjectAsVersion} {project?.version}
             </button>
             <button
               onClick={createFunctionalComponent}
-              className="bg-fisma-blue hover:bg-fisma-gray text-white py-3 px-4 cursor-pointer"
+              className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 cursor-pointer"
             >
               {translation.newFunctionalComponent}
             </button>

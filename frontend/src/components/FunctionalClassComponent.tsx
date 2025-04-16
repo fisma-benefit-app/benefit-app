@@ -86,7 +86,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex-1 min-w-[200px]">
             <input
-              className="w-full border-2 border-gray-400 p-2 text-sm sm:text-base"
+              className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
               id="comment"
               placeholder={translation.commentPlaceholder}
               value={component.comment || ""}
@@ -94,7 +94,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             />
           </div>
   
-          <div className="flex flex-wrap gap-3 items-center justify-start sm:justify-end">
+          <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
             <div className="flex gap-2 text-sm sm:text-base">
               <span>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</span>
               <span>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</span>
@@ -102,12 +102,12 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             <div className="flex gap-2">
               <button
                 onClick={() => setIsCollapsed((prev) => !prev)}
-                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3"
+                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
               >
                 <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
               </button>
               <button
-                className="bg-fisma-red hover:brightness-110 text-white py-2 px-3"
+                className="bg-fisma-red hover:brightness-110 text-white py-2 px-3 cursor-pointer"
                 onClick={() => setConfirmModalOpen(true)}
               >
                 <FontAwesomeIcon icon={faTrash} />
@@ -129,7 +129,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               step={0.01}
               value={component.degreeOfCompletion || ""}
               onChange={handleComponentChange}
-              className="border-2 border-gray-400 w-[225px] p-2 text-base"
+              className="border-2 border-fisma-light-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base"
               placeholder="0"
             />
 
@@ -138,7 +138,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 id="className"
                 value={component.className || ""}
                 onChange={handleClassNameChange}
-                className="border-2 border-gray-400 p-2 flex-1 min-w-[180px] text-base"
+                className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base"
               >
                 <option disabled value="">{translation.classNamePlaceholder}</option>
                 {classNameOptions.map((className) => (
@@ -155,7 +155,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       id="componentType"
                       value={component.componentType || ""}
                       onChange={handleOptionTypeChange}
-                      className="border-2 border-gray-400 p-2 text-base"
+                      className="border-2 border-fisma-light-gray bg-white p-2 text-base"
                     >
                       <option disabled value="">
                         {translation.componentTypePlaceholder}
@@ -188,7 +188,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                         type="text"
                         value={value as number}
                         onChange={handleComponentChange}
-                        className="w-full border-2 border-gray-400 p-2"
+                        className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
                       />
                     </div>
                   ))}

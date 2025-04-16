@@ -100,13 +100,13 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
       <div className="flex flex-row gap-2 mt-3 justify-center">
         <button
           onClick={() => downloadProjectComponentsCsv(project)}
-          className="px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white cursor-pointer text-sm sm:text-base"
+          className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
         >
           CSV <FontAwesomeIcon icon={faDownload} />
         </button>
         <button
           onClick={() => createPdf(project)}
-          className="px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white cursor-pointer text-sm sm:text-base"
+          className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
         >
           PDF <FontAwesomeIcon icon={faDownload} />
         </button>

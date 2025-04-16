@@ -67,11 +67,11 @@ export default function ProjectList() {
               {filteredProjects.length > 0 ? (
                   filteredProjects.map((project) => (
                     <tr key={project.id}>
-                      <td className="border-2 border-gray-400 p-1">
+                      <td className="border-2 border-fisma-light-gray p-1">
                           {project.projectName}
                       </td>
-                      <td className="border-2 border-gray-400 p-1">v{project.version}</td>
-                      <td className="border-2 border-gray-400 p-1">
+                      <td className="border-2 border-fisma-light-gray p-1">v{project.version}</td>
+                      <td className="border-2 border-fisma-light-gray p-1">
                           {new Date(project.createdDate).toLocaleDateString("fi-FI", {
                               year: "numeric",
                               month: "2-digit",
