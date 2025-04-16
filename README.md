@@ -37,9 +37,14 @@ All-in-one repository for the Benefit application. Includes such as frontend, ba
 
 **What is Benefit application and what is it's main purpose?**
 
-Benefit application is a project by FisMA ry 2025. It is a software size mesurement program, 
-that will calculate function points of navigation and query, interfaces to/from other,
-inputs and outputs, etc.
+Benefit application, i.e. **_benefit-app_** is a software size mesurement program, 
+that will calculate function points of navigation and query, 
+interfaces to/from other, inputs and outputs, etc.
+
+FiSMA ry requested a working version of benefit-app from Haaga-Helia University 
+of Applied Sciences on Spring 2025. The working group were third year's Haaga-Helia's students,
+specialized on software development.
+
 
 ![fisma_frontend_home_page_14_02_2024](https://github.com/user-attachments/assets/50d90e91-6d70-4b11-b9be-ac36b82894ea)
 
@@ -47,11 +52,20 @@ Picture 1: A visual re-presentation of the Benefit application's UI. [Placeholde
 
 
 **Whom is application is made for?**
-Add explaination ...
+The application was made first and foremost staff of FiSMA ry.
 
+The application can be useful for experts, who want to easily calculate
+function points of other applications.
 
 **What are prerequisites?**
-Add explaniation ...
+We have a working live-version of Benefit-app for FiSMA ry's staff.
+
+For those who want locally activate Benefit-app,
+we have broadly explained all steps and prerequisites in our documents folder,
+especially 
+
+In short, we expect from local user to have background on Java with Gradle,
+React, command language interfaces and Docker.
 
 
 **Why only one repository for the project?**
@@ -74,30 +88,23 @@ The mathematical algorithm has the following logic...
 ## 3. Tools
 
 We have used following tools in the project, alphabetically:
-
-* 
-* 
-
+  
 * Figma for preliminary sketching UI design. 
 
 * Java with Gradle for backend.
 
 * Docker, due it will automatically install required languages and libraries 
-(e.g. PostgreSQL) for the new member.
-
-Thus it will save both time and hussle for future groups.  
+(e.g. PostgreSQL) for the new member. Thus it will save both time and hussle for future groups.  
 
 * PostgreSQL for the database. Everyone of our team has used SQL for databases. 
 Thus production will be most effective, when we are working with familiar language.
+We also used PostgreSQL over other SQL DBMS due product owner's wishes. 
 
-We used PostgreSQL over other SQL DBMS as product owner's wishes. 
-
-* Typescript for frontend.
-* 
 * Spring boot for backend.
 
-* Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding. 
+* Typescript for frontend.
 
+* Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding. 
 
 
 ---
@@ -106,7 +113,7 @@ We used PostgreSQL over other SQL DBMS as product owner's wishes.
 
 In short, frontend works following...
 
-Please read [add a frontend manual] from documents -directory for more information.
+Please read [add a frontend manual] from documents' directory for more information.
 
 ---
 
@@ -114,7 +121,7 @@ Please read [add a frontend manual] from documents -directory for more informati
 
 In short, backend works following...
 
-Please read [add a backend manual] from documents -directory for more information.
+Please read [add a backend manual] from documents' directory for more information.
 
 ---
 
