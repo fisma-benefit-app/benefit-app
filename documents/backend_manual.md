@@ -210,9 +210,12 @@ build.gradle -file in the backend.
 [IMAGE: build.gradle -file of Java language version]
 
 Depending which version of Java you have installed
-in your workstation, you must update code line 12:
+in your workstation, you must update code line 12
+in build.gradle file of backend:
 
 ```sh
+
+// benefit-app/backend/build.gradle
 languageVersion = JavaLanguageVersion.of([INSERT_NUMBER])
 ```
 
@@ -224,6 +227,8 @@ Java in our computers. Some of us had Java version 17,
 therefore `languageVersion = JavaLanguageVersion.of(17)`,
 while some had Java version 23, hence
 `languageVersion = JavaLanguageVersion.of(23)`.
+
+Note that default Java version is 17.
 
 Incorrect Java version number in the code line
 will cause errors in building phase.
