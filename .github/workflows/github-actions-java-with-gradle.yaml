@@ -1,0 +1,44 @@
+name: Second Github Actions Demo, Testing Java with Gradle (CI)
+run-name: ${{ github.actor }} is testing out Java With Gradle with github-actions-java-with-gradle.yaml 🚀
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: fisma_db
+          POSTGRES_PASSWORD: secret
+          POSTGRES_USER: myuser
+        ports:
+        - 5432:5432
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 23
+      uses: actions/setup-java@v4
+      with:
+        java-version: '23'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build
+
