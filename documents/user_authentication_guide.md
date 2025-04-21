@@ -17,7 +17,7 @@ Then we manually stored values for id, name
 and password of user accounts in our *data.sql* 
 file, *app_user* table at codeline 6.
 
-![img.png](../img/data_sql_app_user_table.png)
+![img.png](../img/images_for_manuals/data_sql_app_user_table.png)
 
 Image: Inserting value to app.user -table in data.sql file.
 
@@ -32,17 +32,17 @@ we have following important files handling user account's data in Java:
 
 AppUser.java has the constructor *AppUser*, which is used for ...
 
-![img.png](../img/data_sql_app_user_table.png)
+![img.png](../img/images_for_manuals/data_sql_app_user_table.png)
 Image: AppUser.java
 
 AppUserController.java controls...
 
-![img.png](../img/AppUserController_Java.png)
+![img.png](../img/images_for_manuals/AppUserController_Java.png)
 Image: AppUserController.java
 
 AppUserRepository.java handles...
 
-![img.png](../img/AppUserRepository_Java.png)
+![img.png](../img/images_for_manuals/AppUserRepository_Java.png)
 Image: AppUserRepository.java
 
 
