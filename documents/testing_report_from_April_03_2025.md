@@ -3,9 +3,11 @@
 This is a report from testing seminar together with Haaga-Helia University of Applied Sciences
 on the April 03 2025.
 
-The testing group consists of English speaking students. The course is Software Requirement Analysis.
+The testing group consists of English speaking students from the course Software Requirement Analysis. Hence they had no experience of writing systematical testing report.
 
-## Notes from testers. / Feedbacks
+Below list consists feedbacks and bugs, that were brought up during seminars.
+
+## Feedbacks & notes from students
 
 * The complete functional points is incorrectly TP. It should be FP.
 What tested: Opened one project in the selection screen of calculator in English UI.
@@ -38,8 +40,7 @@ What problem: The save buttons are mixing with summary box. Happens at mininimum
 
 * Comment disappears everytime when functional type is changed.
 
-![Comment_vanishes](https://github.com/user-attachments/assets/8ab516fe-a0d7-4d05-96dc-29e90883fd02)
-
+![Comment_vanishes.gif](img/images_testing_reports/Comment_vanishes.gif)
 
 
 

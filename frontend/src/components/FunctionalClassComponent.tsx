@@ -8,13 +8,14 @@ import ConfirmModal from "./ConfirmModal.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 
 type FunctionalClassComponentProps = {
-  component: TGenericComponent;
-  deleteFunctionalComponent: (componentId: number) => Promise<void>;
+  component: TGenericComponent,
+  deleteFunctionalComponent: (componentId: number) => Promise<void>,
   project: Project,
-  setProject: React.Dispatch<React.SetStateAction<Project | null>>
+  setProject: React.Dispatch<React.SetStateAction<Project | null>>,
+  isLatest: boolean
 };
 
-export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject }: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest }: FunctionalClassComponentProps) {
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
@@ -64,13 +65,19 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
 
   const handleComponentChange = (e: ChangeEvent<HTMLInputElement>) => {
     let updatedComponent;
+    let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["comment"].includes(e.target.id)) {
-      updatedComponent = { ...component, [e.target.id]: e.target.value };
+      updatedComponent = { ...component, [e.target.id]: value };
     } else {
-      updatedComponent = { ...component, [e.target.id]: Number(e.target.value) };
+      if (e.target.id === "degreeOfCompletion") {
+        let num = parseFloat(value);
+        if (num < 0) value = "0";
+        if (num > 1) value = "1";
+      }
+      updatedComponent = { ...component, [e.target.id]: value };
     }
     const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
     const updatedProject = { ...project, functionalComponents: updatedComponents };
@@ -91,6 +98,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               placeholder={translation.commentPlaceholder}
               value={component.comment || ""}
               onChange={handleComponentChange}
+              disabled={!isLatest}
             />
           </div>
   
@@ -107,8 +115,9 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
               </button>
               <button
-                className="bg-fisma-red hover:brightness-110 text-white py-2 px-3 cursor-pointer"
+                className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} rounded text-white py-2 px-3`}
                 onClick={() => setConfirmModalOpen(true)}
+                disabled={!isLatest}
               >
                 <FontAwesomeIcon icon={faTrash} />
               </button>
@@ -131,6 +140,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               onChange={handleComponentChange}
               className="border-2 border-fisma-light-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base"
               placeholder="0"
+              disabled={!isLatest}
             />
 
             <div className="flex flex-row flex-wrap gap-3 items-center">
@@ -139,6 +149,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 value={component.className || ""}
                 onChange={handleClassNameChange}
                 className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base"
+                disabled={!isLatest}
               >
                 <option disabled value="">{translation.classNamePlaceholder}</option>
                 {classNameOptions.map((className) => (
@@ -156,6 +167,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       value={component.componentType || ""}
                       onChange={handleOptionTypeChange}
                       className="border-2 border-fisma-light-gray bg-white p-2 text-base"
+                      disabled={!isLatest}
                     >
                       <option disabled value="">
                         {translation.componentTypePlaceholder}
@@ -166,6 +178,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                         </option>
                       ))}
                     </select>
+
                   </div>
                 </>
               )}

@@ -19,6 +19,7 @@ export type TGenericComponentNoId = {
   operations: number | null;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
 }
 
 export type ProjectWithUpdate = {
@@ -56,6 +57,7 @@ export type TGenericComponent = {
   operations: number | null;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
   projectId: number;
 }
 
@@ -78,6 +80,7 @@ export type TInteractiveEndUserNavigationAndQueryService = {
   operations: null;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
   projectId: number;
 };
 
@@ -92,6 +95,7 @@ export type TInteractiveEndUserInputService = {
   operations: null;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
   projectId: number;
 }
 
@@ -106,6 +110,7 @@ export type TDataStorageService = {
   operations: null;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
   projectId: number;
 };
 
@@ -120,6 +125,7 @@ export type TNonInteractiveEndUserOutputService = {
   operations: null;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
   projectId: number;
 };
 
@@ -134,6 +140,7 @@ export type TInterfaceServiceToOtherApplications = {
   operations: null;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
   projectId: number;
 };
 
@@ -148,6 +155,7 @@ export type TInterfaceServiceFromOtherApplications = {
   operations: null;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
   projectId: number;
 };
 
@@ -169,6 +177,7 @@ export type TAlgorithmicOrManipulationService = {
   operations: number;
   degreeOfCompletion: number | null;
   comment: string | null;
+  previousFCId: number | null;
   projectId: number;
 };
 
