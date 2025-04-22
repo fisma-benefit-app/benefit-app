@@ -81,7 +81,7 @@ export default function ProjectPage() {
   };
 
   const deleteFunctionalComponent = async (componentId: number) => {
-    if (window.confirm("Oletko varma, että haluat poistaa funktionaalisen komponentin?")) {
+    if (window.confirm(translation.confirmDeleteComponent)) {
       if (project) {
         const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
         const filteredProject: Project = { ...project, functionalComponents: filteredComponents };

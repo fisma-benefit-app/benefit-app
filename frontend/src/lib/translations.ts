@@ -22,7 +22,7 @@ export const translations = {
             nameTakenError: "Name is already in use!"
         },
         projectList: {
-            confirmDelete: "Are you sure you want to delete ",
+            confirmDelete: "Are you sure you want to delete project",
             searchPlaceholder: "Find a project by name...",
             projectName: "Project's name",
             version: "Version",
@@ -117,6 +117,7 @@ export const translations = {
             saveVersionWarningBeginning: "Are you sure you want to save the project as version ",
             saveVersionWarningEnd: " Older versions cannot be modified.",
             projectSaved: "Project saved!",
+            confirmDeleteComponent: "Are you sure you want to delete this component?",
             selectProjectVersion: "Select Project Version"
         },
         functionalPointSummary: {
@@ -149,7 +150,7 @@ export const translations = {
             nameTakenError: "Nimi on jo käytössä!"
         },
         projectList: {
-            confirmDelete: "Oletko varma, että haluat poistaa ",
+            confirmDelete: "Oletko varma, että haluat poistaa projektin",
             searchPlaceholder: "Etsi projekti nimellä...",
             projectName: "Projektin nimi",
             version: "Versio",
@@ -238,6 +239,7 @@ export const translations = {
             saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona ",
             saveVersionWarningEnd: " Vanhoja versioita ei voi enää muokata.",
             projectSaved: "Projekti tallennettu!",
+            confirmDeleteComponent: "Oletko varma, että haluat poistaa tämän komponentin?",
             selectProjectVersion: "Valitse Projektiversio"
         },
         functionalPointSummary: {
