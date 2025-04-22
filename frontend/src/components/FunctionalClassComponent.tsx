@@ -115,7 +115,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
               </button>
               <button
-                className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} rounded text-white py-2 px-3`}
+                className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
                 onClick={() => setConfirmModalOpen(true)}
                 disabled={!isLatest}
               >
