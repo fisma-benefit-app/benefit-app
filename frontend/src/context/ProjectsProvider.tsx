@@ -8,7 +8,7 @@ import useTranslations from "../hooks/useTranslations.ts";
 
 export default function ProjectsProvider({children,}: { children: React.ReactNode; }) {
   const { sessionToken } = useAppUser();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [sortedProjects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const translation = useTranslations().projectList;
@@ -28,6 +28,7 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     getAllProjects();
   }, [sessionToken]);
 
+  //TODO: What to do with this?
   //const sortedProjects = projects.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());     
   //sorted projects are derived, not sorted only in the useEffect so we dont have to sort again later, we should discuss
       
