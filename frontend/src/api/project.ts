@@ -1,6 +1,7 @@
 import { Project, ProjectWithUpdate } from "../lib/types";
 const API_URL =  import.meta.env.VITE_API_URL;
 import CreateCurrentDate from "../api/date.ts";
+import { CreateCurrentDateNewVersion } from "../api/date.ts";
 
 const fetchAllProjects = async (sessionToken: string | null) => {
 
@@ -97,7 +98,6 @@ const createProject = async (sessionToken: string | null, nameForProject: string
     }
 }
 
-
 const createNewProjectVersion = async (sessionToken: string | null, previousProject: Project) => {
     if (!sessionToken) throw new Error("User needs to be logged in to create a project!");
 
@@ -111,8 +111,8 @@ const createNewProjectVersion = async (sessionToken: string | null, previousProj
         ...previousProject,
         id: null,
         version: previousProject.version + 1,
-        versionDate: CreateCurrentDate(),
-        editedDate: CreateCurrentDate(),
+        versionDate: CreateCurrentDateNewVersion(),
+        editedDate: CreateCurrentDateNewVersion(),
     };
 
     try {
