@@ -5,7 +5,7 @@ type ProjectsContext = {
     sortedProjects: Project[];
     loading: boolean;
     error: string;
-    handleDelete: (projectId: number, projectName: string) => Promise<void>;
+    handleDelete: (projectId: number) => Promise<void>;
     checkIfLatestVersion: (project: Project | null, oldProjectVersions: Project[]) => boolean
     returnLatestOrPreviousVersion: (project: Project, allProjectVersions: Project[]) => Project
     setProjects: (projects: Project[]) => void;

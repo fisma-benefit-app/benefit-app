@@ -4,6 +4,7 @@ import { createProject, fetchAllProjects } from "../api/project.ts";
 import { useNavigate } from "react-router";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
+import DotLoadingSpinner from "./DotLoadingSpinner.tsx";
 
 interface NewProjectFormProps {
   open: boolean;
@@ -70,20 +71,21 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[2px]">
-      <div className="bg-white p-6 border-3 border-gray-400 shadow-2xl lg w-96">
-        <h2 className="text-fisma-dark-blue text-2xl font-bold text-center mb-4">{translation.header}</h2>
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[4px] z-999">
+      <div className="bg-fisma-blue p-4 shadow-2xl lg w-96">
+        <h2 className="text-white text-2xl font-bold text-center bg-fisma-dark-blue mb-4 -mx-4 -mt-4 px-4 py-2">
+          {translation.header}
+        </h2>
 
         <div className="h-8 mb-4 flex items-center justify-center">
-          {error && (
-            <label className={`text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1 rounded transition-opacity duration-500 ease-in-out ${showError ? 'opacity-100' : 'opacity-0'}`}>
-              {error}
-            </label>
-          )}
-          {loading && (
-            <svg className="animate-spin h-5 w-5 mr-2 border-fisma-blue border-2 rounded-full" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" fill="none" strokeWidth="4" strokeDasharray="31.4" strokeLinecap="round"></circle>
-            </svg>
+          {loading ? (
+            <DotLoadingSpinner/>
+          ) : (
+            error && (
+              <label className={`text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showError ? 'opacity-100' : 'opacity-0'}`}>
+                {error}
+              </label>
+            )
           )}
         </div>
 
@@ -98,20 +100,20 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
               setName(e.target.value);
             }}
             required
-            className="w-full p-2 border-3 border-gray-400"
+            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
           />
           <div className="flex justify-evenly items-center">
             <button
               type="button"
               disabled={loading}
               onClick={() => { setOpen(false); setName(""); }}
-              className="bg-fisma-red p-2">
+              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2">
               {translation.cancel}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="bg-fisma-blue text-white p-2">
+              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2">
               {translation.createNew}
             </button>
           </div>

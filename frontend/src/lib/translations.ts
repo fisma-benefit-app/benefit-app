@@ -13,6 +13,10 @@ export const translations = {
             forgotPassword: "Did you forget password?",
             login: "Login"
         },
+        confirmModal: {
+            cancel: "Cancel",
+            confirm: "Confirm"
+        },
         newProjectModal: {
             noNameError: "Project needs a name!",
             header: "Create a new project",
@@ -108,15 +112,17 @@ export const translations = {
             classNamePlaceholder: "Select Classname",
             componentTypePlaceholder: "Select Component Type",
             degreeOfCompletionPlaceholder: "Degree of Completion",
+            confirmDeleteMessage: "Are you sure you want to delete component"
         },
         projectPage: {
             saveProject: "Save Project",
             newFunctionalComponent: "New Functional Component",
             noProject: "No project information to show!",
             saveProjectAsVersion: "Save project as version ",
-            saveVersionWarningBeginning: "Are you sure you want to save the project as version ",
-            saveVersionWarningEnd: " Older versions cannot be modified.",
+            saveVersionWarningBeginning: "Are you sure you want to save the project as version",
+            saveVersionWarningEnd: "Older versions cannot be modified.",
             projectSaved: "Project saved!",
+            //TODO: confirmDeleteComponent needed?
             confirmDeleteComponent: "Are you sure you want to delete this component?",
             selectProjectVersion: "Select Project Version"
         },
@@ -140,6 +146,10 @@ export const translations = {
             rememberMe: "Muista minut",
             forgotPassword: "Unohditko salasanan?",
             login: "Kirjaudu"
+        },
+        confirmModal: {
+            cancel: "Peruuta",
+            confirm: "Vahvista"
         },
         newProjectModal: {
             noNameError: "Projekti tarvitsee nimen!",
@@ -230,15 +240,17 @@ export const translations = {
             classNamePlaceholder: "Valitse toimintoluokka",
             componentTypePlaceholder: "Valitse toimintotyyppi",
             degreeOfCompletionPlaceholder: "Valmistumisaste",
+            confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin"
         },
         projectPage: {
             saveProject: "Tallenna projekti",
             newFunctionalComponent: "Uusi funktionaalinen komponentti",
             noProject: "Ei näytettäviä projektitietoja!",
             saveProjectAsVersion: "Tallenna projekti versiona ",
-            saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona ",
-            saveVersionWarningEnd: " Vanhoja versioita ei voi enää muokata.",
-            projectSaved: "Projekti tallennettu!",
+            saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona",
+            saveVersionWarningEnd: "Vanhoja versioita ei voi enää muokata.",
+            projectSaved: "Projekti tallennettu!"
+            //TODO: confirmDeleteComponent needed?
             confirmDeleteComponent: "Oletko varma, että haluat poistaa tämän komponentin?",
             selectProjectVersion: "Valitse Projektiversio"
         },

@@ -7,7 +7,13 @@
     --color-fisma-dark-blue: #221d5e;
     --color-fisma-gray: #636363;
     --color-fisma-red: #c82026;
-    --drop-shadow-fisma-logo: 0 2px 2px rgb(255 255 255 / 0.30)
+    --color-fisma-light-gray: #99a1af;
+    /* --drop-shadow-fisma-logo: 0 2px 2px rgb(255 255 255 / 0.30) */
+}
+
+button:disabled {
+  filter: brightness(70%);
+  pointer-events: none;
 }
 
 :root {
@@ -15,7 +21,7 @@
 }
 
 input {
-    @apply text-fisma-dark-blue placeholder-gray-400 focus:outline-fisma-dark-blue;
+    @apply text-fisma-dark-blue placeholder-fisma-light-gray focus:outline-fisma-dark-blue;
 }
 
 input:focus {
@@ -23,6 +29,6 @@ input:focus {
 }
 
 /* This can be used to see where the element-boxes are. */
-/* * {*/
-/*    outline: 1px solid lime;*/
-/*} */
+/* * {
+ outline: 1px solid lime;
+} */

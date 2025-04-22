@@ -28,17 +28,15 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     getAllProjects();
   }, [sessionToken]);
 
+  //const sortedProjects = projects.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());     
   //sorted projects are derived, not sorted only in the useEffect so we dont have to sort again later, we should discuss
-  const sortedProjects = projects.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());
-
-  const handleDelete = async (projectId: number, projectName: string) => {
-    if (window.confirm(`${translation.confirmDelete} "${projectName}"?`)) {
-      try {
-        await deleteProject(sessionToken, projectId);
-        setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unexpected error occurred while trying to delete project!");
-      }
+      
+  const handleDelete = async (projectId: number) => {
+    try {
+      await deleteProject(sessionToken, projectId);
+      setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unexpected error occurred while trying to delete project!");
     }
   };
 
