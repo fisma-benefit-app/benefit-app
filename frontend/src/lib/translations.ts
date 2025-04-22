@@ -249,7 +249,7 @@ export const translations = {
             saveProjectAsVersion: "Tallenna projekti versiona ",
             saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona",
             saveVersionWarningEnd: "Vanhoja versioita ei voi enää muokata.",
-            projectSaved: "Projekti tallennettu!"
+            projectSaved: "Projekti tallennettu!",
             //TODO: confirmDeleteComponent needed?
             confirmDeleteComponent: "Oletko varma, että haluat poistaa tämän komponentin?",
             selectProjectVersion: "Valitse Projektiversio"
