@@ -48,6 +48,8 @@ Picture 1: A visual representation of the Benefit application's UI. [TODO: Updat
 
 The application is designed for businesses and individuals who want to estimate the size and costs of a software project.
 
+The application can be useful for experts, who want to easily calculate
+function points of other applications.
 
 **What are prerequisites?**
 
@@ -69,30 +71,23 @@ The mathematical algorithm has the following logic...
 ## 3. Tools
 
 We have used following tools in the project, alphabetically:
-
-* 
-* 
-
+  
 * Figma for preliminary sketching UI design. 
 
 * Java with Gradle for backend.
 
 * Docker, due it will automatically install required languages and libraries 
-(e.g. PostgreSQL) for the new member.
-
-Thus it will save both time and hussle for future groups.  
+(e.g. PostgreSQL) for the new member. Thus it will save both time and hussle for future groups.  
 
 * PostgreSQL for the database. Everyone of our team has used SQL for databases. 
 Thus production will be most effective, when we are working with familiar language.
+We also used PostgreSQL over other SQL DBMS due product owner's wishes. 
 
-We used PostgreSQL over other SQL DBMS as product owner's wishes. 
-
-* Typescript for frontend.
-* 
 * Spring boot for backend.
 
-* Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding. 
+* Typescript for frontend.
 
+* Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding. 
 
 
 ---
