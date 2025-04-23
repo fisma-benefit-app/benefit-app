@@ -122,9 +122,8 @@ export const translations = {
             saveVersionWarningBeginning: "Are you sure you want to save the project as version",
             saveVersionWarningEnd: "Older versions cannot be modified.",
             projectSaved: "Project saved!",
-            //TODO: confirmDeleteComponent needed?
-            confirmDeleteComponent: "Are you sure you want to delete this component?",
-            selectProjectVersion: "Select Project Version"
+            selectProjectVersion: "Select Project Version",
+            version: "Version"
         },
         functionalPointSummary: {
             total: "Total",
@@ -250,9 +249,8 @@ export const translations = {
             saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona",
             saveVersionWarningEnd: "Vanhoja versioita ei voi enää muokata.",
             projectSaved: "Projekti tallennettu!",
-            //TODO: confirmDeleteComponent needed?
-            confirmDeleteComponent: "Oletko varma, että haluat poistaa tämän komponentin?",
-            selectProjectVersion: "Valitse Projektiversio"
+            selectProjectVersion: "Valitse Projektiversio",
+            version: "Versio"
         },
         functionalPointSummary: {
             total: "Yhteensä",

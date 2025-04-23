@@ -177,13 +177,13 @@ export default function ProjectPage() {
               {translation.saveProjectAsVersion} {project?.version}
             </button>
             <select
-              className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2 sticky top-60"
+              className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2"
               onChange={handleVersionSelect}
               defaultValue=""
             >
               <option value="" disabled>{translation.selectProjectVersion}</option>
               {allProjectVersions.map((project) => (
-                <option key={project.id} value={project.id}>{project.version}</option>
+                <option key={project.id} value={project.id}>{translation.version} {project.version}</option>
               ))}
             </select>
             <button

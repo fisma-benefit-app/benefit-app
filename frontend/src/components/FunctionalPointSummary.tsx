@@ -67,8 +67,8 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
 
   const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
   return (
-    <div className="flex flex-col border-2 p-4 sticky top-60 bg-white">
-      <div className="max-h-[60vh]">
+    <div className="flex flex-col border-2 p-4 bg-white h-[calc(55vh-5rem)] overflow-y-auto sticky top-20">
+      <div className="max-h-[60vh] overflow-y-auto pr-2">
         {getGroupedFunctionalComponents(project.functionalComponents).map((group) => {
           const componentCount = group.components.reduce((acc, curr) => acc + curr.count, 0)
           const totalPoints = group.components.reduce((acc, curr) => acc + curr.points, 0)
@@ -90,7 +90,6 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
               <div className="font-semibold">
                 {totalPoints.toFixed(2)}
               </div>
-              <div>{totalPoints.toFixed(2)}</div>
             </div>
           );
         })}
