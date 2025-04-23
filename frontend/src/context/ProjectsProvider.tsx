@@ -4,14 +4,12 @@ import useAppUser from "../hooks/useAppUser.tsx";
 import {useEffect, useState} from "react";
 import { deleteProject, fetchAllProjects} from "../api/project.ts";
 import { ProjectsContext } from "./ProjectsContext.ts";
-import useTranslations from "../hooks/useTranslations.ts";
 
 export default function ProjectsProvider({children,}: { children: React.ReactNode; }) {
   const { sessionToken } = useAppUser();
   const [sortedProjects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const translation = useTranslations().projectList;
 
   useEffect(() => {
     const getAllProjects = async () => {
