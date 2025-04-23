@@ -73,7 +73,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
       updatedComponent = { ...component, [e.target.id]: value };
     } else {
       if (e.target.id === "degreeOfCompletion") {
-        let num = parseFloat(value);
+        const num = parseFloat(value);
         if (num < 0) value = "0";
         if (num > 1) value = "1";
       }
