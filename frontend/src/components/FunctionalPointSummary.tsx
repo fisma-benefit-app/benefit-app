@@ -90,7 +90,6 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
               <div className="font-semibold">
                 {totalPoints.toFixed(2)}
               </div>
-              <div>{totalPoints.toFixed(2)}</div>
             </div>
           );
         })}
