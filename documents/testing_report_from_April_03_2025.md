@@ -27,7 +27,7 @@ Especially beginning of the form.
 
 * Save button vanishes when scrolling.
 
-![Save_button_vanished_Fisma_ry](https://github.com/user-attachments/assets/78d6541a-5bfa-4a5a-b15d-607e9a0d79a0)
+![Save_button_vanished_Fisma_ry](./img/images_testing_reports/Save_button_vanished_Fisma_ry.gif)
   
 
 * When having a lot of different kinds of functional components, the save buttons gets behind or mixed 
@@ -36,7 +36,7 @@ with summary box.
  What tested: Created many new functional components. Added all info and number to each different components. Then scrolled to last component.
 What problem: The save buttons are mixing with summary box. Happens at mininimum seven different kind of components.
 
-![Save_button_and_summary_mixed_up_Fisma_ry](https://github.com/user-attachments/assets/30ef755d-b839-40c4-a15d-e1f58e276d3b)
+![Save_button_and_summary_mixed_up_Fisma_ry](./img/images_testing_reports/Save_button_and_summary_mixed_up_Fisma_ry.gif)
 
 * Comment disappears everytime when functional type is changed.
 

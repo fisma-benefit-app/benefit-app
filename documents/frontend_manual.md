@@ -75,7 +75,7 @@ via following URL:
 
 You should get similar web page as the below picture:
 
-![image](https://github.com/user-attachments/assets/bd45cd16-f755-4630-8a55-df97ca172225)
+![UI of login page for Benefit-app.](./img/images_for_manuals/UI_login_page.png)
 
 
 

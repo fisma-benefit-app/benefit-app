@@ -4,7 +4,7 @@ documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/bene
 
 ### Dependencies
 
-![img.png](img/images_for_manuals/ee73f2d-1.png)
+![img.png](img/images_for_manuals/ee73f2d_1.png)
 
 
 #### Actuator
@@ -33,13 +33,13 @@ documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/bene
 
 ### Testaukseen parempi log
 
-![img.png](documents/img/images_for_manuals/ee73f2d-2.png)
+![img.png](img/images_for_manuals/ee73f2d_2.png)
 
 ---
 
 ### application.yaml
 
-![img.png](documents/img/images_for_manuals/ee73f2d-3.png)
+![img.png](img/images_for_manuals/ee73f2d_3.png)
 
 
 Ilman datasourcea ei lähde päälle. Datasource määritetty dockerin Postgrehen. 
