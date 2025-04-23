@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
 import NewProjectModal from "./NewProjectModal";
 import ConfirmModal from "./ConfirmModal";
-import useLanguage from "../hooks/useLanguage";;
+import useLanguage from "../hooks/useLanguage";
 import useTranslations from "../hooks/useTranslations";
 
 const Header = () => {
