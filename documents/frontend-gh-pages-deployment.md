@@ -46,3 +46,7 @@ Frontend can be deployed to Github pages by running following command while in t
 ```sh
 npm run deploy
 ```
+
+## 3. Settings in GitHub
+
+You can view and check GitHub Pages deployment changes in github repository **settings** and the **pages** section
