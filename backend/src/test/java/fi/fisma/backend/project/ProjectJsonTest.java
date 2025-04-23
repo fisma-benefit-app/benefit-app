@@ -21,9 +21,9 @@ class ProjectJsonTest {
     
     @BeforeEach
     void setUp() {
-        project = new Project(44L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12, Set.of(
-                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.13, "This is an exceptional functional component!"),
-                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.27, "Needs further adjustment!")
+        project = new Project(44L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12, Set.of(
+                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.13, "This is an exceptional functional component!", 99L),
+                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.27, "Needs further adjustment!", 100L)
         ), Set.of(new ProjectAppUser(13L)));
     }
     
@@ -33,6 +33,8 @@ class ProjectJsonTest {
         assertThat(json.write(project)).hasJsonPathNumberValue("@.id");
         assertThat(json.write(project)).hasJsonPathStringValue("@.projectName");
         assertThat(json.write(project)).hasJsonPathStringValue("@.createdDate");
+        assertThat(json.write(project)).hasJsonPathStringValue("@.versionDate");
+        assertThat(json.write(project)).hasJsonPathStringValue("@.editedDate");
         assertThat(json.write(project)).hasJsonPathNumberValue("@.totalPoints");
         assertThat(json.write(project)).hasJsonPathArrayValue("$.functionalComponents");
         assertThat(json.write(project)).hasJsonPathArrayValue("$.appUsers");
@@ -47,6 +49,8 @@ class ProjectJsonTest {
                   "projectName": "project-x",
                   "version": 1,
                   "createdDate": "2025-01-28T17:23:19",
+                  "versionDate": "2025-01-28T17:23:19",
+                  "editedDate": "2025-01-28T17:23:19",
                   "totalPoints": 100.12,
                   "functionalComponents": [
                     {
@@ -59,7 +63,8 @@ class ProjectJsonTest {
                       "functionalMultiplier": 1,
                       "operations": null,
                       "degreeOfCompletion": 0.13,
-                      "comment": "This is an exceptional functional component!"
+                      "comment": "This is an exceptional functional component!",
+                      "previousFCId": 99
                     },
                     {
                       "id": 100,
@@ -71,7 +76,8 @@ class ProjectJsonTest {
                       "functionalMultiplier": null,
                       "operations": null,
                       "degreeOfCompletion": 0.27,
-                      "comment": "Needs further adjustment!"
+                      "comment": "Needs further adjustment!",
+                      "previousFCId": 100
                     }
                   ],
                   "appUsers": [

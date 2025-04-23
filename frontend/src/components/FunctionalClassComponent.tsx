@@ -1,22 +1,26 @@
-import * as React from "react";
-import { useEffect, useState } from "react";
-import { classNameOptions, parameterDisplayNames, TParameterDisplayNames } from "../lib/fc-constants.ts";
+import { ChangeEvent, useState } from "react";
+import { classNameOptions } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
-import { TGenericComponent, Project } from "../lib/types.ts";
+import { TGenericComponent, Project, ClassName, ComponentType, CalculationParameter } from "../lib/types.ts";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
+import ConfirmModal from "./ConfirmModal.tsx";
+import useTranslations from "../hooks/useTranslations.ts";
 
 type FunctionalClassComponentProps = {
-  componentProp: TGenericComponent;
-  deleteFunctionalComponent: (componentId: number) => Promise<void>;
-  project: Project | null,
-  setProject: React.Dispatch<React.SetStateAction<Project | null>>
+  component: TGenericComponent,
+  deleteFunctionalComponent: (componentId: number) => Promise<void>,
+  project: Project,
+  setProject: React.Dispatch<React.SetStateAction<Project | null>>,
+  isLatest: boolean
 };
 
-export default function FunctionalClassComponent({ componentProp, deleteFunctionalComponent, project, setProject }: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest }: FunctionalClassComponentProps) {
 
-  const [component, setComponent] = useState<TGenericComponent>(componentProp);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+
+  const translation = useTranslations().functionalClassComponent;
 
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
 
@@ -27,164 +31,196 @@ export default function FunctionalClassComponent({ componentProp, deleteFunction
   const fullPoints = calculateFunction ? calculateFunction(component) : 0;
   const pointsByDegreeOfCompletion = (component.degreeOfCompletion || 0) * fullPoints;
 
-  const handleClassNameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleClassNameChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newClassName = e.target.value;
-    // Component that doesn't have a className is an "empty"-component, 
-    // this is used for id generation in backend.
+    let updatedComponents;
+
     if (newClassName === "") {
-      setComponent((prev) => getEmptyComponent(prev));
-      return;
+      // Component that doesn't have a className is an "empty"-component, 
+      // this is used for id generation in backend.
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getEmptyComponent(component) : functionalComponent);
+    } else {
+      // If className changes, component gets reset (it has only className and ids).
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getResetedComponentWithClassName(component, newClassName) : functionalComponent);
     }
-    // If className changes, component gets reset (it has only className and ids).
-    setComponent((prev) => getResetedComponentWithClassName(prev, newClassName));
-  };
 
-  const handleOptionTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    setProject(updatedProject);
+  }
+
+  const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newOptionType = e.target.value;
-    if (newOptionType === "" && component.className) {
-      setComponent((prev) => getResetedComponentWithClassName(prev, component.className as string));
-    }
-    setComponent((prev) => ({ ...prev, componentType: newOptionType || null }));
-  };
+    let updatedComponents;
 
-  //this is a first attempt to get whole project saving working, there is probably a better way which we should discuss
-  useEffect(() => {
-    if (project) {
-      const componentsWithUpdatedComponent = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? component : functionalComponent);
-      const projectWithUpdatedcomponent: Project = { ...project, functionalComponents: componentsWithUpdatedComponent };
-      setProject(projectWithUpdatedcomponent);
+    if (newOptionType === "" && component.className) {
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getResetedComponentWithClassName(component, component.className as string) : functionalComponent);
+    } else {
+      const updatedComponent = { ...component, componentType: newOptionType || null }
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
     }
-  }, [component])
+
+    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    setProject(updatedProject);
+  }
+
+  const handleComponentChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let updatedComponent;
+    let value = e.target.value;
+
+    //check if the updated attribute needs to be converted to a number for math
+    //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
+    if (["comment"].includes(e.target.id)) {
+      updatedComponent = { ...component, [e.target.id]: value };
+    } else {
+      if (e.target.id === "degreeOfCompletion") {
+        let num = parseFloat(value);
+        if (num < 0) value = "0";
+        if (num > 1) value = "1";
+      }
+      updatedComponent = { ...component, [e.target.id]: value };
+    }
+    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
+    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    setProject(updatedProject);
+  }
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 border-fisma-dark-blue bg-white my-5 w-[1075px] p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2 items-center">
-          <select
-            id="functionalClassSelection"
-            value={component.className || ""}
-            onChange={handleClassNameChange}
-            className="w-52 border-2 border-gray-400 p-1"
-          >
-            <option disabled value="">Valitse toimintoluokka</option>
-            {classNameOptions.map((className) => {
-              return (
-                <option key={className.value} value={className.value}>
-                  {className.displayName}
-                </option>
-              );
-            })}
-          </select>
-
-          {/* Show option for component type and degree of completion 
-          only if component class is selected first */}
-          {component.className && (
-            <>
-              <select
-                id="functionalClassTypeOption"
-                value={component.componentType || ""}
-                onChange={handleOptionTypeChange}
-                className="w-52 border-2 border-gray-400 p-1"
+    <>
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="flex flex-col gap-4 border-2 border-fisma-gray bg-white my-5 w-full p-4"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex-1 min-w-[200px]">
+            <input
+              className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
+              id="comment"
+              placeholder={translation.commentPlaceholder}
+              value={component.comment || ""}
+              onChange={handleComponentChange}
+              disabled={!isLatest}
+            />
+          </div>
+  
+          <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
+            <div className="flex gap-2 text-sm sm:text-base">
+              <span>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</span>
+              <span>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsCollapsed((prev) => !prev)}
+                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
               >
-                <option disabled value="">Valitse toimintotyyppi</option>
-                {/* todo: add option for no component type if needed */}
-                {componentTypeOptions.map((option) => {
-                  return (
-                    <option key={option.value} value={option.value}>
-                      {option.displayName}
-                    </option>
-                  );
-                })}
+                <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
+              </button>
+              <button
+                className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
+                onClick={() => setConfirmModalOpen(true)}
+                disabled={!isLatest}
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            </div>
+          </div>
+        </div>
+  
+        {isCollapsed && (
+          <>
+            <label className="font-medium">
+              {translation.degreeOfCompletionPlaceholder}:
+            </label>
+            <input
+              id="degreeOfCompletion"
+              type="number"
+              min={0.01}
+              max={1}
+              step={0.01}
+              value={component.degreeOfCompletion || ""}
+              onChange={handleComponentChange}
+              className="border-2 border-fisma-light-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base"
+              placeholder="0"
+              disabled={!isLatest}
+            />
+
+            <div className="flex flex-row flex-wrap gap-3 items-center">
+              <select
+                id="className"
+                value={component.className || ""}
+                onChange={handleClassNameChange}
+                className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base"
+                disabled={!isLatest}
+              >
+                <option disabled value="">{translation.classNamePlaceholder}</option>
+                {classNameOptions.map((className) => (
+                  <option key={className} value={className}>
+                    {translation.classNameOptions[className as ClassName]}
+                  </option>
+                ))}
               </select>
+              
+              {component.className && (
+                <>
+                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                    <select
+                      id="componentType"
+                      value={component.componentType || ""}
+                      onChange={handleOptionTypeChange}
+                      className="border-2 border-fisma-light-gray bg-white p-2 text-base"
+                      disabled={!isLatest}
+                    >
+                      <option disabled value="">
+                        {translation.componentTypePlaceholder}
+                      </option>
+                      {componentTypeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {translation.componentTypeOptions[option as ComponentType]}
+                        </option>
+                      ))}
+                    </select>
 
-              <input
-                className="w-36 border-2 border-gray-400 p-1"
-                id="degreeOfCompletion"
-                placeholder="Valmistumisaste"
-                type="number"
-                min={0.01}
-                max={1}
-                step={0.01}
-                value={component.degreeOfCompletion || ""}
-                onChange={(e) =>
-                  setComponent((prev) => ({
-                    ...prev,
-                    degreeOfCompletion: Number(e.target.value),
-                  }))
-                }
-              />
-            </>
-          )}
-        </div>
-
-        <div className="flex gap-4 items-center">
-          <p>= {pointsByDegreeOfCompletion.toFixed(2)} TP</p>
-          <p>= {fullPoints.toFixed(2)} TP (Valmis)</p>
-          {/* Only show collapse button if class for row is selected */}
-          {component.className && (
-            <button
-              onClick={() => setIsCollapsed((prev) => !prev)}
-              className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer rounded text-white py-1 px-3 items-center gap-1"
-            >
-              <span className={`inline-block text-1xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
-                <FontAwesomeIcon icon={faCaretDown}/>
-              </span>
-            </button>
-          )}
-          <button
-            className="bg-fisma-red hover:brightness-130 cursor-pointer rounded text-white py-1 px-3"
-            onClick={() => deleteFunctionalComponent(component.id)}
-          >
-            <FontAwesomeIcon icon={faTrash}/>
-          </button>
-        </div>
-      </div>
-
-      <div>
-        <input
-          className="w-full border-2 border-gray-400 p-1"
-          id="comment"
-          placeholder="Kommentti"
-          value={component.comment || ""}
-          onChange={(e) =>
-            setComponent((prev) => ({
-              ...prev,
-              comment: e.target.value,
-            }))
-          }
-        />
-      </div>
-
-      {/* The rest of the options are only rendered 
-      if row has a selected type and it is collapsed */}
-      {component.className && isCollapsed && (
-        <div className="flex gap-10">
-          {Object.entries(component)
-            .filter(
-              ([key, value]) =>
-                !["id", "className", "componentType", "degreeOfCompletion", "comment", "projectId", "functionalMultiplier"].includes(key) &&
-                value !== null,
-            )
-            .map(([key, value]) => (
-              <div key={key} className="flex flex-col gap-2 items-center">
-                {/* Display finnish name for parameters */}
-                <label htmlFor={key}>{parameterDisplayNames[key as keyof TParameterDisplayNames]}:</label>
-                <input
-                  className="w-16 border-2 border-gray-400 p-1"
-                  id={key}
-                  type="number"
-                  value={value as number}
-                  onChange={(e) =>
-                    setComponent((prev) => ({
-                      ...prev,
-                      [key]: e.target.value,
-                    }))
-                  }
-                />
+                  </div>
+                </>
+              )}
+            </div>
+  
+            {component.className && (
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(component)
+                  .filter(
+                    ([key, value]) =>
+                      ["dataElements", "readingReferences", "writingReferences", "operations"].includes(key) && value !== null,
+                  )
+                  .map(([key, value]) => (
+                    <div key={key} className="flex flex-col gap-1 items-start">
+                      <label htmlFor={key} className="font-medium">
+                        {translation.parameters[key as CalculationParameter]}:
+                      </label>
+                      <input
+                        id={key}
+                        type="text"
+                        value={value as number}
+                        onChange={handleComponentChange}
+                        className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
+                      />
+                    </div>
+                  ))}
               </div>
-            ))}
-        </div>
-      )}
-    </form>
+            )}
+          </>
+        )}
+      </form>
+  
+      <ConfirmModal 
+        message={
+          component.comment
+            ? `${translation.confirmDeleteMessage} "${component.comment}?"`
+            : `${translation.confirmDeleteMessage}?`
+        }
+        open={isConfirmModalOpen}
+        setOpen={setConfirmModalOpen}
+        onConfirm={() => deleteFunctionalComponent(component.id)}
+      />
+    </>
   );
 }

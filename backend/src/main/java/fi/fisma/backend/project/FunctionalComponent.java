@@ -20,4 +20,5 @@ public class FunctionalComponent {
     private Integer operations;
     private Double degreeOfCompletion;
     private String comment;
+    private Long previousFCId;
 }

@@ -13,6 +13,8 @@ create table if not exists project
     project_name text      not null,
     version      integer   not null,
     created_date timestamp not null,
+    version_date timestamp not null,
+    edited_date timestamp,
     total_points decimal   not null
 );
 
@@ -28,6 +30,7 @@ create table if not exists functional_component
     operations            integer,
     degree_of_completion  decimal,
     comment               text,
+    previous_FC_id        bigint,
     project_id            bigint not null references project (id)
 );
 

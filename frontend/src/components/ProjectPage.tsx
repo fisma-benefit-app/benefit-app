@@ -1,22 +1,38 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { fetchProject, updateProject } from "../api/project.ts";
+import { ChangeEvent, useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
+import { fetchAllProjects, fetchProject, updateProject } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import { Project, ProjectWithUpdate, TGenericComponentNoId } from "../lib/types.ts";
+import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
+import useTranslations from "../hooks/useTranslations.ts";
+import CreateCurrentDate from "../api/date.ts";
+import LoadingSpinner from "./LoadingSpinner.tsx";
+import useProjects from "../hooks/useProjects.tsx";
+import ConfirmModal from "./ConfirmModal.tsx";
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
-//maybe better placeholder component when project is being loaded
 export default function ProjectPage() {
-
   const { sessionToken } = useAppUser();
   const { selectedProjectId } = useParams();
+  const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
+  const navigate = useNavigate();
 
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
+
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+
+  const translation = useTranslations().projectPage;
+
+  //get all versions of the same project
+  const allProjectVersions: Project[] = sortedProjects.filter(projectInArray => project?.projectName === projectInArray.projectName);
+
+  //only allow user to edit project if it is the latest one
+  const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
   //sort functional components by id (order of creation from oldest to newest)
   const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
@@ -26,16 +42,15 @@ export default function ProjectPage() {
       setLoadingProject(true);
       try {
         const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
-        setProject(projectFromDb)
+        setProject(projectFromDb);
       } catch (err) {
-        setError((err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend."));
+        setError(err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend.");
       } finally {
         setLoadingProject(false);
       }
-    }
-
+    };
     getProject();
-  }, [])
+  }, [selectedProjectId, sessionToken]);
 
   const createFunctionalComponent = async () => {
     if (project) {
@@ -49,22 +64,23 @@ export default function ProjectPage() {
         operations: null,
         degreeOfCompletion: null,
         comment: null,
-      }
+        previousFCId: null,
+      };
 
-      const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent] };
+      const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent,] };
 
       try {
         const updatedProject: Project = await updateProject(sessionToken, projectWithNewComponent);
-        setProject(updatedProject)
+        setProject(updatedProject);
       } catch (err) {
         console.error(err);
       }
     }
-  }
+  };
 
   const deleteFunctionalComponent = async (componentId: number) => {
     if (project) {
-      const filteredComponents = project?.functionalComponents.filter(component => component.id !== componentId);
+      const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
       const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
       try {
         const updatedProject = await updateProject(sessionToken, filteredProject);
@@ -73,66 +89,124 @@ export default function ProjectPage() {
         console.error(err);
       }
     }
-  }
+  };
 
   const saveProject = async () => {
     if (project) {
       try {
-        const savedProject = await updateProject(sessionToken, project)
+        const editedProject = { ...project, editedDate: CreateCurrentDate() };
+        const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
-        alert("Project saved!");
+        alert(translation.projectSaved);
       } catch (err) {
-        console.error(err)
+        console.error(err);
       }
+    }
+  };
+
+  const saveProjectVersion = async () => {
+    if (project) {
+      saveProject(); //TODO: Automatic saving instead?
+      try {
+        const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
+        const updatedProjects = await fetchAllProjects(sessionToken);
+        setProjects(updatedProjects);
+        navigate(`project/${idOfNewProjectVersion}`);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+  
+  const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
+    const selectedId: number = Number(e.target.value);
+    const selectedProject = sortedProjects.find((p: Project) => p.id === selectedId);
+
+    if (selectedProject) {
+      navigate(`/project/${selectedId}`);
     }
   }
 
+  if (loadingProject) return <LoadingSpinner/>;
+
   return (
-    <div className="gap-5 flex justify-center my-20">
-      {loadingProject ? (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center">
-          <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" fill="none" stroke="blue" strokeWidth="4" strokeDasharray="31.4" strokeLinecap="round"></circle>
-          </svg>
-        </div>
-      ) : error ? (
-        <p>{error}</p>
-      ) : project ? (
-        <>
-          <div>
-            {sortedComponents?.map((component) => {
-              return (
-                <FunctionalClassComponent
-                  project={project}
-                  setProject={setProject}
-                  componentProp={component}
-                  deleteFunctionalComponent={deleteFunctionalComponent}
-                  key={component.id}
-                />
-              );
-            })}
+    <>
+      <div className="pl-5 pr-5">
+        <div className="flex justify-between">
+          <div className="w-[calc(100%-340px)] mt-15"> 
+            {project ? (//TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
+              <>
+                {sortedComponents?.map((component) => (
+                  <FunctionalClassComponent
+                    project={project}
+                    setProject={setProject}
+                    component={component}
+                    deleteFunctionalComponent={deleteFunctionalComponent}
+                    key={component.id}
+                    isLatest={isLatest}
+                  />
+                ))}
+              </>
+            ) : error ? (
+              <p>{error}</p>
+            ) : (
+              <p></p>
+              //TODO: If no components are present show message
+            )}
           </div>
-          <div className="my-5 flex flex-col">
-            {/* Create functionality for this button */}
+        </div>
+      </div>
+  
+      <div className="fixed right-5 top-20 w-[320px]">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
             <button
-              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer mb-2 sticky top-20"
+              //disabled={!project?.functionalComponents?.length}
+              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
               onClick={saveProject}
+              disabled={!isLatest}
             >
-              Tallenna projekti
+              {translation.saveProject}
             </button>
+            <button
+              //disabled={!project?.functionalComponents?.length}
+              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
+              onClick={() => setConfirmModalOpen(true)}
+              disabled={!isLatest}
+            >
+              {translation.saveProjectAsVersion} {project?.version}
+            </button>
+            <select
+              className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2 sticky top-60"
+              onChange={handleVersionSelect}
+              defaultValue=""
+            >
+              <option value="" disabled>{translation.selectProjectVersion}</option>
+              {allProjectVersions.map((project) => (
+                <option key={project.id} value={project.id}>{project.version}</option>
+              ))}
+            </select>
             <button
               onClick={createFunctionalComponent}
-              className="bg-fisma-blue hover:bg-fisma-gray text-white px-4 py-4 cursor-pointer my-2 sticky top-40"
+              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
+              disabled={!isLatest}
             >
-              Uusi funktionaalinen komponentti
+              {translation.newFunctionalComponent}
             </button>
-            {/* Render summary only if project has functional components */}
-            {project.functionalComponents.length > 0 && <FunctionalPointSummary project={project} />}
           </div>
-        </>
-      ) : (
-        <p>Ei näytettäviä projektitietoja!</p>
-      )}
-    </div>
+  
+          {Array.isArray(project?.functionalComponents) && project.functionalComponents.length > 0 && (
+              <FunctionalPointSummary project={project} />
+          )}
+        </div>
+      </div>
+  
+      <ConfirmModal
+        message={`${translation.saveVersionWarningBeginning} ${project?.version}? ${translation.saveVersionWarningEnd}`}
+        open={isConfirmModalOpen}
+        setOpen={setConfirmModalOpen}
+        onConfirm={() => saveProjectVersion()}
+      />
+    </>
   );
 }

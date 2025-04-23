@@ -1,26 +1,13 @@
-import { createContext, ReactNode, useEffect, useState } from "react"
-
-//TODO: add logic for session token and handling it when the application is started
-
-type AppUserContextType = {
-    loadingAuth: boolean,
-    appUser: AppUser | null,
-    loggedIn: boolean,
-    sessionToken: string | null,
-    setSessionToken: React.Dispatch<React.SetStateAction<string | null>>,
-    setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>,
-    setAppUser: React.Dispatch<React.SetStateAction<AppUser | null>>
-}
+import { ReactNode, useEffect, useState } from "react"
+import { AppUserContext, AppUserContextType } from "./AppUserContext"
 
 type AppUserProviderProps = {
     children: ReactNode
 }
 
-type AppUser = {
+export type AppUser = {
     username: string,
 }
-
-export const AppUserContext = createContext<AppUserContextType | null>(null);
 
 const AppUserProvider = ({ children }: AppUserProviderProps) => {
     const [loadingAuth, setLoadingAuth] = useState<boolean>(true);

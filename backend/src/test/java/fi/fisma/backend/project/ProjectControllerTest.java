@@ -47,10 +47,10 @@ class ProjectControllerTest {
         var appUser = new AppUser(13L, "test-user", "test-user-password");
         when(appUserRepository.findByUsername("test-user")).thenReturn(appUser);
         
-        var project = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var project = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.findByProjectIdAndUsername(77L, "test-user")).thenReturn(Optional.of(project));
@@ -89,10 +89,10 @@ class ProjectControllerTest {
     void shouldNotReturnAProjectWhereUserIsNotListedAsAnProjectAppUser() {
         var someoneAppUser = new AppUser(15L, "someone", "someone-password");
         when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
-        var someonesProject = new Project(88L, "someones project", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var someonesProject = new Project(88L, "someones project", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19),  LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat",100L)
                 ),
                 Set.of(new ProjectAppUser(15L)));
         when(projectRepository.findByProjectIdAndUsername(88L, "someone")).thenReturn(Optional.of(someonesProject));
@@ -105,16 +105,16 @@ class ProjectControllerTest {
     @Test
     void shouldReturnAllProjectsWhereAppUserIsListedAsAnProjectAppUser() {
         var projects = List.of(
-                new Project(88L, "project one", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+                new Project(88L, "project one", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19),  LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                         Set.of(
-                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
+                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
                         ),
                         Set.of(new ProjectAppUser(13L))),
-                new Project(98L, "project two", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+                new Project(98L, "project two", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                         Set.of(
-                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
+                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
                         ),
                         Set.of(new ProjectAppUser(13L))));
         when(projectRepository.findAllByUsername("test-user")).thenReturn(projects);
@@ -143,16 +143,16 @@ class ProjectControllerTest {
         var someoneAppUser = new AppUser(15L, "someone", "someone-password");
         when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
         var projects = List.of(
-                new Project(88L, "project one", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+                new Project(88L, "project one", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19),  LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                         Set.of(
-                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
+                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
                         ),
                         Set.of(new ProjectAppUser(15L))),
-                new Project(98L, "project two", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+                new Project(98L, "project two", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                         Set.of(
-                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
+                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
                         ),
                         Set.of(new ProjectAppUser(15L))));
         when(projectRepository.findAllByUsername("someone")).thenReturn(projects);
@@ -166,11 +166,11 @@ class ProjectControllerTest {
     
     @Test
     void shouldUpdateAndReturnAProjectWithAKnowId() throws JsonProcessingException {
-        var updatedProject = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var updatedProject = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L),
+                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(updatedProject)).thenReturn(updatedProject);
@@ -200,11 +200,11 @@ class ProjectControllerTest {
     
     @Test
     void shoudNotUpdateAProjectThatDoesNotExist() throws JsonProcessingException {
-        var projectThatDoesNotExist = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var projectThatDoesNotExist = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L),
+                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(projectThatDoesNotExist)).thenReturn(projectThatDoesNotExist);
@@ -223,19 +223,19 @@ class ProjectControllerTest {
     void shouldNotUpdateAProjectWhereAppUserIsNotListedAsAProjectAppUser() throws JsonProcessingException {
         var someoneAppUser = new AppUser(13L, "someone", "someone-password");
         when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
-        var someonesProject = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var someonesProject = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                 Set.of(
-                        new FunctionalComponent(49L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(400L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat")
+                        new FunctionalComponent(49L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 49L),
+                        new FunctionalComponent(400L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 400L)
                 ),
                 Set.of(new ProjectAppUser(16L)));
         when(projectRepository.findByProjectIdAndUsername(999L, "someone")).thenReturn(Optional.of(someonesProject));
         
-        var projectThatIsTriedToUpdate = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
+        var projectThatIsTriedToUpdate = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat"),
-                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L),
+                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(projectThatIsTriedToUpdate)).thenReturn(projectThatIsTriedToUpdate);
@@ -252,12 +252,12 @@ class ProjectControllerTest {
     
     @Test
     void shouldCreateANewProject() throws JsonProcessingException {
-        var savedProject = new Project(44L, "new project name", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 0.00, Set.of(), Set.of(new ProjectAppUser(13L)));
+        var savedProject = new Project(44L, "new project name", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),0.00, Set.of(), Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(Mockito.any(Project.class))).thenReturn(savedProject);
         
         when(projectRepository.findByProjectIdAndUsername(44L, "test-user")).thenReturn(Optional.of(savedProject));
         
-        var newProjectRequest = new Project(null, "new project name", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 0.00, Set.of(), Set.of(new ProjectAppUser(13L)));
+        var newProjectRequest = new Project(null, "new project name", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),0.00, Set.of(), Set.of(new ProjectAppUser(13L)));
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -286,12 +286,12 @@ class ProjectControllerTest {
     
     @Test
     void shouldNotCreateANewProjectWithoutCredentials() throws JsonProcessingException {
-        var savedProject = new Project(44L, "new project name", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 0.00, Set.of(), Set.of(new ProjectAppUser(13L)));
+        var savedProject = new Project(44L, "new project name", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19),  LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),0.00, Set.of(), Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(Mockito.any(Project.class))).thenReturn(savedProject);
         
         when(projectRepository.findByProjectIdAndUsername(44L, "test-user")).thenReturn(Optional.of(savedProject));
         
-        var newProjectRequest = new Project(null, "new project name", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), 0.00, Set.of(), Set.of(new ProjectAppUser(13L)));
+        var newProjectRequest = new Project(null, "new project name", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),0.00, Set.of(), Set.of(new ProjectAppUser(13L)));
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

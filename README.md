@@ -1,5 +1,5 @@
 # Benefit app main repository.
-All-in-one repository for the Benefit application. Includes such as frontend, backend, documents, etc.
+All-in-one repository for the Benefit application. Includes frontend, backend, documents, etc.
 
 **Product owner**: FiSMA ry 2025.
 
@@ -35,47 +35,30 @@ All-in-one repository for the Benefit application. Includes such as frontend, ba
 ## 1. Introduction
 
 
-**What is Benefit application and what is it's main purpose?**
+**What is Benefit application and its main purpose?**
 
-Benefit application, i.e. **_benefit-app_** is a software size mesurement program, 
-that will calculate function points of navigation and query, 
-interfaces to/from other, inputs and outputs, etc.
+Benefit application is a project by FiSMA ry 2025. It is a software tool designed for estimating the size of a software project, which calculates function points for navigation and queries, external interfaces, inputs and outputs. Based on these, it helps estimate the project's budget and costs.
 
-FiSMA ry requested a working version of benefit-app from Haaga-Helia University 
-of Applied Sciences on Spring 2025. The working group were third year's Haaga-Helia's students,
-specialized on software development.
+![fisma_frontend_project_page_29_03_2025](https://github.com/user-attachments/assets/becefb55-5342-4afb-ac4c-2885cea017a8)
+
+Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
 
 
-![fisma_frontend_home_page_14_02_2024](https://github.com/user-attachments/assets/50d90e91-6d70-4b11-b9be-ac36b82894ea)
+**Whom is application made for?**
 
-Picture 1: A visual re-presentation of the Benefit application's UI. [Placeholder, must be updated]
-
-
-**Whom is application is made for?**
-The application was made first and foremost staff of FiSMA ry.
+The application is designed for businesses and individuals who want to estimate the size and costs of a software project.
 
 The application can be useful for experts, who want to easily calculate
 function points of other applications.
 
 **What are prerequisites?**
-We have a working live-version of Benefit-app for FiSMA ry's staff.
 
-For those who want locally activate Benefit-app,
-we have broadly explained all steps and prerequisites in our documents folder,
-especially 
-
-In short, we expect from local user to have background on Java with Gradle,
-React, command language interfaces and Docker.
+Add explaniation ...
 
 
-**Why only one repository for the project?**
+"Why are the frontend, backend, and other components stored in a single repository?"
 
-Our team decided to have only one repository for the project on 24th January 2025.
-
-Majority of the team justified the decision, as it is much easier
-to find essential files and data from one and only repository.
-Having two or more repository makes the finding of files very troublesome,
-and in some case can even cause merging problems in Github.
+The frontend, backend, and other components are stored in a single repository to streamline the development process, allowing the team to work efficiently and coordinate changes more easily.
 
 ---
 
@@ -111,41 +94,31 @@ We also used PostgreSQL over other SQL DBMS due product owner's wishes.
 
 ## 4. Frontend
 
-In short, frontend works following...
-
-Please read [add a frontend manual] from documents' directory for more information.
+Please read [add a frontend manual] from documents -directory for more information.
 
 ---
 
 ## 5. Backend
 
-In short, backend works following...
-
-Please read [add a backend manual] from documents' directory for more information.
+Please read [add a backend manual] from documents -directory for more information.
 
 ---
 
 ## 6. Database
 
-The structure of Benefit's SQL database is shown in the below diagram:
+The structure of Benefit's SQL database is shown in the diagram below:
 
-
-![FiSMA db diagram](https://github.com/user-attachments/assets/0a503ab0-fe85-4d01-af8b-601663ff2205)
+![database-img](https://github.com/user-attachments/assets/5a40b948-4ea3-45f4-bc1c-3f5d3a54e2c3)
 
 Picture #: Diagram of Benefit's database.
-
 
 ---
 
 ## 7. CD/CI
 
-The CD/CI pipeline is following:
-
 a) MVP and KISS. In the first sprints (i.e. from Sprint 01 to ...),
 our product owner required our team to keep Benefit application simple as possible
 in every development.
-
-Thus we developed a very basic calculator (MVP), that only calulates one row of elements.
 
 b) We have three branches: dev, main and qa.
   **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
@@ -156,13 +129,13 @@ b) We have three branches: dev, main and qa.
 
 ## 8. Quality assurance
 
-The assured quality of application by ... testing? end-users? ...
+Quality of application was assured by TODO: testing/end-users
 
 ---
 
 ## 9. Results
 
-The application is working fine/lagging/ok and why...
+TODO: The application is working fine/lagging/ok and why...
 
 ---
 
@@ -174,4 +147,4 @@ So far, we have discovered following bugs...
 
 ## 11. Future improvements
 
-We have come following improvements and future features for the application...
+Here are planned improvements and future features for the application...
