@@ -109,12 +109,14 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setIsCollapsed((prev) => !prev)}
                 className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
               >
                 <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
               </button>
               <button
+                type="button"
                 className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
                 onClick={() => setConfirmModalOpen(true)}
                 disabled={!isLatest}
