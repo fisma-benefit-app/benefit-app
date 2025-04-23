@@ -6,8 +6,8 @@ from functional_component;
 insert into app_user (id, username, password)
 values (23, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
        (13, 'john', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (63, 'user2', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (64, 'user3', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
+       (63, 'jukkaj', '$2a$12$AC0HQsNnw7o/d.0JKHwXEuC2LbAQzhQR0JKfdlKF1g7ojSkEKHy6C'),
+       (64, 'heikki', '$2a$12$.iyVlRixFRGFW3aBE4pa6eHnBc9/w/kkBycu1cIQ6hFMLTxeiwyUu'),
        (65, 'user4', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
        (66, 'user5', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
        (67, 'user6', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
