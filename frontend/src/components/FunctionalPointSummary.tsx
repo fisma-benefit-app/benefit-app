@@ -67,52 +67,57 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
 
   const totalPoints = calculateTotalFunctionalComponentPoints(project.functionalComponents);
   return (
-    <div className="sticky top-100 z-10 bg-white rounded-xl shadow-md border-2 p-4 mb-[-110px]">
-      <div className="pr-2 flex-1">
+    <div className="flex flex-col border-2 p-4 sticky top-60 bg-white">
+      <div className="max-h-[60vh]">
         {getGroupedFunctionalComponents(project.functionalComponents).map((group) => {
-          const componentCount = group.components.reduce((acc, curr) => acc + curr.count, 0);
-          const totalPoints = group.components.reduce((acc, curr) => acc + curr.points, 0);
-
+          const componentCount = group.components.reduce((acc, curr) => acc + curr.count, 0)
+          const totalPoints = group.components.reduce((acc, curr) => acc + curr.points, 0)
+  
           return (
-            <div key={group.className} className="flex gap-5 justify-between w-full pb-3">
+            <div key={group.className} className="flex gap-2 sm:gap-5 justify-between w-full pb-3 text-sm sm:text-base">
               <div>
                 <b>
                   {componentCount + "x "}
-                  {translation.functionalClassComponent.classNameOptions[group.className as ClassName]}{" "}
+                  {translation.functionalClassComponent.classNameOptions[group.className as ClassName]} { }
                 </b>
                 <br />
-                {group.components.map((groupedTypes) => (
-                  <div key={groupedTypes.type}>
+                {group.components.map((groupedTypes, idx) => (
+                  <div key={idx}>
                     {groupedTypes.count}x {translation.functionalClassComponent.componentTypeOptions[groupedTypes.type as ComponentType]} {groupedTypes.points.toFixed(2)}
                   </div>
                 ))}
+              </div>
+              <div className="font-semibold">
+                {totalPoints.toFixed(2)}
               </div>
               <div>{totalPoints.toFixed(2)}</div>
             </div>
           );
         })}
       </div>
-
-      <div className="shrink-0 pt-4 border-t mt-4 bg-white">
-        <div className="flex gap-7 justify-between w-full">
-          <b>{translation.functionalPointSummary.total}</b>
-          <b>{totalPoints.toFixed(2)} {translation.functionalPointSummary.functionalPointText}</b>
-        </div>
-
-        <div className="flex gap-2 mt-3">
-          <button
-            onClick={() => downloadProjectComponentsCsv(project)}
-            className="px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer w-full sticky top-20"
-          >
-            CSV <FontAwesomeIcon icon={faDownload} />
-          </button>
-          <button
-            onClick={() => createPdf(project, previousOrCurrent, translation.printUtils)}
-            className="px-4 py-2 bg-fisma-blue hover:bg-fisma-gray text-white rounded-lg cursor-pointer w-full sticky top-40"
-          >
-            PDF <FontAwesomeIcon icon={faDownload} />
-          </button>
-        </div>
+  
+      <div className="flex gap-5 justify-between w-full border-t pt-4 text-sm sm:text-base">
+        <b>
+          {translation.functionalPointSummary.total}
+        </b>
+        <b>
+          {totalPoints.toFixed(2)} {translation.functionalPointSummary.functionalPointText}
+        </b>
+      </div>
+  
+      <div className="flex flex-row gap-2 mt-3 justify-center">
+        <button
+          onClick={() => downloadProjectComponentsCsv(project)}
+          className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
+        >
+          CSV <FontAwesomeIcon icon={faDownload} />
+        </button>
+        <button
+          onClick={() => createPdf(project, previousOrCurrent, translation.printUtils)}
+          className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
+        >
+          PDF <FontAwesomeIcon icon={faDownload} />
+        </button>
       </div>
     </div>
   );

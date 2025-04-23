@@ -3,7 +3,8 @@ import { classNameOptions } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
 import { TGenericComponent, Project, ClassName, ComponentType, CalculationParameter } from "../lib/types.ts";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
+import ConfirmModal from "./ConfirmModal.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 
 type FunctionalClassComponentProps = {
@@ -17,6 +18,7 @@ type FunctionalClassComponentProps = {
 export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest }: FunctionalClassComponentProps) {
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
   const translation = useTranslations().functionalClassComponent;
 
@@ -63,13 +65,19 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
 
   const handleComponentChange = (e: ChangeEvent<HTMLInputElement>) => {
     let updatedComponent;
+    let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["comment"].includes(e.target.id)) {
-      updatedComponent = { ...component, [e.target.id]: e.target.value };
+      updatedComponent = { ...component, [e.target.id]: value };
     } else {
-      updatedComponent = { ...component, [e.target.id]: Number(e.target.value) };
+      if (e.target.id === "degreeOfCompletion") {
+        let num = parseFloat(value);
+        if (num < 0) value = "0";
+        if (num > 1) value = "1";
+      }
+      updatedComponent = { ...component, [e.target.id]: value };
     }
     const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
     const updatedProject = { ...project, functionalComponents: updatedComponents };
@@ -77,128 +85,142 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
   }
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 border-2 border-fisma-dark-blue bg-white my-5 w-[1075px] p-4">
-      <div className="flex gap-5 items-center justify-between">
-        <div className="flex-1">
-          <input
-            className="w-full border-2 border-gray-400 p-1"
-            id="comment"
-            placeholder={translation.commentPlaceholder}
-            value={component.comment || ""}
-            onChange={handleComponentChange}
-            disabled={!isLatest}
-          />
-        </div>
-
-        <div className="flex gap-4 items-center">
-          <p>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</p>
-          <p>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</p>
-          <button
-            type="button"
-            onClick={() => setIsCollapsed((prev) => !prev)}
-            className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer rounded text-white py-1 px-3 items-center gap-1"
-          >
-            <span className={`inline-block text-1xl ${isCollapsed ? "rotate-180" : "rotate-0"} transition-transform duration-300`}>
-              <FontAwesomeIcon icon={faCaretDown} />
-            </span>
-          </button>
-          <button
-            type="button"
-            className={`${isLatest ? "bg-fisma-red hover:brightness-130 cursor-pointer" : "bg-fisma-gray"} rounded text-white py-1 px-3`}
-            onClick={() => deleteFunctionalComponent(component.id)}
-            disabled={!isLatest}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
-        </div>
-      </div>
-
-      {isCollapsed && (
-        <>
-          <div className="flex w-full gap-2 items-center">
-            <select
-              id="className"
-              value={component.className || ""}
-              onChange={handleClassNameChange}
-              className="flex-content border-2 border-gray-400 p-1"
+    <>
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="flex flex-col gap-4 border-2 border-fisma-gray bg-white my-5 w-full p-4"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex-1 min-w-[200px]">
+            <input
+              className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
+              id="comment"
+              placeholder={translation.commentPlaceholder}
+              value={component.comment || ""}
+              onChange={handleComponentChange}
               disabled={!isLatest}
-            >
-              <option disabled value="">{translation.classNamePlaceholder}</option>
-              {classNameOptions.map((className) => {
-                return (
+            />
+          </div>
+  
+          <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
+            <div className="flex gap-2 text-sm sm:text-base">
+              <span>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</span>
+              <span>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsCollapsed((prev) => !prev)}
+                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
+              >
+                <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
+              </button>
+              <button
+                className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
+                onClick={() => setConfirmModalOpen(true)}
+                disabled={!isLatest}
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            </div>
+          </div>
+        </div>
+  
+        {isCollapsed && (
+          <>
+            <label className="font-medium">
+              {translation.degreeOfCompletionPlaceholder}:
+            </label>
+            <input
+              id="degreeOfCompletion"
+              type="number"
+              min={0.01}
+              max={1}
+              step={0.01}
+              value={component.degreeOfCompletion || ""}
+              onChange={handleComponentChange}
+              className="border-2 border-fisma-light-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base"
+              placeholder="0"
+              disabled={!isLatest}
+            />
+
+            <div className="flex flex-row flex-wrap gap-3 items-center">
+              <select
+                id="className"
+                value={component.className || ""}
+                onChange={handleClassNameChange}
+                className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base"
+                disabled={!isLatest}
+              >
+                <option disabled value="">{translation.classNamePlaceholder}</option>
+                {classNameOptions.map((className) => (
                   <option key={className} value={className}>
                     {translation.classNameOptions[className as ClassName]}
                   </option>
-                );
-              })}
-            </select>
-
-            {/* Show option for component type and degree of completion 
-                only if component class is selected first */}
-            {component.className && (
-              <>
-                <select
-                  id="componentType"
-                  value={component.componentType || ""}
-                  onChange={handleOptionTypeChange}
-                  className="flex-content border-2 border-gray-400 p-1"
-                  disabled={!isLatest}
-                >
-                  <option disabled value="">{translation.componentTypePlaceholder}</option>
-                  {/* todo: add option for no component type if needed */}
-                  {componentTypeOptions.map((option) => {
-                    return (
-                      <option key={option} value={option}>
-                        {translation.componentTypeOptions[option as ComponentType]}
-                      </option>
-                    );
-                  })}
-                </select>
-
-                <input
-                  className="w-40 border-2 border-gray-400 p-1"
-                  id="degreeOfCompletion"
-                  placeholder={translation.degreeOfCompletionPlaceholder}
-                  type="number"
-                  min={0.01}
-                  max={1}
-                  step={0.01}
-                  value={component.degreeOfCompletion || ""}
-                  onChange={handleComponentChange}
-                  disabled={!isLatest}
-                />
-              </>
-            )}
-          </div>
-
-          {/* The rest of the options are only rendered 
-              if component class is selected */}
-          {component.className && (
-            <div className="flex gap-10">
-              {Object.entries(component)
-                .filter(
-                  ([key, value]) =>
-                    ["dataElements", "readingReferences", "writingReferences", "operations"].includes(key) &&
-                    value !== null,
-                )
-                .map(([key, value]) => (
-                  <div key={key} className="flex flex-col gap-2 items-center">
-                    {/* Display finnish name for parameters */}
-                    <label htmlFor={key}>{translation.parameters[key as CalculationParameter]}:</label>
-                    <input
-                      className="w-16 border-2 border-gray-400 p-1"
-                      id={key}
-                      type="text"
-                      value={value as number}
-                      onChange={handleComponentChange}
-                      disabled={!isLatest}
-                    />
-                  </div>
                 ))}
+              </select>
+              
+              {component.className && (
+                <>
+                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                    <select
+                      id="componentType"
+                      value={component.componentType || ""}
+                      onChange={handleOptionTypeChange}
+                      className="border-2 border-fisma-light-gray bg-white p-2 text-base"
+                      disabled={!isLatest}
+                    >
+                      <option disabled value="">
+                        {translation.componentTypePlaceholder}
+                      </option>
+                      {componentTypeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {translation.componentTypeOptions[option as ComponentType]}
+                        </option>
+                      ))}
+                    </select>
+
+                  </div>
+                </>
+              )}
             </div>
-          )}
-        </>
-      )}
-    </form>
+  
+            {component.className && (
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(component)
+                  .filter(
+                    ([key, value]) =>
+                      ["dataElements", "readingReferences", "writingReferences", "operations"].includes(key) && value !== null,
+                  )
+                  .map(([key, value]) => (
+                    <div key={key} className="flex flex-col gap-1 items-start">
+                      <label htmlFor={key} className="font-medium">
+                        {translation.parameters[key as CalculationParameter]}:
+                      </label>
+                      <input
+                        id={key}
+                        type="text"
+                        value={value as number}
+                        onChange={handleComponentChange}
+                        className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
+                      />
+                    </div>
+                  ))}
+              </div>
+            )}
+          </>
+        )}
+      </form>
+  
+      <ConfirmModal 
+        message={
+          component.comment
+            ? `${translation.confirmDeleteMessage} "${component.comment}?"`
+            : `${translation.confirmDeleteMessage}?`
+        }
+        open={isConfirmModalOpen}
+        setOpen={setConfirmModalOpen}
+        onConfirm={() => deleteFunctionalComponent(component.id)}
+      />
+    </>
   );
 }
