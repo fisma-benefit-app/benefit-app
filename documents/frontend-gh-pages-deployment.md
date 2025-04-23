@@ -4,13 +4,15 @@
 
 ### 1. vite.config.js
 
+```
 export default defineConfig({
-  **base: "/benefit-app/",**
+  base: "/benefit-app/",
   plugins: [
     react(),
     tailwindcss(),
   ],
 })
+```
 
 The **base** property specifies the base public path where the app is be served from. For Github Pages this must be set to the project repository name.
 
@@ -18,16 +20,20 @@ The **base** property specifies the base public path where the app is be served 
 
 The frontend uses the gh-pages npm package which is used to deploy the application to Github Pages from command line.
 
+```
 "devDependencies": {
     "gh-pages": "^6.3.0",
 }
+```
 
 Deployment scripts:
 
+```
  "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
+```
 
 - predeploy builds the project into the dist folder.
 
