@@ -1,7 +1,7 @@
 # Benefit app main repository.
 All-in-one repository for the Benefit application. Includes frontend, backend, documents, etc.
 
-**Product owner**: FiSMA ry 2025.
+**Product owner**: FiSMA ry, 2025.
 
 <img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" width="200">
 
@@ -37,7 +37,7 @@ All-in-one repository for the Benefit application. Includes frontend, backend, d
 
 **What is Benefit application and its main purpose?**
 
-Benefit application is a project by FiSMA ry 2025. It is a software tool designed for estimating the size of a software project, which calculates function points for navigation and queries, external interfaces, inputs and outputs. Based on these, it helps estimate the project's budget and costs.
+Benefit application is a project by FiSMA ry, developed during Spring 2025. It is a software tool designed for estimating the size of a software project, which calculates function points for navigation and queries, external interfaces, inputs and outputs. Based on these, it helps estimate the project's budget and costs.
 
 ![fisma_frontend_project_page_29_03_2025](https://github.com/user-attachments/assets/becefb55-5342-4afb-ac4c-2885cea017a8)
 
@@ -48,6 +48,8 @@ Picture 1: A visual representation of the Benefit application's UI. [TODO: Updat
 
 The application is designed for businesses and individuals who want to estimate the size and costs of a software project.
 
+The application can be useful for experts, who want to easily calculate
+function points of other applications.
 
 **What are prerequisites?**
 
@@ -69,30 +71,23 @@ The mathematical algorithm has the following logic...
 ## 3. Tools
 
 We have used following tools in the project, alphabetically:
-
-* 
-* 
-
+  
 * Figma for preliminary sketching UI design. 
 
 * Java with Gradle for backend.
 
 * Docker, due it will automatically install required languages and libraries 
-(e.g. PostgreSQL) for the new member.
-
-Thus it will save both time and hussle for future groups.  
+(e.g. PostgreSQL) for the new member. Thus it will save both time and hussle for future groups.  
 
 * PostgreSQL for the database. Everyone of our team has used SQL for databases. 
 Thus production will be most effective, when we are working with familiar language.
+We also used PostgreSQL over other SQL DBMS due product owner's wishes. 
 
-We used PostgreSQL over other SQL DBMS as product owner's wishes. 
-
-* Typescript for frontend.
-* 
 * Spring boot for backend.
 
-* Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding. 
+* Typescript for frontend.
 
+* Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding. 
 
 
 ---
