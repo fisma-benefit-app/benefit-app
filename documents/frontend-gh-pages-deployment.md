@@ -41,9 +41,9 @@ Deployment scripts:
 
 ## 2. Deployment
 
-Frontend can be deployed to Github pages by running following command while in the frontend project folder:
-
 Note: Before deploying you should have the environment variable **VITE_API_URL** in the frontend .env file and it's value should match the backend server address. When frontend is built and deployed, Vite substitutes environment variable values in the code.
+
+Frontend can be deployed to Github pages by running following command while in the frontend project folder:
 
 ```sh
 npm run deploy
