@@ -27,7 +27,6 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
   }, [sessionToken]);
 
   const sortedProjects = projects.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());     
-  //sorted projects are derived, not sorted only in the useEffect so we dont have to sort again later, we should discuss
       
   const handleDelete = async (projectId: number) => {
     try {
