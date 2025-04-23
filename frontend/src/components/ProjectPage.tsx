@@ -183,7 +183,7 @@ export default function ProjectPage() {
             >
               <option value="" disabled>{translation.selectProjectVersion}</option>
               {allProjectVersions.map((project) => (
-                <option key={project.id} value={project.id}>{project.version}</option>
+                <option key={project.id} value={project.id}>{translation.version} {project.version}</option>
               ))}
             </select>
             <button
