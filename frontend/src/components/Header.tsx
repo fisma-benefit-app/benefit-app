@@ -37,8 +37,8 @@ const Header = () => {
       <header className="fixed top-0 w-full bg-fisma-blue text-white flex z-999">
         <Link to="/">
           <img
-            src="/Fisma-benefit_logo.png"
-            alt="FISMA Logo"
+            src={`${import.meta.env.BASE_URL}Fisma-benefit_logo.png`}
+            alt="FISMA-BENEFIT-logo"
             className="h-15 w-auto mb-2 ml-10 hover:opacity-75 drop-shadow-fisma-logo"
           />
         </Link>
