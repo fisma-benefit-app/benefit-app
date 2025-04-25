@@ -34,6 +34,8 @@ All-in-one repository for the Benefit application. Includes frontend, backend, d
 
 ## 1. Introduction
 
+Software is available at:
+[https://fisma-benefit-app.github.io/benefit-app/#/login](https://fisma-benefit-app.github.io/benefit-app/#/login)
 
 **What is Benefit application and its main purpose?**
 
