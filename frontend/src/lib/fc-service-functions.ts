@@ -1,5 +1,5 @@
 import {  TGenericComponent } from "./types.ts";
-import { calculateFunctions, componentTypeOptions } from "./fc-constants.ts";
+import { calculateFunctions, componentTypeOptions, componentClassFields } from "./fc-constants.ts";
 import {componentTemplates} from "./fc-empty-templates.ts";
 
 export const getComponentTypeOptions = (className: string) => {
@@ -12,6 +12,10 @@ export const getCalculateFuntion = (className: string) => {
   return calculateFunction || null;
 };
 
+export const getInputFields = (className: string) => {
+  const inputFields = componentClassFields.find(option => option.className === className)?.inputFields;
+  return inputFields || [];
+}
 
 export const getEmptyComponent = (component: TGenericComponent) => {
   return {
