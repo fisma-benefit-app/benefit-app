@@ -10,7 +10,7 @@ import DotLoadingSpinner from './DotLoadingSpinner';
 export default function LoginForm() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  //const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | null>(null)
   const [showLoginError, setShowLoginError] = useState<boolean>(false);
@@ -98,7 +98,8 @@ export default function LoginForm() {
             </button>
           </div>
 
-          <div className="flex justify-between items-center mb-4 text-white">
+          {/* TODO: Remember me and forgot password?  */}
+          {/* <div className="flex justify-between items-center mb-4 text-white">
             <label className="flex items-center">
               <input
                 type="checkbox"
@@ -109,7 +110,7 @@ export default function LoginForm() {
               {translation.rememberMe}
             </label>
             <a href="#" className="text-white text-sm hover:underline">{translation.forgotPassword}</a>
-          </div>
+          </div> */}
 
           <button
             type="submit"
