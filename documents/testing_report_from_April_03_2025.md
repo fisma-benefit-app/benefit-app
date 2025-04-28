@@ -18,7 +18,7 @@ What problem: The complete function point should be FP, not TP.
 
 * The split screen in Microsoft edge doesn't show whole calculator.
 Especially beginning of the calculator.
-
+d
 What tested: Configured Microsoft Edge's window size.
 What problem: Edge doesn't show whole calculator.
 Especially beginning of the form.

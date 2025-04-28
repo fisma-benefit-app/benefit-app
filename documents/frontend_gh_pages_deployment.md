@@ -53,4 +53,4 @@ npm run deploy
 
 You can view and check GitHub Pages deployment changes in github repository **settings** and the **pages** section
 
-![image](https://github.com/user-attachments/assets/a19730aa-d4f8-4c4a-831c-b8521d211ad4)
+![image](img/images_for_manuals/github_pages_deployment.png)
