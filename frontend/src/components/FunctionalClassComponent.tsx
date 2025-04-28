@@ -1,11 +1,11 @@
+import { faCaretDown, faCaretUp, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ChangeEvent, useState } from "react";
+import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
-import { TGenericComponent, Project, ClassName, ComponentType, CalculationParameter } from "../lib/types.ts";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
+import { CalculationParameter, ClassName, ComponentType, Project, TGenericComponent } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
-import useTranslations from "../hooks/useTranslations.ts";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent,
@@ -67,15 +67,31 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
     let updatedComponent;
     let value = e.target.value;
 
+
+
     //check if the updated attribute needs to be converted to a number for math
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["comment"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
     } else {
       if (e.target.id === "degreeOfCompletion") {
+
+
         const num = parseFloat(value);
-        if (num < 0) value = "0";
-        if (num > 1) value = "1";
+
+        //This is the simplest solution for fixing values that aren't numbers,
+        //including values that have commas such as 0,95.
+
+        //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
+        //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
+        //for increment - decrement input field of defreeOfCompletion.
+        if (isNaN(num)) {
+          value = "0";
+          console.log("Please do not type commas for percentage.");
+        } else {
+          if (num < 0) value = "0";
+          if (num > 1) value = "1";
+        }
       }
       updatedComponent = { ...component, [e.target.id]: value };
     }
@@ -101,7 +117,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               disabled={!isLatest}
             />
           </div>
-  
+
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
             <div className="flex gap-2 text-sm sm:text-base">
               <span>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</span>
@@ -126,7 +142,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             </div>
           </div>
         </div>
-  
+
         {isCollapsed && (
           <>
             <label className="font-medium">
@@ -145,6 +161,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               disabled={!isLatest}
             />
 
+
             <div className="flex flex-row flex-wrap gap-3 items-center">
               <select
                 id="className"
@@ -160,7 +177,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                   </option>
                 ))}
               </select>
-              
+
               {component.className && (
                 <>
                   <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
@@ -185,7 +202,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 </>
               )}
             </div>
-  
+
             {component.className && (
               <div className="flex flex-wrap gap-2">
                 {Object.entries(component)
@@ -212,8 +229,8 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           </>
         )}
       </form>
-  
-      <ConfirmModal 
+
+      <ConfirmModal
         message={
           component.comment
             ? `${translation.confirmDeleteMessage} "${component.comment}?"`
