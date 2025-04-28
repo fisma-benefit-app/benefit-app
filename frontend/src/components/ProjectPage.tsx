@@ -111,7 +111,7 @@ export default function ProjectPage() {
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
-        navigate(`project/${idOfNewProjectVersion}`);
+        navigate(`/project/${idOfNewProjectVersion}`);
       } catch (err) {
         console.error(err);
       }
