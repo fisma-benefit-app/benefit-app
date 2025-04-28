@@ -94,10 +94,12 @@ export default function ProjectPage() {
   const saveProject = async () => {
     if (project) {
       try {
+        setLoadingProject(true);
         const editedProject = { ...project, editedDate: CreateCurrentDate() };
         const savedProject = await updateProject(sessionToken, editedProject);
+
         setProject(savedProject);
-        alert(translation.projectSaved);
+        setLoadingProject(false);
       } catch (err) {
         console.error(err);
       }
