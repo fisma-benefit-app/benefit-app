@@ -23,7 +23,7 @@ export const componentTypeOptions = [
     className: "Interactive end-user navigation and query service",
     componentTypeOptions: [
       "function designators",
-      "log-in, log-out functions",
+      "log-in log-out functions",
       "function lists",
       "selection lists",
       "data inquiries",

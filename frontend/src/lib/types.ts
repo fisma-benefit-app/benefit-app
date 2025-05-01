@@ -67,7 +67,7 @@ export type TInteractiveEndUserNavigationAndQueryService = {
   componentType:
   | null
   | "function designators"
-  | "log-in, log-out functions"
+  | "log-in log-out functions"
   | "function lists"
   | "selection lists"
   | "data inquiries"
@@ -190,7 +190,7 @@ export type ClassName = "Interactive end-user navigation and query service" |
   "Algorithmic or manipulation service"
 
 export type ComponentType = "function designators" |
-  "log-in, log-out functions" |
+  "log-in log-out functions" |
   "function lists" |
   "selection lists" |
   "data inquiries" |
