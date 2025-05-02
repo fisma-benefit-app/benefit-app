@@ -12,14 +12,12 @@ Clone the repository at https://github.com/fisma-benefit-app/benefit-app.git. Th
 
 Locate the file application.yaml in /src/main/resources/ and change it like this:
 
----
-
+```
   datasource:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     url: ${SPRING_DATASOURCE_URL}
-
----
+```
 
 This will allow Heroku to enter values for your database.
 
@@ -44,7 +42,8 @@ Click on Reveal Config Vars.
 
 Create Key-value pairs for the username, password and url, where the key is one of the three datasource variables and the value is the actual value for your database:
 
-![key_value_pairs](https://github.com/user-attachments/assets/d10c404d-6a7f-4e4a-837a-6c5fa9875ae8)
+![key_value_pairs](https://github.com/user-attachments/assets/6abddcfb-a45a-4786-bd33-66d39061d1c7)
+
 
 ### 3. Configure GitHub-repository
 
@@ -72,18 +71,18 @@ Install heroku CLI from https://devcenter.heroku.com/articles/heroku-cli
 
 In your console, enter 
 
----
+```
 heroku login
----
+```
 
 Accept the login prompt in your browser:
 
 ![heroku_login](https://github.com/user-attachments/assets/c821ff72-7371-4dcb-92db-f140d1df1904)
 
 To view detailed logs from your app, enter in your console:
----
+```
 heroku logs --tail --app <APP NAME>
----
+```
 
-Where <APP NAME> is the name you entered when creating the app.
+Where `<APP NAME>` is the name you entered when creating the app.
 
