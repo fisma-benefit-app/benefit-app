@@ -10,7 +10,7 @@ Clone the repository at https://github.com/fisma-benefit-app/benefit-app.git.
 
 ### 2. Modify application.yaml
 
-In the repository, locate the file in /backend/src/main/resources/application.yaml and edit it like this:
+In the cloned repository, locate the file in /backend/src/main/resources/application.yaml and edit it like this:
 
 ```
   datasource:
