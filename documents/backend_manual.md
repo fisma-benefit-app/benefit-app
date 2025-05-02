@@ -9,7 +9,7 @@ be installed and activated in your workstation.
 
 ---
 
-**a.1) Tools' list.**
+**a) Tools' list.**
 
 Here is list of tools, that are required to be installed
 for Windows workstations in order to activate Benefit-app:
@@ -22,7 +22,9 @@ for Windows workstations in order to activate Benefit-app:
 For Mac and Linux workstation, we will report all necessary tools
 in more detail sometime in future (WIP).
 
-**a.2) Quick setup.**
+---
+
+**b) Quick setup.**
 If you have all necessary tools installed,
 you can try activate directly the backend via below commands
 at your benefit-app directory root:
@@ -41,7 +43,7 @@ please read rest of document.
 
 ---
 
-**b) Activate CLI tool (i.e. open the terminal).**
+**c) Activate CLI tool (i.e. open the terminal).**
 
 For following steps, you need to activate Command Line Interface -tool (CLI),
 or open the terminal, in your workstation. CLI will be used for running database, 
@@ -56,7 +58,7 @@ In our group, we used following CLIs in our project:
 
 ---
 
-**c) Activate PostgreSQL via Docker.**
+**d) Activate PostgreSQL via Docker.**
 
 ///
 
@@ -158,7 +160,7 @@ from Fisma ry.
 
 ---
 
-**d.1) Validate Java version in your workstation.**
+**e) Validate Java version in your workstation.**
 
 After activating PostgreSQL's docker,
 move to backend of benefit-app:
@@ -231,7 +233,7 @@ helpful at all).
 
 ---
 
-**d.2) Build Java application in the backend.**
+**f) Build Java application in the backend.**
 
 After checking and validating both Java version and
 JAVA_HOME variable's path, you need lastly check
@@ -279,7 +281,7 @@ configurations in the backend (e.g. review your tools,
 Java language, etc.). If build is a success,
 continue next step.
 
-**d.3) Run Java application in the backend.**
+**g) Run Java application in the backend.**
 
 After successful build, move to following path
 
