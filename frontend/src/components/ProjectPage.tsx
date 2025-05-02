@@ -162,6 +162,10 @@ export default function ProjectPage() {
       <div className="fixed right-5 top-20 w-[320px]">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
+            <div className="text-center">{translation.nameOfProject}:</div>
+            <div className="text-center break-words">
+              {project?.projectName}
+            </div>
             <button
               //disabled={!project?.functionalComponents?.length}
               className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
