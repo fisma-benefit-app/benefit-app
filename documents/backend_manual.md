@@ -101,16 +101,23 @@ Move to the benefit-app's directory.
 ```sh
 cd Drive:/path/to/benefit-app
 ```
-
-[IMAGE: Directory in Visual Studio Code]
+![image](img/images_for_manuals/benefit_app_directory.png)
+Image: The root directory of Benefit app.
 
 In the benefit-app directory, you will activate
 PostgreSQL via Docker. The PostgreSQL is configured
 in the compose.yaml -file.
 
-[IMAGE: compose.yaml -file]
+![image](img/images_for_manuals/compose_yaml.png)
+Image: The compose.yaml -file.
 
-Therefore, make sure you have the Docker
+Note from above image! The INSERT_DB, INSERT_PASSWORD,
+and INSERT_USER are just placeholder. You need to 
+have the correct values for db, password and user
+in PostgreSQL, give by Fisma ry.
+
+
+Next, make sure you have the Docker
 is installed in your workstation,
 e.g. Docker Desktop. You can check
 that have the current version of Docker
@@ -120,7 +127,8 @@ installed via command
 docker --version
 ```
 
-[IMAGE: Docker desktop]
+![image](img/images_for_manuals/docker_desktop.png)
+Image: A screenshot of Docker desktop with the benefit-app dockerized.
 
 After all validations and checking,
 you should able to active Postgresql
@@ -130,7 +138,6 @@ via docker compose's command
 docker compose up -d
 ```
 
-
 in the Drive:/path/to/benefit-app -directory.
 Please note the last option `-d`, which
 will run PostgreSQL's docker in background.
@@ -139,6 +146,41 @@ the CLI and reopen it again.
 
 Alternatively, you can shut down docker via 
 keybindings CTRL+C and run docker compose again.
+
+![image](img/images_for_manuals/docker_compose_up_output.png)
+Image: An example of successful output from docker compose up.
+
+Additionally, you have to check that database accepts 
+incoming queries. You can check database's query management
+via command
+
+```sh
+docker exec -it INSERT_CONTAINER_NAME psql -U POSTGRES_USER POSTGRES_DB
+```
+
+Note that POSTGRES_USER and POSTGRES_DB are values from compose.yaml file. You need to ask Fisma ry for the values.
+
+Meanwhile INSERT_CONTAINER_NAME is name for current container,
+that is actively running benefit-app image.
+
+For getting getting correct container name,
+the easiest way to check is via command
+
+```sh
+docker ps
+```
+As example in our workstation, our container is named
+benefit-app-postgres-1 , like in the image below:
+
+![image](img/images_for_manuals/docker_ps.png)
+Image: Result from command 'docker ps'.
+
+Hence our command will be
+```sh
+docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+```
+Once again, you need to ask values for POSTGRES_USER and POSTGRES_DB
+from Fisma ry.
 
 ---
 
