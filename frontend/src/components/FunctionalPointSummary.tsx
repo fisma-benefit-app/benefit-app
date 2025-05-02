@@ -72,7 +72,7 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
         {getGroupedFunctionalComponents(project.functionalComponents).map((group) => {
           const componentCount = group.components.reduce((acc, curr) => acc + curr.count, 0)
           const totalPoints = group.components.reduce((acc, curr) => acc + curr.points, 0)
-  
+
           return (
             <div key={group.className} className="flex gap-2 sm:gap-5 justify-between w-full pb-3 text-sm sm:text-base">
               <div>
@@ -94,7 +94,7 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
           );
         })}
       </div>
-  
+
       <div className="flex gap-5 justify-between w-full border-t pt-4 text-sm sm:text-base">
         <b>
           {translation.functionalPointSummary.total}
@@ -103,10 +103,14 @@ export const FunctionalPointSummary = ({ project }: FunctionalClassComponentProp
           {totalPoints.toFixed(2)} {translation.functionalPointSummary.functionalPointText}
         </b>
       </div>
-  
+
       <div className="flex flex-row gap-2 mt-3 justify-center">
         <button
-          onClick={() => downloadProjectComponentsCsv(project)}
+          onClick={() => downloadProjectComponentsCsv({
+            ...project,
+            functionalComponents: project.functionalComponents.map(c =>
+              ({ ...c, functionalPoints: calculateFunctionalComponentPoints(c).toFixed(2) }))
+          })}
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
         >
           CSV <FontAwesomeIcon icon={faDownload} />

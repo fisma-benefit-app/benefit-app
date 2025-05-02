@@ -217,7 +217,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       </label>
                       <input
                         id={key}
-                        type="text"
+                        type="number"
                         value={value as number}
                         onChange={handleComponentChange}
                         className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"

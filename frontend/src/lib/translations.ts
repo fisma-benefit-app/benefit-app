@@ -71,7 +71,7 @@ export const translations = {
             componentTypeOptions: Object.fromEntries(
                 [
                     "function designators",
-                    "log-in, log-out functions",
+                    "log-in log-out functions",
                     "function lists",
                     "selection lists",
                     "data inquiries",
@@ -200,7 +200,7 @@ export const translations = {
             },
             componentTypeOptions: {
                 "function designators": "toiminto-osoittimet",
-                "log-in, log-out functions": "kirjautumistoiminnot",
+                "log-in log-out functions": "kirjautumistoiminnot",
                 "function lists": "toimintovalikot",
                 "selection lists": "valintalistat",
                 "data inquiries": "kyselynäytöt",
