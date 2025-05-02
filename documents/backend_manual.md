@@ -53,7 +53,9 @@ In your Windows workstation, you can use any CLI tools you like.
 In our group, we used following CLIs in our project:
 
 *Powershell
+
 *Visual Studio Code's terminal
+
 *Windows Terminal
 
 ---
