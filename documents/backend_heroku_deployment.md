@@ -6,11 +6,11 @@ This assumes that you have a working Heroku account. If not, create one. It will
 
 ### 1. Clone the repository
 
-Clone the repository at https://github.com/fisma-benefit-app/benefit-app.git. Then checkout to dev. Push the contents of the backend-folder into your own repository.
+Clone the repository at https://github.com/fisma-benefit-app/benefit-app.git.
 
 ### 2. Modify application.yaml
 
-Locate the file application.yaml in /src/main/resources/ and change it like this:
+In the repository, locate the file in /backend/src/main/resources/application.yaml and edit it like this:
 
 ```
   datasource:
@@ -20,6 +20,7 @@ Locate the file application.yaml in /src/main/resources/ and change it like this
 ```
 
 This will allow Heroku to enter values for your database.
+Push the contents of the backend-folder into your own repository.
 
 ## 2. Heroku deployment
 
