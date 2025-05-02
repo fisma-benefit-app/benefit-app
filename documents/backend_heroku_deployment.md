@@ -44,8 +44,7 @@ Click on Reveal Config Vars.
 
 Create Key-value pairs for the username, password and url, where the key is one of the three datasource variables and the value is the actual value for your database:
 
-![key_value_pairs](https://github.com/user-attachments/assets/29dbd1fb-334b-4d15-b250-bcec345f58c3)
-
+![key_value_pairs](https://github.com/user-attachments/assets/d10c404d-6a7f-4e4a-837a-6c5fa9875ae8)
 
 ### 3. Configure GitHub-repository
 
