@@ -9,7 +9,7 @@ be installed and activated in your workstation.
 
 ---
 
-**a) Tools' list.**
+**a.1) Tools' list.**
 
 Here is list of tools, that are required to be installed
 for Windows workstations in order to activate Benefit-app:
@@ -22,52 +22,26 @@ for Windows workstations in order to activate Benefit-app:
 For Mac and Linux workstation, we will report all necessary tools
 in more detail sometime in future (WIP).
 
----
-
-**b.1) Personal use: Fork the Benefit-app repository.**
-
-If you only want run the application for only personal,
-non-enterprise use without accidentally adding changes
-any changes to current version of the official repository, 
-we _highly_ recommend to fork the whole application 
-in your local workstation.
-
-You need to your own Github account in order to fork
-the repository for own use. 
-
-You can find fork functionality up right corner of
-benefit-app's github repo page:
-
-![image](https://github.com/user-attachments/assets/c0393515-9251-432a-977f-e1db90f5be6f)
-|---|
-
-
-For more information about forking repositories in Github,
-please read the official documents by Github:
-https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo
-
----
-
-**b.2) Corporate use: Clone the Benefit-app repository.**
-
-If you are intending to continue and update the Benefit-app
-repository for the Fisma Ry, then you can clone 
-the benefit-app repository into your workstation
-with following clone command:
+**a.2) Quick setup.**
+If you have all necessary tools installed,
+you can try activate directly the backend via below commands
+at your benefit-app directory root:
 
 ```sh
-git clone https://github.com/fisma-benefit-app/benefit-app.git
+docker compose up -d
+$javaPath = $javaPath = Split-Path -Path (Split-Path -Path (Get-Command java).Source -Parent) -Parent
+setx /m JAVA_HOME $javaPath
+cd .\backend
+.\gradlew build
+java -jar .\build\libs\backend-0.0.1-SNAPSHOT.jar
 ```
 
-The command should work in any git supported softwares or tools.
-Most of us used _Git Bash_ for installing and updating
-benefit-app repository in Windows workstations.
-
-<img src="https://github.com/user-attachments/assets/38be504e-d0e8-481a-be45-5c5405bcddb3" width="450px" height="300px">
+If you can't activate the backend via above command,
+please read rest of document.
 
 ---
 
-**c) Activate CLI tool (i.e. open the terminal).**
+**b) Activate CLI tool (i.e. open the terminal).**
 
 For following steps, you need to activate Command Line Interface -tool (CLI),
 or open the terminal, in your workstation. CLI will be used for running database, 
@@ -82,7 +56,7 @@ In our group, we used following CLIs in our project:
 
 ---
 
-**d) Activate PostgreSQL via Docker.**
+**c) Activate PostgreSQL via Docker.**
 
 ///
 
@@ -184,7 +158,7 @@ from Fisma ry.
 
 ---
 
-**e.1) Validate Java version in your workstation.**
+**d.1) Validate Java version in your workstation.**
 
 After activating PostgreSQL's docker,
 move to backend of benefit-app:
@@ -206,13 +180,31 @@ via command
 ```sh
 java --version
 ```
-
-[image: java version openjdk]
+![image](img/images_for_manuals/java_version_command.png)
+Image: Result from command 'java --version'.
 
 Additionally, make sure that you have also
 set JAVA_HOME to the correct Java Installation Path.
 
-///
+For example in Powershell, you can get the correct Java path
+and configure into JAVA_HOME environment variable 
+via commands:
+
+```sh
+$javaPath = Split-Path -Path (Split-Path -Path (Get-Command java).Source -Parent) -Parent
+setx /m JAVA_HOME $javaPath
+```
+
+![image](img/images_for_manuals/java_home_configuration.png)
+Image: Configuring JAVA_HOME environment in Powershell.
+
+The first command's '(Get-Command java).Source' will give full path for java.exe.
+The the double 'Split-Path -Path' will then give Java's full directory's path, such
+as \Eclipse Adoptium\jdk-17.0.12.7-hotspot . The path will be tehn saved into javaPath -variable.
+
+The second command will then configure JAVA_HOME to the correct path for installed Java
+via javaPath -variable.
+
 
 According Cameron McKenzie from TheServerSide: 
 "JAVA_HOME is an operating system (OS) environment
@@ -223,11 +215,7 @@ to the file system location where the JDK or JRE was installed.
 This variable should be configured on all OS's that have a Java
 installation, including Windows, Ubuntu, Linux, Mac and Android." 
 
-Source: https://www.theserverside.com/definition/JAVA_HOME
-
-[image: JAVA_HOME example]
-
-///
+\\\ Source: https://www.theserverside.com/definition/JAVA_HOME \\\
 
 If you have not configured JAVA_HOME to actual location 
 of where the JDK or JRE was installed, there is high 
@@ -243,7 +231,7 @@ helpful at all).
 
 ---
 
-**e.2) Build Java application in the backend.**
+**d.2) Build Java application in the backend.**
 
 After checking and validating both Java version and
 JAVA_HOME variable's path, you need lastly check
@@ -291,7 +279,7 @@ configurations in the backend (e.g. review your tools,
 Java language, etc.). If build is a success,
 continue next step.
 
-**e.3) Run Java application in the backend.**
+**d.3) Run Java application in the backend.**
 
 After successful build, move to following path
 
@@ -330,5 +318,5 @@ successfully up and running.
 If don't get the last line, it is indication there is
 error in the backend.
 
-Please read frontend.md manual (https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/frontend.md) 
+Please read frontend.md manual (https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/frontend_manual.md) 
 for instruction of activating Benefit-app's frontend.
