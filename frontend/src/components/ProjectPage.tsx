@@ -53,6 +53,7 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken]);
 
   const createFunctionalComponent = async () => {
+    setLoadingProject(true)
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
         className: "Interactive end-user navigation and query service",
@@ -74,11 +75,14 @@ export default function ProjectPage() {
         setProject(updatedProject);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingProject(false);
       }
     }
   };
 
   const deleteFunctionalComponent = async (componentId: number) => {
+    setLoadingProject(true);
     if (project) {
       const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
       const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
@@ -87,14 +91,16 @@ export default function ProjectPage() {
         setProject(updatedProject);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingProject(false);
       }
     }
   };
 
   const saveProject = async () => {
+    setLoadingProject(true);
     if (project) {
       try {
-        setLoadingProject(true);
         const editedProject = { ...project, editedDate: CreateCurrentDate() };
         const savedProject = await updateProject(sessionToken, editedProject);
 
@@ -102,6 +108,8 @@ export default function ProjectPage() {
         setLoadingProject(false);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingProject(false);
       }
     }
   };
@@ -168,17 +176,17 @@ export default function ProjectPage() {
             </div>
             <button
               //disabled={!project?.functionalComponents?.length}
-              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
+              className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
               onClick={saveProject}
-              disabled={!isLatest}
+              disabled={!isLatest || loadingProject}
             >
               {translation.saveProject}
             </button>
             <button
               //disabled={!project?.functionalComponents?.length}
-              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
+              className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
               onClick={() => setConfirmModalOpen(true)}
-              disabled={!isLatest}
+              disabled={!isLatest || loadingProject}
             >
               {translation.saveProjectAsVersion} {project?.version}
             </button>
@@ -186,6 +194,7 @@ export default function ProjectPage() {
               className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2"
               onChange={handleVersionSelect}
               defaultValue=""
+              disabled={loadingProject}
             >
               <option value="" disabled>{translation.selectProjectVersion}</option>
               {allProjectVersions.map((project) => (
@@ -194,8 +203,8 @@ export default function ProjectPage() {
             </select>
             <button
               onClick={createFunctionalComponent}
-              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
-              disabled={!isLatest}
+              className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
+              disabled={!isLatest || loadingProject}
             >
               {translation.newFunctionalComponent}
             </button>
