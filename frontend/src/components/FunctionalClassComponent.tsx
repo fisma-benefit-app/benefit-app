@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ChangeEvent, useState } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
-import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName } from "../lib/fc-service-functions.ts";
+import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName, getInputFields } from "../lib/fc-service-functions.ts";
 import { CalculationParameter, ClassName, ComponentType, Project, TGenericComponent } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
 
@@ -24,6 +24,8 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
 
   const componentTypeOptions = getComponentTypeOptions(component.className || "");
 
+  const inputFields = getInputFields(component.className || "");
+
   //todo: does the user need to explicitly select component type for points to be calculated?
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
 
@@ -41,7 +43,9 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
       updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getEmptyComponent(component) : functionalComponent);
     } else {
       // If className changes, component gets reset (it has only className and ids).
-      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getResetedComponentWithClassName(component, newClassName) : functionalComponent);
+
+      const updatedComponent = { ...component, className: newClassName, componentType: null };
+      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
     }
 
     const updatedProject = { ...project, functionalComponents: updatedComponents };
@@ -206,10 +210,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             {component.className && (
               <div className="flex flex-wrap gap-2">
                 {Object.entries(component)
-                  .filter(
-                    ([key, value]) =>
-                      ["dataElements", "readingReferences", "writingReferences", "operations"].includes(key) && value !== null,
-                  )
+                  .filter(([key]) => inputFields.includes(key))
                   .map(([key, value]) => (
                     <div key={key} className="flex flex-col gap-1 items-start">
                       <label htmlFor={key} className="font-medium">
@@ -218,6 +219,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       <input
                         id={key}
                         type="number"
+                        placeholder="0"
                         value={value as number}
                         onChange={handleComponentChange}
                         className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
