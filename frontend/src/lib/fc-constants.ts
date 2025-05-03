@@ -7,6 +7,7 @@ import {
   calculateInteractiveEndUserNavigationAndQueryService,
   calculateAlgorithmicOrManipulationService
 } from "./calculations.ts";
+import { ClassName, ComponentType } from "./types.ts";
 
 export const componentClassFields = [
   {
@@ -61,7 +62,7 @@ export const componentClassFields = [
   }
 ]
 
-export const classNameOptions = [
+export const classNameOptions: ClassName[] = [
   "Interactive end-user navigation and query service",
   "Interactive end-user input service",
   "Non-interactive end-user output service",
@@ -71,7 +72,12 @@ export const classNameOptions = [
   "Algorithmic or manipulation service"
 ];
 
-export const componentTypeOptions = [
+type ComponentTypeOptions = {
+  className: ClassName,
+  componentTypeOptions: ComponentType[]
+}
+
+export const componentTypeOptions: ComponentTypeOptions[] = [
   {
     className: "Interactive end-user navigation and query service",
     componentTypeOptions: [

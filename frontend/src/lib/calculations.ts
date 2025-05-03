@@ -1,19 +1,12 @@
-import {
-  TDataStorageService,
-  TInteractiveEndUserInputService,
-  TInteractiveEndUserNavigationAndQueryService,
-  TNonInteractiveEndUserOutputService,
-  TInterfaceServiceToOtherApplications,
-  TInterfaceServiceFromOtherApplications,
-  TAlgorithmicOrManipulationService
-} from "./types.ts";
+import { TGenericComponent } from "./types.ts";
 
-const calculateInteractiveEndUserNavigationAndQueryService = (functionalComponent: TInteractiveEndUserNavigationAndQueryService,) => {
+const calculateInteractiveEndUserNavigationAndQueryService = (functionalComponent: TGenericComponent) => {
   if (!functionalComponent.componentType) {
     throw new Error("ComponentType missing when calculateInteractiveEndUserNavigationAndQueryService");
   }
 
-  const { dataElements, readingReferences } = functionalComponent;
+  const dataElements = functionalComponent.dataElements ?? 0;
+  const readingReferences = functionalComponent.readingReferences ?? 0;
 
   if (
     functionalComponent.componentType === "function designators" ||
@@ -26,12 +19,13 @@ const calculateInteractiveEndUserNavigationAndQueryService = (functionalComponen
   }
 };
 
-const calculateInteractiveEndUserInputService = (functionalComponent: TInteractiveEndUserInputService) => {
+const calculateInteractiveEndUserInputService = (functionalComponent: TGenericComponent) => {
   if (!functionalComponent.componentType) {
     throw new Error("ComponentType missing when calculateInteractiveEndUserNavigationAndQueryService");
   }
-
-  const { dataElements, writingReferences, readingReferences } = functionalComponent;
+  const dataElements = functionalComponent.dataElements ?? 0;
+  const writingReferences = functionalComponent.writingReferences ?? 0;
+  const readingReferences = functionalComponent.readingReferences ?? 0;
 
   //extract functionality multiplier from component type e.g. "1-tyyppinen" => 1, "2-tyyppinen" => 2 and so on
   const functionalityMultiplier = Number(functionalComponent.componentType.split("-")[0]);
@@ -39,32 +33,36 @@ const calculateInteractiveEndUserInputService = (functionalComponent: TInteracti
   return functionalityMultiplier * (0.2 + (dataElements / 5) + (writingReferences / 1.5) + (readingReferences / 2));
 }
 
-const calculateNonInteractiveEndUserOutputService = (functionalComponent: TNonInteractiveEndUserOutputService) => {
-  const { dataElements, readingReferences } = functionalComponent;
+const calculateNonInteractiveEndUserOutputService = (functionalComponent: TGenericComponent) => {
+  const dataElements = functionalComponent.dataElements ?? 0;
+  const readingReferences = functionalComponent.readingReferences ?? 0;
 
   return (1 + (dataElements / 5) + (readingReferences / 2));
 }
 
-const calculateInterfaceServiceToOtherApplications = (functionalComponent: TInterfaceServiceToOtherApplications) => {
-  const { dataElements, readingReferences } = functionalComponent;
-
+const calculateInterfaceServiceToOtherApplications = (functionalComponent: TGenericComponent) => {
+  const dataElements = functionalComponent.dataElements ?? 0;
+  const readingReferences = functionalComponent.readingReferences ?? 0;
   return 0.5 + (dataElements / 7) + (readingReferences / 2);
 }
 
-const calculateInterfaceServiceFromOtherApplications = (functionalComponent: TInterfaceServiceFromOtherApplications) => {
-  const { dataElements, writingReferences, readingReferences } = functionalComponent;
+const calculateInterfaceServiceFromOtherApplications = (functionalComponent: TGenericComponent) => {
+  const dataElements = functionalComponent.dataElements ?? 0;
+  const writingReferences = functionalComponent.writingReferences ?? 0;
+  const readingReferences = functionalComponent.readingReferences ?? 0;
 
   return 0.2 + (dataElements / 5) + (writingReferences / 1.5) + (readingReferences / 2);
 }
 
-const calculateDataStorageService = (functionalComponent: TDataStorageService) => {
-  const { dataElements } = functionalComponent;
+const calculateDataStorageService = (functionalComponent: TGenericComponent) => {
+  const dataElements = functionalComponent.dataElements ?? 0;
 
   return 1.5 + (dataElements / 4);
 }
 
-const calculateAlgorithmicOrManipulationService = (functionalComponent: TAlgorithmicOrManipulationService) => {
-  const { dataElements, operations } = functionalComponent;
+const calculateAlgorithmicOrManipulationService = (functionalComponent: TGenericComponent) => {
+  const dataElements = functionalComponent.dataElements ?? 0;
+  const operations = functionalComponent.operations ?? 0;
 
   return 0.1 + (dataElements / 5) + (operations / 3);
 }

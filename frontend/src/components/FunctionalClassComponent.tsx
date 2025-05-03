@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ChangeEvent, useState } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
-import { getCalculateFuntion, getComponentTypeOptions, getEmptyComponent, getResetedComponentWithClassName, getInputFields } from "../lib/fc-service-functions.ts";
+import { getCalculateFuntion, getComponentTypeOptions, getInputFields } from "../lib/fc-service-functions.ts";
 import { CalculationParameter, ClassName, ComponentType, Project, TGenericComponent } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
 
@@ -22,46 +22,33 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
 
   const translation = useTranslations().functionalClassComponent;
 
-  const componentTypeOptions = getComponentTypeOptions(component.className || "");
+  const componentTypeOptions = getComponentTypeOptions(component.className);
 
-  const inputFields = getInputFields(component.className || "");
+  const inputFields = getInputFields(component.className);
 
   //todo: does the user need to explicitly select component type for points to be calculated?
   const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
 
-  //@ts-expect-error(TODO - component should be typed before it goes to the calculation).
   const fullPoints = calculateFunction ? calculateFunction(component) : 0;
   const pointsByDegreeOfCompletion = (component.degreeOfCompletion || 0) * fullPoints;
 
   const handleClassNameChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const newClassName = e.target.value;
-    let updatedComponents;
+    //user can select classname only from predefined options
+    const newClassName = e.target.value as ClassName;
 
-    if (newClassName === "") {
-      // Component that doesn't have a className is an "empty"-component, 
-      // this is used for id generation in backend.
-      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getEmptyComponent(component) : functionalComponent);
-    } else {
-      // If className changes, component gets reset (it has only className and ids).
-
-      const updatedComponent = { ...component, className: newClassName, componentType: null };
-      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
-    }
+    const updatedComponent = { ...component, className: newClassName, componentType: null };
+    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
 
     const updatedProject = { ...project, functionalComponents: updatedComponents };
     setProject(updatedProject);
   }
 
   const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const newOptionType = e.target.value;
-    let updatedComponents;
+    //user can select component type only from predefined options
+    const newOptionType = e.target.value as ComponentType;
 
-    if (newOptionType === "" && component.className) {
-      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? getResetedComponentWithClassName(component, component.className as string) : functionalComponent);
-    } else {
-      const updatedComponent = { ...component, componentType: newOptionType || null }
-      updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
-    }
+    const updatedComponent = { ...component, componentType: newOptionType };
+    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
 
     const updatedProject = { ...project, functionalComponents: updatedComponents };
     setProject(updatedProject);
@@ -71,16 +58,12 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
     let updatedComponent;
     let value = e.target.value;
 
-
-
     //check if the updated attribute needs to be converted to a number for math
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["comment"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
     } else {
       if (e.target.id === "degreeOfCompletion") {
-
-
         const num = parseFloat(value);
 
         //This is the simplest solution for fixing values that aren't numbers,
@@ -177,7 +160,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 <option disabled value="">{translation.classNamePlaceholder}</option>
                 {classNameOptions.map((className) => (
                   <option key={className} value={className}>
-                    {translation.classNameOptions[className as ClassName]}
+                    {translation.classNameOptions[className]}
                   </option>
                 ))}
               </select>
@@ -197,7 +180,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       </option>
                       {componentTypeOptions.map((option) => (
                         <option key={option} value={option}>
-                          {translation.componentTypeOptions[option as ComponentType]}
+                          {translation.componentTypeOptions[option]}
                         </option>
                       ))}
                     </select>
