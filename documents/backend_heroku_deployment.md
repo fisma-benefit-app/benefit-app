@@ -6,10 +6,10 @@ Backend is currently live at: https://fisma-backend-alt-333d056d5201.herokuapp.c
 
 - Heroku account
 - Email address
-- Database
+- Running database and its credentials (url, username and password)
 - Credit cart
 
-## 2. Repository clone and configuration
+## 2. Repository clone
 
 ### 1. Clone the repository
 
