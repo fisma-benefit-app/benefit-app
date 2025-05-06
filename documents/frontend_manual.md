@@ -109,10 +109,6 @@ fc-constants.ts
 
 - Helper arrays/objects for FunctionalClassComponent.tsx e.g. arrays containing available component types based on on selected component class.
 
-fc-empty-templates.ts
-
-- Contains helper objects for resetting component properties in FunctionalClassComponent.tsx when user changes the component class.
-
 fc-service-functions.ts
 
 - Helper functions for FunctionalClassComponent.tsx e.g. function for getting correct calculation function depending on selected component class.
@@ -121,7 +117,17 @@ printUtils.ts
 
 - Contains functions for creating csv and pdf -files based on project data.
 
-## 4. Frameworks/Third-Party Libraries
+## 4. Context Files
+
+AppUserProvider.tsx
+
+- Servers user info, token and logged in state to the application.
+
+ProjectsProvider.tsx
+
+- Serves all user's projects to the application and some functions for handling projects like function for checking projects latest version, which the version control feature relies on.
+
+## 5. Frameworks/Third-Party Libraries
 
 ### Font Awesome
 
