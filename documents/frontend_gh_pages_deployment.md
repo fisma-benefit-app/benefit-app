@@ -1,5 +1,7 @@
 # Frontend Github Pages Deployment
 
+Frontend is currently live at: https://fisma-benefit-app.github.io/benefit-app/#/login
+
 ## 1. Configuration
 
 ### 1. vite.config.js
