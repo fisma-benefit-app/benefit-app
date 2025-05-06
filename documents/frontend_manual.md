@@ -101,7 +101,7 @@ ProjectList.tsx
 
 ProjectPage.tsx
 
-- Page that shows the data for a specific project. Functional components of the project are mapped to the page using FunctionalClassComponent.tsx and the summary of the component points is shown using FunctionalPointSummary.tsx. Has buttons for saving the project and adding a new functional component to it.
+- Page that shows the data for a specific project. Functional components of the project are mapped to the page using FunctionalClassComponent.tsx and the summary of the component points is shown using FunctionalPointSummary.tsx. Has buttons for saving the project, adding a new functional component to it, and saving project version as well as a dropdown menu for selecting project version.
 
 ## 3. Lib Files
 
