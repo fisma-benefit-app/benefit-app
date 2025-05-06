@@ -1,7 +1,7 @@
 # Benefit app main repository.
 All-in-one repository for the Benefit application. Includes frontend, backend, documents, etc.
 
-**Product owner**: FiSMA ry 2025.
+**Product owner**: FiSMA ry, 2025.
 
 <img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" width="200">
 
@@ -39,9 +39,10 @@ Software is available at:
 
 **What is Benefit application and its main purpose?**
 
-Benefit application is a project by FiSMA ry 2025. It is a software tool designed for estimating the size of a software project, which calculates function points for navigation and queries, external interfaces, inputs and outputs. Based on these, it helps estimate the project's budget and costs.
+Benefit application is a project by FiSMA ry, developed during Spring 2025. It is a software tool designed for estimating the size of a software project, which calculates function points for navigation and queries, external interfaces, inputs and outputs. Based on these, it helps estimate the project's budget and costs.
 
-![Image](https://github.com/user-attachments/assets/3e33cdf1-105f-45a2-b38e-cabdedd27625)
+![Benefit-app's frontend UI page, taken on March 29 2025](/documents/img/images_for_manuals/UI_page_29_03_2025.png)
+
 
 Picture 1: A visual representation of the Benefit application's UI.
 
@@ -110,9 +111,8 @@ Please read [add a backend manual] from documents -directory for more informatio
 
 The structure of Benefit's SQL database is shown in the diagram below:
 
-![database-image](https://github.com/user-attachments/assets/a3d9c118-253b-4084-ab45-3235754ebc53)
 
-
+![Database diagram.](/documents/img/images_for_manuals/database_diagram.png)
 Picture #: Diagram of Benefit's database.
 
 ---

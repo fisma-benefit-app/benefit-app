@@ -14,7 +14,9 @@ export const convertToCSV = (data: any[]) => {
 export const encodeComponentForCSV = (component: TGenericComponent) => ({
   ...component,
   // CSV can't handle commas inside cells without quotation marks, so let's wrap all comments with ""
-  comment: component.comment ? `"${component.comment.replace(/\"/g, "")}"` : null
+  comment: component.comment
+  ? `"${component.comment.replace(/["\,]/g, "")}"`
+  : null
 })
 
 export const downloadCSV = (csvData: string, filename: string = 'data.csv') => {
@@ -58,7 +60,6 @@ const calculateFunctionalComponentPoints = (component: TGenericComponent | null)
   if (!component) return 0;
   if (!component.className || !component.componentType) return 0;
   const calculateFunction = getCalculateFuntion(component.className);
-  //@ts-expect-error(TODO - component should be typed before it goes to the calculation)
   return calculateFunction ? calculateFunction(component) : 0;
 };
 

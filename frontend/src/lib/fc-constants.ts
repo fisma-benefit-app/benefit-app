@@ -7,8 +7,62 @@ import {
   calculateInteractiveEndUserNavigationAndQueryService,
   calculateAlgorithmicOrManipulationService
 } from "./calculations.ts";
+import { ClassName, ComponentType } from "./types.ts";
 
-export const classNameOptions = [
+export const componentClassFields = [
+  {
+    className: "Interactive end-user navigation and query service",
+    inputFields: [
+      "dataElements",
+      "readingReferences"
+    ]
+  },
+  {
+    className: "Interactive end-user input service",
+    inputFields: [
+      "dataElements",
+      "writingReferences",
+      "readingReferences"
+    ]
+  },
+  {
+    className: "Non-interactive end-user output service",
+    inputFields: [
+      "dataElements",
+      "readingReferences"
+    ]
+  },
+  {
+    className: "Interface service to other applications",
+    inputFields: [
+      "dataElements",
+      "readingReferences"
+    ]
+  },
+  {
+    className: "Interface service from other applications",
+    inputFields: [
+      "dataElements",
+      "writingReferences",
+      "readingReferences"
+    ]
+  },
+  {
+    className: "Data storage service",
+    inputFields: [
+      "dataElements",
+    ]
+  },
+  {
+    className: "Algorithmic or manipulation service",
+    inputFields: [
+      "dataElements",
+      "operations"
+    ]
+  }
+]
+
+export const classNameOptions: ClassName[] = [
   "Interactive end-user navigation and query service",
   "Interactive end-user input service",
   "Non-interactive end-user output service",
@@ -18,12 +72,17 @@ export const classNameOptions = [
   "Algorithmic or manipulation service"
 ];
 
-export const componentTypeOptions = [
+type ComponentTypeOptions = {
+  className: ClassName,
+  componentTypeOptions: ComponentType[]
+}
+
+export const componentTypeOptions: ComponentTypeOptions[] = [
   {
     className: "Interactive end-user navigation and query service",
     componentTypeOptions: [
       "function designators",
-      "log-in, log-out functions",
+      "log-in log-out functions",
       "function lists",
       "selection lists",
       "data inquiries",

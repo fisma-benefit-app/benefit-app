@@ -71,7 +71,7 @@ export const translations = {
             componentTypeOptions: Object.fromEntries(
                 [
                     "function designators",
-                    "log-in, log-out functions",
+                    "log-in log-out functions",
                     "function lists",
                     "selection lists",
                     "data inquiries",
@@ -122,9 +122,9 @@ export const translations = {
             saveVersionWarningBeginning: "Are you sure you want to save the project as version",
             saveVersionWarningEnd: "Older versions cannot be modified.",
             projectSaved: "Project saved!",
-            //TODO: confirmDeleteComponent needed?
-            confirmDeleteComponent: "Are you sure you want to delete this component?",
-            selectProjectVersion: "Select Project Version"
+            selectProjectVersion: "Select Project Version",
+            version: "Version",
+            nameOfProject: "Project name"
         },
         functionalPointSummary: {
             total: "Total",
@@ -200,7 +200,7 @@ export const translations = {
             },
             componentTypeOptions: {
                 "function designators": "toiminto-osoittimet",
-                "log-in, log-out functions": "kirjautumistoiminnot",
+                "log-in log-out functions": "kirjautumistoiminnot",
                 "function lists": "toimintovalikot",
                 "selection lists": "valintalistat",
                 "data inquiries": "kyselynäytöt",
@@ -250,9 +250,9 @@ export const translations = {
             saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona",
             saveVersionWarningEnd: "Vanhoja versioita ei voi enää muokata.",
             projectSaved: "Projekti tallennettu!",
-            //TODO: confirmDeleteComponent needed?
-            confirmDeleteComponent: "Oletko varma, että haluat poistaa tämän komponentin?",
-            selectProjectVersion: "Valitse Projektiversio"
+            selectProjectVersion: "Valitse Projektiversio",
+            version: "Versio",
+            nameOfProject: "Projektin nimi"
         },
         functionalPointSummary: {
             total: "Yhteensä",

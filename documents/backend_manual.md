@@ -24,46 +24,22 @@ in more detail sometime in future (WIP).
 
 ---
 
-**b.1) Personal use: Fork the Benefit-app repository.**
-
-If you only want run the application for only personal,
-non-enterprise use without accidentally adding changes
-any changes to current version of the official repository, 
-we _highly_ recommend to fork the whole application 
-in your local workstation.
-
-You need to your own Github account in order to fork
-the repository for own use. 
-
-You can find fork functionality up right corner of
-benefit-app's github repo page:
-
-![image](https://github.com/user-attachments/assets/c0393515-9251-432a-977f-e1db90f5be6f)
-|---|
-
-
-For more information about forking repositories in Github,
-please read the official documents by Github:
-https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo
-
----
-
-**b.2) Corporate use: Clone the Benefit-app repository.**
-
-If you are intending to continue and update the Benefit-app
-repository for the Fisma Ry, then you can clone 
-the benefit-app repository into your workstation
-with following clone command:
+**b) Quick setup.**
+If you have all necessary tools installed,
+you can try activate directly the backend via below commands
+at your benefit-app directory root:
 
 ```sh
-git clone https://github.com/fisma-benefit-app/benefit-app.git
+docker compose up -d
+$javaPath = $javaPath = Split-Path -Path (Split-Path -Path (Get-Command java).Source -Parent) -Parent
+setx /m JAVA_HOME $javaPath
+cd .\backend
+.\gradlew build
+java -jar .\build\libs\backend-0.0.1-SNAPSHOT.jar
 ```
 
-The command should work in any git supported softwares or tools.
-Most of us used _Git Bash_ for installing and updating
-benefit-app repository in Windows workstations.
-
-<img src="https://github.com/user-attachments/assets/38be504e-d0e8-481a-be45-5c5405bcddb3" width="450px" height="300px">
+If you can't activate the backend via above command,
+please read rest of document.
 
 ---
 
@@ -77,7 +53,9 @@ In your Windows workstation, you can use any CLI tools you like.
 In our group, we used following CLIs in our project:
 
 *Powershell
+
 *Visual Studio Code's terminal
+
 *Windows Terminal
 
 ---
@@ -101,16 +79,23 @@ Move to the benefit-app's directory.
 ```sh
 cd Drive:/path/to/benefit-app
 ```
-
-[IMAGE: Directory in Visual Studio Code]
+![image](img/images_for_manuals/benefit_app_directory.png)
+Image: The root directory of Benefit app.
 
 In the benefit-app directory, you will activate
 PostgreSQL via Docker. The PostgreSQL is configured
 in the compose.yaml -file.
 
-[IMAGE: compose.yaml -file]
+![image](img/images_for_manuals/compose_yaml.png)
+Image: The compose.yaml -file.
 
-Therefore, make sure you have the Docker
+Note from above image! The INSERT_DB, INSERT_PASSWORD,
+and INSERT_USER are just placeholder. You need to 
+have the correct values for db, password and user
+in PostgreSQL, give by Fisma ry.
+
+
+Next, make sure you have the Docker
 is installed in your workstation,
 e.g. Docker Desktop. You can check
 that have the current version of Docker
@@ -120,7 +105,8 @@ installed via command
 docker --version
 ```
 
-[IMAGE: Docker desktop]
+![image](img/images_for_manuals/docker_desktop.png)
+Image: A screenshot of Docker desktop with the benefit-app dockerized.
 
 After all validations and checking,
 you should able to active Postgresql
@@ -129,7 +115,6 @@ via docker compose's command
 ```sh
 docker compose up -d
 ```
-
 
 in the Drive:/path/to/benefit-app -directory.
 Please note the last option `-d`, which
@@ -140,9 +125,44 @@ the CLI and reopen it again.
 Alternatively, you can shut down docker via 
 keybindings CTRL+C and run docker compose again.
 
+![image](img/images_for_manuals/docker_compose_up_output.png)
+Image: An example of successful output from docker compose up.
+
+Additionally, you have to check that database accepts 
+incoming queries. You can check database's query management
+via command
+
+```sh
+docker exec -it INSERT_CONTAINER_NAME psql -U POSTGRES_USER POSTGRES_DB
+```
+
+Note that POSTGRES_USER and POSTGRES_DB are values from compose.yaml file. You need to ask Fisma ry for the values.
+
+Meanwhile INSERT_CONTAINER_NAME is name for current container,
+that is actively running benefit-app image.
+
+For getting getting correct container name,
+the easiest way to check is via command
+
+```sh
+docker ps
+```
+As example in our workstation, our container is named
+benefit-app-postgres-1 , like in the image below:
+
+![image](img/images_for_manuals/docker_ps.png)
+Image: Result from command 'docker ps'.
+
+Hence our command will be
+```sh
+docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+```
+Once again, you need to ask values for POSTGRES_USER and POSTGRES_DB
+from Fisma ry.
+
 ---
 
-**e.1) Validate Java version in your workstation.**
+**e) Validate Java version in your workstation.**
 
 After activating PostgreSQL's docker,
 move to backend of benefit-app:
@@ -164,13 +184,31 @@ via command
 ```sh
 java --version
 ```
-
-[image: java version openjdk]
+![image](img/images_for_manuals/java_version_command.png)
+Image: Result from command 'java --version'.
 
 Additionally, make sure that you have also
 set JAVA_HOME to the correct Java Installation Path.
 
-///
+For example in Powershell, you can get the correct Java path
+and configure into JAVA_HOME environment variable 
+via commands:
+
+```sh
+$javaPath = Split-Path -Path (Split-Path -Path (Get-Command java).Source -Parent) -Parent
+setx /m JAVA_HOME $javaPath
+```
+
+![image](img/images_for_manuals/java_home_configuration.png)
+Image: Configuring JAVA_HOME environment in Powershell.
+
+The first command's '(Get-Command java).Source' will give full path for java.exe.
+The the double 'Split-Path -Path' will then give Java's full directory's path, such
+as \Eclipse Adoptium\jdk-17.0.12.7-hotspot . The path will be tehn saved into javaPath -variable.
+
+The second command will then configure JAVA_HOME to the correct path for installed Java
+via javaPath -variable.
+
 
 According Cameron McKenzie from TheServerSide: 
 "JAVA_HOME is an operating system (OS) environment
@@ -181,11 +219,7 @@ to the file system location where the JDK or JRE was installed.
 This variable should be configured on all OS's that have a Java
 installation, including Windows, Ubuntu, Linux, Mac and Android." 
 
-Source: https://www.theserverside.com/definition/JAVA_HOME
-
-[image: JAVA_HOME example]
-
-///
+\\\ Source: https://www.theserverside.com/definition/JAVA_HOME \\\
 
 If you have not configured JAVA_HOME to actual location 
 of where the JDK or JRE was installed, there is high 
@@ -201,7 +235,7 @@ helpful at all).
 
 ---
 
-**e.2) Build Java application in the backend.**
+**f) Build Java application in the backend.**
 
 After checking and validating both Java version and
 JAVA_HOME variable's path, you need lastly check
@@ -249,7 +283,7 @@ configurations in the backend (e.g. review your tools,
 Java language, etc.). If build is a success,
 continue next step.
 
-**e.3) Run Java application in the backend.**
+**g) Run Java application in the backend.**
 
 After successful build, move to following path
 
@@ -288,5 +322,5 @@ successfully up and running.
 If don't get the last line, it is indication there is
 error in the backend.
 
-Please read frontend.md manual (https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/frontend.md) 
+Please read frontend.md manual (https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/frontend_manual.md) 
 for instruction of activating Benefit-app's frontend.

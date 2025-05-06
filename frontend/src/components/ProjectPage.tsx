@@ -53,16 +53,17 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken]);
 
   const createFunctionalComponent = async () => {
+    setLoadingProject(true)
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
         className: "Interactive end-user navigation and query service",
         componentType: null,
         dataElements: 0,
         readingReferences: 0,
-        writingReferences: null,
-        functionalMultiplier: null,
-        operations: null,
-        degreeOfCompletion: null,
+        writingReferences: 0,
+        functionalMultiplier: 0,
+        operations: 0,
+        degreeOfCompletion: 0,
         comment: null,
         previousFCId: null,
       };
@@ -74,11 +75,14 @@ export default function ProjectPage() {
         setProject(updatedProject);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingProject(false);
       }
     }
   };
 
   const deleteFunctionalComponent = async (componentId: number) => {
+    setLoadingProject(true);
     if (project) {
       const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
       const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
@@ -87,19 +91,25 @@ export default function ProjectPage() {
         setProject(updatedProject);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingProject(false);
       }
     }
   };
 
   const saveProject = async () => {
+    setLoadingProject(true);
     if (project) {
       try {
         const editedProject = { ...project, editedDate: CreateCurrentDate() };
         const savedProject = await updateProject(sessionToken, editedProject);
+
         setProject(savedProject);
-        alert(translation.projectSaved);
+        setLoadingProject(false);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingProject(false);
       }
     }
   };
@@ -111,7 +121,7 @@ export default function ProjectPage() {
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
-        navigate(`project/${idOfNewProjectVersion}`);
+        navigate(`/project/${idOfNewProjectVersion}`);
       } catch (err) {
         console.error(err);
       }
@@ -160,36 +170,41 @@ export default function ProjectPage() {
       <div className="fixed right-5 top-20 w-[320px]">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
+            <div className="text-center">{translation.nameOfProject}:</div>
+            <div className="text-center break-words">
+              {project?.projectName}
+            </div>
             <button
               //disabled={!project?.functionalComponents?.length}
-              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
+              className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
               onClick={saveProject}
-              disabled={!isLatest}
+              disabled={!isLatest || loadingProject}
             >
               {translation.saveProject}
             </button>
             <button
               //disabled={!project?.functionalComponents?.length}
-              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
+              className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
               onClick={() => setConfirmModalOpen(true)}
-              disabled={!isLatest}
+              disabled={!isLatest || loadingProject}
             >
               {translation.saveProjectAsVersion} {project?.version}
             </button>
             <select
-              className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2 sticky top-60"
+              className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2"
               onChange={handleVersionSelect}
               defaultValue=""
+              disabled={loadingProject}
             >
               <option value="" disabled>{translation.selectProjectVersion}</option>
               {allProjectVersions.map((project) => (
-                <option key={project.id} value={project.id}>{project.version}</option>
+                <option key={project.id} value={project.id}>{translation.version} {project.version}</option>
               ))}
             </select>
             <button
               onClick={createFunctionalComponent}
-              className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
-              disabled={!isLatest}
+              className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
+              disabled={!isLatest || loadingProject}
             >
               {translation.newFunctionalComponent}
             </button>

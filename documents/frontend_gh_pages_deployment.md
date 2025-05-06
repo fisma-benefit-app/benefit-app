@@ -1,0 +1,56 @@
+# Frontend Github Pages Deployment
+
+## 1. Configuration
+
+### 1. vite.config.js
+
+```
+export default defineConfig({
+  base: "/benefit-app/",
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+})
+```
+
+The **base** property specifies the base public path where the app is be served from. For Github Pages this must be set to the project repository name.
+
+### 2. package.json
+
+The frontend uses the gh-pages npm package which is used to deploy the application to Github Pages from command line.
+
+```
+"devDependencies": {
+    "gh-pages": "^6.3.0",
+}
+```
+
+Deployment scripts:
+
+```
+ "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+```
+
+- predeploy builds the project into the dist folder.
+
+- deploy publishes the contents of dist to the gh-pages branch.
+
+## 2. Deployment
+
+Note: Before deploying you should have the environment variable **VITE_API_URL** in the frontend .env file and it's value should match the backend server address. When frontend is built and deployed, Vite substitutes environment variable values in the code.
+
+Frontend can be deployed to Github pages by running following command while in the frontend project folder:
+
+```sh
+npm run deploy
+```
+
+## 3. Settings in GitHub
+
+You can view and check GitHub Pages deployment changes in github repository **settings** and the **pages** section
+
+![image](img/images_for_manuals/github_pages_deployment.png)
