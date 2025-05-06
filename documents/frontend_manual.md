@@ -57,13 +57,19 @@ installed in the frontend:
 
 **5.** Setup environment variables:
 
-1. Create a file called .env in the frontend project root.
-2. Add the following environment variable: VITE_API_URL. Its value should match the locally running backend development server URL.
+1. Create two files called .env.development and .env.production in the frontend project root.
+2. Add the following environment variable: VITE_API_URL to both. Its value should match the locally running backend development server URL for .env.development and it should match the deployed backend url for .env.production:
 
-e.g.
+.env.development:
 
 ```sh
 VITE_API_URL = http://localhost:8080
+```
+
+.env.production:
+
+```sh
+VITE_API_URL = https://dis-be-where-backend-is.somesite.com
 ```
 
 **6.** Start the frontend development server:
