@@ -1,9 +1,15 @@
 # Backend Heroku Deployment
 
-This assumes that you have a working Heroku account. If not, create one. It will require a working email address and a credit card.
-You will also need a working database.
+Backend is currently live at: https://fisma-backend-alt-333d056d5201.herokuapp.com
 
-## 1. Repository clone and configuration
+## 1. Requirements
+
+- Heroku account
+- Email address
+- Database
+- Credit cart
+
+## 2. Repository clone and configuration
 
 ### 1. Clone the repository
 
