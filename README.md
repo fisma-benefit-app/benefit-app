@@ -1,6 +1,10 @@
 # Benefit app main repository.
 All-in-one repository for the Benefit application. Includes frontend, backend, documents, etc.
 
+# TODO May 7th 2025:
+-> Add short description of deployment.
+-> Add links to manual for relevant section (e.g. backend.md manual in Backend section, etc.)
+
 **Product owner**: FiSMA ry, 2025.
 
 <img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" width="200">
