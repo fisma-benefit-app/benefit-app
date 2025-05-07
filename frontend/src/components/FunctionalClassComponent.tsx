@@ -144,10 +144,8 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               value={component.degreeOfCompletion || ""}
               onChange={handleComponentChange}
               className="border-2 border-fisma-light-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base"
-              placeholder="0"
               disabled={!isLatest}
             />
-
 
             <div className="flex flex-row flex-wrap gap-3 items-center">
               <select
@@ -202,8 +200,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       <input
                         id={key}
                         type="number"
-                        placeholder="0"
-                        value={value as number}
+                        value={value as number || ""}
                         onChange={handleComponentChange}
                         className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
                       />

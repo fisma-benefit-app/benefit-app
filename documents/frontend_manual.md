@@ -57,8 +57,20 @@ installed in the frontend:
 
 **5.** Setup environment variables:
 
-1. Create a file called .env in the frontend project root.
-2. Add the following environment variable: VITE_API_URL. Its value should match the locally running backend development server URL e.g. VITE_API_URL = http://localhost:8080
+1. Create two files called .env.development and .env.production in the frontend project root.
+2. Add the following environment variable: VITE_API_URL to both. Its value should match the locally running backend development server URL for .env.development and it should match the deployed backend url for .env.production:
+
+.env.development:
+
+```sh
+VITE_API_URL = http://localhost:8080
+```
+
+.env.production:
+
+```sh
+VITE_API_URL = https://dis-be-where-backend-is.somesite.com
+```
 
 **6.** Start the frontend development server:
 
@@ -95,17 +107,13 @@ ProjectList.tsx
 
 ProjectPage.tsx
 
-- Page that shows the data for a specific project. Functional components of the project are mapped to the page using FunctionalClassComponent.tsx and the summary of the component points is shown using FunctionalPointSummary.tsx. Has buttons for saving the project and adding a new functional component to it.
+- Page that shows the data for a specific project. Functional components of the project are mapped to the page using FunctionalClassComponent.tsx and the summary of the component points is shown using FunctionalPointSummary.tsx. Has buttons for saving the project, adding a new functional component to it, and saving project version as well as a dropdown menu for selecting project version.
 
 ## 3. Lib Files
 
 fc-constants.ts
 
 - Helper arrays/objects for FunctionalClassComponent.tsx e.g. arrays containing available component types based on on selected component class.
-
-fc-empty-templates.ts
-
-- Contains helper objects for resetting component properties in FunctionalClassComponent.tsx when user changes the component class.
 
 fc-service-functions.ts
 
@@ -115,7 +123,17 @@ printUtils.ts
 
 - Contains functions for creating csv and pdf -files based on project data.
 
-## 4. Frameworks/Third-Party Libraries
+## 4. Context Files
+
+AppUserProvider.tsx
+
+- Servers user info, token and logged in state to the application.
+
+ProjectsProvider.tsx
+
+- Serves all user's projects to the application and some functions for handling projects like function for checking projects latest version, which the version control feature relies on.
+
+## 5. Frameworks/Third-Party Libraries
 
 ### Font Awesome
 

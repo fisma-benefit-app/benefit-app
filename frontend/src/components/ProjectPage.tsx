@@ -58,12 +58,12 @@ export default function ProjectPage() {
       const newFunctionalComponent: TGenericComponentNoId = {
         className: "Interactive end-user navigation and query service",
         componentType: null,
-        dataElements: 0,
-        readingReferences: 0,
-        writingReferences: 0,
-        functionalMultiplier: 0,
-        operations: 0,
-        degreeOfCompletion: 0,
+        dataElements: null,
+        readingReferences: null,
+        writingReferences: null,
+        functionalMultiplier: null,
+        operations: null,
+        degreeOfCompletion: null,
         comment: null,
         previousFCId: null,
       };
@@ -105,7 +105,6 @@ export default function ProjectPage() {
         const savedProject = await updateProject(sessionToken, editedProject);
 
         setProject(savedProject);
-        setLoadingProject(false);
       } catch (err) {
         console.error(err);
       } finally {
@@ -116,14 +115,17 @@ export default function ProjectPage() {
 
   const saveProjectVersion = async () => {
     if (project) {
-      saveProject(); //TODO: Automatic saving instead?
+      await saveProject(); //TODO: Automatic saving instead?
       try {
+        setLoadingProject(true);
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
         navigate(`/project/${idOfNewProjectVersion}`);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingProject(false);
       }
     }
   };

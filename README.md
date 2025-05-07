@@ -34,8 +34,6 @@ All-in-one repository for the Benefit application. Includes frontend, backend, d
 
 ## 1. Introduction
 
-Software is available at:
-[https://fisma-benefit-app.github.io/benefit-app/#/login](https://fisma-benefit-app.github.io/benefit-app/#/login)
 
 **What is Benefit application and its main purpose?**
 
@@ -43,8 +41,7 @@ Benefit application is a project by FiSMA ry, developed during Spring 2025. It i
 
 ![Benefit-app's frontend UI page, taken on March 29 2025](/documents/img/images_for_manuals/UI_page_29_03_2025.png)
 
-
-Picture 1: A visual representation of the Benefit application's UI.
+Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
 
 
 **Whom is application made for?**
@@ -111,8 +108,8 @@ Please read [add a backend manual] from documents -directory for more informatio
 
 The structure of Benefit's SQL database is shown in the diagram below:
 
-
 ![Database diagram.](/documents/img/images_for_manuals/database_diagram.png)
+
 Picture #: Diagram of Benefit's database.
 
 ---

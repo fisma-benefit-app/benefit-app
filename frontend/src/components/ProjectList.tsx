@@ -45,105 +45,108 @@ export default function ProjectList() {
   if (loading) return <LoadingSpinner/>;
 
   return (
-      <div className="flex flex-col items-center h-screen p-4 pt-20">
-          <input
-              type="text"
-              placeholder={translation.searchPlaceholder}
-              className="mb-4 p-2 border-2 border-gray-400"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <table className="w-auto border-collapse">
-              <thead>
-              <tr>
-                  <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">{translation.projectName}</th>
-                  <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">{translation.version}</th>
-                  <th className="bg-fisma-dark-blue border-2 border-fisma-dark-blue p-3 text-left text-white">{translation.createdAt}</th>
-                  <th className="bg-fisma-chathams-blue border-2 border-fisma-chathams-blue p-3 text-left text-white">{translation.versionCreatedAt}</th>
-                  <th className="bg-fisma-blue border-2 border-fisma-blue p-3 text-left text-white">{translation.modifiedAt}</th>
+    <div className="flex flex-col h-screen p-4 pt-20">
+      <input
+        type="text"
+        placeholder={translation.searchPlaceholder}
+        className="mb-4 p-2 border-2 border-gray-400 w-full max-w-100 self-center"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <div className="overflow-x-auto w-full">
+      <table className="min-w-full table-fixed border-collapse">
+        <thead>
+          <tr>
+            <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">{translation.projectName}</th>
+            <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/12">{translation.version}</th>
+            <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">{translation.createdAt}</th>
+            <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">{translation.versionCreatedAt}</th>
+            <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">{translation.modifiedAt}</th>
+            {/* No header cell for actions */}
+          </tr>
+        </thead>
+        <tbody>
+          {filteredProjects.length > 0 ? (
+            filteredProjects.map((project) => (
+              <tr key={project.id}>
+                <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap overflow-hidden truncate">
+                  {project.projectName}
+                </td>
+                <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">v{project.version}</td>
+                <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
+                  {new Date(project.createdDate).toLocaleDateString("fi-FI", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}{" "}
+                  {new Date(project.createdDate).toLocaleTimeString("fi-FI", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  }).replace('.', ':')}
+                </td>
+                <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
+                  {new Date(project.versionDate).toLocaleDateString("fi-FI", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}{" "}
+                  {new Date(project.versionDate).toLocaleTimeString("fi-FI", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  }).replace('.', ':')}
+                </td>
+                <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
+                  {new Date(project.editedDate).toLocaleDateString("fi-FI", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}{" "}
+                  {new Date(project.editedDate).toLocaleTimeString("fi-FI", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  }).replace('.', ':')}
+                </td>
+                <td className="p-1 whitespace-nowrap w-[90px]">
+                  <button
+                    className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3"
+                    onClick={() => navigate(`/project/${project.id}`)}
+                  >
+                    <FontAwesomeIcon icon={faPenToSquare} />
+                  </button>
+                  <button
+                    className="bg-fisma-red hover:brightness-130 text-white py-2 px-3 ml-1"
+                    onClick={() => {
+                      setSelectedProject(project);
+                      setConfirmModalOpen(true);
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </td>
               </tr>
-              </thead>
-              <tbody>
-              {filteredProjects.length > 0 ? (
-                  filteredProjects.map((project) => (
-                    <tr key={project.id}>
-                      <td className="border-2 border-fisma-light-gray p-1">
-                          {project.projectName}
-                      </td>
-                      <td className="border-2 border-fisma-light-gray p-1">v{project.version}</td>
-                      <td className="border-2 border-fisma-light-gray p-1">
-                          {new Date(project.createdDate).toLocaleDateString("fi-FI", {
-                              year: "numeric",
-                              month: "2-digit",
-                              day: "2-digit",
-                          })}{" "}
-                          {new Date(project.createdDate).toLocaleTimeString("fi-FI", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: false,
-                          }).replace('.', ':')}
-                      </td>
-                      <td className="border-2 border-gray-400 p-1">
-                          {new Date(project.versionDate).toLocaleDateString("fi-FI", {
-                              year: "numeric",
-                              month: "2-digit",
-                              day: "2-digit",
-                          })}{" "}
-                          {new Date(project.versionDate).toLocaleTimeString("fi-FI", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: false,
-                          }).replace('.', ':')}
-                      </td>
-                      <td className="border-2 border-gray-400 p-1">
-                          {new Date(project.editedDate).toLocaleDateString("fi-FI", {
-                              year: "numeric",
-                              month: "2-digit",
-                              day: "2-digit",
-                          })}{" "}
-                          {new Date(project.editedDate).toLocaleTimeString("fi-FI", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: false,
-                          }).replace('.', ':')}
-                      </td>
-                      <td className="p-1">
-                          <button
-                              className="bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white py-3 px-4"
-                              onClick={() => navigate(`/project/${project.id}`)}
-                          >
-                              <FontAwesomeIcon icon={faPenToSquare}/>
-                          </button>
-                          <button
-                              className="bg-fisma-red hover:brightness-130 cursor-pointer text-white py-3 px-4 ml-1"
-                              onClick={() => {
-                                setSelectedProject(project);
-                                setConfirmModalOpen(true);
-                              }}
-                          >
-                              <FontAwesomeIcon icon={faTrash}/>
-                          </button>
-                      </td>
-                  </tr>
-                ))
-              ) : (
-                  <tr>
-                      <td colSpan={5}
-                          className="text-center text-fisma-gray p-4">{translation.noProjectsCouldBeFound}</td>
-                  </tr>
-              )}
-              </tbody>
-          </table>
-          <ConfirmModal 
-            message={`${translation.confirmDelete} "${selectedProject?.projectName}"?`}
-            open={isConfirmModalOpen}
-            setOpen={setConfirmModalOpen}
-            onConfirm={() => {
-              if (selectedProject)
-              handleDelete(selectedProject.id)
-              setSelectedProject(null);
-            }}
-          />
+            ))
+          ) : (
+            <tr>
+              <td colSpan={6} className="text-center text-fisma-gray p-4">
+                {translation.noProjectsCouldBeFound}
+              </td>
+            </tr>
+          )}
+        </tbody>
+        </table>
       </div>
+      <ConfirmModal
+        message={`${translation.confirmDelete} "${selectedProject?.projectName}"?`}
+        open={isConfirmModalOpen}
+        setOpen={setConfirmModalOpen}
+        onConfirm={() => {
+          if (selectedProject) handleDelete(selectedProject.id);
+          setSelectedProject(null);
+        }}
+      />
+    </div>
   );
 } 

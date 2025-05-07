@@ -1,27 +1,19 @@
 # Backend Heroku Deployment
 
-This assumes that you have a working Heroku account. If not, create one. It will require a working email address and a credit card.
-You will also need a working database.
+Backend is currently live at: https://fisma-backend-alt-333d056d5201.herokuapp.com
 
-## 1. Repository clone and configuration
+## 1. Requirements
+
+- Heroku account
+- Email address
+- Running database and its credentials (url, username and password)
+- Credit cart
+
+## 2. Repository clone
 
 ### 1. Clone the repository
 
 Clone the repository at https://github.com/fisma-benefit-app/benefit-app.git.
-
-### 2. Modify application.yaml
-
-In the cloned repository, locate the file in /backend/src/main/resources/application.yaml and edit it like this:
-
-```
-  datasource:
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    url: ${SPRING_DATASOURCE_URL}
-```
-
-This will allow Heroku to enter values for your database.
-Push the contents of the backend-folder into your own repository.
 
 ## 2. Heroku deployment
 
@@ -42,10 +34,9 @@ Click on Reveal Config Vars.
 
 ![config_vars](https://github.com/user-attachments/assets/c2f02485-8848-4cc8-a8bd-bba06ce1ba50)
 
-Create Key-value pairs for the username, password and url, where the key is one of the three datasource variables and the value is the actual value for your database:
+Create Key-value pairs for the username, password and url, where the key is one of the following datasource variables and the value is the actual value for your database:
 
 ![key_value_pairs](https://github.com/user-attachments/assets/6abddcfb-a45a-4786-bd33-66d39061d1c7)
-
 
 ### 3. Configure GitHub-repository
 
@@ -57,7 +48,6 @@ Select GitHub as the deployment method.
 Enter your repository name in the field and click search:
 
 ![deplopyment_method](https://github.com/user-attachments/assets/87301025-fe9b-4633-be82-2135a8b2276b)
-
 
 If successful, you should see the app connecting to github:
 
