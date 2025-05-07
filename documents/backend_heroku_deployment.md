@@ -69,7 +69,13 @@ Select the correct branch and click Deploy Branch.
 
 ![deploy_branch](https://github.com/user-attachments/assets/e0c7c4aa-78d8-4d2e-8fdf-3c8d3ab6f543)
 
-### 4. Set up Heroku CLI
+### 4. Updates to the backend
+ 
+![image](https://github.com/user-attachments/assets/6e87f070-c6a4-40c8-95ff-dde14bcbd6de)
+
+After commiting changes to the appopriate github repository, go back to heroku and press *deploy*.
+
+### 5. Set up Heroku CLI
 
 Install heroku CLI from https://devcenter.heroku.com/articles/heroku-cli
 
