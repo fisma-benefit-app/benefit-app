@@ -3,7 +3,9 @@
 This is the manual Benefit-app's login functionality.
 Here we present all essential files and codelines, 
 also explaining logical structure  
-for the login system in the Benefit-app. 
+for the login system in the Benefit-app.
+
+The Benefit-app will login ... from what and where software, tool?
 
 **A) User account's database and table.** 
 

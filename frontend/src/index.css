@@ -12,8 +12,8 @@
 }
 
 button:disabled {
-  filter: brightness(70%);
-  pointer-events: none;
+    filter: brightness(70%);
+    pointer-events: none;
 }
 
 :root {
@@ -27,6 +27,7 @@ input {
 input:focus {
     color: var(--color-fisma-dark-blue) !important;
 }
+
 
 /* This can be used to see where the element-boxes are. */
 /* * {
