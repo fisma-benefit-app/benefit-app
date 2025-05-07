@@ -73,8 +73,8 @@ Accept the login prompt in your browser:
 
 To view detailed logs from your app, enter in your console:
 ```
-heroku logs --tail --app <APP NAME>
+heroku logs --tail --app fisma-benefit-app
 ```
 
-Where `<APP NAME>` is the name you entered when creating the app.
+Where `fisma-benefit-app` is the name you entered when creating the app.
 
