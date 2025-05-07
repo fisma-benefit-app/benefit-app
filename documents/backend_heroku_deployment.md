@@ -13,7 +13,19 @@ Backend is currently live at: https://fisma-backend-alt-333d056d5201.herokuapp.c
 
 ### 1. Clone the repository
 
-Clone the repository at https://github.com/fisma-benefit-app/benefit-app.git.
+Clone the backend folder from the repository at https://github.com/fisma-benefit-app/benefit-app.git.
+
+### 2. Edit build.gradle file
+
+Find the file build.gradle from the root of the file. In the following lines of the file, make sure the version is 21:
+
+```
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+```
 
 ## 2. Heroku deployment
 
