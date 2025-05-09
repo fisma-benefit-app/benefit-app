@@ -79,7 +79,16 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           if (num < 0) value = "0";
           if (num > 1) value = "1";
         }
+      } else if (e.target.id !== "comment") {
+        const num = parseFloat(value);
+        // correct any number greater than 99999 and less than 0
+        if (num > 99999) {
+          value = "99999";
+        } else if (num < 0) {
+          value = "0"
+        }
       }
+
       updatedComponent = { ...component, [e.target.id]: value };
     }
     const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
