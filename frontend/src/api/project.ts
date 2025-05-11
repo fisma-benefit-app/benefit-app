@@ -158,15 +158,10 @@ const deleteProject = async (sessionToken: string | null, projectId: number | un
         "Authorization": sessionToken
     }
 
-    try {
-        const response = await fetch(fetchURL, { method: "DELETE", headers })
+    const response = await fetch(fetchURL, { method: "DELETE", headers })
 
-        if (!response.ok) {
-            throw new Error(`Error deleting project in deleteProject! Status: ${response.status}`);
-        }
-    } catch (error) {
-        console.error("Error deleting project:", error);
-        throw error;
+    if (!response.ok) {
+        throw new Error(`Error deleting project in deleteProject! Status: ${response.status}`);
     }
 }
 
