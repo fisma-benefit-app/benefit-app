@@ -101,35 +101,30 @@ const createNewProjectVersion = async (sessionToken: string | null, previousProj
         editedDate: CreateCurrentDateNewVersion(),
     };
 
-    try {
-        const response = await fetch(fetchURL, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(project)
-        });
+    const response = await fetch(fetchURL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(project)
+    });
 
-        if (!response.ok) {
-            throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
-        }
-
-        const location = response.headers.get("Location");
-
-        if (!location) {
-            throw new Error("Project created but no Location header found!");
-        }
-
-        const parts = location.split("projects/");
-        const newProjectId = parts.length > 1 ? parts[1] : null;
-
-        if (!newProjectId) {
-            throw new Error("Id of new project could not be parsed!");
-        }
-
-        return newProjectId;
-    } catch (error) {
-        console.error("Error creating project:", error);
-        throw error;
+    if (!response.ok) {
+        throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
     }
+
+    const location = response.headers.get("Location");
+
+    if (!location) {
+        throw new Error("Project created but no Location header found!");
+    }
+
+    const parts = location.split("projects/");
+    const newProjectId = parts.length > 1 ? parts[1] : null;
+
+    if (!newProjectId) {
+        throw new Error("Id of new project could not be parsed!");
+    }
+
+    return newProjectId;
 }
 
 

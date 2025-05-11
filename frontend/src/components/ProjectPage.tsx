@@ -116,21 +116,21 @@ export default function ProjectPage() {
 
   const saveProjectVersion = async () => {
     if (project) {
-      await saveProject(); //TODO: Automatic saving instead?
+      setLoadingProject(true);
       try {
-        setLoadingProject(true);
+        await saveProject(); //TODO: Automatic saving instead?
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
         navigate(`/project/${idOfNewProjectVersion}`);
       } catch (err) {
-        console.error(err);
+        console.error("Error creating new project version:", err);
       } finally {
         setLoadingProject(false);
       }
     }
   };
-  
+
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
     const selectedProject = sortedProjects.find((p: Project) => p.id === selectedId);
@@ -140,13 +140,13 @@ export default function ProjectPage() {
     }
   }
 
-  if (loadingProject) return <LoadingSpinner/>;
+  if (loadingProject) return <LoadingSpinner />;
 
   return (
     <>
       <div className="pl-5 pr-5">
         <div className="flex justify-between">
-          <div className="w-[calc(100%-340px)] mt-15"> 
+          <div className="w-[calc(100%-340px)] mt-15">
             {project ? (//TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
               <>
                 {sortedComponents?.map((component) => (
@@ -169,7 +169,7 @@ export default function ProjectPage() {
           </div>
         </div>
       </div>
-  
+
       <div className="fixed right-5 top-20 w-[320px]">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
@@ -212,13 +212,13 @@ export default function ProjectPage() {
               {translation.newFunctionalComponent}
             </button>
           </div>
-  
+
           {Array.isArray(project?.functionalComponents) && project.functionalComponents.length > 0 && (
-              <FunctionalPointSummary project={project} />
+            <FunctionalPointSummary project={project} />
           )}
         </div>
       </div>
-  
+
       <ConfirmModal
         message={`${translation.saveVersionWarningBeginning} ${project?.version}? ${translation.saveVersionWarningEnd}`}
         open={isConfirmModalOpen}
