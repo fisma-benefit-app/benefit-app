@@ -32,19 +32,14 @@ const fetchProject = async (sessionToken: string | null, projectId: number | und
         "Authorization": sessionToken
     }
 
-    try {
-        const response = await fetch(fetchURL, { method: "GET", headers })
+    const response = await fetch(fetchURL, { method: "GET", headers })
 
-        if (!response.ok) {
-            throw new Error(`Error fetching project in fetchProject! Status: ${response.status}`);
-        }
-
-        const project = await response.json();
-        return project;
-    } catch (error) {
-        console.error("Error fetching project:", error);
-        throw error;
+    if (!response.ok) {
+        throw new Error(`Error fetching project in fetchProject! Status: ${response.status}`);
     }
+
+    const project = await response.json();
+    return project;
 }
 
 const createProject = async (sessionToken: string | null, nameForProject: string | null) => {

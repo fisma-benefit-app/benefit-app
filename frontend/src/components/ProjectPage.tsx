@@ -35,7 +35,7 @@ export default function ProjectPage() {
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
   //sort functional components by id (order of creation from oldest to newest)
-  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
+  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id) || [];
 
   useEffect(() => {
     const getProject = async () => {
@@ -44,6 +44,7 @@ export default function ProjectPage() {
         const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
         setProject(projectFromDb);
       } catch (err) {
+        console.error("Error fetching project:", err);
         setError(err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend.");
       } finally {
         setLoadingProject(false);
