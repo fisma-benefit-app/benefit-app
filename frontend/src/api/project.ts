@@ -15,7 +15,11 @@ const fetchAllProjects = async (sessionToken: string | null) => {
     const response = await fetch(fetchURL, { method: "GET", headers })
 
     if (!response.ok) {
-        throw new Error(`Error fetching projects in fetchAllProjects! Status: ${response.status}`);
+        if (response.status === 401) {
+            throw new Error('Unauthorized!');
+        } else {
+            throw new Error(`Error fetching projects in fetchAllProjects! Status: ${response.status}`);
+        }
     }
 
     const projects = await response.json();
@@ -35,6 +39,9 @@ const fetchProject = async (sessionToken: string | null, projectId: number | und
     const response = await fetch(fetchURL, { method: "GET", headers })
 
     if (!response.ok) {
+        if (response.status === 401) {
+            throw new Error('Unauthorized!');
+        }
         throw new Error(`Error fetching project in fetchProject! Status: ${response.status}`);
     }
 
@@ -67,6 +74,9 @@ const createProject = async (sessionToken: string | null, nameForProject: string
     });
 
     if (!response.ok) {
+        if (response.status === 401) {
+            throw new Error('Unauthorized!');
+        }
         throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
     }
 
@@ -108,7 +118,10 @@ const createNewProjectVersion = async (sessionToken: string | null, previousProj
     });
 
     if (!response.ok) {
-        throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
+        if (response.status === 401) {
+            throw new Error('Unauthorized!');
+        }
+        throw new Error(`Error creating a new project in createNewProjectVersion! Status: ${response.status}`);
     }
 
     const location = response.headers.get("Location");
@@ -141,6 +154,9 @@ const updateProject = async (sessionToken: string | null, project: Project | Pro
     const response = await fetch(fetchURL, { method: "PUT", headers, body: JSON.stringify(project) })
 
     if (!response.ok) {
+        if (response.status === 401) {
+            throw new Error('Unauthorized!');
+        }
         throw new Error(`Error updating project in updateProject! Status: ${response.status}`);
     }
 
@@ -161,6 +177,9 @@ const deleteProject = async (sessionToken: string | null, projectId: number | un
     const response = await fetch(fetchURL, { method: "DELETE", headers })
 
     if (!response.ok) {
+        if (response.status === 401) {
+            throw new Error('Unauthorized!');
+        }
         throw new Error(`Error deleting project in deleteProject! Status: ${response.status}`);
     }
 }

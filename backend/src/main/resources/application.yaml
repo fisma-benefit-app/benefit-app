@@ -5,16 +5,16 @@ spring:
 # These values are variables for Heroku deployment for the backend's database. Consult deployment documentation on how to use them during deployment.
 # If you wish to use a different database during development, change the values to your db's appropriate credentials (see below).
 # Leaving them as-is and running the application locally will use compose.yaml from the project root to start the db with docker.
+  #datasource:
+    #username: ${SPRING_DATASOURCE_USERNAME}
+    #password: ${SPRING_DATASOURCE_PASSWORD}
+    #url: ${SPRING_DATASOURCE_URL}
+
+# Like this:
   datasource:
     username: myuser
     password: secret
     url: jdbc:postgresql://127.0.0.1:5432/fisma_db
-
-# Like this:
-  #datasource:
-    #username: your_db_username
-    #password: your_db_password
-    #url: your_db_url
 
 # Set this to always when you want to initialize the database using the schema.sql and data.sql files.
 # Set it to never when the database is initialized and working.

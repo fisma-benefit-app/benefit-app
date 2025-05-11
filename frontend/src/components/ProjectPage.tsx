@@ -15,7 +15,7 @@ import ConfirmModal from "./ConfirmModal.tsx";
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
 export default function ProjectPage() {
-  const { sessionToken } = useAppUser();
+  const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
@@ -44,6 +44,9 @@ export default function ProjectPage() {
         const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
         setProject(projectFromDb);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         console.error("Error fetching project:", err);
         setError(err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend.");
       } finally {
@@ -75,6 +78,9 @@ export default function ProjectPage() {
         const updatedProject: Project = await updateProject(sessionToken, projectWithNewComponent);
         setProject(updatedProject);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         console.error(err);
       } finally {
         setLoadingProject(false);
@@ -91,6 +97,9 @@ export default function ProjectPage() {
         const updatedProject = await updateProject(sessionToken, filteredProject);
         setProject(updatedProject);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         console.error(err);
       } finally {
         setLoadingProject(false);
@@ -106,6 +115,9 @@ export default function ProjectPage() {
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         console.error(err);
       } finally {
         setLoadingProject(false);
@@ -123,6 +135,9 @@ export default function ProjectPage() {
         setProjects(updatedProjects);
         navigate(`/project/${idOfNewProjectVersion}`);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         console.error("Error creating new project version:", err);
       } finally {
         setLoadingProject(false);

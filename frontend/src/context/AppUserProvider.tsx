@@ -15,6 +15,17 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     const [loggedIn, setLoggedIn] = useState<boolean>(false);
     const [sessionToken, setSessionToken] = useState<string | null>(null);
 
+    const logout = () => {
+        setLoadingAuth(true);
+        sessionStorage.removeItem("loginToken");
+        sessionStorage.removeItem("userInfo");
+        setSessionToken(null);
+        setAppUser(null);
+        setLoggedIn(false);
+        setLoadingAuth(false);
+        //TODO: Notify backend about logging out!
+    };
+
     const appUserProviderValue: AppUserContextType = {
         loadingAuth,
         appUser,
@@ -22,7 +33,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
         sessionToken,
         setSessionToken,
         setLoggedIn,
-        setAppUser
+        setAppUser,
+        logout
     }
 
     //get login data from the session storage when application is refreshed

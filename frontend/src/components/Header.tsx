@@ -10,21 +10,12 @@ import useTranslations from "../hooks/useTranslations";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { appUser, loggedIn, setAppUser, setLoggedIn, setSessionToken } = useAppUser();
+  const { appUser, loggedIn, logout } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
 
   const translation = useTranslations().header;
-
-  const logout = () => {
-    sessionStorage.removeItem("loginToken");
-    sessionStorage.removeItem("userInfo");
-    setSessionToken(null);
-    setAppUser(null);
-    setLoggedIn(false);
-    //TODO: Notify backend about logging out!
-  };
 
   const changeLanguage = () => {
     setLanguage(language === "fi" ? "en" : "fi")
