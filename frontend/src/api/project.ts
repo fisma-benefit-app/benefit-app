@@ -1,5 +1,5 @@
 import { Project, ProjectWithUpdate } from "../lib/types";
-const API_URL =  import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 import CreateCurrentDate from "../api/date.ts";
 import { CreateCurrentDateNewVersion } from "../api/date.ts";
 
@@ -12,18 +12,14 @@ const fetchAllProjects = async (sessionToken: string | null) => {
         "Authorization": sessionToken
     }
 
-    try {
-        const response = await fetch(fetchURL, { method: "GET", headers })
+    const response = await fetch(fetchURL, { method: "GET", headers })
 
-        if (!response.ok) {
-            throw new Error(`Error fetching projects in fetchAllProjects! Status: ${response.status}`);
-        }
-
-        const projects = await response.json();
-        return projects;
-    } catch (error) {
-        console.error("Error fetching projects:", error);
+    if (!response.ok) {
+        throw new Error(`Error fetching projects in fetchAllProjects! Status: ${response.status}`);
     }
+
+    const projects = await response.json();
+    return projects;
 }
 
 const fetchProject = async (sessionToken: string | null, projectId: number | undefined) => {
@@ -70,10 +66,10 @@ const createProject = async (sessionToken: string | null, nameForProject: string
     };
 
     try {
-        const response = await fetch(fetchURL, { 
-            method: "POST", 
-            headers, 
-            body: JSON.stringify(project) 
+        const response = await fetch(fetchURL, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(project)
         });
 
         if (!response.ok) {
@@ -84,7 +80,7 @@ const createProject = async (sessionToken: string | null, nameForProject: string
 
         if (!location) {
             throw new Error("Project created but no Location header found!");
-        } 
+        }
 
         const parts = location.split("projects/");
         const newProjectId = parts.length > 1 ? parts[1] : null;
@@ -116,21 +112,21 @@ const createNewProjectVersion = async (sessionToken: string | null, previousProj
     };
 
     try {
-        const response = await fetch(fetchURL, { 
-            method: "POST", 
-            headers, 
-            body: JSON.stringify(project) 
+        const response = await fetch(fetchURL, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(project)
         });
 
         if (!response.ok) {
             throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
         }
-        
+
         const location = response.headers.get("Location");
 
         if (!location) {
             throw new Error("Project created but no Location header found!");
-        } 
+        }
 
         const parts = location.split("projects/");
         const newProjectId = parts.length > 1 ? parts[1] : null;
@@ -138,7 +134,7 @@ const createNewProjectVersion = async (sessionToken: string | null, previousProj
         if (!newProjectId) {
             throw new Error("Id of new project could not be parsed!");
         }
-        
+
         return newProjectId;
     } catch (error) {
         console.error("Error creating project:", error);
