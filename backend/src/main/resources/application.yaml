@@ -6,9 +6,9 @@ spring:
 # If you wish to use a different database during development, change the values to your db's appropriate credentials (see below).
 # Leaving them as-is and running the application locally will use compose.yaml from the project root to start the db with docker.
   datasource:
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    url: ${SPRING_DATASOURCE_URL}
+    username: myuser
+    password: secret
+    url: jdbc:postgresql://127.0.0.1:5432/fisma_db
 
 # Like this:
   #datasource:
@@ -20,8 +20,7 @@ spring:
 # Set it to never when the database is initialized and working.
   sql:
     init:
-      mode: never
-
+      mode: always
   cloud:
     aws:
       secretsmanager:

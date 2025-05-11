@@ -25,32 +25,39 @@ export default function LoginForm() {
     setLoginError(null);
     setLoading(true);
 
-    const loginToken = await fetchJWT(username, password);
+    try {
+      const loginToken = await fetchJWT(username, password);
 
-    if (!loginToken) {
+      sessionStorage.setItem("loginToken", loginToken);
+      sessionStorage.setItem("userInfo", username);
+      setSessionToken(loginToken);
+      setAppUser({ username: username });
+      setLoggedIn(true);
+
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error("Login failed: ", err.message);
+      } else {
+        console.error("Uknown error:", err);
+      }
+
       setLoginError(translation.errorMessage);
       setShowLoginError(true);
 
       setTimeout(() => {
-          setShowLoginError(false);
-          setTimeout(() => setLoginError(null), 500);
+        setShowLoginError(false);
+        setTimeout(() => setLoginError(null), 500);
       }, 2500);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    sessionStorage.setItem("loginToken", loginToken);
-    sessionStorage.setItem("userInfo", username);
-    setSessionToken(loginToken);
-    setAppUser({ username: username });
-    setLoggedIn(true);
   };
 
-    useEffect(() => {
-      if (loggedIn) {
-        navigate("/");
-      }
-    }, [loggedIn, navigate]);
+  useEffect(() => {
+    if (loggedIn) {
+      navigate("/");
+    }
+  }, [loggedIn, navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -67,39 +74,39 @@ export default function LoginForm() {
           )}
         </div>
 
-          <div className="mb-4 relative">
-            <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue" />
-            <input
-              type="text"
-              placeholder={translation.username}
-              value={username}
-              onChange={(e) => setUsername(e.target.value.trim())}
-              required
-              className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
-            />
-          </div>
+        <div className="mb-4 relative">
+          <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue" />
+          <input
+            type="text"
+            placeholder={translation.username}
+            value={username}
+            onChange={(e) => setUsername(e.target.value.trim())}
+            required
+            className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+          />
+        </div>
 
-          <div className="mb-4 relative">
-            <FontAwesomeIcon icon={faKey} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder={translation.password}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fisma-light-gray hover:brightness-50"
-            >
-              {showPassword ? <FontAwesomeIcon icon={faEyeSlash} className="w-6 h-6" /> : <FontAwesomeIcon icon={faEye} className="w-6 h-6" />}
-            </button>
-          </div>
+        <div className="mb-4 relative">
+          <FontAwesomeIcon icon={faKey} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue" />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder={translation.password}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fisma-light-gray hover:brightness-50"
+          >
+            {showPassword ? <FontAwesomeIcon icon={faEyeSlash} className="w-6 h-6" /> : <FontAwesomeIcon icon={faEye} className="w-6 h-6" />}
+          </button>
+        </div>
 
-          {/* TODO: Remember me and forgot password?  */}
-          {/* <div className="flex justify-between items-center mb-4 text-white">
+        {/* TODO: Remember me and forgot password?  */}
+        {/* <div className="flex justify-between items-center mb-4 text-white">
             <label className="flex items-center">
               <input
                 type="checkbox"
@@ -112,15 +119,15 @@ export default function LoginForm() {
             <a href="#" className="text-white text-sm hover:underline">{translation.forgotPassword}</a>
           </div> */}
 
-          <button
-            type="submit"
-            className="w-full min-h-[42px] p-2 text-white bg-fisma-dark-blue hover:brightness-70 flex justify-center items-center cursor-pointer"
-            disabled={loading}
-          >
-            {loading ? (
-              <DotLoadingSpinner/>
-            ) : translation.login}
-          </button>
+        <button
+          type="submit"
+          className="w-full min-h-[42px] p-2 text-white bg-fisma-dark-blue hover:brightness-70 flex justify-center items-center cursor-pointer"
+          disabled={loading}
+        >
+          {loading ? (
+            <DotLoadingSpinner />
+          ) : translation.login}
+        </button>
       </form>
     </div>
   );
