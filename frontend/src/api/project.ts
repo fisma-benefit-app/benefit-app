@@ -138,18 +138,14 @@ const updateProject = async (sessionToken: string | null, project: Project | Pro
         "Content-Type": "application/json"
     }
 
-    try {
-        const response = await fetch(fetchURL, { method: "PUT", headers, body: JSON.stringify(project) })
+    const response = await fetch(fetchURL, { method: "PUT", headers, body: JSON.stringify(project) })
 
-        if (!response.ok) {
-            throw new Error(`Error updating project in updateProject! Status: ${response.status}`);
-        }
-
-        const updatedProject = await response.json();
-        return updatedProject;
-    } catch (error) {
-        console.error("Error updating project:", error);
+    if (!response.ok) {
+        throw new Error(`Error updating project in updateProject! Status: ${response.status}`);
     }
+
+    const updatedProject = await response.json();
+    return updatedProject;
 }
 
 const deleteProject = async (sessionToken: string | null, projectId: number | undefined) => {
