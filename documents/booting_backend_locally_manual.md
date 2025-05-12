@@ -80,6 +80,7 @@ Move to the benefit-app's directory.
 cd Drive:/path/to/benefit-app
 ```
 ![image](img/images_for_manuals/benefit_app_directory.png)
+
 Image: The root directory of Benefit app.
 
 You can now activate PostgreSQL database from compose.yaml -file:
@@ -102,7 +103,7 @@ If above commands do not work and you get error messages,
 we highly recommend to read docker_setup.md manual from
 documents directory.
 
-Link: 
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/docker_setup.md
 
 
 ---
