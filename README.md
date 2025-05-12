@@ -52,17 +52,22 @@ The application can be useful for experts, who want to easily calculate
 function points of other applications.
 
 **What are prerequisites?**
+
 User should have at least basic knowledge on software size measurements
 and function points calculations. Fisma ry have great manuals for these.
 
 Then we expect user have great knowledge on advanced developers' tools, 
-such as Java with Gradle for backend, Typescript for frontend, PostgreSQL for database, Heroku environment for backend's deployment, etc. We have documented all essential
+such as Java with Gradle for backend, Typescript for frontend, PostgreSQL for database, 
+Heroku environment for backend's deployment, etc. We have documented all essential
 tools and their implementation in the software in the 
 
 
 **Why are the frontend, backend, and other components stored in a single repository?**
 
-The frontend, backend, and other components are stored in a single repository to streamline the development process, allowing the team to work efficiently and coordinate changes more easily. Due Fisma ry request, the repository will be public open source.
+The frontend, backend, and other components are stored in a single repository 
+in order streamline the development process, allowing the team to work efficiently 
+and coordinate changes more easily. Due Fisma ry request, the repository was opened publicly
+as open source.
 
 The only exception is the backend-credentials repository, which is seperated from 
 the single repository and is private. It contains sensitive credentials for deploying
@@ -111,27 +116,27 @@ dependencies.
 
 Please read frontend_manual.md from documents -directory for more information.
 
-Link:
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/frontend_manual.md
 
 For deployment of frontend, we used gh-pages method by Github, which
 you can read in more detail from frontend_gh_pages_deployment. md manual.
 
-Link: 
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/frontend_gh_pages_deployment.md 
 
 ---
 
 ## 5. Backend
 The backend was developed in Java with Gradle.
 
-For booting backend locally, please read booting_backend_locally.md 
+For booting backend locally, please read booting_backend_locally_manual.md 
 from documents -directory for more information.
 
-Link:
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/booting_backend_locally_manual.md
 
 For deployment of backend, we used Heroku platform, which
 you can read in more detail from backend_heroku_deployment.md manual.
 
-Link:
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/backend_heroku_deployment.md
 
 ---
 
@@ -146,7 +151,7 @@ Picture #: Diagram of Benefit's database.
 Please read database_manual.md document from documents -directory
 for more information
 
-Link: 
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/database_manual.md
 
 ---
 
@@ -196,8 +201,8 @@ you can read in detail in following documents:
 * testing_report_from_April_02_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_02_2025.md )
 * testing_report_from_April_03_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_03_2025.md )
 
-Note these aren't official systematical testing reports as 
-Fisma ry pointed out during one sprint review.
+Note these aren't considered as official systematical testing reports for Benefit-app.
+This was pointed by Fisma ry during one sprint review.
 
 ---
 
