@@ -37,7 +37,10 @@ All-in-one repository for the Benefit application. Includes frontend, backend, d
 
 **What is Benefit application and its main purpose?**
 
-Benefit application is a project by FiSMA ry, developed during Spring 2025. It is a software tool designed for estimating the size of a software project, which calculates function points for navigation and queries, external interfaces, inputs and outputs. Based on these, it helps estimate the project's budget and costs.
+Benefit application is a project by FiSMA ry, developed during Spring 2025. 
+It is a software tool designed for estimating the size of a software project, 
+which calculates function points for navigation and queries, external interfaces, 
+inputs and outputs. Based on these, it helps estimate the project's budget and costs.
 
 ![Benefit-app's frontend UI page, taken on March 29 2025](/documents/img/images_for_manuals/UI_page_29_03_2025.png)
 
@@ -172,21 +175,23 @@ as soon as possible, we held Sprint reviews every second week
 (with few exceptions due holidays). 
 
 b) Originally, we had three branches: dev, main and qa.
-  **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
-  **Qa** is our product review branch, where we pull all _functional_ codes for Sprint Review together with product owners.
-  **Main** is our official branch, where project has been deployed (finalized) and refactor all unnecessary, broken solutions and tools.
+
+*  **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
+
+*  **Qa** is our product review branch, where we pull all _functional_ codes for Sprint Review together with product owners.
+
+*  **Main** is our official branch, where project has been deployed (finalized) and refactor all unnecessary, broken solutions and tools.
 
 After third sprint and on, we had more branches for specific development or issues,
 such as bug fixes and logout functionality.
 
 Despite of having many branches, this ensured that no git conflicts, 
-nor code errors, wouldn't happen regularly.
+nor code errors, wouldn't happen regularly during development process.
 
-When it was time to pull from other branches to the main branches via pull requests,
-we implemented a functionality where every pull request must be reviewed
-and accepted by other team members. This was due assuring quality of the codes
-and minimize possible errors.
-
+When it was time to pull working solutions (or codes) from other branches 
+to the dev or main branch via pull requests, we implemented a functionality 
+where every pull request must be reviewed and accepted by other team members. 
+This was due assuring quality of the codes and minimize possible errors.
 
 
 ---
