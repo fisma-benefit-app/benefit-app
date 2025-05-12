@@ -8,13 +8,13 @@
 git clone https://github.com/fisma-benefit-app/benefit-app.git
 ```
 
-**2.** Setup and run the spring boot backend (see **backend_setup_manula** -documentation:
+**2.** Setup and run the spring boot backend (see **backend_setup_manual** -documentation:
 https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/backend_setup_manual.md).
 
 **3.** Navigate to frontend project root via command:
 
 ```sh
-cd benefit-app/frontend`
+cd benefit-app/frontend
 ```
 
 **4.** Install frontend dependencies:
@@ -57,8 +57,8 @@ installed in the frontend:
 
 **5.** Setup environment variables:
 
-1. Create two files called .env.development and .env.production in the frontend project root.
-2. Add the following environment variable: VITE_API_URL to both. Its value should match the locally running backend development server URL for .env.development and it should match the deployed backend url for .env.production:
+1. Create two files called .env.development and .env.production in the frontend project root. These allow the frontend to connect to the backend and as their names suggest, one is for running the application locally and the other in production.
+2. Add the following environment variable: `VITE_API_URL` to both. Its value should match the locally running backend development server URL for .env.development and it should match the deployed backend url for .env.production:
 
 .env.development:
 
@@ -67,6 +67,7 @@ VITE_API_URL = http://localhost:8080
 ```
 
 .env.production:
+(Replace the url with your actual backend url. See backend deployment [documentation](https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/backend_heroku_deployment.md).)
 
 ```sh
 VITE_API_URL = https://dis-be-where-backend-is.somesite.com
