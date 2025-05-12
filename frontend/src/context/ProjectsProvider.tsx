@@ -1,12 +1,12 @@
 import * as React from "react";
 import { Project } from "../lib/types.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import {useEffect, useState} from "react";
-import { deleteProject, fetchAllProjects} from "../api/project.ts";
+import { useEffect, useState } from "react";
+import { deleteProject, fetchAllProjects } from "../api/project.ts";
 import { ProjectsContext } from "./ProjectsContext.ts";
 
-export default function ProjectsProvider({children,}: { children: React.ReactNode; }) {
-  const { sessionToken } = useAppUser();
+export default function ProjectsProvider({ children, }: { children: React.ReactNode; }) {
+  const { sessionToken, logout } = useAppUser();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -18,6 +18,9 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
         const allProjectsFromDb = await fetchAllProjects(sessionToken);
         setProjects(allProjectsFromDb);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         setError(err instanceof Error ? err.message : "Unexpected error occurred when getting projects from backend.");
       } finally {
         setLoading(false);
@@ -26,13 +29,16 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     getAllProjects();
   }, [sessionToken]);
 
-  const sortedProjects = projects?.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime()) || [];     
-      
+  const sortedProjects = projects?.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime()) || [];
+
   const handleDelete = async (projectId: number) => {
     try {
       await deleteProject(sessionToken, projectId);
       setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
     } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized!") {
+        logout();
+      }
       setError(err instanceof Error ? err.message : "Unexpected error occurred while trying to delete project!");
     }
   };
@@ -51,11 +57,11 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
   const returnLatestOrPreviousVersion = (project: Project, allProjectVersions: Project[]) => {
     if (allProjectVersions?.length > 1) {
       const currentIndex = allProjectVersions.findIndex(p => p.version === project.version);
-      if (currentIndex >= 0 && currentIndex < (allProjectVersions.length -1)) {
+      if (currentIndex >= 0 && currentIndex < (allProjectVersions.length - 1)) {
         return allProjectVersions[currentIndex + 1];
       }
     }
-      return project;
+    return project;
   }
 
   const contextValue = {

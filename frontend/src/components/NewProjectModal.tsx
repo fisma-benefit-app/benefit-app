@@ -13,7 +13,7 @@ interface NewProjectFormProps {
 
 export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) {
   const navigate = useNavigate();
-  const { sessionToken } = useAppUser();
+  const { sessionToken, logout } = useAppUser();
   const { sortedProjects, setProjects } = useProjects();
   const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -53,8 +53,11 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
       const idOfNewProject = await createProject(sessionToken, name);
       await fetchAllProjects(sessionToken).then(setProjects);
       navigate(`project/${idOfNewProject}`);
-      setOpen(false);
     } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized!") {
+        logout();
+      }
+      console.error("Error creating project:", err);
       setError(err instanceof Error ? err.message : "Unexpected error occured while sending new project request to backend.");
       setShowError(true);
 
@@ -63,8 +66,10 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
         setTimeout(() => setError(null), 500);
       }, 2500);
     } finally {
+      setOpen(false);
       setLoading(false);
       setName("");
+
     }
   };
 
@@ -79,7 +84,7 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
 
         <div className="h-8 mb-4 flex items-center justify-center">
           {loading ? (
-            <DotLoadingSpinner/>
+            <DotLoadingSpinner />
           ) : (
             error && (
               <label className={`text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showError ? 'opacity-100' : 'opacity-0'}`}>

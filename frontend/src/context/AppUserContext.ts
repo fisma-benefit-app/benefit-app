@@ -8,7 +8,8 @@ export type AppUserContextType = {
     sessionToken: string | null,
     setSessionToken: React.Dispatch<React.SetStateAction<string | null>>,
     setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>,
-    setAppUser: React.Dispatch<React.SetStateAction<AppUser | null>>
+    setAppUser: React.Dispatch<React.SetStateAction<AppUser | null>>,
+    logout: () => void
 }
 
 export const AppUserContext = createContext<AppUserContextType | null>(null);

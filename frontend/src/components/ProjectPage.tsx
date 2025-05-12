@@ -15,7 +15,7 @@ import ConfirmModal from "./ConfirmModal.tsx";
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
 export default function ProjectPage() {
-  const { sessionToken } = useAppUser();
+  const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export default function ProjectPage() {
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
   //sort functional components by id (order of creation from oldest to newest)
-  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id);
+  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id) || [];
 
   useEffect(() => {
     const getProject = async () => {
@@ -44,6 +44,10 @@ export default function ProjectPage() {
         const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
         setProject(projectFromDb);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
+        console.error("Error fetching project:", err);
         setError(err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend.");
       } finally {
         setLoadingProject(false);
@@ -74,6 +78,9 @@ export default function ProjectPage() {
         const updatedProject: Project = await updateProject(sessionToken, projectWithNewComponent);
         setProject(updatedProject);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         console.error(err);
       } finally {
         setLoadingProject(false);
@@ -90,6 +97,9 @@ export default function ProjectPage() {
         const updatedProject = await updateProject(sessionToken, filteredProject);
         setProject(updatedProject);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         console.error(err);
       } finally {
         setLoadingProject(false);
@@ -103,9 +113,11 @@ export default function ProjectPage() {
       try {
         const editedProject = { ...project, editedDate: CreateCurrentDate() };
         const savedProject = await updateProject(sessionToken, editedProject);
-
         setProject(savedProject);
       } catch (err) {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
         console.error(err);
       } finally {
         setLoadingProject(false);
@@ -115,21 +127,24 @@ export default function ProjectPage() {
 
   const saveProjectVersion = async () => {
     if (project) {
-      await saveProject(); //TODO: Automatic saving instead?
+      setLoadingProject(true);
       try {
-        setLoadingProject(true);
+        await saveProject(); //TODO: Automatic saving instead?
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
         navigate(`/project/${idOfNewProjectVersion}`);
       } catch (err) {
-        console.error(err);
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          logout();
+        }
+        console.error("Error creating new project version:", err);
       } finally {
         setLoadingProject(false);
       }
     }
   };
-  
+
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
     const selectedProject = sortedProjects.find((p: Project) => p.id === selectedId);
@@ -139,13 +154,13 @@ export default function ProjectPage() {
     }
   }
 
-  if (loadingProject) return <LoadingSpinner/>;
+  if (loadingProject) return <LoadingSpinner />;
 
   return (
     <>
       <div className="pl-5 pr-5">
         <div className="flex justify-between">
-          <div className="w-[calc(100%-340px)] mt-15"> 
+          <div className="w-[calc(100%-340px)] mt-15">
             {project ? (//TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
               <>
                 {sortedComponents?.map((component) => (
@@ -168,7 +183,7 @@ export default function ProjectPage() {
           </div>
         </div>
       </div>
-  
+
       <div className="fixed right-5 top-20 w-[320px]">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
@@ -211,13 +226,13 @@ export default function ProjectPage() {
               {translation.newFunctionalComponent}
             </button>
           </div>
-  
+
           {Array.isArray(project?.functionalComponents) && project.functionalComponents.length > 0 && (
-              <FunctionalPointSummary project={project} />
+            <FunctionalPointSummary project={project} />
           )}
         </div>
       </div>
-  
+
       <ConfirmModal
         message={`${translation.saveVersionWarningBeginning} ${project?.version}? ${translation.saveVersionWarningEnd}`}
         open={isConfirmModalOpen}
