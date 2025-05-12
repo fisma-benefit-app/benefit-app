@@ -4,10 +4,9 @@ Backend is currently live at: https://fisma-backend-alt-333d056d5201.herokuapp.c
 
 ## 1. Requirements
 
-- Heroku account
+- Heroku account (credit card needed for account)
 - Email address
 - Running database and its credentials (url, username and password)
-- Credit cart
 
 ## 2. Repository clone
 
@@ -46,7 +45,7 @@ Click on Reveal Config Vars.
 
 ![config_vars](https://github.com/user-attachments/assets/c2f02485-8848-4cc8-a8bd-bba06ce1ba50)
 
-Create Key-value pairs for the username, password and url, where the key is one of the following datasource variables and the value is the actual value for your database:
+Create Key-value pairs for the credentials of your database (username, password and url), where the key is one of the following datasource variables and the value is the actual value for your database:
 
 ![key_value_pairs](https://github.com/user-attachments/assets/6abddcfb-a45a-4786-bd33-66d39061d1c7)
 
