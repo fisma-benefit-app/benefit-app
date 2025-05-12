@@ -1,5 +1,6 @@
 import { Project, TGenericComponent } from "./types";
 import { getCalculateFuntion } from './fc-service-functions.ts';
+import {calculateFunctions} from "./fc-constants.ts";
 //TODO: Fix eslint alerts!
 
 export const convertToCSV = (data: any[]) => {
@@ -56,18 +57,21 @@ const dateLocalizer = (insertedDate: string) => {
 }
 
 //  calculate-funktiot kopioituna (tätä vois yksinkertaistaa?)
-const calculateFunctionalComponentPoints = (component: TGenericComponent | null) => {
+const calculateFunctionalComponentPoints = (component: TGenericComponent | null, multiplier: number | null) => {
   if (!component) return 0;
   if (!component.className || !component.componentType) return 0;
   const calculateFunction = getCalculateFuntion(component.className);
-  return calculateFunction ? calculateFunction(component) : 0;
+  const basePoints = calculateFunction ? calculateFunction(component) : 0;
+  console.log(basePoints);
+  console.log(multiplier);
+  return multiplier != null ? basePoints * multiplier : basePoints;
 };
 
 // Calculates total functional points from all components of a project
 const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]) => {
   let totalPoints = 0;
   for (const component of components) {
-    totalPoints += calculateFunctionalComponentPoints(component);
+    totalPoints += calculateFunctionalComponentPoints(component, component.degreeOfCompletion);
   }
   return totalPoints;
 };
@@ -159,8 +163,8 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
               <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
               <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
               <td>${valueComparer(
-                  calculateFunctionalComponentPoints(comp || null).toFixed(2),
-                  calculateFunctionalComponentPoints(prevComp || null).toFixed(2)
+                  calculateFunctionalComponentPoints(comp || null, comp.degreeOfCompletion).toFixed(2),
+                  calculateFunctionalComponentPoints(prevComp || null, prevComp?.degreeOfCompletion || null).toFixed(2)
             )}</td>
               <td>${valueComparer(comp.comment, prevComp?.comment || null)}</td>
             </tr>
