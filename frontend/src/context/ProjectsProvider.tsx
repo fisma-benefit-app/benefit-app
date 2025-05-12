@@ -26,7 +26,7 @@ export default function ProjectsProvider({children,}: { children: React.ReactNod
     getAllProjects();
   }, [sessionToken]);
 
-  const sortedProjects = projects.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime());     
+  const sortedProjects = projects?.sort((a: Project, b: Project) => new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime()) || [];     
       
   const handleDelete = async (projectId: number) => {
     try {

@@ -79,7 +79,16 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           if (num < 0) value = "0";
           if (num > 1) value = "1";
         }
+      } else if (e.target.id !== "comment") {
+        const num = parseFloat(value);
+        // correct any number greater than 99999 and less than 0
+        if (num > 99999) {
+          value = "99999";
+        } else if (num < 0) {
+          value = "0"
+        }
       }
+
       updatedComponent = { ...component, [e.target.id]: value };
     }
     const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
@@ -144,10 +153,8 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               value={component.degreeOfCompletion || ""}
               onChange={handleComponentChange}
               className="border-2 border-fisma-light-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base"
-              placeholder="0"
               disabled={!isLatest}
             />
-
 
             <div className="flex flex-row flex-wrap gap-3 items-center">
               <select
@@ -202,8 +209,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       <input
                         id={key}
                         type="number"
-                        placeholder="0"
-                        value={value as number}
+                        value={value as number || ""}
                         onChange={handleComponentChange}
                         className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
                       />

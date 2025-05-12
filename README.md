@@ -25,7 +25,7 @@ All-in-one repository for the Benefit application. Includes frontend, backend, d
 5. Backend
 6. Database
 7. CI/CD
-8. Quality Assurance
+8. Testing
 9. Results
 10. Known bugs
 11. Future improvements
@@ -34,8 +34,6 @@ All-in-one repository for the Benefit application. Includes frontend, backend, d
 
 ## 1. Introduction
 
-Software is available at:
-[https://fisma-benefit-app.github.io/benefit-app/#/login](https://fisma-benefit-app.github.io/benefit-app/#/login)
 
 **What is Benefit application and its main purpose?**
 
@@ -43,8 +41,7 @@ Benefit application is a project by FiSMA ry, developed during Spring 2025. It i
 
 ![Benefit-app's frontend UI page, taken on March 29 2025](/documents/img/images_for_manuals/UI_page_29_03_2025.png)
 
-
-Picture 1: A visual representation of the Benefit application's UI.
+Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
 
 
 **Whom is application made for?**
@@ -55,13 +52,21 @@ The application can be useful for experts, who want to easily calculate
 function points of other applications.
 
 **What are prerequisites?**
+User should have at least basic knowledge on software size measurements
+and function points calculations. Fisma ry have great manuals for these.
 
-Add explaniation ...
+Then we expect user have great knowledge on advanced developers' tools, 
+such as Java with Gradle for backend, Typescript for frontend, PostgreSQL for database, Heroku environment for backend's deployment, etc. We have documented all essential
+tools and their implementation in the software in the 
 
 
-"Why are the frontend, backend, and other components stored in a single repository?"
+**Why are the frontend, backend, and other components stored in a single repository?**
 
-The frontend, backend, and other components are stored in a single repository to streamline the development process, allowing the team to work efficiently and coordinate changes more easily.
+The frontend, backend, and other components are stored in a single repository to streamline the development process, allowing the team to work efficiently and coordinate changes more easily. Due Fisma ry request, the repository will be public open source.
+
+The only exception is the backend-credentials repository, which is seperated from 
+the single repository and is private. It contains sensitive credentials for deploying
+backend to Heroku.
 
 ---
 
@@ -97,13 +102,36 @@ We also used PostgreSQL over other SQL DBMS due product owner's wishes.
 
 ## 4. Frontend
 
-Please read [add a frontend manual] from documents -directory for more information.
+The frontend was developed in Typescript. Due Fisma ry's
+request, we have tried to limit of importing dependencies
+(e.g. third party libraries) as many as possible. 
+
+This was due minimize the need of updating or reconfiguring 
+dependencies.
+
+Please read frontend_manual.md from documents -directory for more information.
+
+Link:
+
+For deployment of frontend, we used gh-pages method by Github, which
+you can read in more detail from frontend_gh_pages_deployment. md manual.
+
+Link: 
 
 ---
 
 ## 5. Backend
+The backend was developed in Java with Gradle.
 
-Please read [add a backend manual] from documents -directory for more information.
+For booting backend locally, please read booting_backend_locally.md 
+from documents -directory for more information.
+
+Link:
+
+For deployment of backend, we used Heroku platform, which
+you can read in more detail from backend_heroku_deployment.md manual.
+
+Link:
 
 ---
 
@@ -111,40 +139,95 @@ Please read [add a backend manual] from documents -directory for more informatio
 
 The structure of Benefit's SQL database is shown in the diagram below:
 
-
 ![Database diagram.](/documents/img/images_for_manuals/database_diagram.png)
+
 Picture #: Diagram of Benefit's database.
 
+Please read database_manual.md document from documents -directory
+for more information
+
+Link: 
+
 ---
+
 
 ## 7. CD/CI
 
-a) MVP and KISS. In the first sprints (i.e. from Sprint 01 to ...),
-our product owner required our team to keep Benefit application simple as possible
-in every development.
+a) **KISS**. From the very first sprint and on,
+Fisma ry required our team to keep Benefit-app 
+simple as possible in every development.
 
-b) We have three branches: dev, main and qa.
+This meant such as creating minimal viable product as
+soon as possible, deploying the Benefit-app as cheaply as
+possible (no more than 10 euros), limiting imports of
+third party libraries and tools, etc.
+
+In order Fisma ry can review every small solutions and changes
+as soon as possible, we held Sprint reviews every second week
+(with few exceptions due holidays). 
+
+b) Originally, we had three branches: dev, main and qa.
   **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
   **Qa** is our product review branch, where we pull all _functional_ codes for Sprint Review together with product owners.
-  **Main** is our official branch, where project has been deployed (finaliszed) and refactor all unnecessary, broken solutions and tools.
+  **Main** is our official branch, where project has been deployed (finalized) and refactor all unnecessary, broken solutions and tools.
+
+After third sprint and on, we had more branches for specific development or issues,
+such as bug fixes and logout functionality.
+
+Despite of having many branches, this ensured that no git conflicts, 
+nor code errors, wouldn't happen regularly.
+
+When it was time to pull from other branches to the main branches via pull requests,
+we implemented a functionality where every pull request must be reviewed
+and accepted by other team members. This was due assuring quality of the codes
+and minimize possible errors.
+
+
 
 ---
 
-## 8. Quality assurance
+## 8. Testing
 
-Quality of application was assured by TODO: testing/end-users
+While we didn't had an industry standard testing of the Benefit-app during development,
+we held two seminars with students from Haaga-Helia University of Applied Sciences.
+These student gave essential feedbacks when reviewing our Benefit-app, which
+you can read in detail in following documents:
+
+* testing_report_from_April_02_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_02_2025.md )
+* testing_report_from_April_03_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_03_2025.md )
+
+Note these aren't official systematical testing reports as 
+Fisma ry pointed out during one sprint review.
 
 ---
 
 ## 9. Results
 
-TODO: The application is working fine/lagging/ok and why...
+The application is actively running on the following website:
+
+https://fisma-benefit-app.github.io/benefit-app/#/login
+
+The login functionality linked to App user's account information
+from database is working fine.
+
+Image:
+
+The project site with functionalities suching creating a new project,
+saving project and its version, export project into CSV and PDF, etc.
+is working fine.
+
+Image:
+
+
 
 ---
 
 ## 10. Known bugs and technical issues
 
-So far, we have discovered following bugs...
+Please read "Known issues" -document from Documents' directory 
+for list of known bugs and other unresolved technical difficulties:
+
+https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/known_issues.md
 
 ---
 
