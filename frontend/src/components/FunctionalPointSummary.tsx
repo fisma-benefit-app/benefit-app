@@ -11,9 +11,13 @@ type FunctionalClassComponentProps = {
 };
 
 const calculateFunctionalComponentPoints = (component: TGenericComponent) => {
-  if (!component.className || !component.componentType) return 0
+  if (!component.className || !component.componentType) return 0;
+  
   const calculateFunction = getCalculateFuntion(component.className);
-  return calculateFunction ? calculateFunction(component) : 0;
+  const basePoints = calculateFunction ? calculateFunction(component) : 0;
+
+  const degreeOfCompletion = component.degreeOfCompletion || 0;
+  return basePoints * degreeOfCompletion;
 };
 
 const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]) => {
