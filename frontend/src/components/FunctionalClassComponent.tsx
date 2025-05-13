@@ -20,7 +20,6 @@ type FunctionalClassComponentProps = {
 
 export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest, forceCollapsed }: FunctionalClassComponentProps) {
 
-  //const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed);
   useEffect(() => {
     setIsCollapsed(forceCollapsed);

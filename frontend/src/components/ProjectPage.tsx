@@ -193,13 +193,13 @@ export default function ProjectPage() {
           <div className="flex flex-col gap-2">
             <div className="flex gap-2 items-start">
               <button
-                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white px-12 py-4 text-sm"
+                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white px-8 py-4 text-sm min-w-[160px] whitespace-nowrap text-center"
                 onClick={() => {
                   setCollapseAll(prev => !prev);
                   setCollapseVersion(prev => prev + 1);
                 }}
               >
-                {collapseAll ? "Collapse all" : "Expand all"}
+                {collapseAll ? translation.collapseAll : translation.expandAll}
               </button>
               <div>
                 <div className="text-left font-medium">{translation.nameOfProject}:</div>
