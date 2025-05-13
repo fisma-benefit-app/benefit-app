@@ -23,38 +23,6 @@ cd benefit-app/frontend
 npm install
 ```
 
-You can check all installed dependencies
-via command:
-
-```sh
-npm ls
-```
-
-You should have following dependencies
-installed in the frontend:
-
-* @eslint/js@9.18.0
-* @fortawesome/fontawesome-svg-core@6.7.2
-* @fortawesome/free-solid-svg-icons@6.7.2
-* @fortawesome/react-fontawesome@0.2.2
-* @tailwindcss/vite@4.0.0
-* @types/react-dom@18.3.5
-* @types/react@18.3.18
-* @vitejs/plugin-react@4.3.4
-* eslint-plugin-react-hooks@5.1.0
-* eslint-plugin-react-refresh@0.4.18
-* eslint@9.18.0
-* frontend@0.0.0 -> .\
-* globals@15.14.0
-* prettier@3.4.2
-* react-dom@18.3.1
-* react-router@7.1.3
-* react@18.3.1
-* tailwindcss@4.0.0
-* typescript-eslint@8.21.0
-* typescript@5.6.3
-* vite@6.0.11
-
 **5.** Setup environment variables:
 
 1. Create two files called .env.development and .env.production in the frontend project root. These allow the frontend to connect to the backend and as their names suggest, one is for running the application locally and the other in production.
@@ -153,3 +121,46 @@ ProjectsProvider.tsx
 - https://tailwindcss.com/
 
 - "Utility" based CSS framework used to write CSS in this project.
+
+### If problems arise
+
+You can check all installed dependencies
+via command:
+
+```sh
+npm ls
+```
+
+You should have following dependencies
+installed in the frontend:
+
+* @eslint/js@9.18.0
+* @fortawesome/fontawesome-svg-core@6.7.2
+* @fortawesome/free-solid-svg-icons@6.7.2
+* @fortawesome/react-fontawesome@0.2.2
+* @tailwindcss/vite@4.0.0
+* @types/react-dom@18.3.5
+* @types/react@18.3.18
+* @vitejs/plugin-react@4.3.4
+* eslint-plugin-react-hooks@5.1.0
+* eslint-plugin-react-refresh@0.4.18
+* eslint@9.18.0
+* frontend@0.0.0 -> .\
+* globals@15.14.0
+* prettier@3.4.2
+* react-dom@18.3.1
+* react-router@7.1.3
+* react@18.3.1
+* tailwindcss@4.0.0
+* typescript-eslint@8.21.0
+* typescript@5.6.3
+* vite@6.0.11
+
+Following errors can be sometimes result of not configuring VITE_API_URL right:
+
+"Login failed: Error: Error getting JWT in fetchJWT! Status: 404"
+
+or
+
+"Error fetching projects: SyntaxError: JSON.parse: unexpected character at line 1 column 1 of the JSON data project.ts:25:16
+Uncaught TypeError: projects is undefined"
