@@ -246,11 +246,10 @@ and trying login non-existing account.
 
 https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba
 
-If the videos are not playing, then you can download them
-from documents' video directory:
+If the videos are not playing or are bad quality, then you can download 
+a high definition video of the whole demo from documents' video directory:
 
-Part 1 video:
-Part 2 video: 
+HD-version of demo: 
 
 ---
 
