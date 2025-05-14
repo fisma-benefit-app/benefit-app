@@ -19,7 +19,7 @@ Please read more from
 
 It should be in the following format:
 
-`jdbc:postgresql://c4ggdlb6n7njd4.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/db_name`
+`jdbc:postgresql://xxxxxx.xxxxx.xxxxx.amazonaws.com:5432/db_name`
 
 Into the opening window and click proceed:
 
