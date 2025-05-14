@@ -48,7 +48,7 @@ Note: Before deploying you should have the environment variable **VITE_API_URL**
 .env.production:
 
 ```sh
-VITE_API_URL = https://some-address-in-heroku
+VITE_API_URL = https://fisma-benefit-app-XXXXXXXXX.herokuapp.com
 ```
 
 Frontend can be deployed to Github pages by running following command while in the frontend project folder:
