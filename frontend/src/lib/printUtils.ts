@@ -1,6 +1,5 @@
 import { Project, TGenericComponent } from "./types";
 import { getCalculateFuntion } from './fc-service-functions.ts';
-import {calculateFunctions} from "./fc-constants.ts";
 //TODO: Fix eslint alerts!
 
 export const convertToCSV = (data: any[]) => {
