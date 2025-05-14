@@ -8,7 +8,7 @@ issues in database, etc.
 
 During the project, we noticed that users who ran the backend through VS Code could not log in to the application from the frontend. However running the backend through another IDE like IntelliJ did not cause these issues.
 
-You can still develop the project using VS Code by building the backend and running the JAR -file.
+You can still develop the project using VS Code by building the backend manually and running the JAR -file.
 
 Navigate to backend root folder and build the application (remember that the docker container must be running for the backend to build and run)
 
