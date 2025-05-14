@@ -6,7 +6,7 @@
 https://devcenter.heroku.com/articles/heroku-cli#install-the-heroku-cli
 ```
 
-**2.** Open Terminal and type:
+**2.** Open MS default terminal and type:
 ```sh
 heroku login
 ```
