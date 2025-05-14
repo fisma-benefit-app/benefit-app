@@ -94,13 +94,6 @@ Username: [Insert User]
 ```
 
 Fifth and final, add Password in 
-
-
-X) How to dump data into database from my Windows?
-
-You need logout 
-
-X) How to import data?
-
-X) Where are sql files in the database?
-
+```
+Password: [Insert Password]
+```
