@@ -10,8 +10,9 @@ The essential docker files in the Benefit-app are following:
 * **compose.yaml** in root directory of benefit-app  (i.e. './' ).
 It contains credentials and configurations for booting up 
 PostgreSQL image in the Benefit-app.
-W
+
 ![image](img/images_for_manuals/compose_yaml.png)
+
 Image: The compose.yaml -file.
 
 Note from above image! The INSERT_DB, INSERT_PASSWORD,
