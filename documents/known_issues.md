@@ -4,6 +4,30 @@ This document will log all known issues in the Benefit-app.
 Issues can be e.g. bugs, responsive problems, techincal 
 issues in database, etc.
 
+## Issues with VS Code and the backend
+
+During the project, we noticed that users who ran the backend through VS Code could not log in to the application from the frontend. However running the project through another IDE like IntelliJ did not cause these issues.
+
+You can still develop the project using VS Code by building the backend and running the JAR -file.
+
+Navigate to backend root folder and build the application (remember that the docker container must be running for the backend to build and run)
+
+```sh
+./gradlew build
+```
+
+The JAR -file is in the following folder
+
+```sh
+cd ./build/libs
+```
+
+You can start the build backend with
+
+```sh
+java -jar backend-0.0.1-SNAPSHOT.jar      
+```
+
 ## Spring 2025, working group from Haaga-Helia University of Applied Sciences.
 
 ### While the user is trying to log in and VITE_API_URL is not correct.
