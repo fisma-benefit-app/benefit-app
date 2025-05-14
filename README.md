@@ -217,7 +217,7 @@ The application is actively running on the following website:
 
 https://fisma-benefit-app.github.io/benefit-app/#/login
 
-The login functionality linked to App user's account information
+The *login site*, which is linked to App user's account information
 from database is working fine.
 
 <video width="320" height="240" controls>
@@ -227,7 +227,7 @@ from database is working fine.
 
 ![Benefit-app's frontend login page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_login_page_14_05_2025.png)
 
-The project site with functionalities suching creating a new project,
+The *new project site* with functionalities suching creating a new project,
 saving project and its version, export project into CSV and PDF, etc.
 is working fine.
 
@@ -237,19 +237,20 @@ is working fine.
 Below is a demo of the Benefit-app, recorded on May 14 2025.
 Demo was splitted into two parts due memory size limitation in md-files.
 
-Part 1: Login to user account, new project creation, new functional points creation and different version control.
+**Part 1**: Login to user account, new project creation, new functional points creation and different version control.
 
 https://github.com/user-attachments/assets/1407d6b8-f1fe-47c1-9fae-3c74588a6606
 
-Part 2: Project exporting to CSV & PDF, changing language from English to Finnish, deleting project 
+**Part 2**: Project exporting to CSV & PDF, changing language from English to Finnish, deleting project 
 and trying login non-existing account.
 
 https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba
 
 If the videos are not playing or are bad quality, then you can download 
-a high definition video of the whole demo from documents' video directory:
+both videos from documents' video directory:
 
-HD-version of demo: 
+**Part 1 video**: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4
+**Part 2 video**: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/videos/benefit_app_demo_sd_14_05_2025_part_2.mp4
 
 ---
 
