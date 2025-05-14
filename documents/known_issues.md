@@ -6,7 +6,7 @@ issues in database, etc.
 
 ## Issues with VS Code and the backend
 
-During the project, we noticed that users who ran the backend through VS Code could not log in to the application from the frontend. However running the backend through another IDE like IntelliJ did not cause these issues.
+During the project, we noticed that users who ran the backend through VS Code could not log in to the application from the frontend. However running the backend through another IDE like IntelliJ did not cause these issues. This remains an issue.
 
 You can still develop the project using VS Code by building the backend manually and running the JAR -file.
 
