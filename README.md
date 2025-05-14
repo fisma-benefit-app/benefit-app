@@ -119,25 +119,26 @@ dependencies.
 
 Please read frontend_manual.md from documents -directory for more information.
 
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/frontend_manual.md
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_frontend.md
 
 For deployment of frontend, we used gh-pages method by Github, which
-you can read in more detail from frontend_gh_pages_deployment. md manual.
+you can read in more detail from frontend_gh_pages_deployment.md -manual.
 
 Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/frontend_gh_pages_deployment.md 
 
 ---
 
 ## 5. Backend
+
 The backend was developed in Java with Gradle.
 
 For booting backend locally, please read booting_backend_locally_manual.md 
 from documents -directory for more information.
 
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/booting_backend_locally_manual.md
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_backend_locally.md
 
 For deployment of backend, we used Heroku platform, which
-you can read in more detail from backend_heroku_deployment.md manual.
+you can read in more detail from backend_heroku_deployment.md -manual.
 
 Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/backend_heroku_deployment.md
 
@@ -204,6 +205,7 @@ These student gave essential feedbacks when reviewing our Benefit-app, which
 you can read in detail in following documents:
 
 * testing_report_from_April_02_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_02_2025.md )
+
 * testing_report_from_April_03_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_03_2025.md )
 
 Note these aren't considered as official systematical testing reports for Benefit-app.
