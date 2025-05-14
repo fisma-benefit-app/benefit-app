@@ -22,7 +22,7 @@ The JAR -file is in the following folder
 cd ./build/libs
 ```
 
-You can start the build backend with
+You can start the built backend with
 
 ```sh
 java -jar backend-0.0.1-SNAPSHOT.jar      
