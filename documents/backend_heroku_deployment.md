@@ -14,7 +14,7 @@ Backend is currently live at: https://fisma-benefit-app-f46bf93af467.herokuapp.c
 
 ### 1. Clone the repository
 
-Clone the backend folder from the repository at https://github.com/fisma-benefit-app/benefit-app.git.
+Clone the backend folder from the repository at https://github.com/loota/fisma-backend-alt.
 
 ### 2. Edit build.gradle file
 
@@ -73,6 +73,7 @@ Select the correct branch and click Deploy Branch.
 ### 4. Updating the backend
 
 After commiting changes to the appopriate github repository, go back to heroku and press *deploy*.
+the backend resides at https://github.com/loota/fisma-backend-alt
  
 ![image](https://github.com/user-attachments/assets/6e87f070-c6a4-40c8-95ff-dde14bcbd6de)
 
