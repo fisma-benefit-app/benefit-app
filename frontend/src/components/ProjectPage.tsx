@@ -19,6 +19,8 @@ export default function ProjectPage() {
   const { selectedProjectId } = useParams();
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
+  const [collapseAll, setCollapseAll] = useState<boolean>(true);
+  const [collapseVersion, setCollapseVersion] = useState<number>(0);
 
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
@@ -171,6 +173,8 @@ export default function ProjectPage() {
                     deleteFunctionalComponent={deleteFunctionalComponent}
                     key={component.id}
                     isLatest={isLatest}
+                    forceCollapsed={collapseAll}
+                    collapseVersion={collapseVersion}
                   />
                 ))}
               </>
@@ -187,9 +191,20 @@ export default function ProjectPage() {
       <div className="fixed right-5 top-20 w-[320px]">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
-            <div className="text-center">{translation.nameOfProject}:</div>
-            <div className="text-center break-words">
-              {project?.projectName}
+            <div className="flex gap-2 items-start">
+              <button
+                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white px-8 py-4 text-sm min-w-[160px] whitespace-nowrap text-center"
+                onClick={() => {
+                  setCollapseAll(prev => !prev);
+                  setCollapseVersion(prev => prev + 1);
+                }}
+              >
+                {collapseAll ? translation.collapseAll : translation.expandAll}
+              </button>
+              <div>
+                <div className="text-left font-medium">{translation.nameOfProject}:</div>
+                <div className="text-left break-words">{project?.projectName}</div>
+              </div>
             </div>
             <button
               //disabled={!project?.functionalComponents?.length}

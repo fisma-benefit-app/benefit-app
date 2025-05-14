@@ -6,6 +6,7 @@ import { classNameOptions } from "../lib/fc-constants.ts";
 import { getCalculateFuntion, getComponentTypeOptions, getInputFields } from "../lib/fc-service-functions.ts";
 import { CalculationParameter, ClassName, ComponentType, Project, TGenericComponent } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
+import { useEffect } from "react";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent,
@@ -13,11 +14,17 @@ type FunctionalClassComponentProps = {
   project: Project,
   setProject: React.Dispatch<React.SetStateAction<Project | null>>,
   isLatest: boolean
+  forceCollapsed: boolean,
+  collapseVersion: number,
 };
 
-export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest }: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest, forceCollapsed }: FunctionalClassComponentProps) {
 
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed);
+  useEffect(() => {
+    setIsCollapsed(forceCollapsed);
+  }, [forceCollapsed]);
+
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
   const translation = useTranslations().functionalClassComponent;

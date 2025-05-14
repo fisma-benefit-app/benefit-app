@@ -124,7 +124,9 @@ export const translations = {
             projectSaved: "Project saved!",
             selectProjectVersion: "Select Project Version",
             version: "Version",
-            nameOfProject: "Project name"
+            nameOfProject: "Project name",
+            expandAll: "Expand all",
+            collapseAll: "Collapse all"
         },
         functionalPointSummary: {
             total: "Total",
@@ -252,7 +254,9 @@ export const translations = {
             projectSaved: "Projekti tallennettu!",
             selectProjectVersion: "Valitse Projektiversio",
             version: "Versio",
-            nameOfProject: "Projektin nimi"
+            nameOfProject: "Projektin nimi",
+            expandAll: "Laajenna kaikki",
+            collapseAll: "Pienennä kaikki"
         },
         functionalPointSummary: {
             total: "Yhteensä",
