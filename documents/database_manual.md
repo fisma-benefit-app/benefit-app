@@ -2,6 +2,26 @@
 
 This is manual for Benefit-app's staging -database. You can use SQL Shell to access it, or any graphic database tool. In this example, a free tool called DBeaver is used.
 
+## Access deployed database
+Using heroku cli:
+
+´´´
+heroku pg:psql postgresql-graceful-97698 --app fisma-benefit-app
+´´´
+
+Or use psql with the credentials from Heroku -> Postgres -> Settings -> Database Credentials -> View credentials
+
+## Access local database
+See **compose.yaml** for credentials.
+
+Using Docker
+
+´´´
+docker exec -it INSERT_CONTAINER_NAME psql -U POSTGRES_USER POSTGRES_DB
+´´´
+
+Or psql
+
 ## 1) Where is database published?
 
 It was deployed to Heroku platform.
