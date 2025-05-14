@@ -239,7 +239,10 @@ Demo was splitted into two parts due memory size limitation in md-files.
 
 Part 1: Login to user account, new project creation, new functional points creation and different version control.
 
-![Benefit-app's demo part 1, recorded May 14 2025](/documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4)
+<video width="320" height="240" controls>
+    <source src='./documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4' type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
 Part 2: Project exporting to CSV & PDF, changing language from English to Finnish, deleting project 
 and trying login non-existing account.
