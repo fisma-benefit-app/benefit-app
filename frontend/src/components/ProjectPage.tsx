@@ -191,9 +191,13 @@ export default function ProjectPage() {
       <div className="fixed right-5 top-20 w-[320px]">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
-            <div className="flex gap-2 items-start">
+            <div className="flex justify-between items-center w-full">
+              <div className="flex-grow-0 flex flex-col max-w-[calc(100% - 140px)]">
+                <div className="text-left font-medium">{translation.nameOfProject}:</div>
+                <div className="text-left break-words">{project?.projectName}</div>
+              </div>
               <button
-                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white px-8 py-4 text-sm min-w-[160px] whitespace-nowrap text-center"
+                className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
                 onClick={() => {
                   setCollapseAll(prev => !prev);
                   setCollapseVersion(prev => prev + 1);
@@ -201,27 +205,23 @@ export default function ProjectPage() {
               >
                 {collapseAll ? translation.collapseAll : translation.expandAll}
               </button>
-              <div>
-                <div className="text-left font-medium">{translation.nameOfProject}:</div>
-                <div className="text-left break-words">{project?.projectName}</div>
-              </div>
             </div>
-            <button
-              //disabled={!project?.functionalComponents?.length}
-              className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
-              onClick={saveProject}
-              disabled={!isLatest || loadingProject}
-            >
-              {translation.saveProject}
-            </button>
-            <button
-              //disabled={!project?.functionalComponents?.length}
-              className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
-              onClick={() => setConfirmModalOpen(true)}
-              disabled={!isLatest || loadingProject}
-            >
-              {translation.saveProjectAsVersion} {project?.version}
-            </button>
+            <div className="flex flex-row gap-2 w-full">
+              <button
+                className={`w-full ${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white text-xs py-3 px-4`}
+                onClick={saveProject}
+                disabled={!isLatest || loadingProject}
+              >
+                {translation.saveProject}
+              </button>
+              <button
+                className={`w-full ${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white text-xs py-3 px-4`}
+                onClick={() => setConfirmModalOpen(true)}
+                disabled={!isLatest || loadingProject}
+              >
+                {translation.saveProjectAsVersion} {project?.version}
+              </button>
+            </div>
             <select
               className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2"
               onChange={handleVersionSelect}

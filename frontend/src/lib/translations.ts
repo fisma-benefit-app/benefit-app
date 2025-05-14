@@ -115,10 +115,10 @@ export const translations = {
             confirmDeleteMessage: "Are you sure you want to delete component"
         },
         projectPage: {
-            saveProject: "Save Project",
+            saveProject: "Save",
             newFunctionalComponent: "New Functional Component",
             noProject: "No project information to show!",
-            saveProjectAsVersion: "Save project as version ",
+            saveProjectAsVersion: "Save version ",
             saveVersionWarningBeginning: "Are you sure you want to save the project as version",
             saveVersionWarningEnd: "Older versions cannot be modified.",
             projectSaved: "Project saved!",
@@ -245,10 +245,10 @@ export const translations = {
             confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin"
         },
         projectPage: {
-            saveProject: "Tallenna projekti",
+            saveProject: "Tallenna",
             newFunctionalComponent: "Uusi funktionaalinen komponentti",
             noProject: "Ei näytettäviä projektitietoja!",
-            saveProjectAsVersion: "Tallenna projekti versiona ",
+            saveProjectAsVersion: "Tallenna versiona ",
             saveVersionWarningBeginning: "Oletko varma, että haluat tallentaa projektin versiona",
             saveVersionWarningEnd: "Vanhoja versioita ei voi enää muokata.",
             projectSaved: "Projekti tallennettu!",
