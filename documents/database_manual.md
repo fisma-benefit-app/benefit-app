@@ -5,7 +5,7 @@ This is manual for Benefit-app's staging -database. You can use SQL Shell to acc
 ## Access deployed database
 Using heroku cli:
 
-´heroku pg:psql postgresql-graceful-97698 --app fisma-benefit-app´
+`heroku pg:psql postgresql-graceful-97698 --app fisma-benefit-app`
 
 Or use psql with the credentials from Heroku -> Postgres -> Settings -> Database Credentials -> View credentials
 
@@ -14,7 +14,7 @@ See **compose.yaml** for credentials.
 
 Using Docker
 
-´docker exec -it INSERT_CONTAINER_NAME psql -U POSTGRES_USER POSTGRES_DB´
+`Docker exec -it INSERT_CONTAINER_NAME psql -U POSTGRES_USER POSTGRES_DB`
 
 Or psql
 
