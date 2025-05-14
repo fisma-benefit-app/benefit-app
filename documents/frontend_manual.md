@@ -31,14 +31,14 @@ npm install
 .env.development:
 
 ```sh
-VITE_API_URL = http://localhost:8080
+VITE_API_URL=http://localhost:8080
 ```
 
 .env.production:
 (Replace the url with your actual backend url. See backend deployment [documentation](https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/backend_heroku_deployment.md).)
 
 ```sh
-VITE_API_URL = https://fisma-benefit-app-xxxxxxxx.herokuapp.com/
+VITE_API_URL=https://fisma-benefit-app-xxxxxxxx.herokuapp.com/
 ```
 
 **6.** Start the frontend development server:
