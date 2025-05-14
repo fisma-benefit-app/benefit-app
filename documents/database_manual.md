@@ -23,7 +23,8 @@ It should be in the following format:
 
 Into the opening window and click proceed:
 
-![image](https://github.com/user-attachments/assets/a4c49992-2667-4374-9df7-3ce37e71689d)
+![image](https://github.com/user-attachments/assets/17763f05-add6-471f-af48-35dd94ba5e7c)
+
 
 ### 4. Enter username and password in the opening window:
 
