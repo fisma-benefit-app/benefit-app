@@ -237,9 +237,11 @@ is working fine.
 Below is a demo of the Benefit-app, recorded on May 14 2025.
 Demo was splitted into two parts due memory size limitation in md-files.
 
+
 **Part 1**: Login to user account, new project creation, new functional points creation and different version control.
 
 https://github.com/user-attachments/assets/1407d6b8-f1fe-47c1-9fae-3c74588a6606
+
 
 **Part 2**: Project exporting to CSV & PDF, changing language from English to Finnish, deleting project 
 and trying login non-existing account.
@@ -249,7 +251,10 @@ https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba
 If the videos are not playing or are bad quality, then you can download 
 both videos from documents' video directory:
 
+
 **Part 1 video**: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4
+
+
 **Part 2 video**: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/videos/benefit_app_demo_sd_14_05_2025_part_2.mp4
 
 ---
