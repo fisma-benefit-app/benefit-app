@@ -14,7 +14,7 @@ See **compose.yaml** for credentials.
 
 Using Docker
 
-`Docker exec -it INSERT_CONTAINER_NAME psql -U POSTGRES_USER POSTGRES_DB`
+`Docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB`
 
 Or psql
 
