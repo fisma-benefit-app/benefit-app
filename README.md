@@ -220,6 +220,11 @@ https://fisma-benefit-app.github.io/benefit-app/#/login
 The login functionality linked to App user's account information
 from database is working fine.
 
+<video width="320" height="240" controls>
+    <source src='./documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4' type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+
 ![Benefit-app's frontend login page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_login_page_14_05_2025.png)
 
 The project site with functionalities suching creating a new project,
