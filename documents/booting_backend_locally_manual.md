@@ -96,8 +96,9 @@ incoming queries via command:
 docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
 ```
 
-You need to ask values for POSTGRES_USER and POSTGRES_DB
-from Fisma ry.
+Values for POSTGRES_USER and POSTGRES_DB variables are
+located in the compose.yaml at the root directory
+(./compose.yaml).
 
 If above commands do not work and you get error messages,
 we highly recommend to read docker_setup.md manual from

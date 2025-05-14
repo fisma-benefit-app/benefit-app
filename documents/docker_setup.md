@@ -10,7 +10,7 @@ The essential docker files in the Benefit-app are following:
 * **compose.yaml** in root directory of benefit-app  (i.e. './' ).
 It contains credentials and configurations for booting up 
 PostgreSQL image in the Benefit-app.
-
+W
 ![image](img/images_for_manuals/compose_yaml.png)
 Image: The compose.yaml -file.
 
@@ -22,12 +22,12 @@ in PostgreSQL, give by Fisma ry.
 * **Dockerfile** in backend directory of benefit-app (i.e. './backend/').
 This is for building a jar of Java with Gradle -code to the backend's build library (i.e. './backend/build/libs/').
 
-![image](img/images_for_manuals/compose_yaml_2.png)
+![image](img/images_for_manuals/dockerfile.png)
 
 * **application.yaml** in resource directory of backend's main directory.
 (i.e './backend/src/main/resources/').
 
-![image](img/images_for_manuals/compose_yaml_3.png)
+![image](img/images_for_manuals/application_yaml.png)
 
 This is very *important* yaml file, since this has to be re-configured
 depending if you are using backend in *local environment* or trying to
@@ -40,13 +40,14 @@ in the application.yaml file:
 
 ```sh
   datasource:
-    username: INSERT_USER
-    password: INSERT_PASSWORD
-    url: jdbc:postgresql://127.0.0.1:5432/INSERT_DB
+    username: POSTGRES_USER
+    password: POSTGRES_PASSWORD
+    url: jdbc:postgresql://127.0.0.1:5432/POSTGRES_DB
 ```
 
-Note that credentials INSERT_USER, INSERT_PASSWORD and
- are taken from as in compose.yaml file.
+The values for POSTGRES_USER, POSTGRES_PASSWORD
+and POSTGRES_DB are taken from compose.yaml file
+at the root directory ('./compose.yaml').
 
 Then, make sure that you have configured sql mode as *always*.
 
@@ -123,7 +124,8 @@ via command
 docker exec -it INSERT_CONTAINER_NAME psql -U POSTGRES_USER POSTGRES_DB
 ```
 
-Note that POSTGRES_USER and POSTGRES_DB are values from compose.yaml file. You need to ask Fisma ry for the values.
+Values for POSTGRES_USER and POSTGRES_DB are taken from compose.yaml file
+at the root directory ('./compose.yaml').
 
 Meanwhile INSERT_CONTAINER_NAME is name for current container,
 that is actively running benefit-app image.
@@ -144,5 +146,3 @@ Hence our command will be
 ```sh
 docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
 ```
-Once again, you need to ask values for POSTGRES_USER and POSTGRES_DB
-from Fisma ry.
