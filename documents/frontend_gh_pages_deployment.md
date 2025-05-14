@@ -63,6 +63,10 @@ Frontend can be deployed to Github pages by running following command while in t
 npm run deploy
 ```
 
+### Build log
+See Github Actions https://github.com/fisma-benefit-app/benefit-app/actions
+The rows with comment "pages build and deployment"
+
 ## 3. Settings in GitHub
 
 You can view and check GitHub Pages deployment changes in github repository **settings** and the **pages** section
