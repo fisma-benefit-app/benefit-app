@@ -45,7 +45,11 @@ Deployment scripts:
 
 Application is built locally, so you need to run *npm install* first
 
-Note: Before deploying you should have the environment variable **VITE_API_URL** in the frontend .env.production file and its value should match the backend server address. When frontend is built and deployed, Vite substitutes environment variable values in the code. Here you need to have the backend url.
+Note: Before deploying you should have the environment variable **VITE_API_URL** in the file
+
+frontend/.env.production
+
+and its value should match the backend server address. When frontend is built and deployed, Vite substitutes environment variable values in the code. Here you need to have the backend url.
 
 .env.production:
 
