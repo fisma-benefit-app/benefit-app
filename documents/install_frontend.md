@@ -8,8 +8,8 @@
 git clone https://github.com/fisma-benefit-app/benefit-app.git
 ```
 
-**2.** Setup and run the spring boot backend (see **backend_setup_manual** -documentation:
-https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/backend_setup_manual.md).
+**2.** Setup and run the spring boot backend (see **install_backend_locally.md** -documentation:
+https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_backend_locally.md).
 
 **3.** Navigate to frontend project root via command:
 
