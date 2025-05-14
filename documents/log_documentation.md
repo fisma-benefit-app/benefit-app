@@ -1,4 +1,6 @@
-# Benefit App Backend Logs
+# Benefit App Logs
+
+##Backend
 
 **1.** Install Heroku CLI by following instructions from:
 
