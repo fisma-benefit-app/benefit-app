@@ -269,5 +269,5 @@ successfully up and running.
 If don't get the last line, it is indication there is
 error in the backend.
 
-Please read frontend.md manual (https://github.com/fisma-benefit-app/benefit-app/blob/dev/documents/frontend_manual.md) 
+Please read frontend.md manual (https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_frontend.md) 
 for instruction of activating Benefit-app's frontend.
