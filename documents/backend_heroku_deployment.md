@@ -2,6 +2,8 @@
 
 Backend is currently live at: https://fisma-benefit-app-f46bf93af467.herokuapp.com/
 
+[Updating the Backend](#4-updating-the-backend)
+
 ## 1. Requirements
 
 - Heroku account (credit card needed for account)
