@@ -25,7 +25,7 @@ npm install
 
 **5.** Setup environment variables:
 
-1. Create two files called .env.development and .env.production in the frontend project root. These allow the frontend to connect to the backend and as their names suggest, one is for running the application locally and the other in production.
+1. Create two files called `.env.development` and `.env.production` in the frontend project root. These allow the frontend to connect to the backend and as their names suggest, one is for running the application locally and the other in production.
 2. Add the following environment variable: `VITE_API_URL` to both. Its value should match the locally running backend development server URL for .env.development and it should match the deployed backend url for .env.production:
 
 .env.development:
