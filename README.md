@@ -229,9 +229,17 @@ is working fine.
 ![Benefit-app's frontend project page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
 
 
-Below is a demo of the Benefit-app, recorded on May 14 2025:
+Below is a demo of the Benefit-app, recorded on May 14 2025.
+Demo was splitted into two parts due memory size limitation in md-files.
 
-![Benefit-app's demo video, taken on May 14 2025](/documents/videos/benefit_app_demo_14_05_2025.mp4)
+Part 1: Login to user account, new project creation, new functional points creation and different version control.
+
+![Benefit-app's demo part 1, recorded May 14 2025](/documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4)
+
+Part 2: Project exporting to CSV & PDF, changing language from English to Finnish, deleting project 
+and trying login non-existing account.
+
+![Benefit-app's demo part 2, recorded May 14 2025](/documents/videos/benefit_app_demo_sd_14_05_2025_part_2.mp4)
 
 ---
 
