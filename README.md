@@ -42,7 +42,7 @@ It is a software tool designed for estimating the size of a software project,
 which calculates function points for navigation and queries, external interfaces, 
 inputs and outputs. Based on these, it helps estimate the project's budget and costs.
 
-![Benefit-app's frontend UI page, taken on March 29 2025](/documents/img/images_for_manuals/UI_page_29_03_2025.png)
+![Benefit-app's frontend UI page, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
 
 Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
 
@@ -220,15 +220,18 @@ https://fisma-benefit-app.github.io/benefit-app/#/login
 The login functionality linked to App user's account information
 from database is working fine.
 
-Image:
+![Benefit-app's frontend login page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_login_page_14_05_2025.png)
 
 The project site with functionalities suching creating a new project,
 saving project and its version, export project into CSV and PDF, etc.
 is working fine.
 
-Image:
+![Benefit-app's frontend project page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
 
 
+Below is a demo of the Benefit-app, recorded on May 14 2025:
+
+![Benefit-app's demo video, taken on May 14 2025](/documents/videos/benefit_app_demo_14_05_2025.mp4)
 
 ---
 
