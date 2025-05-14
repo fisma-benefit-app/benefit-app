@@ -43,12 +43,12 @@ Deployment scripts:
 
 ## 2. Deployment
 
-Note: Before deploying you should have the environment variable **VITE_API_URL** in the frontend .env.production file and its value should match the backend server address. When frontend is built and deployed, Vite substitutes environment variable values in the code. You can find the backend server address at the top of this page.
+Note: Before deploying you should have the environment variable **VITE_API_URL** in the frontend .env.production file and its value should match the backend server address. When frontend is built and deployed, Vite substitutes environment variable values in the code. Here you need to have the backend url.
 
 .env.production:
 
 ```sh
-VITE_API_URL = https://dis-be-where-backend-is.somesite.com
+VITE_API_URL = https://some-address-in-heroku
 ```
 
 Frontend can be deployed to Github pages by running following command while in the frontend project folder:
