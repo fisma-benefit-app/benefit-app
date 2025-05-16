@@ -1,6 +1,6 @@
 - Shut down backend
 - Shut down frontend
-- Flush caches caching.md
+- Flush caches [caching.md](caching.md)
 - Restart backend
 - Restart frontend
 
