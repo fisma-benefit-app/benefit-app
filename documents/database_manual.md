@@ -39,7 +39,7 @@ It should be in the following format:
 
 Into the opening window and click proceed:
 
-![Enter URL.](img/images_for_manuals/database_manual_enter_url.png.png)
+![Enter URL.](img/images_for_manuals/database_manual_enter_url.png)
 
 
 ### 4. Enter username and password in the opening window:
