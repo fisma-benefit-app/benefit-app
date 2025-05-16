@@ -270,4 +270,16 @@ https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/known_issue
 
 ## 11. Future improvements
 
-Here are planned improvements and future features for the application...
+Here are planned improvements and future features for the application:
+
+* Benefit-app is not applied for mobile devices.
+
+* Calculations for thrid layer architecture was not implemented to Benefit-app.
+
+* Error management could be improved in Benefit-app.
+
+* Benefit-app lacks quality check. It requires refactoring.
+
+* Projects' listing could be improved in Benefit-app, such as
+search functionality for projects, improved edit functionality
+for projects and sorting of projects.
