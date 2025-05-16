@@ -282,7 +282,8 @@ Here are planned improvements and future features for the application:
 
 * Benefit-app is not applied for mobile devices.
 
-* Calculations for thrid layer architecture was not implemented to Benefit-app.
+* Multilayer architecture functionality was not implemented to Benefit-app.
+See issue #111: "94. Monikerrosarkkitehtuuri-valinta toiminnolle.".
 
 * Error management could be improved in Benefit-app.
 
@@ -294,4 +295,7 @@ for projects and sorting of projects.
 
 * Some documents require updates and further explaination. For example,
 the user_authentication_guide.md needs a description on how Benefit-app
-handles login tokens from which database to which API endpoint, and vice versa. 
+handles login tokens from which database to which API endpoint, and vice versa.
+
+* Some functionalities requires documentations, for example data security on JVT tokens
+and cookies. See issue #157: "112. Tietoturvallisuudesta dokumentointi.". 
