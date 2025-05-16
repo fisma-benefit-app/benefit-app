@@ -137,15 +137,21 @@ Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/front
 
 The backend was developed in Java with Gradle.
 
-For booting backend locally, please read booting_backend_locally_manual.md 
+### Install
+For installing backend locally, please read install_backend_locally_manual.md 
 from documents -directory for more information.
 
 Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_backend_locally.md
 
+### Deployment
 For deployment of backend, we used Heroku platform, which
 you can read in more detail from backend_heroku_deployment.md -manual.
 
 Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/backend_heroku_deployment.md
+
+### Automatic tests
+**TODO** How to run on CLI?
+Tests are configured in the file **backend/build.gradle** 
 
 ---
 
