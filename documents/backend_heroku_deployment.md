@@ -2,6 +2,11 @@
 
 Backend is currently live at: https://fisma-benefit-app-f46bf93af467.herokuapp.com/
 
+Logs:
+```
+heroku logs --tail --app fisma-benefit-app
+```
+
 [Updating the Backend](#4-updating-the-backend)
 
 ## 1. Requirements
