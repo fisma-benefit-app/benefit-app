@@ -1,6 +1,7 @@
 # How To Flush All Caches
 
 - delete browser cache, cookies
+- In Heroku you might need to delete the build cache. See internet for up-to-date instructions
 
 Spring caches should not be in use, but if nothing else helps: https://docs.spring.io/spring-boot/reference/io/caching.html
 
