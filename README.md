@@ -13,6 +13,8 @@ All-in-one repository for the Benefit application. Includes frontend, backend, d
 
 <img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" width="200">
 
+### Deployment and Development
+See 4. and 5.
 
 ---
 
