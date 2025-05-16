@@ -1,6 +1,6 @@
 # Frontend Github Pages Deployment
 
-Frontend is currently live at: https://fisma-benefit-app.github.io/benefit-app/#/login
+https://github.com/fisma-benefit-app/benefit-app/settings/pages
 
 ### Build log
 See Github Actions https://github.com/fisma-benefit-app/benefit-app/actions
