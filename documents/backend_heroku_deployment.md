@@ -79,6 +79,8 @@ Select the correct branch and click Deploy Branch.
 
 After commiting changes to the appopriate github repository, go back to heroku and press *deploy*.
 the backend resides at https://github.com/loota/fisma-backend-alt
+
+Currently we have to commit changes to that backend repo by manually copying them from this main repo.
  
 ![image](https://github.com/user-attachments/assets/6e87f070-c6a4-40c8-95ff-dde14bcbd6de)
 
