@@ -1,6 +1,8 @@
 # Backend Heroku Deployment
 
-Backend is currently live at: https://fisma-benefit-app-f46bf93af467.herokuapp.com/
+https://dashboard.heroku.com/apps/fisma-benefit-app
+
+Backend urls look like this: https://fisma-benefit-app-f46bf93af467.herokuapp.com/
 
 Logs:
 ```
