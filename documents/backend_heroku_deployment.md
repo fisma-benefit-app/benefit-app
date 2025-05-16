@@ -42,40 +42,40 @@ java {
 Navigate to your dashboard and click New -> Create new app.
 Then enter your app's name and select Europe. Click Create app.
 
-![create_app](https://github.com/user-attachments/assets/488a00e8-afd2-4e81-b447-d8cb1a0ab2f4)
+![create_app](img/images_for_manuals/backend_heroku_deployment_create_app.png)
 
 ### 2. Configure app settings
 
 Navigate to settings.
 
-![settings](https://github.com/user-attachments/assets/f691c7cd-d5db-4053-b6ca-c7e71a5f53e9)
+![settings](img/images_for_manuals/backend_heroku_deployment_settings.png)
 
 Click on Reveal Config Vars.
 
-![config_vars](https://github.com/user-attachments/assets/c2f02485-8848-4cc8-a8bd-bba06ce1ba50)
+![config_vars](img/images_for_manuals/backend_heroku_deployment_config_vars.png)
 
 Create Key-value pairs for the credentials of your database (username, password and url), where the key is one of the following datasource variables and the value is the actual value for your database:
 
-![key_value_pairs](https://github.com/user-attachments/assets/6abddcfb-a45a-4786-bd33-66d39061d1c7)
+![key_value_pairs](img/images_for_manuals/backend_heroku_deployment_key_value_pairs.png)
 
 ### 3. Configure GitHub-repository
 
 Navigate to Deploy.
 
-![deploy](https://github.com/user-attachments/assets/be709d52-c8dc-4aea-8f89-cb09398cbf54)
+![deploy](img/images_for_manuals/backend_heroku_deployment_deploy.png)
 
 Select GitHub as the deployment method.
 Enter your repository name in the field and click search:
 
-![deplopyment_method](https://github.com/user-attachments/assets/87301025-fe9b-4633-be82-2135a8b2276b)
+![deplopyment_method](img/images_for_manuals/backend_heroku_deployment_method.png)
 
 If successful, you should see the app connecting to github:
 
-![connected](https://github.com/user-attachments/assets/8dfc8207-ba6d-4ec2-8855-be8014b69346)
+![connected](img/images_for_manuals/backend_heroku_deployment_connection.png)
 
 Select the correct branch and click Deploy Branch.
 
-![deploy_branch](https://github.com/user-attachments/assets/e0c7c4aa-78d8-4d2e-8fdf-3c8d3ab6f543)
+![deploy_branch](img/images_for_manuals/backend_heroku_deployment_deploy_branch.png)
 
 ### 4. Updating the backend
 
@@ -84,7 +84,7 @@ the backend resides at https://github.com/loota/fisma-backend-alt
 
 Currently we have to commit changes to that backend repo by manually copying them from this main repo.
  
-![image](https://github.com/user-attachments/assets/6e87f070-c6a4-40c8-95ff-dde14bcbd6de)
+![updating backend by deploy branch](img/images_for_manuals/backend_heroku_deployment_updating_backend_by_deploy_branch.png)
 
 
 ### 5. Set up Heroku CLI
@@ -99,7 +99,7 @@ heroku login
 
 Accept the login prompt in your browser:
 
-![heroku_login](https://github.com/user-attachments/assets/c821ff72-7371-4dcb-92db-f140d1df1904)
+![heroku_login](img/images_for_manuals/backend_heroku_deployment_heroku_login.png)
 
 To view detailed logs from your app, enter in your console:
 ```

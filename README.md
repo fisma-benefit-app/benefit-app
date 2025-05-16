@@ -291,3 +291,7 @@ Here are planned improvements and future features for the application:
 * Projects' listing could be improved in Benefit-app, such as
 search functionality for projects, improved edit functionality
 for projects and sorting of projects.
+
+* Some documents require updates and further explaination. For example,
+the user_authentication_guide.md needs a description on how Benefit-app
+handles login tokens from which database to which API endpoint, and vice versa. 

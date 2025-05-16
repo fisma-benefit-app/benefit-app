@@ -29,7 +29,7 @@ Please read more from
 
 ### 2. Select Database -> New Connetion from JDBC URL:
 
-![image](https://github.com/user-attachments/assets/e0dd02c0-d326-49b1-9ce5-a2d682b3f1e7)
+![New connection from JDBC URL](img/images_for_manuals/database_manual_new_connection_from_JDBC_URL.png)
 
 ### 3. Enter your database url:
 
@@ -39,26 +39,30 @@ It should be in the following format:
 
 Into the opening window and click proceed:
 
-![image](https://github.com/user-attachments/assets/17763f05-add6-471f-af48-35dd94ba5e7c)
+![Enter URL.](img/images_for_manuals/database_manual_enter_url.png.png)
 
 
 ### 4. Enter username and password in the opening window:
 
-![image](https://github.com/user-attachments/assets/d9b46aff-09ff-4037-8f77-38ba133d7c7a)
+
+![Enter username and password](img/images_for_manuals/database_manual_enter_username_and_password.png)
 
 ### 5. The database connection opens in the window on the left:
 
-![image](https://github.com/user-attachments/assets/d0f9c018-cec9-47b3-abfb-35c89ea4ed3c)
+
+![Database connection.](img/images_for_manuals/database_manual_database_connection.png)
 
 ### 6. The tables can be opened and will be displayed in the central window:
 
 Data contained in the table is shown in the data-tab:
 
-![image](https://github.com/user-attachments/assets/5fc9b1f7-e03e-438b-b8f7-f32a58a8e3e4)
+
+![Database tables.](img/images_for_manuals/database_manual_tables.png)
 
 ### 7: Right-clicking the rows opens a menu where data can be deleted, edited. etc.:
 
-![image](https://github.com/user-attachments/assets/8c5c2ddb-44a3-4df5-b026-ef9d64f0dbd2)
+
+![Menu for deleting data.](img/images_for_manuals/database_manual_menu_for_delete_data.png)
 
 
 
