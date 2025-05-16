@@ -1,7 +1,34 @@
 # Benefit App Logs
 
-##Backend
+## Backend
 
+Default Spring Boot logging is used:
+https://docs.spring.io/spring-boot/reference/features/logging.html
+
+Gradle is used as a build tool: https://docs.gradle.org/current/userguide/logging.html
+
+**build.gradle** has the parameter **showStandardStreams**
+
+### Heroku environment
+```sh
+heroku logs --app fisma-benefit-app --tail
+```
+
+### Local environment
+The application outputs all logs to the terminal window where the application was started from.
+
+## Frontend
+
+Browser console contains all other logging apart from the build log.
+
+### Heroku environment
+Build log is in https://github.com/fisma-benefit-app/benefit-app/actions
+
+### Local environment
+
+Build log is output in the terminal window used to start the application.
+
+## Heroku CLI installation
 **1.** Install Heroku CLI by following instructions from:
 
 ```sh
