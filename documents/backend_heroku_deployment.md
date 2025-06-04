@@ -11,12 +11,11 @@ heroku logs --tail --app fisma-benefit-app
 
 ## Deployment procedure
 
-Backup the database before deployment.
+1. Backup the database before deployment.
 
-After commiting changes to the appopriate github repository, go back to heroku and press *deploy*.
-the backend resides at https://github.com/loota/fisma-backend-alt
+2. Copy changes to repo. Currently we have to commit changes to repo https://github.com/loota/fisma-backend-alt by manually copying them from this main repo. This because Heroku wants the backend in the root directory.
 
-Currently we have to commit changes to that backend repo by manually copying them from this main repo.
+3. Go to heroku and press *deploy*.
  
 ![updating backend by deploy branch](img/images_for_manuals/backend_heroku_deployment_updating_backend_by_deploy_branch.png)
 
