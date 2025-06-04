@@ -9,15 +9,28 @@ Logs:
 heroku logs --tail --app fisma-benefit-app
 ```
 
-[Updating the Backend](#4-updating-the-backend)
+## Deployment procedure
 
-## 1. Requirements
+Backup the database before deployment.
+
+After commiting changes to the appopriate github repository, go back to heroku and press *deploy*.
+the backend resides at https://github.com/loota/fisma-backend-alt
+
+Currently we have to commit changes to that backend repo by manually copying them from this main repo.
+ 
+![updating backend by deploy branch](img/images_for_manuals/backend_heroku_deployment_updating_backend_by_deploy_branch.png)
+
+----
+
+## How the Heroku deployment was created 
+
+### Requirements
 
 - Heroku account (credit card needed for account)
 - Email address
 - Running database and its credentials (url, username and password)
 
-## 2. Repository clone
+## 1. Repository clone
 
 ### 1. Clone the repository
 
@@ -85,7 +98,6 @@ the backend resides at https://github.com/loota/fisma-backend-alt
 Currently we have to commit changes to that backend repo by manually copying them from this main repo.
  
 ![updating backend by deploy branch](img/images_for_manuals/backend_heroku_deployment_updating_backend_by_deploy_branch.png)
-
 
 ### 5. Set up Heroku CLI
 
