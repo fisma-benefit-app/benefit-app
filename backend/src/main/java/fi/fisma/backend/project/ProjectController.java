@@ -23,7 +23,7 @@ public class ProjectController {
     private final AppUserRepository appUserRepository;
     
     @GetMapping("/{requestedId}")
-    private ResponseEntity<Project> getProject(@PathVariable Long requestedId, Authentication authentication) {
+    private ResponseEntity<Project> getProject(@PathVariable("requestedId") Long requestedId, Authentication authentication) {
         return projectRepository.findByProjectIdAndUsername(requestedId, authentication.getName())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -36,7 +36,7 @@ public class ProjectController {
     }
     
     @PutMapping("/{requestedId}")
-    private ResponseEntity<Project> updateProject(@PathVariable Long requestedId, @RequestBody Project projectUpdate, Authentication authentication) {
+    private ResponseEntity<Project> updateProject(@PathVariable("requestedId") Long requestedId, @RequestBody Project projectUpdate, Authentication authentication) {
         return projectRepository.findByProjectIdAndUsername(requestedId, authentication.getName())
                 .map(project -> projectRepository.save(
                         new Project(project.getId(), projectUpdate.getProjectName(), projectUpdate.getVersion(), projectUpdate.getCreatedDate(), projectUpdate.getVersionDate(), projectUpdate.getEditedDate(), projectUpdate.getTotalPoints(), projectUpdate.getFunctionalComponents(), projectUpdate.getAppUsers())))
@@ -104,7 +104,7 @@ public class ProjectController {
     }
     
     @DeleteMapping("/{requestedId}")
-    private ResponseEntity<Void> deleteProject(@PathVariable Long requestedId, Authentication authentication) {
+    private ResponseEntity<Void> deleteProject(@PathVariable("requestedId") Long requestedId, Authentication authentication) {
         if (projectRepository.existsByProjectIdAndUsername(requestedId, authentication.getName())) {
             projectRepository.deleteById(requestedId);
             return ResponseEntity.noContent().build();
