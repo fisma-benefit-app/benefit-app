@@ -19,6 +19,5 @@ public class TokenController {
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
                 .build();
     }
-    
-    
+     
 }

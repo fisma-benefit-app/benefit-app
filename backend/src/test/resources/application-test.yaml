@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: test
+
+  datasource:
+    username: myuser
+    password: secret
+    url: jdbc:postgresql://127.0.0.1:5438/fisma_db
