@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
 
   // Check if VITE_API_URL is set
   if (!env.VITE_API_URL) {
-    throw new Error("VITE_API_URL is not set in your .env files!");
+    throw new Error(`VITE_API_URL is not set in your .env.${mode} file!`);
   }
 
   return {
