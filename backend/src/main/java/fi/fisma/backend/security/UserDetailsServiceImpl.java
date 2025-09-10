@@ -1,7 +1,7 @@
 package fi.fisma.backend.security;
 
-import fi.fisma.backend.appuser.AppUser;
-import fi.fisma.backend.appuser.AppUserRepository;
+import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;

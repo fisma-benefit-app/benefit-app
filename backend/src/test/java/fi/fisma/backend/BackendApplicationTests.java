@@ -12,9 +12,8 @@ class BackendApplicationTests {
 
     @MockitoBean
     private JwtEncoder jwtEncoder;
-
+    
     @Test
     void contextLoads() {
     }
-    
 }

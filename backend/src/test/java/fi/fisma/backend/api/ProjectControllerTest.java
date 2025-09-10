@@ -1,11 +1,15 @@
-package fi.fisma.backend.project;
+package fi.fisma.backend.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import fi.fisma.backend.appuser.AppUser;
-import fi.fisma.backend.appuser.AppUserRepository;
+import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.FunctionalComponent;
+import fi.fisma.backend.domain.Project;
+import fi.fisma.backend.domain.ProjectAppUser;
+import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.ProjectRepository;
 import fi.fisma.backend.security.SecurityConfig;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
