@@ -20,6 +20,7 @@ export type TGenericComponentNoId = {
   degreeOfCompletion: number | null;
   comment: string | null;
   previousFCId: number | null;
+  order: number;
 }
 
 export type ProjectWithUpdate = {
@@ -58,6 +59,7 @@ export type TGenericComponent = {
   degreeOfCompletion: number | null;
   comment: string | null;
   previousFCId: number | null;
+  order: number;
 }
 
 export type ClassName = "Interactive end-user navigation and query service" |

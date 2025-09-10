@@ -36,8 +36,8 @@ export default function ProjectPage() {
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
-  //sort functional components by id (order of creation from oldest to newest)
-  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id) || [];
+  //sort functional components by order (ascending)
+  const sortedComponents = project?.functionalComponents.sort((a, b) => a.order - b.order) || [];
 
   useEffect(() => {
     const getProject = async () => {
@@ -72,6 +72,7 @@ export default function ProjectPage() {
         degreeOfCompletion: null,
         comment: null,
         previousFCId: null,
+        order: 0
       };
 
       const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent,] };
@@ -131,7 +132,7 @@ export default function ProjectPage() {
     if (project) {
       setLoadingProject(true);
       try {
-        await saveProject(); //TODO: Automatic saving instead?
+        await saveProject(); //TODO: Automatic saving instead? (Could use useQuery or similar)
         const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
