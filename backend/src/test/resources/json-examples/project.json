@@ -18,7 +18,7 @@
       "operations": null,
       "degreeOfCompletion": 0.13,
       "comment": "This is an exceptional functional component!",
-      "order": 1
+      "order_position": 1
     },
     {
       "id": 100,
@@ -31,7 +31,7 @@
       "operations": null,
       "degreeOfCompletion": 0.27,
       "comment": "Needs further adjustment!",
-      "order": 2
+      "order_position": 2
     }
   ],
   "appUsers": [

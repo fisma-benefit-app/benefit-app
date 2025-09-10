@@ -21,5 +21,5 @@ public class FunctionalComponent {
     private Double degreeOfCompletion;
     private String comment;
     private Long previousFCId;
-    private Integer order;
+    private Integer orderPosition;
 }

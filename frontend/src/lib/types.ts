@@ -19,8 +19,8 @@ export type TGenericComponentNoId = {
   operations: number | null;
   degreeOfCompletion: number | null;
   comment: string | null;
-  previousFCId: number | null;
-  order: number;
+  previousFCId: number | null; // WTF is this???
+  orderPosition: number;
 }
 
 export type ProjectWithUpdate = {
@@ -59,7 +59,7 @@ export type TGenericComponent = {
   degreeOfCompletion: number | null;
   comment: string | null;
   previousFCId: number | null;
-  order: number;
+  orderPosition: number;
 }
 
 export type ClassName = "Interactive end-user navigation and query service" |

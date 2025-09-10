@@ -37,7 +37,7 @@ export default function ProjectPage() {
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
   //sort functional components by order (ascending)
-  const sortedComponents = project?.functionalComponents.sort((a, b) => a.order - b.order) || [];
+  const sortedComponents = project?.functionalComponents.sort((a, b) => a.orderPosition - b.orderPosition) || [];
 
   useEffect(() => {
     const getProject = async () => {
@@ -72,7 +72,7 @@ export default function ProjectPage() {
         degreeOfCompletion: null,
         comment: null,
         previousFCId: null,
-        order: 0
+        orderPosition: 0
       };
 
       const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent,] };
