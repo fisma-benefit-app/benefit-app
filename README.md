@@ -14,7 +14,9 @@ All-in-one repository for the Benefit application. Includes frontend, backend, d
 <img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" width="200">
 
 ## Deployment and Development
-See sections 4. Frontend and 5. Backend
+Read [dev_quickstart.md](documents/dev_quickstart.md) for getting your development environment up and running quickly.
+
+See sections 4. Frontend and 5. Backend for more on Deployment.
 
 ---
 

@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Docker creates the file because it was required in the legacy code for some reason ###
+compose.yaml
