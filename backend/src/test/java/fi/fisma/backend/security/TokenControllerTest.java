@@ -39,8 +39,8 @@ class TokenControllerTest {
         
         var project = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.findByProjectIdAndUsername(77L, "test-user")).thenReturn(Optional.of(project));

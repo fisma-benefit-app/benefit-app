@@ -31,7 +31,8 @@ create table if not exists functional_component
     degree_of_completion  decimal,
     comment               text,
     previous_FC_id        bigint,
-    project_id            bigint not null references project (id)
+    project_id            bigint not null references project (id),
+    order                 integer not null default 0
 );
 
 create table if not exists project_app_user

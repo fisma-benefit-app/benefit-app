@@ -89,7 +89,8 @@ public class ProjectController {
                             functionalComponent.getOperations(),
                             functionalComponent.getDegreeOfCompletion(),
                             functionalComponent.getComment(),
-                            functionalComponent.getId()
+                            functionalComponent.getId(),
+                            functionalComponent.getOrder()
                     ))
                     .collect(Collectors.toSet());
             savedNewVersionProject.setFunctionalComponents(functionalComponentsForNewVersion);

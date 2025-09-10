@@ -49,8 +49,8 @@ class ProjectControllerTest {
         
         var project = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.findByProjectIdAndUsername(77L, "test-user")).thenReturn(Optional.of(project));
@@ -91,8 +91,8 @@ class ProjectControllerTest {
         when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
         var someonesProject = new Project(88L, "someones project", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19),  LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat",100L)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0)
                 ),
                 Set.of(new ProjectAppUser(15L)));
         when(projectRepository.findByProjectIdAndUsername(88L, "someone")).thenReturn(Optional.of(someonesProject));
@@ -107,14 +107,14 @@ class ProjectControllerTest {
         var projects = List.of(
                 new Project(88L, "project one", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19),  LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                         Set.of(
-                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
+                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0)
                         ),
                         Set.of(new ProjectAppUser(13L))),
                 new Project(98L, "project two", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                         Set.of(
-                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
+                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0)
                         ),
                         Set.of(new ProjectAppUser(13L))));
         when(projectRepository.findAllByUsername("test-user")).thenReturn(projects);
@@ -145,14 +145,14 @@ class ProjectControllerTest {
         var projects = List.of(
                 new Project(88L, "project one", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19),  LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                         Set.of(
-                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
+                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0)
                         ),
                         Set.of(new ProjectAppUser(15L))),
                 new Project(98L, "project two", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                         Set.of(
-                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L)
+                                new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                                new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0)
                         ),
                         Set.of(new ProjectAppUser(15L))));
         when(projectRepository.findAllByUsername("someone")).thenReturn(projects);
@@ -168,9 +168,9 @@ class ProjectControllerTest {
     void shouldUpdateAndReturnAProjectWithAKnowId() throws JsonProcessingException {
         var updatedProject = new Project(77L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), 100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L),
-                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0),
+                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L, 0)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(updatedProject)).thenReturn(updatedProject);
@@ -202,9 +202,9 @@ class ProjectControllerTest {
     void shoudNotUpdateAProjectThatDoesNotExist() throws JsonProcessingException {
         var projectThatDoesNotExist = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L),
-                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0),
+                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L, 0)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(projectThatDoesNotExist)).thenReturn(projectThatDoesNotExist);
@@ -225,17 +225,17 @@ class ProjectControllerTest {
         when(appUserRepository.findByUsername("someone")).thenReturn(someoneAppUser);
         var someonesProject = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                 Set.of(
-                        new FunctionalComponent(49L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 49L),
-                        new FunctionalComponent(400L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 400L)
+                        new FunctionalComponent(49L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 49L, 0),
+                        new FunctionalComponent(400L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 400L, 0)
                 ),
                 Set.of(new ProjectAppUser(16L)));
         when(projectRepository.findByProjectIdAndUsername(999L, "someone")).thenReturn(Optional.of(someonesProject));
         
         var projectThatIsTriedToUpdate = new Project(999L, "project-x", 1, LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19), LocalDateTime.of(2025, 1, 28, 17, 23, 19),100.12,
                 Set.of(
-                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L),
-                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L),
-                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L)
+                        new FunctionalComponent(99L, "Interactive end-user input service", "1-functional", 2, 4, 3, 1, null, 0.34, "hakijan valinnat", 99L, 0),
+                        new FunctionalComponent(100L, "Data storage service", "entities or classes", 4, null, null, null, null, 0.34, "hakijan valinnat", 100L, 0),
+                        new FunctionalComponent(101L, null, null, null, null, null, null, null, null, null, 101L, 0)
                 ),
                 Set.of(new ProjectAppUser(13L)));
         when(projectRepository.save(projectThatIsTriedToUpdate)).thenReturn(projectThatIsTriedToUpdate);
