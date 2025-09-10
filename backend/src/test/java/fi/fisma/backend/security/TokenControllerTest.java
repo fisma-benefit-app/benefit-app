@@ -1,8 +1,13 @@
 package fi.fisma.backend.security;
 
-import fi.fisma.backend.appuser.AppUser;
-import fi.fisma.backend.appuser.AppUserRepository;
-import fi.fisma.backend.project.*;
+import fi.fisma.backend.api.ProjectController;
+import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.FunctionalComponent;
+import fi.fisma.backend.domain.Project;
+import fi.fisma.backend.domain.ProjectAppUser;
+import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.ProjectRepository;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

@@ -3,6 +3,6 @@ spring:
     name: test
 
   datasource:
-    username: myuser
-    password: secret
-    url: jdbc:postgresql://127.0.0.1:5438/fisma_db
+    url: jdbc:postgresql://localhost:${HOST_DB_PORT:5433}/fisma_db
+    username: ${SPRING_DATASOURCE_USERNAME:myuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}

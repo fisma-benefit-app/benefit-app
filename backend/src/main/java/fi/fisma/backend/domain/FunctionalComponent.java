@@ -1,4 +1,4 @@
-package fi.fisma.backend.project;
+package fi.fisma.backend.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

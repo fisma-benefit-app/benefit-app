@@ -1,4 +1,4 @@
-package fi.fisma.backend.appuser;
+package fi.fisma.backend.domain;
 
 import org.springframework.data.annotation.Id;
 

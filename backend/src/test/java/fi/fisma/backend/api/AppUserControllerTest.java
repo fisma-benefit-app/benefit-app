@@ -1,6 +1,11 @@
-package fi.fisma.backend.appuser;
+package fi.fisma.backend.api;
 
-import fi.fisma.backend.project.*;
+import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.FunctionalComponent;
+import fi.fisma.backend.domain.Project;
+import fi.fisma.backend.domain.ProjectAppUser;
+import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.ProjectRepository;
 import fi.fisma.backend.security.SecurityConfig;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
 import org.junit.jupiter.api.Test;

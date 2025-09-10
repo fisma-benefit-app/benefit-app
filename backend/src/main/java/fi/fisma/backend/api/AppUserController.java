@@ -1,6 +1,8 @@
-package fi.fisma.backend.appuser;
+package fi.fisma.backend.api;
 
-import fi.fisma.backend.project.ProjectRepository;
+import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
