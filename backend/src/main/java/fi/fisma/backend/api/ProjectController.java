@@ -1,11 +1,16 @@
-package fi.fisma.backend.project;
+package fi.fisma.backend.api;
 
-import fi.fisma.backend.appuser.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import fi.fisma.backend.domain.FunctionalComponent;
+import fi.fisma.backend.domain.Project;
+import fi.fisma.backend.domain.ProjectAppUser;
+import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.ProjectRepository;
 
 import java.net.URI;
 

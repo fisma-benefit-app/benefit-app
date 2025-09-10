@@ -1,8 +1,10 @@
-package fi.fisma.backend.project;
+package fi.fisma.backend.repository;
 
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.query.Param;
+
+import fi.fisma.backend.domain.Project;
 
 import java.util.List;
 import java.util.Optional;
