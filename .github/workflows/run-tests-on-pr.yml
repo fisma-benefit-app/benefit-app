@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: postgres:latest
         env:
-          POSTGRES_USER: ${{ secrets.DB_USERNAME }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
@@ -33,18 +33,17 @@ jobs:
           java-version: "23"
           distribution: "temurin"
 
-      - name: Build with Gradle Wrapper
+      - name: Grant Gradle execute permissions
         run: |
           cd backend
           chmod +x ./gradlew
-          ./gradlew build
 
       - name: Run backend tests
         env:
           DB_HOST: localhost
           DB_PORT: 5432
           DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USERNAME }}
+          DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           cd backend
