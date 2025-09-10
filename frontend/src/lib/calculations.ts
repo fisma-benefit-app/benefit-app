@@ -8,15 +8,7 @@ const calculateInteractiveEndUserNavigationAndQueryService = (functionalComponen
   const dataElements = functionalComponent.dataElements ?? 0;
   const readingReferences = functionalComponent.readingReferences ?? 0;
 
-  if (
-    functionalComponent.componentType === "function designators" ||
-    functionalComponent.componentType === "function lists" ||
-    functionalComponent.componentType === "selection lists"
-  ) {
-    return (0.2 + (dataElements / 7) + (readingReferences / 2));
-  } else {
-    return (0.2 + ((dataElements + 1) / 7) + (readingReferences / 2));
-  }
+  return (0.2 + (dataElements / 7) + (readingReferences / 2));
 };
 
 const calculateInteractiveEndUserInputService = (functionalComponent: TGenericComponent) => {
