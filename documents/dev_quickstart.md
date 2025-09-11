@@ -2,7 +2,10 @@
 
 ## 1) Prerequisites
 - **Docker** installed (and running).
-- Or, for local-only dev (without Dockerized backend): a local PostgreSQL installation.
+- Or, for local-only dev (without Dockerized backend): 
+    - a local **PostgreSQL** installation (or use only the dockerized database. see 3B).
+    - **Java 21**
+    - **Nodejs** and **npm**
 
 ---
 

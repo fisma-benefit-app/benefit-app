@@ -40,7 +40,6 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/workspace
-      - ./compose.yaml:/workspace/compose.yaml:ro
       - gradle-cache:/gradle-cache
     command: ["./gradlew", "bootRun"]
 
