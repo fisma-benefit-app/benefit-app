@@ -1,31 +1,33 @@
 <a id="readme-top"></a>
 
 [![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
+[![Last commit][commit-shield]][commit-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![FiSMA][fisma-shield]][fisma-url]
 
-# Benefit app
+<!--
+[![Build][build-shield]][build-url]
+-->
 
-All-in-one repository for the Benefit application. Includes frontend, backend, documents, etc.
+<br />
+<div align="center">
+  <a href="https://www.fisma.fi/in-english/">
+    <img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" alt="FiSMA Logo" width="200">
+  </a>
+  <a href="https://www.haaga-helia.fi/en">
+    <img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" alt="Haaga-Helia Logo" width="200">
+  </a>
 
-**Product owner**: FiSMA ry, 2025.
+  <h3 align="center">Benefit application</h3>
 
-<img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" width="200">
-
-**Representative supervisor**: Heikki Naski.
-
-**Collaborators**: Haaga-Helia University of Applied Sciences, 2025.
-
-<img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" width="200">
-
-## Deployment and Development
-
-Read [dev_quickstart.md](documents/dev_quickstart.md) for getting your development environment up and running quickly.
-
-See sections 4. Frontend and 5. Backend for more on Deployment.
+  <p align="center">
+    All in one repository for the Benefit application developed in collaboration
+    <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
+    <br />
+    <a href="https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/dev_quickstart.md"><strong>Get Started »</strong></a>
+  </p>
+</div>
 
 <br>
 <details>
@@ -68,10 +70,10 @@ See sections 4. Frontend and 5. Backend for more on Deployment.
         <a href="#license">License</a>
     </li>
     <li>
-        <a href="#contact">License</a>
+        <a href="#contact">Contact</a>
     </li>
     <li>
-        <a href="#acknowledgements">License</a>
+        <a href="#acknowledgements">Acknowledgements</a>
     </li>
   </ol>
 </details><br>
@@ -363,10 +365,13 @@ WIP
 
 [contributors-shield]: https://img.shields.io/github/contributors/fisma-benefit-app/benefit-app.svg?style=for-the-badge
 [contributors-url]: https://github.com/fisma-benefit-app/benefit-app/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/fisma-benefit-app/benefit-app.svg?style=for-the-badge
-[forks-url]: https://github.com/fisma-benefit-app/benefit-app/network/members
-[stars-shield]: https://img.shields.io/github/stars/fisma-benefit-app/benefit-app.svg?style=for-the-badge
-[stars-url]: https://github.com/fisma-benefit-app/benefit-app/stargazers
+
+<!--[build-shield]: https://img.shields.io/github/actions/workflow/status/fisma-benefit-app/benefit-app/pages-build-deployment.yml?branch=main
+[build-url]: https://github.com/fisma-benefit-app/benefit-app/actions/workflows/pages/pages-build-deployment.yml
+-->
+
+[commit-shield]: https://img.shields.io/github/last-commit/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[commit-url]: https://github.com/fisma-benefit-app/benefit-app/commits/main/
 [issues-shield]: https://img.shields.io/github/issues/fisma-benefit-app/benefit-app.svg?style=for-the-badge
 [issues-url]: https://github.com/fisma-benefit-app/benefit-app/issues
 [license-shield]: https://img.shields.io/github/license/fisma-benefit-app/benefit-app.svg?style=for-the-badge
