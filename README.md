@@ -30,49 +30,43 @@
 
 <br>
 <details>
-<summary><b>Table of contents</b></summary>
+<summary><b>Table of Contents</b></summary>
   <ol>
     <li>
-        <a href="#introduction">Introduction</a>
+        <a href="#about-the-project">About the Project</a>
     </li>
     <li>
-        <a href="#core-functionality">Core functionality</a>
+        <a href="#built-with">Built With</a>
     </li>
     <li>
-        <a href="#tools">Tools</a>
+        <a href="#architecture">Architecture</a>
     </li>
     <li>
-        <a href="#frontend">Frontend</a>
+        <a href="#api">API</a>
+    </li>     
+    <li>
+        <a href="#getting-started">Getting Started</a>
     </li>
     <li>
-        <a href="#backend">Backend</a>
-    </li>
-    <li>
-        <a href="#database">Database</a>
+        <a href="#usage">Usage</a>
     </li>
     <li>
         <a href="#cicd">CI/CD</a>
     </li>
     <li>
-        <a href="#testing">Testing</a>
+        <a href="#quality-assurance-and-security">Quality Assurance and Security</a>
+    </li>
+        <li>
+        <a href="#roadmap">Roadmap</a>
     </li>
     <li>
-        <a href="#results">Results</a>
-    </li>
-    <li>
-        <a href="#known-bugs-and-technical-issues">Known bugs and technical issues</a>
-    </li>
-    <li>
-        <a href="#future-improvements">Future improvements</a>
+        <a href="#top-contributors">Top Contributors</a>
     </li>
     <li>
         <a href="#license">License</a>
     </li>
     <li>
         <a href="#contact">Contact</a>
-    </li>
-    <li>
-        <a href="#acknowledgements">Acknowledgements</a>
     </li>
   </ol>
 </details><br>
@@ -81,70 +75,47 @@
 
 ## About the Project
 
-**What is Benefit application and its main purpose?**
+The Benefit application has been developed in collaboration with FiSMA ry and Haaga-Helia University of Applied Sciences. It's designed for function point analysis, primarily supporting Scope Managers in performing calculations, reporting, and archiving. The main functionality of the app follows standard ISO/IEC 29881.
 
-Benefit application is a project by FiSMA ry, developed during Spring 2025.
-It is a software tool designed for estimating the size of a software project,
-which calculates function points for navigation and queries, external interfaces,
-inputs and outputs. Based on these, it helps estimate the project's budget and costs.
+### What is Function Point Analysis?
 
-![Benefit-app's frontend UI page, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
+Function point analysis is used to measure the functional size of software. This measurement can then be applied when analyzing productivity or preparing workload estimates.
 
-Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
+There are several function point analysis methods, but in this project, the term specifically refers to the FiSMA 1.1 method.
 
-**Whom is application made for?**
+### FiSMA 1.1 Method Overview
 
-The application is designed for businesses and individuals who want to estimate the size and costs of a software project.
+In FiSMA 1.1, each user-relevant function is classified into a function category and function type, and entered as a row in a table. Each function is assigned:
 
-The application can be useful for experts, who want to easily calculate
-function points of other applications.
+- A unique identifier
+- Required measurable attributes, including:
+  - Data elements
+  - Read references
+  - Write references
+  - Operations
+  - Function factor
 
-**What are prerequisites?**
+Examples of functions:
 
-User should have at least basic knowledge on software size measurements
-and function points calculations. Fisma ry have great manuals for these.
+- A list view on a web page
+- A CSV report
+- An integration
+- A database table
 
-Then we expect user have great knowledge on advanced developers' tools,
-such as Java with Gradle for backend, Typescript for frontend, PostgreSQL for database,
-Heroku environment for backend's deployment, etc. We have documented all essential
-tools and their implementation in the software in the
+Not considered functions:
 
-**Why are the frontend, backend, and other components stored in a single repository?**
+- Technical features (e.g. internal logging, developer utilities)
+- Quality-related features (e.g. caching)
 
-The frontend, backend, and other components are stored in a single repository
-in order streamline the development process, allowing the team to work efficiently
-and coordinate changes more easily. Due Fisma ry request, the repository was opened publicly
-as open source.
+These are excluded because they do not directly provide new functionality to the user. Functional size is measured strictly through functional requirements or working software features.
 
-The only exception is the backend-credentials repository, which is seperated from
-the single repository and is private. It contains sensitive credentials for deploying
-backend to Heroku.
+### northernSCOPE™ Concept
 
-### Core functionality
-
-The main functionality of the Benefit-app is executed in _calculations.ts_ file,
-which located in frontend libraries directory (i.e. './frontend/src/lib/calculations.ts')
-
-The calculation method follows standard ISO/IEC 29881.
-
-Due Fisma ry's
-request, we have tried to limit of importing dependencies
-(e.g. third party libraries) as many as possible.
-
-This was due minimize the need of updating or reconfiguring
-dependencies.
+The [northernSCOPE™](https://www.fisma.fi/wp-content/uploads/2022/01/northernscope-brochure-v152.pdf) concept is a framework developed and provided by FiSMA to support the application of function point analysis in software projects.
 
 ### Deployment
 
-For deployment of frontend, we used gh-pages method by Github, which
-you can read in more detail from frontend_gh_pages_deployment.md -manual.
-
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/frontend_gh_pages_deployment.md
-
-For deployment of backend, we used Heroku platform, which
-you can read in more detail from backend_heroku_deployment.md -manual.
-
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/backend_heroku_deployment.md
+The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [documentation](/documents/).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -185,57 +156,17 @@ The structure of Benefit's SQL database is shown in the diagram below:
 
 Picture #: Diagram of Benefit's database.
 
-Please read database_manual.md document from documents -directory
-for more information
+Please read database_manual.md document from documents -directory for more information
 
 Link: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/database_manual.md
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- DEVOPS -->
+<!-- API -->
 
-## DevOps
+## API
 
-a) **KISS**. From the very first sprint and on,
-Fisma ry required our team to keep Benefit-app
-simple as possible in every development.
-
-This meant such as creating minimal viable product as
-soon as possible, deploying the Benefit-app as cheaply as
-possible (no more than 10 euros), limiting imports of
-third party libraries and tools, etc.
-
-In order Fisma ry can review every small solutions and changes
-as soon as possible, we held Sprint reviews every second week
-(with few exceptions due holidays).
-
-b) Originally, we had three branches: dev, main and qa.
-
-- **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
-
-- **Qa** is our product review branch, where we pull all _functional_ codes for Sprint Review together with product owners.
-
-- **Main** is our official branch, where project has been deployed (finalized) and refactor all unnecessary, broken solutions and tools.
-
-After third sprint and on, we had more branches for specific development or issues,
-such as bug fixes and shieldut functionality.
-
-Despite of having many branches, this ensured that no git conflicts,
-nor code errors, wouldn't happen regularly during development process.
-
-When it was time to pull working solutions (or codes) from other branches
-to the dev or main branch via pull requests, we implemented a functionality
-where every pull request must be reviewed and accepted by other team members.
-This was due assuring quality of the codes and minimize possible errors.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- QUALITY ASSURANCE AND SECURITY -->
-
-## Quality Assurance and Security
-
-**TODO** How to run on CLI?
-Tests are configured in the file **backend/build.gradle**
+WIP
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -329,6 +260,10 @@ Open:
 
 ## Usage
 
+![Benefit-app's frontend UI page, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
+
+Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
+
 The application is actively running on the following website:
 
 https://fisma-benefit-app.github.io/benefit-app/#/login
@@ -367,6 +302,55 @@ _For more examples, please refer to the [documentation](https://github.com/fisma
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- CI/CD -->
+
+## CI/CD
+
+a) **KISS**. From the very first sprint and on,
+Fisma ry required our team to keep Benefit-app
+simple as possible in every development.
+
+This meant such as creating minimal viable product as
+soon as possible, deploying the Benefit-app as cheaply as
+possible (no more than 10 euros), limiting imports of
+third party libraries and tools, etc.
+
+In order Fisma ry can review every small solutions and changes
+as soon as possible, we held Sprint reviews every second week
+(with few exceptions due holidays).
+
+b) Originally, we had three branches: dev, main and qa.
+
+- **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
+
+- **Qa** is our product review branch, where we pull all _functional_ codes for Sprint Review together with product owners.
+
+- **Main** is our official branch, where project has been deployed (finalized) and refactor all unnecessary, broken solutions and tools.
+
+After third sprint and on, we had more branches for specific development or issues,
+such as bug fixes and shieldut functionality.
+
+Despite of having many branches, this ensured that no git conflicts,
+nor code errors, wouldn't happen regularly during development process.
+
+When it was time to pull working solutions (or codes) from other branches
+to the dev or main branch via pull requests, we implemented a functionality
+where every pull request must be reviewed and accepted by other team members.
+This was due assuring quality of the codes and minimize possible errors.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- QUALITY ASSURANCE AND SECURITY -->
+
+## Quality Assurance and Security
+
+The number of imported dependencies (e.g. third party libraries) within the project is limited to minimize updating or reconfiguring needs.
+
+**TODO** How to run on CLI?
+Tests are configured in the file **backend/build.gradle**
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- ROADMAP -->
 
 ## Roadmap
@@ -389,7 +373,7 @@ The project's requirement specification can be found [here](https://docs.google.
 
 <!-- CONTRIBUTORS -->
 
-## Contributors
+## Top Contributors
 
 <a href="https://github.com/fisma-benefit-app/benefit-app/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=fisma-benefit-app/benefit-app" alt="contrib.rocks image" />
