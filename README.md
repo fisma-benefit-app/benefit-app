@@ -4,7 +4,6 @@
 [![Last commit][commit-shield]][commit-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-[![FiSMA][fisma-shield]][fisma-url]
 
 <!--
 [![Build][build-shield]][build-url]
@@ -13,10 +12,10 @@
 <br />
 <div align="center">
   <a href="https://www.fisma.fi/in-english/">
-    <img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" alt="FiSMA Logo" width="200">
+    <img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" alt="FiSMA shield" width="200">
   </a>
   <a href="https://www.haaga-helia.fi/en">
-    <img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" alt="Haaga-Helia Logo" width="200">
+    <img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" alt="Haaga-Helia shield" width="200">
   </a>
 
   <h3 align="center">Benefit application</h3>
@@ -25,7 +24,7 @@
     All in one repository for the Benefit application developed in collaboration
     <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
     <br />
-    <a href="https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/dev_quickstart.md"><strong>Get Started »</strong></a>
+    <a href="#getting-started"><strong>Get Started »</strong></a>
   </p>
 </div>
 
@@ -78,7 +77,9 @@
   </ol>
 </details><br>
 
-## Introduction
+<!-- ABOUT THE PROJECT -->
+
+## About the Project
 
 **What is Benefit application and its main purpose?**
 
@@ -119,86 +120,64 @@ The only exception is the backend-credentials repository, which is seperated fro
 the single repository and is private. It contains sensitive credentials for deploying
 backend to Heroku.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Core functionality
+### Core functionality
 
 The main functionality of the Benefit-app is executed in _calculations.ts_ file,
 which located in frontend libraries directory (i.e. './frontend/src/lib/calculations.ts')
 
 The calculation method follows standard ISO/IEC 29881.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Tools
-
-We have used following tools in the project, alphabetically:
-
-- Figma for preliminary sketching UI design.
-
-- Java with Gradle for backend.
-
-- Docker, due it will automatically install required languages and libraries
-  (e.g. PostgreSQL) for the new member. Thus it will save both time and hussle for future groups.
-
-- PostgreSQL for the database. Everyone of our team has used SQL for databases.
-  Thus production will be most effective, when we are working with familiar language.
-  We also used PostgreSQL over other SQL DBMS due product owner's wishes.
-
-- Spring boot for backend.
-
-- Typescript for frontend.
-
-- Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Frontend
-
-The frontend was developed in Typescript. Due Fisma ry's
+Due Fisma ry's
 request, we have tried to limit of importing dependencies
 (e.g. third party libraries) as many as possible.
 
 This was due minimize the need of updating or reconfiguring
 dependencies.
 
-Please read frontend_manual.md from documents -directory for more information.
-
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_frontend.md
+### Deployment
 
 For deployment of frontend, we used gh-pages method by Github, which
 you can read in more detail from frontend_gh_pages_deployment.md -manual.
 
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/frontend_gh_pages_deployment.md
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Backend
-
-The backend was developed in Java with Gradle.
-
-### Install
-
-For installing backend locally, please read install_backend_locally_manual.md
-from documents -directory for more information.
-
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_backend_locally.md
-
-### Deployment
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/frontend_gh_pages_deployment.md
 
 For deployment of backend, we used Heroku platform, which
 you can read in more detail from backend_heroku_deployment.md -manual.
 
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/backend_heroku_deployment.md
-
-### Automatic tests
-
-**TODO** How to run on CLI?
-Tests are configured in the file **backend/build.gradle**
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/backend_heroku_deployment.md
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Database
+<!-- BUILT WITH -->
+
+## Built With
+
+This project is built with:
+
+![Back-end][back-end-shield]<br>
+[![Java][java-shield]][java-url]
+[![Spring Boot][spring-shield]][spring-url]
+[![Gradle][gradle-shield]][gradle-url]
+
+![Front-end][front-end-shield]<br>
+[![TypeScript][typescript-shield]][typescript-url]
+[![React][react-shield]][react-url]
+
+![Database][database-shield]<br>
+[![PostgreSQL][postgres-shield]][postgres-url]
+
+![Tools][tools-shield]<br>
+[![Docker][docker-shield]][docker-url]
+[![Figma][figma-shield]][figma-url]
+[![GitHub][github-shield]][github-url]
+[![GitHub Actions][github-actions-shield]][github-actions-url]
+[![Visual Studio Code][vs-code-shield]][vs-code-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- ARCHITECTURE -->
+
+## Architecture
 
 The structure of Benefit's SQL database is shown in the diagram below:
 
@@ -209,11 +188,13 @@ Picture #: Diagram of Benefit's database.
 Please read database_manual.md document from documents -directory
 for more information
 
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/database_manual.md
+Link: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/database_manual.md
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## CI/CD
+<!-- DEVOPS -->
+
+## DevOps
 
 a) **KISS**. From the very first sprint and on,
 Fisma ry required our team to keep Benefit-app
@@ -237,7 +218,7 @@ b) Originally, we had three branches: dev, main and qa.
 - **Main** is our official branch, where project has been deployed (finalized) and refactor all unnecessary, broken solutions and tools.
 
 After third sprint and on, we had more branches for specific development or issues,
-such as bug fixes and logout functionality.
+such as bug fixes and shieldut functionality.
 
 Despite of having many branches, this ensured that no git conflicts,
 nor code errors, wouldn't happen regularly during development process.
@@ -249,23 +230,104 @@ This was due assuring quality of the codes and minimize possible errors.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Testing
+<!-- QUALITY ASSURANCE AND SECURITY -->
 
-While we didn't had an industry standard testing of the Benefit-app during development,
-we held two seminars with students from Haaga-Helia University of Applied Sciences.
-These student gave essential feedbacks when reviewing our Benefit-app, which
-you can read in detail in following documents:
+## Quality Assurance and Security
 
-- testing_report_from_April_02_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_02_2025.md )
-
-- testing_report_from_April_03_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_03_2025.md )
-
-Note these aren't considered as official systematical testing reports for Benefit-app.
-This was pointed by Fisma ry during one sprint review.
+**TODO** How to run on CLI?
+Tests are configured in the file **backend/build.gradle**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Results
+<!-- GETTING STARTED -->
+
+## Getting Started
+
+### 1) Prerequisites
+
+- **Docker** installed (and running).
+- Or, for local-only dev (without Dockerized backend):
+  - a local **PostgreSQL** installation (or use only the dockerized database. see 3B).
+  - **Java 21**
+  - **Nodejs** and **npm**
+
+### 2) Setup
+
+```bash
+# clone
+git clone <your-repo-url>
+cd benefit-app
+
+# root env
+cp .env.example .env
+
+# frontend env
+cp frontend/.env.example frontend/.env
+```
+
+| You can change them as you wish, but the dev environment should usually work with the default values.
+
+### 3) Run Options
+
+#### A) Full Dockerized Setup
+
+```bash
+# start (build on first run or when Dockerfiles change)
+docker compose up --build
+
+# stop (keep DB data and caches)
+docker compose down
+
+# stop and reset EVERYTHING (DB, caches, volumes)
+docker compose down -v
+```
+
+Open:
+
+- Frontend: http://localhost:5173/benefit-app/login (Username: **user**, Password: **user**)
+- Backend: http://localhost:8080/actuator/health
+
+#### B) Development Without Docker (local backend)
+
+1. You only need the **frontend .env** file (`frontend/.env` with VITE_API_URL pointing to your backend).
+2. If you have previously run Docker, clean backend build dirs once to avoid permission issues:
+   ```bash
+   sudo rm -rf backend/.gradle backend/build
+   ```
+3. Make sure a Postgres DB is available:
+   - Run only Postgres via Docker:
+     ```bash
+     docker compose up db
+     ```
+   - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
+4. Start backend:
+   ```bash
+   cd backend
+   ./gradlew bootRun
+   ```
+5. Start frontend:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+### (Optional) Quick Troubleshooting
+
+- **No seed users** → ensure backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset DB once.
+- **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`.
+- npm install fails because of permissions? -> `rm -rf node_modules` inside the frontend folder
+
+### (Optional) Notes
+
+- Change host ports in `.env` if 5173/8080/5433 are taken.
+- Use a DB GUI (e.g., DBeaver) with host `localhost`, port `5433`, db `fisma_db`, user `myuser`, pass `secret`.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- USAGE -->
+
+## Usage
 
 The application is actively running on the following website:
 
@@ -297,56 +359,55 @@ https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba
 If the videos are not playing or are bad quality, then you can download
 both videos from documents' video directory:
 
-**Part 1 video**: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4
+**Part 1 video**: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4
 
-**Part 2 video**: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/videos/benefit_app_demo_sd_14_05_2025_part_2.mp4
+**Part 2 video**: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/videos/benefit_app_demo_sd_14_05_2025_part_2.mp4
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Known bugs and technical issues
-
-Please read "Known issues" -document from Documents' directory
-for list of known bugs and other unresolved technical difficulties:
-
-https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/known_issues.md
+_For more examples, please refer to the [documentation](https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Future improvements
+<!-- ROADMAP -->
 
-Here are planned improvements and future features for the application:
+## Roadmap
 
-- Benefit-app is not applied for mobile devices.
+- [ ] Compatibility with mobile apps
+- [ ] Multilayer architecture
+- [ ] Improve error management
+- [ ] Improve quality assurance
+- [ ] Improve project listing
+  - [ ] Implement search functionality
+  - [ ] Improve edit functionality
+  - [ ] Improve project sorting
+- [ ] Update documentation
+  - [ ] Document how Benefit handles login tokens (database to API, and vice versa) in user_authentication_guide.md
+  - [ ] Document information security on JWTs and cookies
 
-- Multilayer architecture functionality was not implemented to Benefit-app.
-  See issue #111: "94. Monikerrosarkkitehtuuri-valinta toiminnolle.".
-
-- Error management could be improved in Benefit-app.
-
-- Benefit-app lacks quality check. It requires refactoring.
-
-- Projects' listing could be improved in Benefit-app, such as
-  search functionality for projects, improved edit functionality
-  for projects and sorting of projects.
-
-- Some documents require updates and further explaination. For example,
-  the user_authentication_guide.md needs a description on how Benefit-app
-  handles login tokens from which database to which API endpoint, and vice versa.
-
-- Some functionalities requires documentations, for example data security on JVT tokens
-  and cookies. See issue #157: "112. Tietoturvallisuudesta dokumentointi.".
+The project's requirement specification can be found [here](https://docs.google.com/document/d/1FXYXPMAwyoZNdxBxYVOIQPrcBr01fXAB4nvHD-Diy7w/edit?tab=t.0#heading=h.6dj02y3xjnh0). See the [open issues](https://github.com/fisma-benefit-app/benefit-app/issues) for a full list of proposed features and known issues.
 
   <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTORS -->
+
+## Contributors
+
+<a href="https://github.com/fisma-benefit-app/benefit-app/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=fisma-benefit-app/benefit-app" alt="contrib.rocks image" />
+</a>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
 
 ## License
 
-Distributed under the [MIT License](https://opensource.org/license/mit). See LICENSE.txt for more information.
+Distributed under the MIT License. See [LICENSE](https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/LICENSE) for more information.
 
   <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Contact
+<!-- CONTACT -->
 
-WIP
+## Contact
 
 Contact: Heikki Naski
 
@@ -354,14 +415,7 @@ Project Link: [https://github.com/fisma-benefit-app/benefit-app](https://github.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Acknowledgments
-
-WIP
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+<!-- BANNER LINKS -->
 
 [contributors-shield]: https://img.shields.io/github/contributors/fisma-benefit-app/benefit-app.svg?style=for-the-badge
 [contributors-url]: https://github.com/fisma-benefit-app/benefit-app/graphs/contributors
@@ -375,6 +429,33 @@ WIP
 [issues-shield]: https://img.shields.io/github/issues/fisma-benefit-app/benefit-app.svg?style=for-the-badge
 [issues-url]: https://github.com/fisma-benefit-app/benefit-app/issues
 [license-shield]: https://img.shields.io/github/license/fisma-benefit-app/benefit-app.svg?style=for-the-badge
-[license-url]: https://github.com/fisma-benefit-app/benefit-app/blob/main/LICENSE.txt
-[fisma-shield]: https://img.shields.io/badge/FiSMA-FiSMA.svg?style=for-the-badge&colorB=555
-[fisma-url]: https://www.fisma.fi/in-english/
+[license-url]: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/LICENSE
+
+<!-- BUILT WITH LINKS -->
+
+[front-end-shield]: https://img.shields.io/badge/FrontEnd-000000?style=for-the-badge
+[back-end-shield]: https://img.shields.io/badge/BackEnd-000000?style=for-the-badge
+[database-shield]: https://img.shields.io/badge/Database-000000?style=for-the-badge
+[tools-shield]: https://img.shields.io/badge/Tools-000000?style=for-the-badge
+[docker-shield]: https://img.shields.io/badge/docker-257bd6?style=for-the-badge&shield=docker&shieldColor=white
+[docker-url]: https://www.docker.com/
+[figma-shield]: https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&shield=figma&shieldColor=white
+[figma-url]: https://www.figma.com/
+[github-shield]: https://img.shields.io/badge/GitHub-%23121011.svg?shield=github&shieldColor=white&style=for-the-badge
+[github-url]: https://github.com/
+[github-actions-shield]: https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&shield=githubactions&shieldColor=white
+[github-actions-url]: https://github.com/features/actions
+[gradle-shield]: https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&shield=Gradle&shieldColor=white
+[gradle-url]: https://gradle.org/
+[java-shield]: https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&shield=openjdk&shieldColor=white
+[java-url]: https://www.java.com/en/
+[postgres-shield]: https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&shield=postgresql&shieldColor=white
+[postgres-url]: https://www.postgresql.org/
+[react-shield]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&shield=react&shieldColor=%2361DAFB
+[react-url]: https://react.dev/
+[spring-shield]: https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&shield=springboot&shieldColor=white
+[spring-url]: https://spring.io/
+[typescript-shield]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&shield=typescript&shieldColor=white
+[typescript-url]: https://www.typescriptlang.org/
+[vs-code-shield]: https://custom-icon-badges.demolab.com/badge/Visual%20Studio%20Code-0078d7.svg?shield=vsc&shieldColor=white&style=for-the-badge
+[vs-code-url]: https://code.visualstudio.com/
