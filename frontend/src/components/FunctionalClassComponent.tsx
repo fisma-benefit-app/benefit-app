@@ -1,25 +1,45 @@
-import { faCaretDown, faCaretUp, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCaretDown,
+  faCaretUp,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
-import { getCalculateFuntion, getComponentTypeOptions, getInputFields } from "../lib/fc-service-functions.ts";
-import { CalculationParameter, ClassName, ComponentType, Project, TGenericComponent } from "../lib/types.ts";
+import {
+  getCalculateFuntion,
+  getComponentTypeOptions,
+  getInputFields,
+} from "../lib/fc-service-functions.ts";
+import {
+  CalculationParameter,
+  ClassName,
+  ComponentType,
+  Project,
+  TGenericComponent,
+} from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
 import { useEffect } from "react";
 
 type FunctionalClassComponentProps = {
-  component: TGenericComponent,
-  deleteFunctionalComponent: (componentId: number) => Promise<void>,
-  project: Project,
-  setProject: React.Dispatch<React.SetStateAction<Project | null>>,
-  isLatest: boolean
-  forceCollapsed: boolean,
-  collapseVersion: number,
+  component: TGenericComponent;
+  deleteFunctionalComponent: (componentId: number) => Promise<void>;
+  project: Project;
+  setProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  isLatest: boolean;
+  forceCollapsed: boolean;
+  collapseVersion: number;
 };
 
-export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest, forceCollapsed }: FunctionalClassComponentProps) {
-
+export default function FunctionalClassComponent({
+  component,
+  deleteFunctionalComponent,
+  project,
+  setProject,
+  isLatest,
+  forceCollapsed,
+}: FunctionalClassComponentProps) {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed);
   useEffect(() => {
     setIsCollapsed(forceCollapsed);
@@ -34,32 +54,55 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
   const inputFields = getInputFields(component.className);
 
   //todo: does the user need to explicitly select component type for points to be calculated?
-  const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
+  const calculateFunction = getCalculateFuntion(
+    component.className && component.componentType ? component.className : "",
+  );
 
   const fullPoints = calculateFunction ? calculateFunction(component) : 0;
-  const pointsByDegreeOfCompletion = (component.degreeOfCompletion || 0) * fullPoints;
+  const pointsByDegreeOfCompletion =
+    (component.degreeOfCompletion || 0) * fullPoints;
 
   const handleClassNameChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select classname only from predefined options
     const newClassName = e.target.value as ClassName;
 
-    const updatedComponent = { ...component, className: newClassName, componentType: null };
-    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
+    const updatedComponent = {
+      ...component,
+      className: newClassName,
+      componentType: null,
+    };
+    const updatedComponents = project.functionalComponents.map(
+      (functionalComponent) =>
+        functionalComponent.id === component.id
+          ? updatedComponent
+          : functionalComponent,
+    );
 
-    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    const updatedProject = {
+      ...project,
+      functionalComponents: updatedComponents,
+    };
     setProject(updatedProject);
-  }
+  };
 
   const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select component type only from predefined options
     const newOptionType = e.target.value as ComponentType;
 
     const updatedComponent = { ...component, componentType: newOptionType };
-    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
+    const updatedComponents = project.functionalComponents.map(
+      (functionalComponent) =>
+        functionalComponent.id === component.id
+          ? updatedComponent
+          : functionalComponent,
+    );
 
-    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    const updatedProject = {
+      ...project,
+      functionalComponents: updatedComponents,
+    };
     setProject(updatedProject);
-  }
+  };
 
   const handleComponentChange = (e: ChangeEvent<HTMLInputElement>) => {
     let updatedComponent;
@@ -92,16 +135,24 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
         if (num > 99999) {
           value = "99999";
         } else if (num < 0) {
-          value = "0"
+          value = "0";
         }
       }
 
       updatedComponent = { ...component, [e.target.id]: value };
     }
-    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
-    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    const updatedComponents = project.functionalComponents.map(
+      (functionalComponent) =>
+        functionalComponent.id === component.id
+          ? updatedComponent
+          : functionalComponent,
+    );
+    const updatedProject = {
+      ...project,
+      functionalComponents: updatedComponents,
+    };
     setProject(updatedProject);
-  }
+  };
 
   return (
     <>
@@ -123,8 +174,13 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
 
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
             <div className="flex gap-2 text-sm sm:text-base">
-              <span>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</span>
-              <span>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</span>
+              <span>
+                = {pointsByDegreeOfCompletion.toFixed(2)}{" "}
+                {translation.functionalPointText}
+              </span>
+              <span>
+                = {fullPoints.toFixed(2)} {translation.functionalPointReadyText}
+              </span>
             </div>
             <div className="flex gap-2">
               <button
@@ -171,7 +227,9 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                 className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base"
                 disabled={!isLatest}
               >
-                <option disabled value="">{translation.classNamePlaceholder}</option>
+                <option disabled value="">
+                  {translation.classNamePlaceholder}
+                </option>
                 {classNameOptions.map((className) => (
                   <option key={className} value={className}>
                     {translation.classNameOptions[className]}
@@ -198,7 +256,6 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                         </option>
                       ))}
                     </select>
-
                   </div>
                 </>
               )}
@@ -216,7 +273,7 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       <input
                         id={key}
                         type="number"
-                        value={value as number || ""}
+                        value={(value as number) || ""}
                         onChange={handleComponentChange}
                         className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
                       />

@@ -1,8 +1,16 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { fetchAllProjects, fetchProject, updateProject } from "../api/project.ts";
+import {
+  fetchAllProjects,
+  fetchProject,
+  updateProject,
+} from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import { Project, ProjectWithUpdate, TGenericComponentNoId } from "../lib/types.ts";
+import {
+  Project,
+  ProjectWithUpdate,
+  TGenericComponentNoId,
+} from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
@@ -31,26 +39,36 @@ export default function ProjectPage() {
   const translation = useTranslations().projectPage;
 
   //get all versions of the same project
-  const allProjectVersions: Project[] = sortedProjects.filter(projectInArray => project?.projectName === projectInArray.projectName);
+  const allProjectVersions: Project[] = sortedProjects.filter(
+    (projectInArray) => project?.projectName === projectInArray.projectName,
+  );
 
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
   //sort functional components by id (order of creation from oldest to newest)
-  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id) || [];
+  const sortedComponents =
+    project?.functionalComponents.sort((a, b) => a.id - b.id) || [];
 
   useEffect(() => {
     const getProject = async () => {
       setLoadingProject(true);
       try {
-        const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
+        const projectFromDb = await fetchProject(
+          sessionToken,
+          Number(selectedProjectId),
+        );
         setProject(projectFromDb);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
         }
         console.error("Error fetching project:", err);
-        setError(err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend.");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Unexpected error occurred when getting project from backend.",
+        );
       } finally {
         setLoadingProject(false);
       }
@@ -59,7 +77,7 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken]);
 
   const createFunctionalComponent = async () => {
-    setLoadingProject(true)
+    setLoadingProject(true);
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
         className: "Interactive end-user navigation and query service",
@@ -74,10 +92,19 @@ export default function ProjectPage() {
         previousFCId: null,
       };
 
-      const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent,] };
+      const projectWithNewComponent: ProjectWithUpdate = {
+        ...project,
+        functionalComponents: [
+          ...project.functionalComponents,
+          newFunctionalComponent,
+        ],
+      };
 
       try {
-        const updatedProject: Project = await updateProject(sessionToken, projectWithNewComponent);
+        const updatedProject: Project = await updateProject(
+          sessionToken,
+          projectWithNewComponent,
+        );
         setProject(updatedProject);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
@@ -93,10 +120,18 @@ export default function ProjectPage() {
   const deleteFunctionalComponent = async (componentId: number) => {
     setLoadingProject(true);
     if (project) {
-      const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
-      const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
+      const filteredComponents = project?.functionalComponents.filter(
+        (component) => component.id !== componentId,
+      );
+      const filteredProject: Project = {
+        ...project,
+        functionalComponents: filteredComponents,
+      };
       try {
-        const updatedProject = await updateProject(sessionToken, filteredProject);
+        const updatedProject = await updateProject(
+          sessionToken,
+          filteredProject,
+        );
         setProject(updatedProject);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
@@ -132,7 +167,10 @@ export default function ProjectPage() {
       setLoadingProject(true);
       try {
         await saveProject(); //TODO: Automatic saving instead?
-        const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
+        const idOfNewProjectVersion = await createNewProjectVersion(
+          sessionToken,
+          project,
+        );
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
         navigate(`/project/${idOfNewProjectVersion}`);
@@ -149,12 +187,14 @@ export default function ProjectPage() {
 
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
-    const selectedProject = sortedProjects.find((p: Project) => p.id === selectedId);
+    const selectedProject = sortedProjects.find(
+      (p: Project) => p.id === selectedId,
+    );
 
     if (selectedProject) {
       navigate(`/project/${selectedId}`);
     }
-  }
+  };
 
   if (loadingProject) return <LoadingSpinner />;
 
@@ -163,7 +203,7 @@ export default function ProjectPage() {
       <div className="pl-5 pr-5">
         <div className="flex justify-between">
           <div className="w-[calc(100%-340px)] mt-15">
-            {project ? (//TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
+            {project ? ( //TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
               <>
                 {sortedComponents?.map((component) => (
                   <FunctionalClassComponent
@@ -193,14 +233,18 @@ export default function ProjectPage() {
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center w-full">
               <div className="flex-grow-0 flex flex-col max-w-[calc(100% - 140px)]">
-                <div className="text-left font-medium">{translation.nameOfProject}:</div>
-                <div className="text-left break-words">{project?.projectName}</div>
+                <div className="text-left font-medium">
+                  {translation.nameOfProject}:
+                </div>
+                <div className="text-left break-words">
+                  {project?.projectName}
+                </div>
               </div>
               <button
                 className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
                 onClick={() => {
-                  setCollapseAll(prev => !prev);
-                  setCollapseVersion(prev => prev + 1);
+                  setCollapseAll((prev) => !prev);
+                  setCollapseVersion((prev) => prev + 1);
                 }}
               >
                 {collapseAll ? translation.collapseAll : translation.expandAll}
@@ -228,9 +272,13 @@ export default function ProjectPage() {
               defaultValue=""
               disabled={loadingProject}
             >
-              <option value="" disabled>{translation.selectProjectVersion}</option>
+              <option value="" disabled>
+                {translation.selectProjectVersion}
+              </option>
               {allProjectVersions.map((project) => (
-                <option key={project.id} value={project.id}>{translation.version} {project.version}</option>
+                <option key={project.id} value={project.id}>
+                  {translation.version} {project.version}
+                </option>
               ))}
             </select>
             <button
@@ -242,9 +290,10 @@ export default function ProjectPage() {
             </button>
           </div>
 
-          {Array.isArray(project?.functionalComponents) && project.functionalComponents.length > 0 && (
-            <FunctionalPointSummary project={project} />
-          )}
+          {Array.isArray(project?.functionalComponents) &&
+            project.functionalComponents.length > 0 && (
+              <FunctionalPointSummary project={project} />
+            )}
         </div>
       </div>
 
