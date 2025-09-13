@@ -5,8 +5,32 @@ on:
   workflow_dispatch:
 
 jobs:
+  run-spotless-check:
+    name: Run Spotless formatting check (Java)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Grant Gradle execute permissions
+        run: |
+          cd backend
+          chmod +x ./gradlew
+
+      - name: Run Spotless check
+        run: |
+          cd backend
+          ./gradlew spotlessCheck
+
   run-prettier-check:
-    name: Run Prettier formatting check
+    name: Run Prettier formatting check (JS/TS)
     runs-on: ubuntu-latest
 
     steps:

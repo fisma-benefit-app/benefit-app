@@ -10,10 +10,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @ActiveProfiles("test")
 class BackendApplicationTests {
 
-    @MockitoBean
-    private JwtEncoder jwtEncoder;
-    
-    @Test
-    void contextLoads() {
-    }
+  @MockitoBean private JwtEncoder jwtEncoder;
+
+  @Test
+  void contextLoads() {}
 }

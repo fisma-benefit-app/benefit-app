@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectAppUser {
-    private Long appUserId;
+  private Long appUserId;
 }
