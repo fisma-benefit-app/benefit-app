@@ -11,7 +11,10 @@ interface NewProjectFormProps {
   setOpen: (open: boolean) => void;
 }
 
-export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) {
+export default function NewProjectModal({
+  open,
+  setOpen,
+}: NewProjectFormProps) {
   const navigate = useNavigate();
   const { sessionToken, logout } = useAppUser();
   const { sortedProjects, setProjects } = useProjects();
@@ -33,11 +36,14 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
     e.preventDefault();
     setLoading(true);
 
-    const nameTaken = sortedProjects.some(project => project.projectName.toLowerCase() === name.toLowerCase());
+    const nameTaken = sortedProjects.some(
+      (project) => project.projectName.toLowerCase() === name.toLowerCase(),
+    );
 
     if (!name.trim() || nameTaken) {
-
-      setError(nameTaken ? translation.nameTakenError : translation.noNameError);
+      setError(
+        nameTaken ? translation.nameTakenError : translation.noNameError,
+      );
       setName("");
       setShowError(true);
 
@@ -58,7 +64,11 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
         logout();
       }
       console.error("Error creating project:", err);
-      setError(err instanceof Error ? err.message : "Unexpected error occured while sending new project request to backend.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unexpected error occured while sending new project request to backend.",
+      );
       setShowError(true);
 
       setTimeout(() => {
@@ -69,7 +79,6 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
       setOpen(false);
       setLoading(false);
       setName("");
-
     }
   };
 
@@ -87,7 +96,9 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
             <DotLoadingSpinner />
           ) : (
             error && (
-              <label className={`text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showError ? 'opacity-100' : 'opacity-0'}`}>
+              <label
+                className={`text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showError ? "opacity-100" : "opacity-0"}`}
+              >
                 {error}
               </label>
             )
@@ -111,14 +122,19 @@ export default function NewProjectModal({ open, setOpen }: NewProjectFormProps) 
             <button
               type="button"
               disabled={loading}
-              onClick={() => { setOpen(false); setName(""); }}
-              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2">
+              onClick={() => {
+                setOpen(false);
+                setName("");
+              }}
+              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
+            >
               {translation.cancel}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2">
+              className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
+            >
               {translation.createNew}
             </button>
           </div>

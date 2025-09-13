@@ -14,15 +14,27 @@ export default function App() {
       <Header />
       <main>
         {loadingAuth ? (
-          <LoadingSpinner/>
+          <LoadingSpinner />
         ) : (
           <Routes>
-            <Route path="/login" element={loggedIn ? <Navigate to="/" /> : <LoginForm />} />
+            <Route
+              path="/login"
+              element={loggedIn ? <Navigate to="/" /> : <LoginForm />}
+            />
 
-            <Route path="/" element={loggedIn ? <ProjectList /> : <Navigate to="/login" />} />
-            <Route path="/project/:selectedProjectId" element={loggedIn ? <ProjectPage /> : <Navigate to="/login" />} />
+            <Route
+              path="/"
+              element={loggedIn ? <ProjectList /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/project/:selectedProjectId"
+              element={loggedIn ? <ProjectPage /> : <Navigate to="/login" />}
+            />
 
-            <Route path="*" element={<Navigate to={loggedIn ? "/" : "/login"} />} />
+            <Route
+              path="*"
+              element={<Navigate to={loggedIn ? "/" : "/login"} />}
+            />
           </Routes>
         )}
       </main>
