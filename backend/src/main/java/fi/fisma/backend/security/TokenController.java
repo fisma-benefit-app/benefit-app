@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class TokenController {
-    private final TokenService tokenService;
-    
-    @PostMapping("/token")
-    private ResponseEntity<?> getToken(Authentication authentication) {
-        String token = tokenService.generateToken(authentication);
-        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
-                .build();
-    }
-     
+  private final TokenService tokenService;
+
+  @PostMapping("/token")
+  private ResponseEntity<?> getToken(Authentication authentication) {
+    String token = tokenService.generateToken(authentication);
+    return ResponseEntity.ok()
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+        .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
+        .build();
+  }
 }
