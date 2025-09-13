@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -67,7 +68,13 @@ public class SecurityConfig {
         // @formatter:off
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers(
+                            AntPathRequestMatcher.antMatcher("/v3/api-docs"),
+                            AntPathRequestMatcher.antMatcher("/v3/api-docs.yaml"),
+                            AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
+                            AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
+                            AntPathRequestMatcher.antMatcher("/swagger-ui/**")
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .cors(Customizer.withDefaults())

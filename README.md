@@ -60,9 +60,6 @@
         <a href="#roadmap">Roadmap</a>
     </li>
     <li>
-        <a href="#top-contributors">Top Contributors</a>
-    </li>
-    <li>
         <a href="#license">License</a>
     </li>
     <li>
@@ -150,13 +147,17 @@ This project is built with:
 
 ## Architecture
 
-The structure of Benefit's SQL database is shown in the diagram below:
+<details>
+<summary><b>Click here to view the software architecture</b></summary>
+![Software architecture.](/documents/img/images_for_manuals/architecture.png)
+</details>
 
+<details>
+<summary><b>Click here to view the database diagram</b></summary>
 ![Database diagram.](/documents/img/images_for_manuals/database_diagram.png)
+</details><br>
 
-Picture #: Diagram of Benefit's database.
-
-More information on how to access the database can found in the [documentation](/documents/database_manual.md).
+More information on how to access the database can found in the [database manual](/documents/database_manual.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -164,7 +165,7 @@ More information on how to access the database can found in the [documentation](
 
 ## API
 
-WIP
+Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/api.md) and can be refreshed by following the steps specified in the API [guide](/documents/how_to_generate_api_docs.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -213,7 +214,7 @@ docker compose down -v
 
 Open:
 
-- Frontend: http://localhost:5173/benefit-app/login (Username: **user**, Password: **user**)
+- Frontend: http://localhost:5173/benefit-app/login
 - Backend: http://localhost:8080/actuator/health
 
 #### B) Development Without Docker (local backend)
@@ -258,45 +259,39 @@ Open:
 
 ## Usage
 
-![Benefit-app's frontend UI page, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
+You can check Benefit out yourself at https://fisma-benefit-app.github.io/benefit-app/#/login.
 
-Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
+### Login
 
-The application is actively running on the following website:
-
-https://fisma-benefit-app.github.io/benefit-app/#/login
-
-The _login site_, which is linked to App user's account information
-from database is working fine.
+- Login with username and password.
 
 ![Benefit-app's frontend login page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_login_page_14_05_2025.png)
 
-The _new project site_ with functionalities suching creating a new project,
-saving project and its version, export project into CSV and PDF, etc.
-is working fine.
+### Main View
+
+- Create, save, and export (CSV, PDF) projects.
 
 ![Benefit-app's frontend project page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
 
-Below is a demo of the Benefit-app, recorded on May 14 2025.
-Demo was splitted into two parts due memory size limitation in md-files.
+### Demos
 
-**Part 1**: Login to user account, new project creation, new functional points creation and different version control.
+Below are two demos of the app recorded on May 14 2025.
+
+#### Part 1
+
+- Login, create new project, calculate functional points, and view version control.
 
 https://github.com/user-attachments/assets/1407d6b8-f1fe-47c1-9fae-3c74588a6606
 
-**Part 2**: Project exporting to CSV & PDF, changing language from English to Finnish, deleting project
-and trying login non-existing account.
+#### Part 2
+
+- Export project, change language, delete project, and attempt login with faulty credentials.
 
 https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba
 
-If the videos are not playing or are bad quality, then you can download
-both videos from documents' video directory:
+#### Troubleshooting
 
-**Part 1 video**: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4
-
-**Part 2 video**: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/videos/benefit_app_demo_sd_14_05_2025_part_2.mp4
-
-_For more examples, please refer to the [documentation](https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents)_
+In case of trouble, both videos can be downloaded and watched [here](https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/videos/).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -304,37 +299,33 @@ _For more examples, please refer to the [documentation](https://github.com/fisma
 
 ## CI/CD
 
-a) **KISS**. From the very first sprint and on,
-Fisma ry required our team to keep Benefit-app
-simple as possible in every development.
+TODO: Needs complete do-over
 
-This meant such as creating minimal viable product as
-soon as possible, deploying the Benefit-app as cheaply as
-possible (no more than 10 euros), limiting imports of
-third party libraries and tools, etc.
+### Keep It Simple (KISS)
 
-In order Fisma ry can review every small solutions and changes
-as soon as possible, we held Sprint reviews every second week
-(with few exceptions due holidays).
+The Benefit application has been developed according to the KISS principle. The principle emphasizes simplicity: it's better to maintain simple rather than complex code design overtime.
 
-b) Originally, we had three branches: dev, main and qa.
+This means:
 
-- **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
+- Keeping deployment costs under 10 euros
+- Limiting third-party libraries and tools
 
-- **Qa** is our product review branch, where we pull all _functional_ codes for Sprint Review together with product owners.
+### Branching Strategy
 
-- **Main** is our official branch, where project has been deployed (finalized) and refactor all unnecessary, broken solutions and tools.
+Originally, we maintained three main branches:
 
-After third sprint and on, we had more branches for specific development or issues,
-such as bug fixes and shieldut functionality.
+- dev – sandbox for experimenting and testing new solutions
+- qa – staging branch for functional code, used in Sprint Reviews with product owners
+- main – production branch, containing finalized and refactored code
 
-Despite of having many branches, this ensured that no git conflicts,
-nor code errors, wouldn't happen regularly during development process.
+After Sprint 3, we introduced additional feature branches (e.g., for bug fixes or specific functionality such as shieldut). This reduced merge conflicts and made development more structured.
 
-When it was time to pull working solutions (or codes) from other branches
-to the dev or main branch via pull requests, we implemented a functionality
-where every pull request must be reviewed and accepted by other team members.
-This was due assuring quality of the codes and minimize possible errors.
+### Code Quality and Collaboration
+
+To minimize errors and maintain quality:
+
+- All changes were merged via pull requests
+- Every pull request required peer review and approval from another team member
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -342,10 +333,25 @@ This was due assuring quality of the codes and minimize possible errors.
 
 ## Quality Assurance and Security
 
-The number of imported dependencies (e.g. third party libraries) within the project is limited to minimize updating or reconfiguring needs.
+### Unit Tests
 
-**TODO** How to run on CLI?
-Tests are configured in the file **backend/build.gradle**
+Benefit is covered by unit tests in the backend using JUnit and Mockito. These are configured in the `gradle.build` file. All tests can be run from the `backend/` folder using the command:
+
+```bash
+./gradlew test
+```
+
+or, if you want to run a specific test class:
+
+```bash
+./gradlew test --tests fisma.backend.BackendApplicationTests
+```
+
+### Security
+
+TODO: Authentication, authorization, other security matters?
+
+For more information on how authentication is handled, see [authentication.md](/documents/authentication.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -353,7 +359,6 @@ Tests are configured in the file **backend/build.gradle**
 
 ## Roadmap
 
-- [ ] Compatibility with mobile apps
 - [ ] Multilayer architecture
 - [ ] Improve error management
 - [ ] Improve quality assurance
@@ -364,20 +369,11 @@ Tests are configured in the file **backend/build.gradle**
 - [ ] Update documentation
   - [ ] Document how Benefit handles login tokens (database to API, and vice versa) in user_authentication_guide.md
   - [ ] Document information security on JWTs and cookies
+- [ ] Compatibility with mobile
 
 The project's requirement specification can be found [here](https://docs.google.com/document/d/1FXYXPMAwyoZNdxBxYVOIQPrcBr01fXAB4nvHD-Diy7w/edit?tab=t.0#heading=h.6dj02y3xjnh0). See the [open issues](https://github.com/fisma-benefit-app/benefit-app/issues) for a full list of proposed features and known issues.
 
   <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTRIBUTORS -->
-
-## Top Contributors
-
-<a href="https://github.com/fisma-benefit-app/benefit-app/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=fisma-benefit-app/benefit-app" alt="contrib.rocks image" />
-</a>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
 
