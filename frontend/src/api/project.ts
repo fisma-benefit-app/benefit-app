@@ -4,191 +4,223 @@ import CreateCurrentDate from "../api/date.ts";
 import { CreateCurrentDateNewVersion } from "../api/date.ts";
 
 const fetchAllProjects = async (sessionToken: string | null) => {
+  if (!sessionToken)
+    throw new Error("User needs to be logged in to fetch projects!");
 
-    if (!sessionToken) throw new Error("User needs to be logged in to fetch projects!");
+  const fetchURL = `${API_URL}/projects`;
+  const headers = {
+    Authorization: sessionToken,
+  };
 
-    const fetchURL = `${API_URL}/projects`;
-    const headers = {
-        "Authorization": sessionToken
+  const response = await fetch(fetchURL, { method: "GET", headers });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
+    } else {
+      throw new Error(
+        `Error fetching projects in fetchAllProjects! Status: ${response.status}`,
+      );
     }
+  }
 
-    const response = await fetch(fetchURL, { method: "GET", headers })
+  const projects = await response.json();
+  return projects;
+};
 
-    if (!response.ok) {
-        if (response.status === 401) {
-            throw new Error('Unauthorized!');
-        } else {
-            throw new Error(`Error fetching projects in fetchAllProjects! Status: ${response.status}`);
-        }
+const fetchProject = async (
+  sessionToken: string | null,
+  projectId: number | undefined,
+) => {
+  if (!sessionToken)
+    throw new Error("User needs to be logged in to fetch projects!");
+  if (!projectId) throw new Error("Request needs the id of the project!");
+
+  const fetchURL = `${API_URL}/projects/${projectId}`;
+  const headers = {
+    Authorization: sessionToken,
+  };
+
+  const response = await fetch(fetchURL, { method: "GET", headers });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
     }
+    throw new Error(
+      `Error fetching project in fetchProject! Status: ${response.status}`,
+    );
+  }
 
-    const projects = await response.json();
-    return projects;
-}
+  const project = await response.json();
+  return project;
+};
 
-const fetchProject = async (sessionToken: string | null, projectId: number | undefined) => {
+const createProject = async (
+  sessionToken: string | null,
+  nameForProject: string | null,
+) => {
+  if (!sessionToken)
+    throw new Error("User needs to be logged in to create a project!");
+  if (!nameForProject) throw new Error("New project needs a name!");
 
-    if (!sessionToken) throw new Error("User needs to be logged in to fetch projects!");
-    if (!projectId) throw new Error("Request needs the id of the project!");
+  const fetchURL = `${API_URL}/projects`;
+  const headers = {
+    Authorization: sessionToken,
+    "Content-Type": "application/json",
+  };
 
-    const fetchURL = `${API_URL}/projects/${projectId}`;
-    const headers = {
-        "Authorization": sessionToken
+  const project = {
+    projectName: nameForProject,
+    version: 1,
+    createdDate: CreateCurrentDate(),
+    versionDate: CreateCurrentDate(),
+    editedDate: CreateCurrentDate(),
+  };
+
+  const response = await fetch(fetchURL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(project),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
     }
+    throw new Error(
+      `Error creating a new project in createProject! Status: ${response.status}`,
+    );
+  }
 
-    const response = await fetch(fetchURL, { method: "GET", headers })
+  const location = response.headers.get("Location");
 
-    if (!response.ok) {
-        if (response.status === 401) {
-            throw new Error('Unauthorized!');
-        }
-        throw new Error(`Error fetching project in fetchProject! Status: ${response.status}`);
+  if (!location) {
+    throw new Error("Project created but no Location header found!");
+  }
+
+  const parts = location.split("projects/");
+  const newProjectId = parts.length > 1 ? parts[1] : null;
+
+  if (!newProjectId) {
+    throw new Error("Id of new project could not be parsed!");
+  } else return newProjectId;
+};
+
+const createNewProjectVersion = async (
+  sessionToken: string | null,
+  previousProject: Project,
+) => {
+  if (!sessionToken)
+    throw new Error("User needs to be logged in to create a project!");
+
+  const fetchURL = `${API_URL}/projects/create-version`;
+  const headers = {
+    Authorization: sessionToken,
+    "Content-Type": "application/json",
+  };
+
+  const project = {
+    ...previousProject,
+    id: null,
+    version: previousProject.version + 1,
+    versionDate: CreateCurrentDateNewVersion(),
+    editedDate: CreateCurrentDateNewVersion(),
+  };
+
+  const response = await fetch(fetchURL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(project),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
     }
+    throw new Error(
+      `Error creating a new project in createNewProjectVersion! Status: ${response.status}`,
+    );
+  }
 
-    const project = await response.json();
-    return project;
-}
+  const location = response.headers.get("Location");
 
-const createProject = async (sessionToken: string | null, nameForProject: string | null) => {
-    if (!sessionToken) throw new Error("User needs to be logged in to create a project!");
-    if (!nameForProject) throw new Error("New project needs a name!");
+  if (!location) {
+    throw new Error("Project created but no Location header found!");
+  }
 
-    const fetchURL = `${API_URL}/projects`;
-    const headers = {
-        "Authorization": sessionToken,
-        "Content-Type": "application/json"
-    };
+  const parts = location.split("projects/");
+  const newProjectId = parts.length > 1 ? parts[1] : null;
 
-    const project = {
-        projectName: nameForProject,
-        version: 1,
-        createdDate: CreateCurrentDate(),
-        versionDate: CreateCurrentDate(),
-        editedDate: CreateCurrentDate(),
-    };
+  if (!newProjectId) {
+    throw new Error("Id of new project could not be parsed!");
+  }
 
-    const response = await fetch(fetchURL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(project)
-    });
+  return newProjectId;
+};
 
-    if (!response.ok) {
-        if (response.status === 401) {
-            throw new Error('Unauthorized!');
-        }
-        throw new Error(`Error creating a new project in createProject! Status: ${response.status}`);
+const updateProject = async (
+  sessionToken: string | null,
+  project: Project | ProjectWithUpdate,
+) => {
+  if (!sessionToken)
+    throw new Error("User needs to be logged in to update project!");
+
+  const fetchURL = `${API_URL}/projects/${project.id}`;
+  const headers = {
+    Authorization: sessionToken,
+    "Content-Type": "application/json",
+  };
+
+  const response = await fetch(fetchURL, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(project),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
     }
+    throw new Error(
+      `Error updating project in updateProject! Status: ${response.status}`,
+    );
+  }
 
-    const location = response.headers.get("Location");
+  const updatedProject = await response.json();
+  return updatedProject;
+};
 
-    if (!location) {
-        throw new Error("Project created but no Location header found!");
+const deleteProject = async (
+  sessionToken: string | null,
+  projectId: number | undefined,
+) => {
+  if (!sessionToken)
+    throw new Error("User needs to be logged in to delete project!");
+  if (!projectId) throw new Error("Request needs the id of the project!");
+
+  const fetchURL = `${API_URL}/projects/${projectId}`;
+  const headers = {
+    Authorization: sessionToken,
+  };
+
+  const response = await fetch(fetchURL, { method: "DELETE", headers });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
     }
-
-    const parts = location.split("projects/");
-    const newProjectId = parts.length > 1 ? parts[1] : null;
-
-    if (!newProjectId) {
-        throw new Error("Id of new project could not be parsed!");
-    } else return newProjectId;
-}
-
-const createNewProjectVersion = async (sessionToken: string | null, previousProject: Project) => {
-    if (!sessionToken) throw new Error("User needs to be logged in to create a project!");
-
-    const fetchURL = `${API_URL}/projects/create-version`;
-    const headers = {
-        "Authorization": sessionToken,
-        "Content-Type": "application/json"
-    };
-
-    const project = {
-        ...previousProject,
-        id: null,
-        version: previousProject.version + 1,
-        versionDate: CreateCurrentDateNewVersion(),
-        editedDate: CreateCurrentDateNewVersion(),
-    };
-
-    const response = await fetch(fetchURL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(project)
-    });
-
-    if (!response.ok) {
-        if (response.status === 401) {
-            throw new Error('Unauthorized!');
-        }
-        throw new Error(`Error creating a new project in createNewProjectVersion! Status: ${response.status}`);
-    }
-
-    const location = response.headers.get("Location");
-
-    if (!location) {
-        throw new Error("Project created but no Location header found!");
-    }
-
-    const parts = location.split("projects/");
-    const newProjectId = parts.length > 1 ? parts[1] : null;
-
-    if (!newProjectId) {
-        throw new Error("Id of new project could not be parsed!");
-    }
-
-    return newProjectId;
-}
-
-
-const updateProject = async (sessionToken: string | null, project: Project | ProjectWithUpdate) => {
-
-    if (!sessionToken) throw new Error("User needs to be logged in to update project!");
-
-    const fetchURL = `${API_URL}/projects/${project.id}`;
-    const headers = {
-        "Authorization": sessionToken,
-        "Content-Type": "application/json"
-    }
-
-    const response = await fetch(fetchURL, { method: "PUT", headers, body: JSON.stringify(project) })
-
-    if (!response.ok) {
-        if (response.status === 401) {
-            throw new Error('Unauthorized!');
-        }
-        throw new Error(`Error updating project in updateProject! Status: ${response.status}`);
-    }
-
-    const updatedProject = await response.json();
-    return updatedProject;
-}
-
-const deleteProject = async (sessionToken: string | null, projectId: number | undefined) => {
-
-    if (!sessionToken) throw new Error("User needs to be logged in to delete project!");
-    if (!projectId) throw new Error("Request needs the id of the project!");
-
-    const fetchURL = `${API_URL}/projects/${projectId}`;
-    const headers = {
-        "Authorization": sessionToken
-    }
-
-    const response = await fetch(fetchURL, { method: "DELETE", headers })
-
-    if (!response.ok) {
-        if (response.status === 401) {
-            throw new Error('Unauthorized!');
-        }
-        throw new Error(`Error deleting project in deleteProject! Status: ${response.status}`);
-    }
-}
+    throw new Error(
+      `Error deleting project in deleteProject! Status: ${response.status}`,
+    );
+  }
+};
 
 export {
-    fetchAllProjects,
-    fetchProject,
-    createProject,
-    updateProject,
-    deleteProject,
-    createNewProjectVersion
-}
+  fetchAllProjects,
+  fetchProject,
+  createProject,
+  updateProject,
+  deleteProject,
+  createNewProjectVersion,
+};

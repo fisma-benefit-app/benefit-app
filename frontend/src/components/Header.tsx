@@ -18,9 +18,9 @@ const Header = () => {
   const translation = useTranslations().header;
 
   const changeLanguage = () => {
-    setLanguage(language === "fi" ? "en" : "fi")
+    setLanguage(language === "fi" ? "en" : "fi");
     localStorage.setItem("languagePreference", language === "fi" ? "en" : "fi");
-  }
+  };
 
   //TODO: Save before redirecting or logging out?
   return (
@@ -54,7 +54,8 @@ const Header = () => {
               >
                 <FontAwesomeIcon icon={faUser} className="ml-2 mr-4" />
                 <span className="truncate">
-                  {translation.logout} <strong className="font-bold">( {appUser?.username} )</strong>
+                  {translation.logout}{" "}
+                  <strong className="font-bold">( {appUser?.username} )</strong>
                 </span>
               </button>
             </>
@@ -67,8 +68,16 @@ const Header = () => {
           </button>
         </div>
       </header>
-      <NewProjectModal open={isProjectModalOpen} setOpen={setProjectModalOpen} />
-      <ConfirmModal message={translation.logoutWarning} onConfirm={logout} open={isConfirmModalOpen} setOpen={setConfirmModalOpen} />
+      <NewProjectModal
+        open={isProjectModalOpen}
+        setOpen={setProjectModalOpen}
+      />
+      <ConfirmModal
+        message={translation.logoutWarning}
+        onConfirm={logout}
+        open={isConfirmModalOpen}
+        setOpen={setConfirmModalOpen}
+      />
     </>
   );
 };
