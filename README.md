@@ -112,7 +112,7 @@ The [northernSCOPE™](https://www.fisma.fi/wp-content/uploads/2022/01/northerns
 
 ### Deployment
 
-The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [documentation](/documents/).
+The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [documentation](/documents/guides/deployment.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -149,15 +149,15 @@ This project is built with:
 
 <details>
 <summary><b>Click here to view the software architecture</b></summary>
-![Software architecture.](/documents/img/images_for_manuals/architecture.png)
+![Software architecture.](/documents/img/images_for_guides/architecture.png)
 </details>
 
 <details>
 <summary><b>Click here to view the database diagram</b></summary>
-![Database diagram.](/documents/img/images_for_manuals/database_diagram.png)
+![Database diagram.](/documents/img/images_for_guides/database_diagram.png)
 </details><br>
 
-More information on how to access the database can found in the [database manual](/documents/database_manual.md).
+More information on how to access the database can found in the [database guide](/documents/guides/database.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -165,7 +165,7 @@ More information on how to access the database can found in the [database manual
 
 ## API
 
-Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/api.md) and can be refreshed by following the steps specified in the API [guide](/documents/how_to_generate_api_docs.md).
+Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the API [guide](/documents/guides/how_to_generate_api_docs.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -265,13 +265,13 @@ You can check Benefit out yourself at https://fisma-benefit-app.github.io/benefi
 
 - Login with username and password.
 
-![Benefit-app's frontend login page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_login_page_14_05_2025.png)
+![Benefit-app's frontend login page UI, taken on May 14 2025](/documents/img/images_for_guides/UI_login_page_14_05_2025.png)
 
 ### Main View
 
 - Create, save, and export (CSV, PDF) projects.
 
-![Benefit-app's frontend project page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
+![Benefit-app's frontend project page UI, taken on May 14 2025](/documents/img/images_for_guides/UI_project_page_14_05_2025.png)
 
 ### Demos
 
@@ -291,7 +291,7 @@ https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba
 
 #### Troubleshooting
 
-In case of trouble, both videos can be downloaded and watched [here](https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/videos/).
+Both videos can be downloaded and watched [here](/documents/demo/).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -344,14 +344,28 @@ Benefit is covered by unit tests in the backend using JUnit and Mockito. These a
 or, if you want to run a specific test class:
 
 ```bash
-./gradlew test --tests fisma.backend.BackendApplicationTests
+./gradlew test --tests fisma.backend.YourTestClass
 ```
 
 ### Security
 
-TODO: Authentication, authorization, other security matters?
+TODO: Authentication, authorization, data privacy, encryption, TLS?
 
-For more information on how authentication is handled, see [authentication.md](/documents/authentication.md).
+Include logs here if they include:
+
+- Audit logs for login/logout events
+- Failed login attempts
+- Admin actions
+
+Make new subheader for Logging & Monitoring if logs include:
+
+- Application error logs
+- System performance logs
+- Debug logs for developers
+
+For more information on how authentication is handled, see [authentication.md](/documents/guides/authentication.md).
+
+[Logging](/documents/guides/logging.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -387,7 +401,7 @@ Distributed under the MIT License. See [LICENSE](https://github.com/fisma-benefi
 
 ## Contact
 
-Contact: Heikki Naski
+Representative supervisor: Heikki Naski, FiSMA ry
 
 Project Link: [https://github.com/fisma-benefit-app/benefit-app](https://github.com/fisma-benefit-app/benefit-app)
 
