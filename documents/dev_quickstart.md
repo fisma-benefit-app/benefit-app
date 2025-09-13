@@ -2,6 +2,10 @@
 
 ## 1) Prerequisites
 - **Docker** installed (and running).
+- Or, for local-only dev (without Dockerized backend): 
+    - a local **PostgreSQL** installation (or use only the dockerized database. see 3B).
+    - **Java 21**
+    - **Nodejs** and **npm**
 
 ---
 
@@ -17,10 +21,13 @@ cp .env.example .env
 # frontend env
 cp frontend/.env.example frontend/.env
 ```
-| You can change them as you wish, but the dev environment should usually work with the default values
+| You can change them as you wish, but the dev environment should usually work with the default values.
+
 ---
 
-## 3) Run / Stop
+## 3) Run Options
+
+### A) Full Dockerized Setup
 ```bash
 # start (build on first run or when Dockerfiles change)
 docker compose up --build
@@ -36,11 +43,37 @@ Open:
 - Frontend: http://localhost:5173/benefit-app/login (Username: **user**, Password: **user**)
 - Backend:  http://localhost:8080/actuator/health
 
+### B) Development Without Docker (local backend)
+1. You only need the **frontend .env** file (`frontend/.env` with VITE_API_URL pointing to your backend).
+2. If you have previously run Docker, clean backend build dirs once to avoid permission issues:
+   ```bash
+   sudo rm -rf backend/.gradle backend/build
+   ```
+3. Make sure a Postgres DB is available:
+   - Run only Postgres via Docker:
+     ```bash
+     docker compose up db
+     ```
+   - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
+4. Start backend:
+   ```bash
+   cd backend
+   ./gradlew bootRun
+   ```
+5. Start frontend:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
 ---
 
 ## (Optional) Quick Troubleshooting
-- **No seed users** → ensure backend has `SPRING_SQL_INIT_MODE=always` in `compose.yml`, then `docker compose down -v && docker compose up --build` once.
+- **No seed users** → ensure backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset DB once.
 - **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`.
+- npm install fails because of permissions? -> `rm -rf node_modules` inside the frontend folder
+
 ---
 
 ## (Optional) Notes
