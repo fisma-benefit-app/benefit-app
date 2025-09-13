@@ -156,9 +156,7 @@ The structure of Benefit's SQL database is shown in the diagram below:
 
 Picture #: Diagram of Benefit's database.
 
-Please read database_manual.md document from documents -directory for more information
-
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/documents/database_manual.md
+More information on how to access the database can found in the [documentation](/documents/database_manual.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
