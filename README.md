@@ -112,7 +112,7 @@ The [northernSCOPE™](https://www.fisma.fi/wp-content/uploads/2022/01/northerns
 
 ### Deployment
 
-The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [documentation](/documents/guides/deployment.md).
+The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [deployment guide](/documents/guides/deployment.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -165,7 +165,7 @@ More information on how to access the database can found in the [database guide]
 
 ## API
 
-Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the API [guide](/documents/guides/how_to_generate_api_docs.md).
+Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/how_to_generate_api_docs.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -363,9 +363,9 @@ Make new subheader for Logging & Monitoring if logs include:
 - System performance logs
 - Debug logs for developers
 
-For more information on how authentication is handled, see [authentication.md](/documents/guides/authentication.md).
+For more information on how authentication is handled, see the [authentication guide](/documents/guides/authentication.md).
 
-[Logging](/documents/guides/logging.md)
+[Logging guide](/documents/guides/logging.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
