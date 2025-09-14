@@ -41,7 +41,7 @@ class ProjectJsonTest {
                     0.13,
                     "This is an exceptional functional component!",
                     99L,
-                    0),
+                    null),
                 new FunctionalComponent(
                     100L,
                     "Data storage service",
@@ -54,7 +54,7 @@ class ProjectJsonTest {
                     0.27,
                     "Needs further adjustment!",
                     100L,
-                    0)),
+                    null)),
             Set.of(new ProjectAppUser(13L)));
   }
 
@@ -96,7 +96,8 @@ class ProjectJsonTest {
                       "operations": null,
                       "degreeOfCompletion": 0.13,
                       "comment": "This is an exceptional functional component!",
-                      "previousFCId": 99
+                      "previousFCId": 99,
+                      "order_position": null
                     },
                     {
                       "id": 100,
@@ -109,7 +110,8 @@ class ProjectJsonTest {
                       "operations": null,
                       "degreeOfCompletion": 0.27,
                       "comment": "Needs further adjustment!",
-                      "previousFCId": 100
+                      "previousFCId": 100,
+                      "order_position": null
                     }
                   ],
                   "appUsers": [
