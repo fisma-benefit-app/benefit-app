@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,5 +23,7 @@ public class FunctionalComponent {
   private Double degreeOfCompletion;
   private String comment;
   private Long previousFCId;
+
+  @JsonProperty("order_position")
   private Integer orderPosition;
 }
