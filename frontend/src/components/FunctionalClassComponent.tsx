@@ -162,9 +162,6 @@ export default function FunctionalClassComponent({
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex-1 min-w-[200px]">
-            <label htmlFor="debug" className="font-medium">
-              order: {component.orderPosition}
-            </label>
             <input
               className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
               id="comment"
