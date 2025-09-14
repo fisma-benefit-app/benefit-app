@@ -68,12 +68,11 @@ public class SecurityConfig {
             (authorize) ->
                 authorize
                     .requestMatchers(
-                            AntPathRequestMatcher.antMatcher("/v3/api-docs"),
-                            AntPathRequestMatcher.antMatcher("/v3/api-docs.yaml"),
-                            AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
-                            AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
-                            AntPathRequestMatcher.antMatcher("/swagger-ui/**")
-                        )
+                        AntPathRequestMatcher.antMatcher("/v3/api-docs"),
+                        AntPathRequestMatcher.antMatcher("/v3/api-docs.yaml"),
+                        AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
+                        AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
+                        AntPathRequestMatcher.antMatcher("/swagger-ui/**"))
                     .permitAll()
                     .anyRequest()
                     .authenticated())
