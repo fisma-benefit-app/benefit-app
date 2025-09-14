@@ -347,9 +347,13 @@ or, if you want to run a specific test class:
 ./gradlew test --tests fisma.backend.YourTestClass
 ```
 
-### Security
+### Authentication and Authorization
 
-TODO: Authentication, authorization, data privacy, encryption, TLS?
+Basic authentication is used. After successful authentication, a JWT is generated and returned. A more detailed authentication guide can be found [here](documents/guides/authentication.md). Authenticated users are authorized with the role ROLE_USER.
+
+### Logging
+
+A detailed guide on logs can be found [here](/documents/guides/logging.md).
 
 Include logs here if they include:
 
@@ -362,10 +366,6 @@ Make new subheader for Logging & Monitoring if logs include:
 - Application error logs
 - System performance logs
 - Debug logs for developers
-
-For more information on how authentication is handled, see the [authentication guide](/documents/guides/authentication.md).
-
-[Logging guide](/documents/guides/logging.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
