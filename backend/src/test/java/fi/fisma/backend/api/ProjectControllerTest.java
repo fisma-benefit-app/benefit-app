@@ -408,8 +408,7 @@ class ProjectControllerTest {
                     100L,
                     0),
                 new FunctionalComponent(
-                    101L, null, null, null, null, null, null, null, null, null, 101L,
-                    0)),
+                    101L, null, null, null, null, null, null, null, null, null, 101L, 0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.save(updatedProject)).thenReturn(updatedProject);
 

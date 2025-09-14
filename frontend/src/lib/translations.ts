@@ -65,7 +65,7 @@ export const translations = {
           "Interface service from other applications",
           "Data storage service",
           "Algorithmic or manipulation service",
-        ].map((key) => [key, key])
+        ].map((key) => [key, key]),
       ),
       //creates an object where keys and their values are the same
       componentTypeOptions: Object.fromEntries(
@@ -98,7 +98,7 @@ export const translations = {
           "formatting routines",
           "database cleaning routines",
           "other manipulation routines",
-        ].map((key) => [key, key])
+        ].map((key) => [key, key]),
       ),
       parameters: {
         dataElements: "Data Elements",

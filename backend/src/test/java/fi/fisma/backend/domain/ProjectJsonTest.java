@@ -96,8 +96,7 @@ class ProjectJsonTest {
                       "operations": null,
                       "degreeOfCompletion": 0.13,
                       "comment": "This is an exceptional functional component!",
-                      "previousFCId": 99,
-                      "order_position": 0
+                      "previousFCId": 99
                     },
                     {
                       "id": 100,
@@ -110,8 +109,7 @@ class ProjectJsonTest {
                       "operations": null,
                       "degreeOfCompletion": 0.27,
                       "comment": "Needs further adjustment!",
-                      "previousFCId": 100,
-                      "order_position": 0
+                      "previousFCId": 100
                     }
                   ],
                   "appUsers": [
