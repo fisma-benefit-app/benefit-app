@@ -1,55 +1,149 @@
-# User authentication guide
+# User Authentication Guide
 
-This is the manual Benefit-app's login functionality.
-Here we present all essential files and codelines, 
-also explaining logical structure  
-for the login system in the Benefit-app.
+This guide explains the login functionality of the Benefit app. It introduces key files, code snippets, and logical structure behind the authentication system.
 
-**A) User account's database and table.**
+## A) User Accounts Database
 
-In the ´benefit-app\backend\src\main\resources´ -directory
-you can find the essential sql files of Benefit-app's users.
+The user account database is defined in the SQL files located in `benefit-app/backend/src/main/resources/`.
 
-We created tables for user account's attributes
-and their type is *schema.sql* file, i.e.
-´create table if not exists app_user´ at codeline 3.
+- `schema.sql` defines the structure of the app_user table. Example (line 3):
 
-![creating app user table in the schema sql-file](img/images_for_manuals/schema_sql_app_user_creation.png)
+```sql
+create table if not exists app_user (
+...
+);
+```
 
-Image: Creating app.user -table in schema.sql file.
+![creating app user table in the schema sql-file](documents/img/images_for_guides/schema_sql_app_user_creation.png)
 
-Then we manually stored values for id, name 
-and password of user accounts in our *data.sql* 
-file, i.e. *app_user* table at codeline 6.
+Image: Creating app_user table in schema.sql.
 
-![app user table in the data sql-file](img/images_for_manuals/data_sql_app_user_table.png)
+- `data.sql` provides initial seed data for the app_user table. Example (line 6):
 
-Image: Inserting value to app.user -table in data.sql file.
+```sql
+insert into app_user (id, username, password) values (...);
+```
 
-**B) Handling user account's data in Java.**
+![app user table in the data sql-file](documents/img/images_for_guides/data_sql_app_user_table.png)
 
-In ´benefit-app\backend\src\main\java\fi\fisma\backend\appuser´ -directory,
-we have following important files handling user account's data in Java:
+Image: Inserting values into app_user table in data.sql.
 
-* AppUser.java
-* AppUserController.java
-* AppUserRepository.java
+## B) Handling User Accounts in Java
 
-AppUser.java has the constructor *AppUser* with three essential
-variables: **id**, **username** and **password**.
+The backend logic for user accounts is implemented in: `benefit-app/backend/src/main/java/fi/fisma/backend/appuser/`
 
-![img.png](img/images_for_manuals/Java_AppUser_constructor.png)
-Image: AppUser.java
+Key classes include:
 
-AppUserController.java has functionalities such as updating password
-for a AppUser and deleting a AppUser.
+### AppUser.java
 
-![img.png](img/images_for_manuals/Java_AppUserController.png)
-Image: AppUserController.java
+Defines the AppUser entity with three essential fields:
 
-AppUserRepository.java has method for finding a AppUser by their username. 
+- id
+- username
+- password
 
-![img.png](img/images_for_manuals/Java_AppUserRepository.png)
-Image: AppUserRepository.java
+![img.png](documents/img/images_for_guides/Java_AppUser_constructor.png)
 
-**C) TODO: Give a more precise description how the login tokens are handled during user login session, from which database to which API endpoint.**
+Image: `AppUser.java` entity.
+
+### AppUserController.java
+
+Provides REST endpoints for managing users.
+
+- Update password
+- Delete user
+
+![img.png](documents/img/images_for_guides/Java_AppUserController.png)
+
+Image: `AppUserController.java`.
+
+### AppUserRepository.java
+
+Extends JpaRepository and defines query methods.
+
+- Example: findByUsername()
+
+![img.png](documents/img/images_for_guides/Java_AppUserRepository.png)
+
+Image: `AppUserRepository.java.`
+
+## C) Authentication Flow
+
+This section describes how authentication tokens are generated, validated, and stored during a user’s login session.
+
+### Login request
+
+Login requests use Basic authentication. After successful authentication, a JWT is generated and returned.
+
+The frontend (`api/authorization.ts`)
+
+- encodes username + password as `Basic <base64(username:password)>` in the Authorization header
+- sends a `POST /token` request to the backend.
+
+The backend (`security/TokenController.java`)
+
+- intercepts the request using Spring Security and extracts the `Authorization: Basic ...` header
+- authenticates the user against `UserDetailsService` and populates the Authentication object with user details (see [Authentication process](#authentication-process) for more information)
+- generates a JWT (see [Token generation](#token-generation) for more information).
+
+Finally
+
+- frontend receives a response with an `Authorization: Bearer <jwt>` header
+- because of `ACCESS_CONTROL_EXPOSE_HEADERS`, the browser is allowed to read the Authorization header in JavaScript
+- on subsequent requests, the frontend includes the JWT in the header and backend validates it.
+
+### Authentication process
+
+Credentials are checked against the app_user table in `UserDetailsService` using the `loadUserByUsername` method and against the storedHashedPassword in `SecurityConfig` using `DaoAuthenticationProvider`.
+
+- AppUserRepository queries the app_user table for a row with the provided username.
+- DaoAuthenticationProvider uses BCrypt to check whether rawPassword matches the storedHashedPassword.
+- If username and password match, Spring builds an Authentication object with the AppUserDetails (id, username, password, authorities\*) provided.
+- The object is injected into TokenController, where TokenService is called for token generation.
+
+\* All authenticated users are given the authority ROLE_USER.
+
+Exceptions (401 UNAUTHORIZED):
+
+- If no row is found matching the provided username, UsernameNotFoundException is thrown and login fails.
+- If the provided rawPassword does not match the storedHashedPassword, BadCredentialsException is thrown and login fails.
+
+### Token generation
+
+JWT tokens are used. They're generated after authentication succeeds and an Authentication object is passed to TokenService.
+
+Claims:
+
+- User identity (username) is stored in the `subject` claim.
+- User roles are stored in the `scope` claim.
+- Tokens are valid for 24 hours. Expiry is stored in the `expiresAt` claim.
+
+Example payload:
+
+```json
+{
+  "iss": "self",
+  "sub": "alice",
+  "scope": "ROLE_USER",
+  "iat": 1699999999,
+  "exp": 1700086399
+}
+```
+
+JWTs are encoded with a private RSA key using the JwtEncoder bean in `SecurityConfig`. Finally, a compact serialized JWT string is returned for storage on the client.
+
+### Session management
+
+Tokens are stored in the client-side Authorization header. After authentication succeeds, subsequent requests are intercepted by Spring Security’s `BearerTokenAuthenticationFilter` using `oauth2ResourceServer`.
+
+The JwtDecoder bean verifies that
+
+- the signature matches the public key
+- the token hasn’t expired
+- the claims are valid.
+
+If everything matches, Spring builds an Authentication object that controllers can then use to access the logged-in user.
+
+### Logout / expiration
+
+When the user logs out, tokens are removed from client-side sessionStorage and React state is reset. Since the backend is stateless, logout does not invalidate the token on the server. The token remains valid until it expires after 24 hours.

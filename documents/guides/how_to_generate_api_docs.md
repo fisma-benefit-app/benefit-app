@@ -31,5 +31,5 @@ This creates `documents/api.md` with:
 
 ## Troubleshooting
 
-- `401 Unauthorized`: Ensure `/v3/api-docs.yaml` is not blocked by authentication in dev mode.
+- `401 Unauthorized`: Ensure `/v3/api-docs.yaml` is not blocked in the `SecurityFilterChain` method in `backend/security/SecurityConfig.java`.
 - `widdershins: command not found`: Re-install with `npm install -g widdershins`.

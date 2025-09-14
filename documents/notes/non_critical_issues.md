@@ -5,7 +5,7 @@ This document logs issues that are not going to be fixed because they're
 - not understood
 - rare
 - too time-intensive
-- already taken care of but have previously been so prevalent that there is good reason to keep a stack trace
+- already taken care of but have previously been so prevalent that there is good reason to keep a paper trail.
 
 ## Issues with VS Code and the backend
 

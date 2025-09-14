@@ -17,7 +17,7 @@ public class TokenService {
 
   public String generateToken(Authentication authentication) {
     Instant now = Instant.now();
-    long expiry = 86400L;
+    long expiry = 86400L; // 24 hours
     // @formatter:off
     String scope =
         authentication.getAuthorities().stream()
