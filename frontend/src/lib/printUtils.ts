@@ -14,7 +14,7 @@ export const encodeComponentForCSV = (component: TGenericComponent) => ({
   ...component,
   // CSV can't handle commas inside cells without quotation marks, so let's wrap all comments with ""
   comment: component.comment
-    ? `"${component.comment.replace(/[" ,]/g, "")}"`
+    ? `"${component.comment.replace(/[",]/g, "")}"`
     : null,
 });
 
