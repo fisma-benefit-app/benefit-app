@@ -14,7 +14,7 @@ create table if not exists app_user (
 );
 ```
 
-![creating app user table in the schema sql-file](documents/img/images_for_guides/schema_sql_app_user_creation.png)
+![creating app user table in the schema sql-file](../img/images_for_guides/schema_sql_app_user_creation.png)
 
 Image: Creating app_user table in schema.sql.
 
@@ -24,9 +24,7 @@ Image: Creating app_user table in schema.sql.
 insert into app_user (id, username, password) values (...);
 ```
 
-![app user table in the data sql-file](documents/img/images_for_guides/data_sql_app_user_table.png)
-
-Image: Inserting values into app_user table in data.sql.
+![app user table in the data sql-file]../img/images_for_guides/data_sql_app_user_table.png)
 
 ## B) Handling User Accounts in Java
 
@@ -42,7 +40,7 @@ Defines the AppUser entity with three essential fields:
 - username
 - password
 
-![img.png](documents/img/images_for_guides/Java_AppUser_constructor.png)
+![img.png](../img/images_for_guides/Java_AppUser_constructor.png)
 
 Image: `AppUser.java` entity.
 
@@ -53,7 +51,7 @@ Provides REST endpoints for managing users.
 - Update password
 - Delete user
 
-![img.png](documents/img/images_for_guides/Java_AppUserController.png)
+![img.png](../img/images_for_guides/Java_AppUserController.png)
 
 Image: `AppUserController.java`.
 
@@ -63,7 +61,7 @@ Extends JpaRepository and defines query methods.
 
 - Example: findByUsername()
 
-![img.png](documents/img/images_for_guides/Java_AppUserRepository.png)
+![img.png](../img/images_for_guides/Java_AppUserRepository.png)
 
 Image: `AppUserRepository.java.`
 

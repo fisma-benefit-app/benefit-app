@@ -149,12 +149,12 @@ This project is built with:
 
 <details>
 <summary><b>Click here to view the software architecture</b></summary>
-![Software architecture.](/documents/img/images_for_guides/architecture.png)
+<img src="./documents/img/images_for_guides/architecture.jpg" height="500" />
 </details>
 
 <details>
 <summary><b>Click here to view the database diagram</b></summary>
-![Database diagram.](/documents/img/images_for_guides/database_diagram.png)
+<img src="./documents/img/images_for_guides/database_diagram.png" />
 </details><br>
 
 More information on how to access the database can found in the [database guide](/documents/guides/database.md).
@@ -264,14 +264,18 @@ You can check Benefit out yourself at https://fisma-benefit-app.github.io/benefi
 ### Login
 
 - Login with username and password.
-
-![Benefit-app's frontend login page UI, taken on May 14 2025](/documents/img/images_for_guides/UI_login_page_14_05_2025.png)
+<details>
+<summary><b>Click here to view an image of the login page</b></summary>
+<img src="./documents/img/images_for_guides/UI_login_page_14_05_2025.png" height="500"/>
+</details><br>
 
 ### Main View
 
 - Create, save, and export (CSV, PDF) projects.
-
-![Benefit-app's frontend project page UI, taken on May 14 2025](/documents/img/images_for_guides/UI_project_page_14_05_2025.png)
+<details>
+<summary><b>Click here to view an image of the front page</b></summary>
+<img src="./documents/img/images_for_guides/UI_project_page_14_05_2025.png" height="500"/>
+</details><br>
 
 ### Demos
 
@@ -281,13 +285,13 @@ Below are two demos of the app recorded on May 14 2025.
 
 - Login, create new project, calculate functional points, and view version control.
 
-https://github.com/user-attachments/assets/1407d6b8-f1fe-47c1-9fae-3c74588a6606
+[Click here to see demo part 1](https://github.com/user-attachments/assets/1407d6b8-f1fe-47c1-9fae-3c74588a6606)
 
 #### Part 2
 
 - Export project, change language, delete project, and attempt login with faulty credentials.
 
-https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba
+[Click here to see demo part 2](https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba)
 
 #### Troubleshooting
 
