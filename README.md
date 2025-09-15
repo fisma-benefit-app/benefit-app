@@ -299,26 +299,33 @@ Both videos can be downloaded and watched [here](/documents/demo/).
 
 ## CI/CD
 
-TODO: Needs complete do-over
-
-### Keep It Simple (KISS)
-
-The Benefit application has been developed according to the KISS principle. The principle emphasizes simplicity: it's better to maintain simple rather than complex code design overtime.
-
-This means:
-
-- Keeping deployment costs under 10 euros
-- Limiting third-party libraries and tools
+Benefit application's CI/CD pipeline includes a branching strategy and automated checks through GitHub actions.
 
 ### Branching Strategy
 
-Originally, we maintained three main branches:
+Benefit application's branching strategy is currently following these guidelines:
 
-- dev – sandbox for experimenting and testing new solutions
-- qa – staging branch for functional code, used in Sprint Reviews with product owners
-- main – production branch, containing finalized and refactored code
+- `main` branch: production branch, containing finalized and refactored code
+- `sprint/X` branch: branch that includes all changes, added features, bugfixes etc. made during a certain sprint (`X`)
+- `issue/#X` brances: branches what contain changes covered in a single issue (`#X`)
 
-After Sprint 3, we introduced additional feature branches (e.g., for bug fixes or specific functionality such as shieldut). This reduced merge conflicts and made development more structured.
+The `main` branch is sacred and pushes to it are prohibited. Changes described in issues are developed in individual `issue/X` branches which are merged to `sprint/X` branch through pull requests. And at the end of a sprint, the `sprint/X` branch is merged to the `main` branch, provided it passes all the checks and tests. For full explanation of the branching strategy, see [branching strategy](./documents/guides/branching_strategy.md).
+
+### Code Quality and Collaboration
+
+Developer team minimizes errors and maintains good code quality by
+
+- merging all changes only through pull requests
+- merging only quality code (ie. pull requests passes all checks in GitHub Actions)
+- merging changes only after another team member has given the pull request a peer review and an approval
+- resolving all possible conversations, comments and/or change requests in GitHub.
+
+### GitHub Actions
+
+The Benefit application's GitHub repository features a GitHub Actions workflow which runs automated checks and tests on every pull request. Only those pull requests that pass all checks are allowed to merge. These checks are
+
+- formatting checks for frontend (Prettier) and backend (Spotless / Google Java Format)
+- backend unit tests
 
 ### Code Quality and Collaboration
 
