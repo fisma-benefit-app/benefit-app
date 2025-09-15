@@ -55,7 +55,7 @@ export default function FunctionalClassComponent({
 
   //todo: does the user need to explicitly select component type for points to be calculated?
   const calculateFunction = getCalculateFuntion(
-    component.className && component.componentType ? component.className : "",
+    component.className && component.componentType ? component.className : ""
   );
 
   const fullPoints = calculateFunction ? calculateFunction(component) : 0;
@@ -75,7 +75,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent,
+          : functionalComponent
     );
 
     const updatedProject = {
@@ -94,7 +94,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent,
+          : functionalComponent
     );
 
     const updatedProject = {
@@ -145,7 +145,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent,
+          : functionalComponent
     );
     const updatedProject = {
       ...project,
@@ -162,6 +162,7 @@ export default function FunctionalClassComponent({
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex-1 min-w-[200px]">
+            <p>{component.orderPosition} pos</p>
             <input
               className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
               id="comment"
