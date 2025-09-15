@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-be-format-check:
+  run-be-formatting-check:
     name: Run BE formatting check
     runs-on: ubuntu-latest
 
@@ -29,7 +29,7 @@ jobs:
           cd backend
           ./gradlew spotlessCheck
 
-  run-fe-format-check:
+  run-fe-formatting-check:
     name: Run FE formatting check
     runs-on: ubuntu-latest
 
