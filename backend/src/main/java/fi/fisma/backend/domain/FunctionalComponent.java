@@ -1,6 +1,5 @@
 package fi.fisma.backend.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +21,5 @@ public class FunctionalComponent {
   private Double degreeOfCompletion;
   private String comment;
   private Long previousFCId;
-
-  @JsonProperty("order_position")
   private Integer orderPosition;
 }
