@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 public class FunctionalComponent {
   @Id private Long id;
+
   private String className;
   private String componentType;
   private Integer dataElements;
@@ -20,4 +21,5 @@ public class FunctionalComponent {
   private Double degreeOfCompletion;
   private String comment;
   private Long previousFCId;
+  private Integer orderPosition;
 }
