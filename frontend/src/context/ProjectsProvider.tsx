@@ -35,7 +35,7 @@ export default function ProjectsProvider({
       }
     };
     getAllProjects();
-  }, [sessionToken]);
+  }, [sessionToken, logout]);
 
   const sortedProjects =
     projects?.sort(
