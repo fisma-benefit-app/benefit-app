@@ -4,7 +4,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import {
@@ -20,7 +20,6 @@ import {
   TGenericComponent,
 } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
-import { useEffect } from "react";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -30,6 +29,7 @@ type FunctionalClassComponentProps = {
   isLatest: boolean;
   forceCollapsed: boolean;
   collapseVersion: number;
+  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
 };
 
 export default function FunctionalClassComponent({
@@ -39,6 +39,7 @@ export default function FunctionalClassComponent({
   setProject,
   isLatest,
   forceCollapsed,
+  dragHandleProps,
 }: FunctionalClassComponentProps) {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed);
   useEffect(() => {
@@ -50,7 +51,6 @@ export default function FunctionalClassComponent({
   const translation = useTranslations().functionalClassComponent;
 
   const componentTypeOptions = getComponentTypeOptions(component.className);
-
   const inputFields = getInputFields(component.className);
 
   //todo: does the user need to explicitly select component type for points to be calculated?
@@ -162,6 +162,7 @@ export default function FunctionalClassComponent({
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex-1 min-w-[200px]">
+            <p>{component.orderPosition} pos</p>
             <input
               className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
               id="comment"
@@ -182,7 +183,15 @@ export default function FunctionalClassComponent({
                 = {fullPoints.toFixed(2)} {translation.functionalPointReadyText}
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              {/* Drag handle */}
+              <div
+                {...dragHandleProps}
+                className="cursor-grab bg-fisma-gray text-white py-2 px-3"
+              >
+                ::
+              </div>
+              {/* Collapse button */}
               <button
                 type="button"
                 onClick={() => setIsCollapsed((prev) => !prev)}
@@ -190,6 +199,7 @@ export default function FunctionalClassComponent({
               >
                 <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
               </button>
+              {/* Delete button */}
               <button
                 type="button"
                 className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
