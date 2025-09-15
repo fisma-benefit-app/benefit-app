@@ -92,7 +92,7 @@ export default function ProjectPage() {
 
   //get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
-    (projectInArray) => project?.projectName === projectInArray.projectName
+    (projectInArray) => project?.projectName === projectInArray.projectName,
   );
 
   //only allow user to edit project if it is the latest one
@@ -107,7 +107,7 @@ export default function ProjectPage() {
       try {
         const projectFromDb = await fetchProject(
           sessionToken,
-          Number(selectedProjectId)
+          Number(selectedProjectId),
         );
 
         // sort the components after fetching
@@ -115,7 +115,7 @@ export default function ProjectPage() {
           projectFromDb.functionalComponents as Array<{ orderPosition: number }>
         ).sort(
           (a: { orderPosition: number }, b: { orderPosition: number }) =>
-            a.orderPosition - b.orderPosition
+            a.orderPosition - b.orderPosition,
         );
 
         setProject(projectFromDb);
@@ -127,7 +127,7 @@ export default function ProjectPage() {
         setError(
           err instanceof Error
             ? err.message
-            : "Unexpected error occurred when getting project from backend."
+            : "Unexpected error occurred when getting project from backend.",
         );
       } finally {
         setLoadingProject(false);
@@ -164,7 +164,7 @@ export default function ProjectPage() {
       try {
         const updatedProject: Project = await updateProject(
           sessionToken,
-          projectWithNewComponent
+          projectWithNewComponent,
         );
 
         // sort the components after adding the new one
@@ -196,7 +196,7 @@ export default function ProjectPage() {
     setLoadingProject(true);
     if (project) {
       const filteredComponents = project?.functionalComponents.filter(
-        (component) => component.id !== componentId
+        (component) => component.id !== componentId,
       );
       const filteredProject: Project = {
         ...project,
@@ -205,7 +205,7 @@ export default function ProjectPage() {
       try {
         const updatedProject = await updateProject(
           sessionToken,
-          filteredProject
+          filteredProject,
         );
         setProject(updatedProject);
       } catch (err) {
@@ -244,7 +244,7 @@ export default function ProjectPage() {
         await saveProject(); //TODO: Automatic saving instead? (Could use useQuery or similar)
         const idOfNewProjectVersion = await createNewProjectVersion(
           sessionToken,
-          project
+          project,
         );
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
@@ -263,7 +263,7 @@ export default function ProjectPage() {
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
     const selectedProject = sortedProjects.find(
-      (p: Project) => p.id === selectedId
+      (p: Project) => p.id === selectedId,
     );
 
     if (selectedProject) {
@@ -276,10 +276,10 @@ export default function ProjectPage() {
     if (!project || !over || active.id === over.id) return;
 
     const oldIndex = project.functionalComponents.findIndex(
-      (c) => c.id === active.id
+      (c) => c.id === active.id,
     );
     const newIndex = project.functionalComponents.findIndex(
-      (c) => c.id === over.id
+      (c) => c.id === over.id,
     );
 
     if (oldIndex === -1 || newIndex === -1) return;
