@@ -364,19 +364,15 @@ Basic authentication is used. After successful authentication, a JWT is generate
 
 ### Logging
 
-A detailed guide on logs can be found [here](/documents/guides/logging.md).
+Logging in the Benefit app covers both runtime and build/test events:
 
-Include logs here if they include:
+- **Backend**: Spring Boot’s default logging plus Spring Security logs (configurable in `application.yaml`).
+  - Tests: Gradle test results with detailed exceptions and stack traces (configured in `build.gradle`).
+- **Frontend**:
+  - Build logs: terminal (local) or GitHub Actions (Heroku).
+  - Runtime logs: browser DevTools console.
 
-- Audit logs for login/logout events
-- Failed login attempts
-- Admin actions
-
-Make new subheader for Logging & Monitoring if logs include:
-
-- Application error logs
-- System performance logs
-- Debug logs for developers
+Logs are written to the terminal during local development and can be streamed in production with the Heroku CLI. For full details, see the [logging guide](/documents/guides/logging.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

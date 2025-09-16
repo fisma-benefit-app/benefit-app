@@ -1,4 +1,4 @@
-# User Authentication Guide
+# Authentication and Authorization Guide
 
 This guide explains the login functionality of the Benefit app. It introduces key files, code snippets, and logical structure behind the authentication system.
 
