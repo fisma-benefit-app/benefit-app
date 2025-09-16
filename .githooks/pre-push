@@ -3,7 +3,7 @@
 # Get the project root (the parent of .git directory)
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
-# Run the formatting script from the project root
+# Run the formatting script from the scripts directory
 "$PROJECT_ROOT/scripts/run_formatters.sh"
 
 # Add any changes made by the formatting script to the commit
