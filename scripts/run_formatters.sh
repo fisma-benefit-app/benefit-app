@@ -26,3 +26,7 @@ else
     echo "All backend files use Google Java Format style!"
 fi
 cd ..
+
+echo ""
+echo "All formatting checks complete."
+echo ""
