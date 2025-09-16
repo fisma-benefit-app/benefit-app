@@ -2,12 +2,12 @@
 
 This logging guide describes how logs are used within the Benefit app both in local development and the Heroku production environment.
 
-| Type of log      | Local                        | Heroku (Production)                |
-| ---------------- | ---------------------------- | ---------------------------------- |
-| Backend runtime  | Terminal / `benefit-app.log` | `heroku logs --tail` (ephemeral)   |
-| Frontend build   | Terminal (`npm run build`)   | GitHub Actions build logs          |
-| Frontend runtime | Browser DevTools console     | Browser DevTools console           |
-| Test logs        | `./gradlew test`             | CI/CD logs (GitHub Actions/Heroku) |
+| Type of log      | Local                          | Heroku (Production)                |
+| ---------------- | ------------------------------ | ---------------------------------- |
+| Backend runtime  | Terminal (`./gradlew bootRun`) | `heroku logs --tail` (ephemeral)   |
+| Frontend build   | Terminal (`npm run dev`)       | GitHub Actions build logs          |
+| Frontend runtime | Browser DevTools console       | Browser DevTools console           |
+| Test logs        | `./gradlew test`               | CI/CD logs (GitHub Actions/Heroku) |
 
 ## Prerequisites
 
@@ -43,7 +43,7 @@ Loggers and their levels can be configured by editing `application.yaml`. (Optio
 logging:
   level:
     root: "warn" # Set root logger level to `WARN`
-    fisma.benefit-app.backend: "debug" # Set the logger level for backend to `DEBUG`
+    fi.fisma.backend: "debug" # Set the logger level for backend to `DEBUG`
   file:
     name: "benefit-app.log" # Write logs to a file (`benefit-app.log`)
 ```
@@ -97,7 +97,7 @@ test {
 }
 ```
 
-These logs can be seen in the terminal by running `./gradlew test` or as part of the build log within the Heroku environment. Test results are saved in `build/reports/tests/`.
+These logs can be seen in the terminal by running `./gradlew test` or as part of the build log within the Heroku environment. Test results run by `./gradlew test` are saved in `build/reports/tests/`.
 
 ## Frontend (React, Vite, TypeScript)
 

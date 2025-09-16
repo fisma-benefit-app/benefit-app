@@ -355,7 +355,7 @@ Benefit is covered by unit tests in the backend using JUnit and Mockito. These a
 or, if you want to run a specific test class:
 
 ```bash
-./gradlew test --tests fisma.backend.YourTestClass
+./gradlew test --tests fi.fisma.backend.YourTestClass
 ```
 
 ### Authentication and Authorization
