@@ -241,6 +241,18 @@ Open:
    npm install
    npm run dev
    ```
+   
+## 4) Other steps
+
+IMPORTANT! If you continue on developing this app, it is important to keep consistent formatting in your changes. Benefit app has a `pre-commit` Git hook to run all necessary formattings on each commit. To take advantage of this, run this command in your terminal:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+This command tells Git to look for the `pre-commit` hook from the `.githooks` folder.
+
+---
 
 ### (Optional) Quick Troubleshooting
 
