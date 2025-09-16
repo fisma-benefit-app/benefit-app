@@ -1,0 +1,38 @@
+#!/bin/bash
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_ROOT"
+
+# Get list of staged frontend files (.js, .ts, .jsx, .tsx)
+STAGED_FRONTEND_FILES=$(git diff --cached --name-only --relative frontend | grep -E '\.(js|ts|jsx|tsx)$' || true)
+
+# Format staged frontend files with Prettier and re-stage formatted files
+if [ -n "$STAGED_FRONTEND_FILES" ]; then
+    for file in $STAGED_FRONTEND_FILES; do
+        npx prettier --write "$file"
+
+        if [ $? -ne 0 ]; then
+            echo "Error: Prettier formatting failed for $file. Commit aborted."
+            exit 1
+        fi
+
+        git add "$file"
+    done
+fi
+
+# Get list of staged backend files (.java)
+STAGED_BACKEND_FILES=$(git diff --cached --name-only --relative backend | grep -E '\.java$' || true)
+
+# Format staged backend files with Spotless and re-stage formatted files
+if [ -n "$STAGED_BACKEND_FILES" ]; then
+    ./backend/gradlew -p backend spotlessApply
+
+    if [ $? -ne 0 ]; then
+        echo "Error: Spotless formatting failed. Commit aborted."
+        exit 1
+    fi
+
+    for file in $STAGED_BACKEND_FILES; do
+        git add "$file"
+    done
+fi
