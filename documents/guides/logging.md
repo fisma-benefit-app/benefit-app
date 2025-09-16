@@ -9,13 +9,13 @@ This logging guide describes how logs are used within the Benefit app both in lo
 | Frontend runtime | Browser DevTools console     | Browser DevTools console           |
 | Test logs        | `./gradlew test`             | CI/CD logs (GitHub Actions/Heroku) |
 
-## Prerequisites (Production)
+## Prerequisites
 
-- Heroku CLI installed. Refer to [the guide](/documents/guides/heroku_cli_setup.md) on this if needed.
+- If you wish to view logs in production, you'll need to have Heroku CLI installed. Refer to [the guide](/documents/guides/heroku_cli_setup.md) on this if needed.
 
-## Backend
+## Backend (Spring Boot, Java)
 
-The backend uses Spring Boot’s default logging.
+The backend uses Spring Boot’s default logging. By default, Spring Boot uses Logback, and logs appear in the terminal.
 
 ### Log levels
 
@@ -97,9 +97,9 @@ test {
 }
 ```
 
-These logs can be seen in the terminal by running `./gradlew test` or as part of the build log within the Heroku environment.
+These logs can be seen in the terminal by running `./gradlew test` or as part of the build log within the Heroku environment. Test results are saved in `build/reports/tests/`.
 
-## Frontend
+## Frontend (React, Vite, TypeScript)
 
 ### Build logs
 
