@@ -30,10 +30,15 @@ jwt:
   private.key: classpath:./jwt-keys/app.key
   public.key: classpath:./jwt-keys/app.pub
 
+# TODO: Use this for production!
+#logging:
+#  level:
+#    org.springframework.security: info
 logging:
   level:
-    org.springframework:
-      security: trace
+    org.springframework.security: info
+    org.springframework.security.web: debug
+    org.springframework.security.oauth2: debug
 
 management:
   endpoints:
