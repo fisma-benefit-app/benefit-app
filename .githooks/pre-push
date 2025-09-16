@@ -4,7 +4,7 @@
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
 # Run the formatting script from the project root
-"$PROJECT_ROOT/run_formatting.sh"
+"$PROJECT_ROOT/scripts/run_formatters.sh"
 
 # Add any changes made by the formatting script to the commit
 git add "$PROJECT_ROOT/frontend"

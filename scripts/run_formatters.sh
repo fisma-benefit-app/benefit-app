@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# This script runs code formatters for both frontend and backend
+
+# Start from project root
+cd "$(git rev-parse --show-toplevel)"
+
 # Check if frontend is formatted according to Prettier, and format if not
 cd frontend
 if ! npx prettier . --check; then
@@ -21,4 +26,3 @@ else
     echo "All backend files use Google Java Format style!"
 fi
 cd ..
-

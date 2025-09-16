@@ -75,6 +75,18 @@ Open:
 
 ---
 
+## 4) Other steps
+
+IMPORTANT! If you continue on developing this app, it is important to keep consistent formatting in your changes. Benefit app has a `pre-push` Git hook to run all necessary formattings on each push. To take advantage of this, run this command in your terminal:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+This command tells Git to look for the `pre-push` hook from the `.githooks` folder.
+
+---
+
 ## (Optional) Quick Troubleshooting
 
 - **No seed users** → ensure backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset DB once.
