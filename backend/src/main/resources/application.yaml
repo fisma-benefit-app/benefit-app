@@ -12,9 +12,9 @@ spring:
 
   # Like this:
   datasource:
-    username: myuser
-    password: secret
-    url: jdbc:postgresql://127.0.0.1:5438/fisma_db
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/fisma_db}
+    username: ${SPRING_DATASOURCE_USERNAME:myuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
 
   # Set this to always when you want to initialize the database using the schema.sql and data.sql files.
   # Set it to never when the database is initialized and working.
@@ -40,3 +40,7 @@ management:
     web:
       exposure:
         include: health, info
+
+docker:
+  compose:
+    enabled: ${SPRING_DOCKER_COMPOSE_ENABLED:false}

@@ -1,18 +1,23 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import { fetchJWT } from '../api/authorization';
-import useAppUser from '../hooks/useAppUser';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faKey, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import useTranslations from '../hooks/useTranslations';
-import DotLoadingSpinner from './DotLoadingSpinner';
+import { FormEvent, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { fetchJWT } from "../api/authorization";
+import useAppUser from "../hooks/useAppUser";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faKey,
+  faEye,
+  faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
+import useTranslations from "../hooks/useTranslations";
+import DotLoadingSpinner from "./DotLoadingSpinner";
 
 export default function LoginForm() {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   //const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [loginError, setLoginError] = useState<string | null>(null)
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [showLoginError, setShowLoginError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -33,7 +38,6 @@ export default function LoginForm() {
       setSessionToken(loginToken);
       setAppUser({ username: username });
       setLoggedIn(true);
-
     } catch (err) {
       if (err instanceof Error) {
         console.error("Login failed: ", err.message);
@@ -61,21 +65,29 @@ export default function LoginForm() {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <form onSubmit={login} className="max-w-sm w-full p-4 shadow-md bg-fisma-blue flex flex-col">
+      <form
+        onSubmit={login}
+        className="max-w-sm w-full p-4 shadow-md bg-fisma-blue flex flex-col"
+      >
         <h1 className="text-2xl text-center text-white font-medium mb-4 bg-fisma-dark-blue -mx-4 -mt-4 px-4 py-2">
           {translation.header}
         </h1>
 
         <div className="h-8 mb-4 flex items-center justify-center">
           {loginError && (
-            <label className={`text-sm text-fisma-red bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showLoginError ? 'opacity-100' : 'opacity-0'}`}>
+            <label
+              className={`text-sm text-fisma-red bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showLoginError ? "opacity-100" : "opacity-0"}`}
+            >
               {loginError}
             </label>
           )}
         </div>
 
         <div className="mb-4 relative">
-          <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue" />
+          <FontAwesomeIcon
+            icon={faUser}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue"
+          />
           <input
             type="text"
             placeholder={translation.username}
@@ -87,7 +99,10 @@ export default function LoginForm() {
         </div>
 
         <div className="mb-4 relative">
-          <FontAwesomeIcon icon={faKey} className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue" />
+          <FontAwesomeIcon
+            icon={faKey}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fisma-dark-blue"
+          />
           <input
             type={showPassword ? "text" : "password"}
             placeholder={translation.password}
@@ -101,7 +116,11 @@ export default function LoginForm() {
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fisma-light-gray hover:brightness-50"
           >
-            {showPassword ? <FontAwesomeIcon icon={faEyeSlash} className="w-6 h-6" /> : <FontAwesomeIcon icon={faEye} className="w-6 h-6" />}
+            {showPassword ? (
+              <FontAwesomeIcon icon={faEyeSlash} className="w-6 h-6" />
+            ) : (
+              <FontAwesomeIcon icon={faEye} className="w-6 h-6" />
+            )}
           </button>
         </div>
 
@@ -124,9 +143,7 @@ export default function LoginForm() {
           className="w-full min-h-[42px] p-2 text-white bg-fisma-dark-blue hover:brightness-70 flex justify-center items-center cursor-pointer"
           disabled={loading}
         >
-          {loading ? (
-            <DotLoadingSpinner />
-          ) : translation.login}
+          {loading ? <DotLoadingSpinner /> : translation.login}
         </button>
       </form>
     </div>

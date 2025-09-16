@@ -1,28 +1,27 @@
 import { Project, TGenericComponent } from "./types";
-import { getCalculateFuntion } from './fc-service-functions.ts';
-//TODO: Fix eslint alerts!
+import { getCalculateFuntion } from "./fc-service-functions.ts";
 
-export const convertToCSV = (data: any[]) => {
-  if (data.length === 0) return '';
+export const convertToCSV = <T extends Record<string, unknown>>(data: T[]) => {
+  if (data.length === 0) return "";
 
-  const header = Object.keys(data[0]).join(', ');
-  const rows = data.map(item => Object.values(item).join(', '));
+  const header = Object.keys(data[0]).join(", ");
+  const rows = data.map((item) => Object.values(item).join(", "));
 
-  return [header, ...rows].join('\n');
+  return [header, ...rows].join("\n");
 };
 
 export const encodeComponentForCSV = (component: TGenericComponent) => ({
   ...component,
   // CSV can't handle commas inside cells without quotation marks, so let's wrap all comments with ""
   comment: component.comment
-  ? `"${component.comment.replace(/["\,]/g, "")}"`
-  : null
-})
+    ? `"${component.comment.replace(/[",]/g, "")}"`
+    : null,
+});
 
-export const downloadCSV = (csvData: string, filename: string = 'data.csv') => {
-  const blob = new Blob([csvData], { type: 'text/csv' });
+export const downloadCSV = (csvData: string, filename: string = "data.csv") => {
+  const blob = new Blob([csvData], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
@@ -32,31 +31,41 @@ export const downloadCSV = (csvData: string, filename: string = 'data.csv') => {
 };
 
 export const downloadProjectComponentsCsv = async (project: Project) => {
-  const csvData = convertToCSV(project.functionalComponents.map(encodeComponentForCSV));
+  const csvData = convertToCSV(
+    project.functionalComponents.map(encodeComponentForCSV),
+  );
   downloadCSV(csvData, `${project.projectName}.csv`);
-}
+};
 
 // Compares values for current and previous project, then returns changed values in blue and bold text
-const valueComparer = (currentValue: string | number | null, prevValue: string | number | null) => {
+const valueComparer = (
+  currentValue: string | number | null,
+  prevValue: string | number | null,
+) => {
   const changed = prevValue !== currentValue;
-  const className = changed ? 'project-data highlighted' : 'project-data';
+  const className = changed ? "project-data highlighted" : "project-data";
   return `<span class="${className}">${(changed ? currentValue : prevValue) ?? ""}</span>`;
-}
+};
 
 // Localizes the date to a readable form
 const dateLocalizer = (insertedDate: string) => {
-  return new Date(insertedDate).toLocaleTimeString("fi-FI", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).replace("klo", "")
-}
+  return new Date(insertedDate)
+    .toLocaleTimeString("fi-FI", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+    .replace("klo", "");
+};
 
 //  calculate-funktiot kopioituna (tätä vois yksinkertaistaa?)
-const calculateFunctionalComponentPoints = (component: TGenericComponent | null, multiplier: number | null) => {
+const calculateFunctionalComponentPoints = (
+  component: TGenericComponent | null,
+  multiplier: number | null,
+) => {
   if (!component) return 0;
   if (!component.className || !component.componentType) return 0;
   const calculateFunction = getCalculateFuntion(component.className);
@@ -67,37 +76,45 @@ const calculateFunctionalComponentPoints = (component: TGenericComponent | null,
 };
 
 // Calculates total functional points from all components of a project
-const calculateTotalFunctionalComponentPoints = (components: TGenericComponent[]) => {
+const calculateTotalFunctionalComponentPoints = (
+  components: TGenericComponent[],
+) => {
   let totalPoints = 0;
   for (const component of components) {
-    totalPoints += calculateFunctionalComponentPoints(component, component.degreeOfCompletion);
+    totalPoints += calculateFunctionalComponentPoints(
+      component,
+      component.degreeOfCompletion,
+    );
   }
   return totalPoints;
 };
 
-export const createPdf = (project: Project, oldProject: Project, translation: {
-  projectReport: string,
-  projectId: string,
-  version: string,
-  createdDate: string,
-  versionCreatedDate: string,
-  lastEditedDate: string,
-  className: string,
-  componentType: string,
-  dataElements: string,
-  readingReferences: string,
-  writingReferences: string,
-  functionalMultiplier: string,
-  operations: string,
-  degreeOfCompletion: string,
-  functionalPoints: string,
-  comment: string,
-  totalFunctionalPoints: string,
-}) => {
-
+export const createPdf = (
+  project: Project,
+  oldProject: Project,
+  translation: {
+    projectReport: string;
+    projectId: string;
+    version: string;
+    createdDate: string;
+    versionCreatedDate: string;
+    lastEditedDate: string;
+    className: string;
+    componentType: string;
+    dataElements: string;
+    readingReferences: string;
+    writingReferences: string;
+    functionalMultiplier: string;
+    operations: string;
+    degreeOfCompletion: string;
+    functionalPoints: string;
+    comment: string;
+    totalFunctionalPoints: string;
+  },
+) => {
   // Maps functional components for previous project so that they can be compared to the current project
   const previousComponentsMap = Object.fromEntries(
-      oldProject.functionalComponents.map(comp => [comp.id, comp])
+    oldProject.functionalComponents.map((comp) => [comp.id, comp]),
   );
 
   const pdfContent = `
@@ -142,17 +159,17 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
             <th>${translation.functionalPoints}</th>
             <th>${translation.comment}</th>
           </tr>
-          ${project.functionalComponents.map(comp => {
-            
-            // This returns an error "Type null cannot be used as an index type.", but it works for now
+          ${project.functionalComponents
+            .map((comp) => {
+              // This returns an error "Type null cannot be used as an index type.", but it works for now
 
-            let prevComp: TGenericComponent | null = null;
+              let prevComp: TGenericComponent | null = null;
 
-            if (comp.previousFCId) {
-              prevComp = previousComponentsMap[comp.previousFCId];
-            }
-            
-            return `
+              if (comp.previousFCId) {
+                prevComp = previousComponentsMap[comp.previousFCId];
+              }
+
+              return `
             <tr>
               <td>${valueComparer(comp.className, prevComp?.className || null)}</td>
               <td>${valueComparer(comp.componentType, prevComp?.componentType || null)}</td>
@@ -162,13 +179,20 @@ export const createPdf = (project: Project, oldProject: Project, translation: {
               <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
               <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
               <td>${valueComparer(
-                  calculateFunctionalComponentPoints(comp || null, comp.degreeOfCompletion).toFixed(2),
-                  calculateFunctionalComponentPoints(prevComp || null, prevComp?.degreeOfCompletion || null).toFixed(2)
-            )}</td>
+                calculateFunctionalComponentPoints(
+                  comp || null,
+                  comp.degreeOfCompletion,
+                ).toFixed(2),
+                calculateFunctionalComponentPoints(
+                  prevComp || null,
+                  prevComp?.degreeOfCompletion || null,
+                ).toFixed(2),
+              )}</td>
               <td>${valueComparer(comp.comment, prevComp?.comment || null)}</td>
             </tr>
             `;
-          }).join('')}
+            })
+            .join("")}
           <tr class="total-row">
             <td colspan="8"><b>${translation.totalFunctionalPoints}</b></td>
             <td colspan="2"><b>${valueComparer(calculateTotalFunctionalComponentPoints(project.functionalComponents).toFixed(2), calculateTotalFunctionalComponentPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
