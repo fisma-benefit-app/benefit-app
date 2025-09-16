@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Get the project root (the parent of .git directory)
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+
+# Run the formatting script from the project root
+"$PROJECT_ROOT/run_formatting.sh"
+
+# Add any changes made by the formatting script to the commit
+git add "$PROJECT_ROOT/frontend"
+git add "$PROJECT_ROOT/backend"
