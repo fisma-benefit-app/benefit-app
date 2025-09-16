@@ -134,7 +134,7 @@ export default function ProjectPage() {
       }
     };
     getProject();
-  }, [selectedProjectId, sessionToken]);
+  }, [selectedProjectId, sessionToken, logout]);
 
   const createFunctionalComponent = async () => {
     setLoadingProject(true);
