@@ -1,8 +1,11 @@
-# Known issues
+# Non-critical issues
 
-This document will log all known issues in the Benefit-app.
-Issues can be e.g. bugs, responsive problems, techincal 
-issues in database, etc.
+This document logs issues that are not going to be fixed because they're
+
+- not understood
+- rare
+- too time-intensive
+- already taken care of but have previously been so prevalent that there is good reason to keep a paper trail.
 
 ## Issues with VS Code and the backend
 
@@ -25,7 +28,7 @@ cd ./build/libs
 You can start the built backend with
 
 ```sh
-java -jar backend-0.0.1-SNAPSHOT.jar      
+java -jar backend-0.0.1-SNAPSHOT.jar
 ```
 
 ## Spring 2025, working group from Haaga-Helia University of Applied Sciences.
@@ -109,15 +112,15 @@ flushWork scheduler.development.js:239
 performWorkUntilDeadline scheduler.development.js:533
 js scheduler.development.js:571
 js scheduler.development.js:633
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js index.js:6
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 React 2
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js React
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js React
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 react-dom_client.js:38
 ProjectsProvider.tsx:29:25
 Uncaught TypeError: projects is undefined
@@ -128,15 +131,15 @@ flushWork scheduler.development.js:239
 performWorkUntilDeadline scheduler.development.js:533
 js scheduler.development.js:571
 js scheduler.development.js:633
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js index.js:6
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 React 2
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js React
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js React
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 react-dom_client.js:38
 ProjectsProvider.tsx:29:25
 The above error occurred in the component:
@@ -154,13 +157,13 @@ flushWork scheduler.development.js:239
 performWorkUntilDeadline scheduler.development.js:533
 js scheduler.development.js:571
 js scheduler.development.js:633
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js index.js:6
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 React 2
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js React
-__require chunk-EQCVQC35.js:9
+**require chunk-EQCVQC35.js:9
 js React
-__require chunk-EQCVQC35.js:9
+\_\_require chunk-EQCVQC35.js:9
 react-dom_client.js:38

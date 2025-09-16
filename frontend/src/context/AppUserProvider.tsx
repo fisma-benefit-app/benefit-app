@@ -17,13 +17,20 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
   const logout = () => {
     setLoadingAuth(true);
+
+    // Remove locally stored authentication data
     sessionStorage.removeItem("loginToken");
     sessionStorage.removeItem("userInfo");
+
+    // Reset app state
     setSessionToken(null);
     setAppUser(null);
     setLoggedIn(false);
+
     setLoadingAuth(false);
-    //TODO: Notify backend about logging out!
+
+    // TODO (CRITICAL): Revoke token server-side! If someone copied it, it
+    // would still be valid until it expires (i.e. for 24 hours)
   };
 
   const appUserProviderValue: AppUserContextType = {

@@ -29,11 +29,7 @@ Build log is in https://github.com/fisma-benefit-app/benefit-app/actions
 Build log is output in the terminal window used to start the application.
 
 ## Heroku CLI installation
-**1.** Install Heroku CLI by following instructions from:
-
-```sh
-https://devcenter.heroku.com/articles/heroku-cli#install-the-heroku-cli
-```
+**1.** Install Heroku CLI by following instructions from https://devcenter.heroku.com/articles/heroku-cli.
 
 **2.** Open MS default terminal and type:
 ```sh

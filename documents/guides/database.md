@@ -5,7 +5,9 @@ This is manual for Benefit-app's staging -database. You can use SQL Shell to acc
 ## Access deployed database
 Using heroku cli:
 
-`heroku pg:psql postgresql-graceful-97698 --app fisma-benefit-app`
+```sh
+heroku pg:psql postgresql-graceful-97698 --app fisma-benefit-app
+```
 
 Or use psql with the credentials from Heroku -> Postgres -> Settings -> Database Credentials -> View credentials
 
@@ -14,7 +16,9 @@ See **compose.yaml** for credentials.
 
 Using Docker
 
-`Docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB`
+```sh
+Docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+```
 
 Or psql
 
@@ -29,7 +33,7 @@ Please read more from
 
 ### 2. Select Database -> New Connetion from JDBC URL:
 
-![New connection from JDBC URL](img/images_for_manuals/database_manual_new_connection_from_JDBC_URL.png)
+![New connection from JDBC URL](../img/images_for_guides/database_manual_new_connection_from_JDBC_URL.png)
 
 ### 3. Enter your database url:
 
@@ -39,30 +43,30 @@ It should be in the following format:
 
 Into the opening window and click proceed:
 
-![Enter URL.](img/images_for_manuals/database_manual_enter_url.png)
+![Enter URL.](../img/images_for_guides/database_manual_enter_url.png)
 
 
 ### 4. Enter username and password in the opening window:
 
 
-![Enter username and password](img/images_for_manuals/database_manual_enter_username_and_password.png)
+![Enter username and password](../img/images_for_guides/database_manual_enter_username_and_password.png)
 
 ### 5. The database connection opens in the window on the left:
 
 
-![Database connection.](img/images_for_manuals/database_manual_database_connection.png)
+![Database connection.](../img/images_for_guides/database_manual_database_connection.png)
 
 ### 6. The tables can be opened and will be displayed in the central window:
 
 Data contained in the table is shown in the data-tab:
 
 
-![Database tables.](img/images_for_manuals/database_manual_tables.png)
+![Database tables.](../img/images_for_guides/database_manual_tables.png)
 
 ### 7: Right-clicking the rows opens a menu where data can be deleted, edited. etc.:
 
 
-![Menu for deleting data.](img/images_for_manuals/database_manual_menu_for_delete_data.png)
+![Menu for deleting data.](../img/images_for_guides/database_manual_menu_for_delete_data.png)
 
 
 
@@ -76,7 +80,7 @@ Our group had 17.4.2 version during development cycle.
 The software is called SQL Shell in your Windows. You can activate it 
 via terminal:
 
-```
+```sh
 psql
 ```
 
@@ -95,26 +99,26 @@ Then move to Add-On Services section and click "Heroku Postgres" -service from t
 Lastly move from Overview to Settings -tab, move then to ADMINISTRATION -> Database Credentials section and click finally "View Credentials" -button. 
 
 In the terminal, add Host credentials in server location:
-```
+```sh
 Server [localhost]: [INSERT Host]
 ```
 
 Second, add Database credentials in database section:
-```
+```sh
 Database [postgres] : [INSERT Database]
 ```
 
 Third, add Port credentials in port section:
-```
+```sh
 Port [5432] : [INSERT Port]
 ```
 
 Fourth, add User credentials in username section:
-```
+```sh
 Username: [Insert User]
 ```
 
 Fifth and final, add Password in 
-```
+```sh
 Password: [Insert Password]
 ```
