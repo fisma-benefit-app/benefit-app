@@ -1,4 +1,4 @@
-# Logs
+# Logs (for future needs)
 logs
 *.log
 npm-debug.log*
@@ -8,25 +8,17 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Node modules
-# Node modules
 node_modules/
 
-# Build outputs/
-
 # Build outputs
-dist//
+dist/
 dist-ssr/
-
-# Local env files
-.env
-.env.* /
 
 # Local env files
 .env
 .env.* 
 *.local
 
-# Editor files
 # Editor files
 .DS_Store
 *.suo
@@ -35,6 +27,5 @@ dist-ssr/
 *.sln
 *.sw?
 
-# IntelliJ project file
 # IntelliJ project file
 /frontend.iml
