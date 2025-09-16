@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import {
   fetchAllProjects,
@@ -10,6 +10,7 @@ import {
   Project,
   ProjectWithUpdate,
   TGenericComponentNoId,
+  TGenericComponent,
 } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
@@ -19,6 +20,55 @@ import CreateCurrentDate from "../api/date.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
+
+// dnd-kit imports
+import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+function SortableFunctionalComponent({
+  component,
+  project,
+  setProject,
+  deleteFunctionalComponent,
+  isLatest,
+  forceCollapsed,
+  collapseVersion,
+}: {
+  component: TGenericComponent;
+  project: Project;
+  setProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  deleteFunctionalComponent: (id: number) => Promise<void>;
+  isLatest: boolean;
+  forceCollapsed: boolean;
+  collapseVersion: number;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: component.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <FunctionalClassComponent
+        project={project}
+        setProject={setProject}
+        component={component}
+        deleteFunctionalComponent={deleteFunctionalComponent}
+        isLatest={isLatest}
+        forceCollapsed={forceCollapsed}
+        collapseVersion={collapseVersion}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
+  );
+}
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -38,6 +88,8 @@ export default function ProjectPage() {
 
   const translation = useTranslations().projectPage;
 
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
   //get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
     (projectInArray) => project?.projectName === projectInArray.projectName,
@@ -46,9 +98,8 @@ export default function ProjectPage() {
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
-  //sort functional components by id (order of creation from oldest to newest)
-  const sortedComponents =
-    project?.functionalComponents.sort((a, b) => a.id - b.id) || [];
+  //sort functional components by order (ascending)
+  const sortedComponents = project?.functionalComponents || [];
 
   useEffect(() => {
     const getProject = async () => {
@@ -58,6 +109,15 @@ export default function ProjectPage() {
           sessionToken,
           Number(selectedProjectId),
         );
+
+        // sort the components after fetching
+        (
+          projectFromDb.functionalComponents as Array<{ orderPosition: number }>
+        ).sort(
+          (a: { orderPosition: number }, b: { orderPosition: number }) =>
+            a.orderPosition - b.orderPosition,
+        );
+
         setProject(projectFromDb);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
@@ -74,7 +134,7 @@ export default function ProjectPage() {
       }
     };
     getProject();
-  }, [selectedProjectId, sessionToken]);
+  }, [selectedProjectId, sessionToken, logout]);
 
   const createFunctionalComponent = async () => {
     setLoadingProject(true);
@@ -90,6 +150,7 @@ export default function ProjectPage() {
         degreeOfCompletion: null,
         comment: null,
         previousFCId: null,
+        orderPosition: project.functionalComponents.length,
       };
 
       const projectWithNewComponent: ProjectWithUpdate = {
@@ -105,7 +166,21 @@ export default function ProjectPage() {
           sessionToken,
           projectWithNewComponent,
         );
-        setProject(updatedProject);
+
+        // sort the components after adding the new one
+
+        const sortedComponents = updatedProject.functionalComponents
+          .slice()
+          .sort((a, b) => a.orderPosition - b.orderPosition);
+        setProject({
+          ...updatedProject,
+          functionalComponents: sortedComponents,
+        });
+
+        // Scroll to the bottom to show the newly added component
+        setTimeout(() => {
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
@@ -166,7 +241,7 @@ export default function ProjectPage() {
     if (project) {
       setLoadingProject(true);
       try {
-        await saveProject(); //TODO: Automatic saving instead?
+        await saveProject(); //TODO: Automatic saving instead? (Could use useQuery or similar)
         const idOfNewProjectVersion = await createNewProjectVersion(
           sessionToken,
           project,
@@ -196,6 +271,32 @@ export default function ProjectPage() {
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!project || !over || active.id === over.id) return;
+
+    const oldIndex = project.functionalComponents.findIndex(
+      (c) => c.id === active.id,
+    );
+    const newIndex = project.functionalComponents.findIndex(
+      (c) => c.id === over.id,
+    );
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const updatedComponents = [...project.functionalComponents];
+    const [moved] = updatedComponents.splice(oldIndex, 1);
+    updatedComponents.splice(newIndex, 0, moved);
+
+    // Update orderPosition values
+    const reOrdered = updatedComponents.map((c, index) => ({
+      ...c,
+      orderPosition: index,
+    }));
+
+    setProject({ ...project, functionalComponents: reOrdered });
+  };
+
   if (loadingProject) return <LoadingSpinner />;
 
   return (
@@ -204,25 +305,38 @@ export default function ProjectPage() {
         <div className="flex justify-between">
           <div className="w-[calc(100%-340px)] mt-15">
             {project ? ( //TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
-              <>
-                {sortedComponents?.map((component) => (
-                  <FunctionalClassComponent
-                    project={project}
-                    setProject={setProject}
-                    component={component}
-                    deleteFunctionalComponent={deleteFunctionalComponent}
-                    key={component.id}
-                    isLatest={isLatest}
-                    forceCollapsed={collapseAll}
-                    collapseVersion={collapseVersion}
-                  />
-                ))}
-              </>
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={sortedComponents.map((c) => c.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {sortedComponents?.map((component) => (
+                    <SortableFunctionalComponent
+                      project={project}
+                      setProject={setProject}
+                      component={component}
+                      deleteFunctionalComponent={deleteFunctionalComponent}
+                      key={component.id}
+                      isLatest={isLatest}
+                      forceCollapsed={collapseAll}
+                      collapseVersion={collapseVersion}
+                    />
+                  ))}
+                  {sortedComponents.length === 0 && (
+                    <p className="text-gray-500 p-4">
+                      {translation.noFunctionalComponents}
+                    </p>
+                  )}
+                  <div ref={bottomRef} />
+                </SortableContext>
+              </DndContext>
             ) : error ? (
               <p>{error}</p>
             ) : (
               <p></p>
-              //TODO: If no components are present show message
             )}
           </div>
         </div>

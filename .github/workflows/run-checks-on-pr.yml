@@ -1,12 +1,12 @@
-name: Run Checks and Tests on Pull Request
+name: Run Checks on PR
 
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
-  run-spotless-check:
-    name: Run Spotless formatting check (Java)
+  run-be-formatting-check:
+    name: Run BE formatting check
     runs-on: ubuntu-latest
 
     steps:
@@ -29,8 +29,8 @@ jobs:
           cd backend
           ./gradlew spotlessCheck
 
-  run-prettier-check:
-    name: Run Prettier formatting check (JS/TS)
+  run-fe-formatting-check:
+    name: Run FE formatting check
     runs-on: ubuntu-latest
 
     steps:
@@ -51,6 +51,29 @@ jobs:
         run: |
           cd frontend
           npx prettier --check .
+
+  run-fe-linting-check:
+    name: Run FE linting check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npx eslint .
 
   run-backend-tests:
     name: Run backend tests

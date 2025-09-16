@@ -67,7 +67,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    99L),
+                    99L,
+                    0),
                 new FunctionalComponent(
                     100L,
                     "Data storage service",
@@ -79,7 +80,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    100L)),
+                    100L,
+                    0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.findByProjectIdAndUsername(77L, "test-user"))
         .thenReturn(Optional.of(project));
@@ -149,7 +151,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    99L),
+                    99L,
+                    0),
                 new FunctionalComponent(
                     100L,
                     "Data storage service",
@@ -161,7 +164,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    100L)),
+                    100L,
+                    0)),
             Set.of(new ProjectAppUser(15L)));
     when(projectRepository.findByProjectIdAndUsername(88L, "someone"))
         .thenReturn(Optional.of(someonesProject));
@@ -197,7 +201,8 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        99L),
+                        99L,
+                        0),
                     new FunctionalComponent(
                         100L,
                         "Data storage service",
@@ -209,7 +214,8 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        100L)),
+                        100L,
+                        0)),
                 Set.of(new ProjectAppUser(13L))),
             new Project(
                 98L,
@@ -231,7 +237,8 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        99L),
+                        99L,
+                        0),
                     new FunctionalComponent(
                         100L,
                         "Data storage service",
@@ -243,7 +250,8 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        100L)),
+                        100L,
+                        0)),
                 Set.of(new ProjectAppUser(13L))));
     when(projectRepository.findAllByUsername("test-user")).thenReturn(projects);
 
@@ -299,7 +307,8 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        99L),
+                        99L,
+                        0),
                     new FunctionalComponent(
                         100L,
                         "Data storage service",
@@ -311,7 +320,8 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        100L)),
+                        100L,
+                        0)),
                 Set.of(new ProjectAppUser(15L))),
             new Project(
                 98L,
@@ -333,7 +343,8 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        99L),
+                        99L,
+                        0),
                     new FunctionalComponent(
                         100L,
                         "Data storage service",
@@ -345,7 +356,8 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        100L)),
+                        100L,
+                        0)),
                 Set.of(new ProjectAppUser(15L))));
     when(projectRepository.findAllByUsername("someone")).thenReturn(projects);
 
@@ -380,7 +392,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    99L),
+                    99L,
+                    0),
                 new FunctionalComponent(
                     100L,
                     "Data storage service",
@@ -392,9 +405,10 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    100L),
+                    100L,
+                    0),
                 new FunctionalComponent(
-                    101L, null, null, null, null, null, null, null, null, null, 101L)),
+                    101L, null, null, null, null, null, null, null, null, null, 101L, 0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.save(updatedProject)).thenReturn(updatedProject);
 
@@ -455,7 +469,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    99L),
+                    99L,
+                    0),
                 new FunctionalComponent(
                     100L,
                     "Data storage service",
@@ -467,9 +482,10 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    100L),
+                    100L,
+                    0),
                 new FunctionalComponent(
-                    101L, null, null, null, null, null, null, null, null, null, 101L)),
+                    101L, null, null, null, null, null, null, null, null, null, 101L, 0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.save(projectThatDoesNotExist)).thenReturn(projectThatDoesNotExist);
 
@@ -516,7 +532,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    49L),
+                    49L,
+                    0),
                 new FunctionalComponent(
                     400L,
                     "Data storage service",
@@ -528,7 +545,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    400L)),
+                    400L,
+                    0)),
             Set.of(new ProjectAppUser(16L)));
     when(projectRepository.findByProjectIdAndUsername(999L, "someone"))
         .thenReturn(Optional.of(someonesProject));
@@ -554,7 +572,8 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    99L),
+                    99L,
+                    0),
                 new FunctionalComponent(
                     100L,
                     "Data storage service",
@@ -566,9 +585,10 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    100L),
+                    100L,
+                    0),
                 new FunctionalComponent(
-                    101L, null, null, null, null, null, null, null, null, null, 101L)),
+                    101L, null, null, null, null, null, null, null, null, null, 101L, 0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.save(projectThatIsTriedToUpdate)).thenReturn(projectThatIsTriedToUpdate);
 

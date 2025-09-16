@@ -128,6 +128,8 @@ export const translations = {
       nameOfProject: "Project name",
       expandAll: "Expand all",
       collapseAll: "Collapse all",
+      noFunctionalComponents:
+        "No components to show. Add some components using the button above on the right.",
     },
     functionalPointSummary: {
       total: "Total",
@@ -266,6 +268,8 @@ export const translations = {
       nameOfProject: "Projektin nimi",
       expandAll: "Laajenna kaikki",
       collapseAll: "Pienennä kaikki",
+      noFunctionalComponents:
+        "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
     },
     functionalPointSummary: {
       total: "Yhteensä",

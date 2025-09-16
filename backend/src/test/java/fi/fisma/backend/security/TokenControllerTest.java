@@ -60,7 +60,8 @@ class TokenControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    99L),
+                    99L,
+                    0),
                 new FunctionalComponent(
                     100L,
                     "Data storage service",
@@ -72,7 +73,8 @@ class TokenControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
-                    100L)),
+                    100L,
+                    0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.findByProjectIdAndUsername(77L, "test-user"))
         .thenReturn(Optional.of(project));

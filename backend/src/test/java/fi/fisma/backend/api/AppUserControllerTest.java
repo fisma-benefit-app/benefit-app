@@ -95,7 +95,8 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        99L),
+                        99L,
+                        0),
                     new FunctionalComponent(
                         100L,
                         "Data storage service",
@@ -107,7 +108,8 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        100L)),
+                        100L,
+                        0)),
                 Set.of(new ProjectAppUser(13L))));
     when(projectRepository.findAllByUsername("test-user")).thenReturn(projects);
 
@@ -151,7 +153,8 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        99L),
+                        99L,
+                        0),
                     new FunctionalComponent(
                         100L,
                         "Data storage service",
@@ -163,7 +166,8 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        100L)),
+                        100L,
+                        0)),
                 Set.of(new ProjectAppUser(13L), new ProjectAppUser(15L))));
     when(projectRepository.findAllByUsername("test-user")).thenReturn(projects);
 
@@ -207,7 +211,8 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        99L),
+                        99L,
+                        0),
                     new FunctionalComponent(
                         100L,
                         "Data storage service",
@@ -219,7 +224,8 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
-                        100L)),
+                        100L,
+                        0)),
                 Set.of(new ProjectAppUser(13L))));
     when(projectRepository.findAllByUsername("test-user")).thenReturn(projects);
 
