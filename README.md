@@ -56,7 +56,10 @@
     <li>
         <a href="#quality-assurance-and-security">Quality Assurance and Security</a>
     </li>
-        <li>
+    <li>
+        <a href="#logging">Logging</a>
+    </li>
+    <li>
         <a href="#roadmap">Roadmap</a>
     </li>
     <li>
@@ -241,8 +244,8 @@ Open:
    npm install
    npm run dev
    ```
-   
-## 4) Other steps
+
+### 4) Other steps
 
 IMPORTANT! If you continue on developing this app, it is important to keep consistent formatting in your changes. Benefit app has a `pre-commit` Git hook to run all necessary formattings on each commit. To take advantage of this, run this command in your terminal:
 
@@ -374,7 +377,9 @@ or, if you want to run a specific test class:
 
 Basic authentication is used. After successful authentication, a JWT is generated and returned. A more detailed authentication guide can be found [here](documents/guides/authentication.md). Authenticated users are authorized with the role ROLE_USER.
 
-### Logging
+<!-- LOGGING -->
+
+## Logging
 
 Logging in the Benefit app covers both runtime and build/test events:
 
