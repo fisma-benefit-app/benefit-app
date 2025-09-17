@@ -1,11 +1,56 @@
-# How To Flush All Caches
+# Caching Guide
 
-- delete browser cache, cookies
-- In Heroku you might need to delete the build cache. See internet for up-to-date instructions
+Sometimes old data or code may appear due to caching. This guide describes how to clear caches at different layers.
 
-Spring caches should not be in use, but if nothing else helps: https://docs.spring.io/spring-boot/reference/io/caching.html
+## 1. Frontend
 
-Vite and Gradle may have cached something.
-https://vite.dev/guide/dep-pre-bundling
-https://docs.gradle.org/current/userguide/build_cache.html
-https://docs.gradle.org/current/userguide/directory_layout.html#dir:gradle_user_home:configure_cache_cleanup
+### Browser cache & cookies
+
+Clear from browser settings (e.g. on Chrome: Settings → Privacy → Clear browsing data).
+
+### Vite pre-bundling cache
+
+Vite caches optimized dependencies locally. To clear:
+
+```sh
+rm -rf node_modules/.vite
+```
+
+Docs: [Vite Caching Guide](https://vite.dev/guide/dep-pre-bundling)
+
+## 2. Backend
+
+### Spring Boot caching
+
+Spring caches are not used by default, but if enabled, see Spring Cache Reference:
+
+```sh
+./gradlew clean build --no-build-cache
+rm -rf ~/.gradle/caches/
+```
+
+Docs: [Gradle Build Cache](https://docs.gradle.org/current/userguide/build_cache.html)
+
+## 3. Deployment (Heroku)
+
+### Heroku build cache
+
+Heroku keeps cached build artifacts between deploys.
+
+To purge build cache (requires Heroku Labs plugin):
+
+```sh
+heroku plugins:install heroku-builds
+heroku builds:cache:purge -a <app-name>
+```
+
+Docs: [Heroku Build Cache](https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache)
+
+## 4. Troubleshooting Order
+
+If changes don’t appear after redeploy:
+
+- Clear browser cache.
+- Clear Vite cache.
+- Clear Gradle cache (local dev only).
+- Purge Heroku build cache.
