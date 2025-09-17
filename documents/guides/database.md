@@ -3,6 +3,7 @@
 This is manual for Benefit-app's staging -database. You can use SQL Shell to access it, or any graphic database tool. In this example, a free tool called DBeaver is used.
 
 ## Access deployed database
+
 Using heroku cli:
 
 ```sh
@@ -12,6 +13,7 @@ heroku pg:psql postgresql-graceful-97698 --app fisma-benefit-app
 Or use psql with the credentials from Heroku -> Postgres -> Settings -> Database Credentials -> View credentials
 
 ## Access local database
+
 See **compose.yaml** for credentials.
 
 Using Docker
@@ -37,6 +39,8 @@ Please read more from
 
 ### 3. Enter your database url:
 
+TODO: AWS is not in use anymore
+
 It should be in the following format:
 
 `jdbc:postgresql://xxxxxx.xxxxx.xxxxx.amazonaws.com:5432/db_name`
@@ -45,14 +49,11 @@ Into the opening window and click proceed:
 
 ![Enter URL.](../img/images_for_guides/database_manual_enter_url.png)
 
-
 ### 4. Enter username and password in the opening window:
-
 
 ![Enter username and password](../img/images_for_guides/database_manual_enter_username_and_password.png)
 
 ### 5. The database connection opens in the window on the left:
-
 
 ![Database connection.](../img/images_for_guides/database_manual_database_connection.png)
 
@@ -60,15 +61,11 @@ Into the opening window and click proceed:
 
 Data contained in the table is shown in the data-tab:
 
-
 ![Database tables.](../img/images_for_guides/database_manual_tables.png)
 
 ### 7: Right-clicking the rows opens a menu where data can be deleted, edited. etc.:
 
-
 ![Menu for deleting data.](../img/images_for_guides/database_manual_menu_for_delete_data.png)
-
-
 
 ## 3) How to access database with SQL Shell
 
@@ -77,7 +74,7 @@ https://www.postgresql.org/
 
 Our group had 17.4.2 version during development cycle.
 
-The software is called SQL Shell in your Windows. You can activate it 
+The software is called SQL Shell in your Windows. You can activate it
 via terminal:
 
 ```sh
@@ -86,9 +83,9 @@ psql
 
 Then you have insert credentials to access staging -database.
 
-2) Where are credentials?
+2. Where are credentials?
 
-See README.md documentation from backend-credentials -repository on 
+See README.md documentation from backend-credentials -repository on
 fisma-benefit-app organisation at Github.
 
 Canonically, the credentials can be also found from Heroku.
@@ -96,29 +93,34 @@ First go data.heroku.com and login with Heroku credentials.
 
 Then move to Add-On Services section and click "Heroku Postgres" -service from the Heroku dashboard.
 
-Lastly move from Overview to Settings -tab, move then to ADMINISTRATION -> Database Credentials section and click finally "View Credentials" -button. 
+Lastly move from Overview to Settings -tab, move then to ADMINISTRATION -> Database Credentials section and click finally "View Credentials" -button.
 
 In the terminal, add Host credentials in server location:
+
 ```sh
 Server [localhost]: [INSERT Host]
 ```
 
 Second, add Database credentials in database section:
+
 ```sh
 Database [postgres] : [INSERT Database]
 ```
 
 Third, add Port credentials in port section:
+
 ```sh
 Port [5432] : [INSERT Port]
 ```
 
 Fourth, add User credentials in username section:
+
 ```sh
 Username: [Insert User]
 ```
 
-Fifth and final, add Password in 
+Fifth and final, add Password in
+
 ```sh
 Password: [Insert Password]
 ```

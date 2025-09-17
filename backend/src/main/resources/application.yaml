@@ -21,10 +21,6 @@ spring:
   sql:
     init:
       mode: always
-  cloud:
-    aws:
-      secretsmanager:
-        region: eu-north-1
 
 jwt:
   private.key: classpath:./jwt-keys/app.key
