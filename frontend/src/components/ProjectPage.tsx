@@ -85,7 +85,9 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [lastAddedComponentId, setLastAddedComponentId] = useState<number | null>(null);
+  const [lastAddedComponentId, setLastAddedComponentId] = useState<
+    number | null
+  >(null);
 
   const translation = useTranslations().projectPage;
 
@@ -169,8 +171,10 @@ export default function ProjectPage() {
         );
 
         // Find the new component by comparing IDs
-        const prevIds = new Set(project.functionalComponents.map(c => c.id));
-        const newComponent = updatedProject.functionalComponents.find(c => !prevIds.has(c.id));
+        const prevIds = new Set(project.functionalComponents.map((c) => c.id));
+        const newComponent = updatedProject.functionalComponents.find(
+          (c) => !prevIds.has(c.id),
+        );
         if (newComponent) {
           setLastAddedComponentId(newComponent.id);
         } else {
@@ -326,7 +330,9 @@ export default function ProjectPage() {
                       setProject={setProject}
                       deleteFunctionalComponent={deleteFunctionalComponent}
                       isLatest={isLatest}
-                      forceCollapsed={collapseAll && component.id !== lastAddedComponentId}
+                      forceCollapsed={
+                        collapseAll && component.id !== lastAddedComponentId
+                      }
                       collapseVersion={collapseVersion}
                     />
                   ))}
