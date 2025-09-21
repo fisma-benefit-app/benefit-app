@@ -1,149 +1,121 @@
-# Benefit-app docker
+# Docker Guide
 
-This is manual for setting up docker for the backend,
-specifically in local and deployment environment.
+This guide explains how to run the Benefit App locally using Docker. It covers backend, frontend, and database setup.
 
-## 1. Essential docker files' and their configuration.
+## 1. Prerequisites
 
-The essential docker files in the Benefit-app are following:
+**New here?** See the project [README](../../README.md/#getting-started) to get started!
 
-* **compose.yaml** in root directory of benefit-app  (i.e. './' ).
-It contains credentials and configurations for booting up 
-PostgreSQL image in the Benefit-app.
+- [Docker Desktop](https://docs.docker.com/desktop/) installed and running.
 
-![image](img/images_for_manuals/compose_yaml.png)
-
-Image: The compose.yaml -file.
-
-Note from above image! The INSERT_DB, INSERT_PASSWORD,
-and INSERT_USER are just placeholder. You need to 
-have the correct values for db, password and user
-in PostgreSQL, give by Fisma ry.
-
-* **Dockerfile** in backend directory of benefit-app (i.e. './backend/').
-This is for building a jar of Java with Gradle -code to the backend's build library (i.e. './backend/build/libs/').
-
-![image](img/images_for_manuals/dockerfile.png)
-
-* **application.yaml** in resource directory of backend's main directory.
-(i.e './backend/src/main/resources/').
-
-![image](img/images_for_manuals/application_yaml.png)
-
-This is very *important* yaml file, since this has to be re-configured
-depending if you are using backend in *local environment* or trying to
-*deploy backend to Heroku platform*.
-
-a) For local environment:
-
-Make sure that following credentials are inserted (non-commented)
-in the application.yaml file:
-
-```sh
-  datasource:
-    username: POSTGRES_USER
-    password: POSTGRES_PASSWORD
-    url: jdbc:postgresql://127.0.0.1:5432/POSTGRES_DB
-```
-
-The values for POSTGRES_USER, POSTGRES_PASSWORD
-and POSTGRES_DB are taken from compose.yaml file
-at the root directory ('./compose.yaml').
-
-Then, make sure that you have configured sql mode as *always*.
-
-```sh
-  sql:
-    init:
-      mode: always
-```
-
-b) For Heroku deployment environment:
-
-Make sure that following credentials are inserted (non-commented)
-in the application.yaml file:
-
-```sh
-  datasource:
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    url: ${SPRING_DATASOURCE_URL}
-```
-
-Then, make sure that you have configured sql mode as *never*.
-
-```sh
-  sql:
-    init:
-      mode: never
-```
-
-## 2. Docker validation check.
-
-Next, make sure you have the Docker
-is installed in your workstation,
-e.g. Docker Desktop. You can check
-that have the current version of Docker
-installed via command
+Check Docker version:
 
 ```sh
 docker --version
 ```
 
-![image](img/images_for_manuals/docker_desktop.png)
-Image: A screenshot of Docker desktop with the benefit-app dockerized.
+## 2. Key Docker Files
 
-## 3. Activating PostgreSQL via Docker compose.
+- `docker-compose.yaml` (root) – defines services: database, backend, frontend.
+- `backend/Dockerfile.dev` – builds and runs the Spring Boot backend with Gradle.
+- `frontend/Dockerfile.dev` – builds and runs the Vite frontend.
+- `application.yaml` (backend resources) – configures datasource.
+  - Local: uses values from docker-compose.yaml
+  - Heroku: uses injected environment variables
 
-After all validations and checking,
-you should able to active Postgresql
-via docker compose's command
+## 3. Starting the Stack
 
-```sh
-docker compose up -d
-```
-
-in the Drive:/path/to/benefit-app -directory.
-Please note the last option `-d`, which
-will run PostgreSQL's docker in background.
-If you forgot write it, then you need to close
-the CLI and reopen it again.
-
-Alternatively, you can shut down docker via 
-keybindings CTRL+C and run docker compose again.
-
-![image](img/images_for_manuals/docker_compose_up_output.png)
-Image: An example of successful output from docker compose up.
-
-## 4. Database query management via Docker exec.
-
-Additionally, you have to check that database accepts 
-incoming queries. You can check database's query management
-via command
+From the project root:
 
 ```sh
-docker exec -it INSERT_CONTAINER_NAME psql -U POSTGRES_USER POSTGRES_DB
+docker compose up
 ```
 
-Values for POSTGRES_USER and POSTGRES_DB are taken from compose.yaml file
-at the root directory ('./compose.yaml').
+Logs can be viewed with:
 
-Meanwhile INSERT_CONTAINER_NAME is name for current container,
-that is actively running benefit-app image.
+```sh
+docker compose logs -f
+```
 
-For getting getting correct container name,
-the easiest way to check is via command
+To stop:
+
+```sh
+docker compose down
+```
+
+Add `--v` to reset everything (DB, caches, volumes).
+
+## 4. Database Access
+
+Check running containers:
 
 ```sh
 docker ps
 ```
-As example in our workstation, our container is named
-benefit-app-postgres-1 , like in the image below:
 
-![image](img/images_for_manuals/docker_ps.png)
-Image: Result from command 'docker ps'.
+Connect to Postgres inside container:
 
-Hence our command will be
 ```sh
-docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+docker exec -it fisma_db psql -U $POSTGRES_USER $POSTGRES_DB
 ```
+
+Values (POSTGRES_USER, POSTGRES_DB) are defined in .env.
+
+## 5. Backend Configuration
+
+### Local development
+
+`application.yaml` should contain:
+
+```yaml
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/fisma_db}
+    username: ${SPRING_DATASOURCE_USERNAME:myuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
+  sql:
+    init:
+      mode: always
+```
+
+### Heroku deployment
+
+Heroku sets environment variables automatically.
+
+`application.yaml` should contain:
+
+```yaml
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  sql:
+    init:
+      mode: never
+```
+
+## 6. Common Commands
+
+Rebuild containers after changes:
+
+```sh
+docker compose up --build
+```
+
+Restart only the backend:
+
+```sh
+docker compose restart backend
+```
+
+Connect to backend container shell:
+
+```sh
+docker exec -it fisma_backend bash
+```
+
+## 7. Notes
+
+- Gradle and Postgres use named volumes (gradle-cache, pgdata) for persistence.
+- Always commit Docker-related changes (compose files, Dockerfiles), but never commit secrets.

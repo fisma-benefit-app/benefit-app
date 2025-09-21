@@ -55,13 +55,6 @@ public class SecurityConfig {
   }
 
   @Bean
-  @Profile("aws")
-  public RSAPrivateKey privateKeyAws(@Value("${jwt.private.key}") String privateKeyStr)
-      throws Exception {
-    return parsePrivateKey(privateKeyStr);
-  }
-
-  @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     // @formatter:off
     http.authorizeHttpRequests(
@@ -113,14 +106,6 @@ public class SecurityConfig {
   @Profile("default")
   JwtEncoder jwtEncoder(RSAPrivateKey privateKey) {
     JWK jwk = new RSAKey.Builder(this.key).privateKey(privateKey).build();
-    JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-    return new NimbusJwtEncoder(jwks);
-  }
-
-  @Bean
-  @Profile("aws")
-  JwtEncoder jwtEncoderAws(RSAPrivateKey privateKeyAws) {
-    JWK jwk = new RSAKey.Builder(this.key).privateKey(privateKeyAws).build();
     JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
     return new NimbusJwtEncoder(jwks);
   }
