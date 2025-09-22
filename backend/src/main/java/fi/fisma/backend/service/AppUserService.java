@@ -18,9 +18,7 @@ public class AppUserService {
 
   public void changePassword(String updatedPassword, Authentication authentication) {
     var appUser = appUserRepository.findByUsername(authentication.getName());
-    if (appUser == null) {
-      throw new EntityNotFoundException("User not found");
-    }
+    if (appUser == null) throw new EntityNotFoundException("User not found");
 
     appUserRepository.save(
         new AppUser(

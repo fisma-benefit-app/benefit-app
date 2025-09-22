@@ -1,14 +1,9 @@
 package fi.fisma.backend.api;
 
-import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
-import fi.fisma.backend.domain.ProjectAppUser;
-import fi.fisma.backend.repository.AppUserRepository;
-import fi.fisma.backend.repository.ProjectRepository;
+import fi.fisma.backend.service.ProjectService;
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,131 +12,69 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/projects")
+@RequiredArgsConstructor
 public class ProjectController {
-  private final ProjectRepository projectRepository;
-  private final AppUserRepository appUserRepository;
+
+  private final ProjectService projectService;
 
   @GetMapping("/{requestedId}")
-  private ResponseEntity<Project> getProject(
+  public ResponseEntity<Project> getProject(
       @PathVariable("requestedId") Long requestedId, Authentication authentication) {
-    return projectRepository
-        .findByProjectIdAndUsername(requestedId, authentication.getName())
-        .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+    return ResponseEntity.ok(projectService.getProject(requestedId, authentication.getName()));
   }
 
   @GetMapping
-  private ResponseEntity<List<Project>> getAllProjects(Authentication authentication) {
-    var projects = projectRepository.findAllByUsername(authentication.getName());
+  public ResponseEntity<List<Project>> getAllProjects(Authentication authentication) {
+    var projects = projectService.getAllProjects(authentication.getName());
     return ResponseEntity.ok(projects);
   }
 
   @PutMapping("/{requestedId}")
-  private ResponseEntity<Project> updateProject(
-      @PathVariable("requestedId") Long requestedId,
+  public ResponseEntity<Project> updateProject(
+      @PathVariable Long requestedId,
       @RequestBody Project projectUpdate,
       Authentication authentication) {
-    return projectRepository
-        .findByProjectIdAndUsername(requestedId, authentication.getName())
-        .map(
-            project ->
-                projectRepository.save(
-                    new Project(
-                        project.getId(),
-                        projectUpdate.getProjectName(),
-                        projectUpdate.getVersion(),
-                        projectUpdate.getCreatedDate(),
-                        projectUpdate.getVersionDate(),
-                        projectUpdate.getEditedDate(),
-                        projectUpdate.getTotalPoints(),
-                        projectUpdate.getFunctionalComponents(),
-                        projectUpdate.getAppUsers())))
-        .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+    return ResponseEntity.ok(
+        projectService.updateProject(requestedId, projectUpdate, authentication.getName()));
   }
 
   @PostMapping
-  private ResponseEntity<Void> createProject(
+  public ResponseEntity<Object> createProject(
       @RequestBody Project newProjectRequest,
       UriComponentsBuilder ucb,
       Authentication authentication) {
-    var appUser = appUserRepository.findByUsername(authentication.getName());
-    if (appUser != null) {
-      var savedProject =
-          projectRepository.save(
-              new Project(
-                  null,
-                  newProjectRequest.getProjectName(),
-                  newProjectRequest.getVersion(),
-                  newProjectRequest.getCreatedDate(),
-                  newProjectRequest.getVersionDate(),
-                  newProjectRequest.getEditedDate(),
-                  newProjectRequest.getTotalPoints(),
-                  newProjectRequest.getFunctionalComponents(),
-                  Set.of(new ProjectAppUser(appUser.getId()))));
-      URI locationOfNewProject =
-          ucb.path("/projects/{id}").buildAndExpand(savedProject.getId()).toUri();
-      return ResponseEntity.created(locationOfNewProject).build();
-    }
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-        .build(); // Todo - refactor with exception handling
+    return projectService
+        .createProject(newProjectRequest, authentication.getName())
+        .map(
+            savedProject -> {
+              URI location =
+                  ucb.path("/projects/{id}").buildAndExpand(savedProject.getId()).toUri();
+              return ResponseEntity.created(location).build();
+            })
+        .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
   }
 
   @PostMapping("/create-version")
-  private ResponseEntity<Void> createProjectVersion(
+  public ResponseEntity<Object> createProjectVersion(
       @RequestBody Project newProjectVersion,
       Authentication authentication,
       UriComponentsBuilder ucb) {
-    var appUser = appUserRepository.findByUsername(authentication.getName());
-    if (appUser != null) {
-      var savedNewVersionProject =
-          projectRepository.save(
-              new Project(
-                  null,
-                  newProjectVersion.getProjectName(),
-                  newProjectVersion.getVersion(),
-                  newProjectVersion.getCreatedDate(),
-                  newProjectVersion.getVersionDate(),
-                  newProjectVersion.getEditedDate(),
-                  newProjectVersion.getTotalPoints(),
-                  Set.of(),
-                  newProjectVersion.getAppUsers()));
-      var functionalComponentsForNewVersion =
-          newProjectVersion.getFunctionalComponents().stream()
-              .map(
-                  functionalComponent ->
-                      new FunctionalComponent(
-                          null,
-                          functionalComponent.getClassName(),
-                          functionalComponent.getComponentType(),
-                          functionalComponent.getDataElements(),
-                          functionalComponent.getReadingReferences(),
-                          functionalComponent.getWritingReferences(),
-                          functionalComponent.getFunctionalMultiplier(),
-                          functionalComponent.getOperations(),
-                          functionalComponent.getDegreeOfCompletion(),
-                          functionalComponent.getComment(),
-                          functionalComponent.getId(),
-                          functionalComponent.getOrderPosition()))
-              .collect(Collectors.toSet());
-      savedNewVersionProject.setFunctionalComponents(functionalComponentsForNewVersion);
-      projectRepository.save(savedNewVersionProject);
-      URI locationOfNewProject =
-          ucb.path("/projects/{id}").buildAndExpand(savedNewVersionProject.getId()).toUri();
-      return ResponseEntity.created(locationOfNewProject).build();
-    }
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    return projectService
+        .createProjectVersion(newProjectVersion, authentication.getName())
+        .map(
+            savedProject -> {
+              URI location =
+                  ucb.path("/projects/{id}").buildAndExpand(savedProject.getId()).toUri();
+              return ResponseEntity.created(location).build();
+            })
+        .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
   }
 
   @DeleteMapping("/{requestedId}")
-  private ResponseEntity<Void> deleteProject(
-      @PathVariable("requestedId") Long requestedId, Authentication authentication) {
-    if (projectRepository.existsByProjectIdAndUsername(requestedId, authentication.getName())) {
-      projectRepository.deleteById(requestedId);
-      return ResponseEntity.noContent().build();
-    }
-    return ResponseEntity.notFound().build();
+  public ResponseEntity<Void> deleteProject(
+      @PathVariable Long requestedId, Authentication authentication) {
+    projectService.deleteProject(requestedId, authentication.getName());
+    return ResponseEntity.noContent().build();
   }
 }

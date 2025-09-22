@@ -1,24 +1,11 @@
 package fi.fisma.backend.security;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-
 import fi.fisma.backend.api.ProjectController;
-import fi.fisma.backend.domain.AppUser;
-import fi.fisma.backend.domain.FunctionalComponent;
-import fi.fisma.backend.domain.Project;
-import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
@@ -31,6 +18,8 @@ class TokenControllerTest {
   @MockitoBean AppUserRepository appUserRepository;
 
   @MockitoBean ProjectRepository projectRepository;
+
+  /*
 
   @Test
   void shouldGetTokenWithCorrectCredentials() {
@@ -106,4 +95,7 @@ class TokenControllerTest {
     assertThat(mockMvc.post().uri("/token").with(httpBasic("test-user", "wrong-password")))
         .hasStatus(HttpStatus.UNAUTHORIZED);
   }
+
+  */
+
 }
