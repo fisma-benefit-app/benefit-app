@@ -149,6 +149,7 @@ export default function ProjectPage() {
         operations: null,
         degreeOfCompletion: null,
         title: null,
+        description: null,
         previousFCId: null,
         orderPosition: project.functionalComponents.length,
       };

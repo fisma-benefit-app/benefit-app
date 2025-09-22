@@ -232,6 +232,8 @@ const inputBody = '{
       "operations": 0,
       "degreeOfCompletion": 0.1,
       "title": "string",
+      "description": "string",
+      "orderPosition": 0,
       "previousFCId": 0
     }
   ],
@@ -390,6 +392,8 @@ func main() {
       "operations": 0,
       "degreeOfCompletion": 0.1,
       "title": "string",
+      "description": "string",
+      "orderPosition": 0,
       "previousFCId": 0
     }
   ],
@@ -425,6 +429,8 @@ func main() {
 | »» operations           | body | integer(int32)                                      | false    | none        |
 | »» degreeOfCompletion   | body | number(double)                                      | false    | none        |
 | »» title                | body | string                                              | false    | none        |
+| »» description          | body | string                                              | false    | none        |
+| »» orderPosition        | body | integer(int32)                                      | false    | none        |
 | »» previousFCId         | body | integer(int64)                                      | false    | none        |
 | » appUsers              | body | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none        |
 | »» appUserId            | body | integer(int64)                                      | false    | none        |
@@ -753,6 +759,8 @@ Status Code **200**
 | »» operations           | integer(int32)                                      | false    | none         | none        |
 | »» degreeOfCompletion   | number(double)                                      | false    | none         | none        |
 | »» title                | string                                              | false    | none         | none        |
+| »» description          | string                                              | false    | none         | none        |
+| »» orderPosition        | integer(int32)                                      | false    | none         | none        |
 | »» previousFCId         | integer(int64)                                      | false    | none         | none        |
 | » appUsers              | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none         | none        |
 | »» appUserId            | integer(int64)                                      | false    | none         | none        |
@@ -802,6 +810,8 @@ const inputBody = '{
       "operations": 0,
       "degreeOfCompletion": 0.1,
       "title": "string",
+      "description": "string",
+      "orderPosition": 0,
       "previousFCId": 0
     }
   ],
@@ -955,6 +965,8 @@ func main() {
       "operations": 0,
       "degreeOfCompletion": 0.1,
       "title": "string",
+      "description": "string",
+      "orderPosition": 0,
       "previousFCId": 0
     }
   ],
@@ -989,6 +1001,8 @@ func main() {
 | »» operations           | body | integer(int32)                                      | false    | none        |
 | »» degreeOfCompletion   | body | number(double)                                      | false    | none        |
 | »» title                | body | string                                              | false    | none        |
+| »» description          | body | string                                              | false    | none        |
+| »» orderPosition        | body | integer(int32)                                      | false    | none        |
 | »» previousFCId         | body | integer(int64)                                      | false    | none        |
 | » appUsers              | body | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none        |
 | »» appUserId            | body | integer(int64)                                      | false    | none        |
@@ -1044,6 +1058,8 @@ const inputBody = '{
       "operations": 0,
       "degreeOfCompletion": 0.1,
       "title": "string",
+      "description": "string",
+      "orderPosition": 0,
       "previousFCId": 0
     }
   ],
@@ -1197,6 +1213,8 @@ func main() {
       "operations": 0,
       "degreeOfCompletion": 0.1,
       "title": "string",
+      "description": "string",
+      "orderPosition": 0,
       "previousFCId": 0
     }
   ],
@@ -1231,6 +1249,8 @@ func main() {
 | »» operations           | body | integer(int32)                                      | false    | none        |
 | »» degreeOfCompletion   | body | number(double)                                      | false    | none        |
 | »» title                | body | string                                              | false    | none        |
+| »» description          | body | string                                              | false    | none        |
+| »» orderPosition        | body | integer(int32)                                      | false    | none        |
 | »» previousFCId         | body | integer(int64)                                      | false    | none        |
 | » appUsers              | body | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none        |
 | »» appUserId            | body | integer(int64)                                      | false    | none        |
@@ -1723,6 +1743,8 @@ This operation does not require authentication
   "operations": 0,
   "degreeOfCompletion": 0.1,
   "title": "string",
+  "description": "string",
+  "orderPosition": 0,
   "previousFCId": 0
 }
 ```
@@ -1741,6 +1763,8 @@ This operation does not require authentication
 | operations           | integer(int32) | false    | none         | none        |
 | degreeOfCompletion   | number(double) | false    | none         | none        |
 | title                | string         | false    | none         | none        |
+| description          | string         | false    | none         | none        |
+| orderPosition        | integer(int32) | false    | none         | none        |
 | previousFCId         | integer(int64) | false    | none         | none        |
 
 <h2 id="tocS_Project">Project</h2>
@@ -1771,6 +1795,8 @@ This operation does not require authentication
       "operations": 0,
       "degreeOfCompletion": 0.1,
       "title": "string",
+      "description": "string",
+      "orderPosition": 0,
       "previousFCId": 0
     }
   ],

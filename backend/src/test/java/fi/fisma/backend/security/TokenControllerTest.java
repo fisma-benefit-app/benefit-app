@@ -60,6 +60,7 @@ class TokenControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     99L,
                     0),
                 new FunctionalComponent(
@@ -73,6 +74,7 @@ class TokenControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     100L,
                     0)),
             Set.of(new ProjectAppUser(13L)));

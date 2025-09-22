@@ -20,6 +20,7 @@ public class FunctionalComponent {
   private Integer operations;
   private Double degreeOfCompletion;
   private String title;
+  private String description;
   private Long previousFCId;
   private Integer orderPosition;
 }

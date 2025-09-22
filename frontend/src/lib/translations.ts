@@ -52,6 +52,7 @@ export const translations = {
       degreeOfCompletion: "Degree Of Completion",
       functionalPoints: "Functional Points",
       title: "Title",
+      description: "Description",
       totalFunctionalPoints: "Total Functional Points",
     },
     functionalClassComponent: {
@@ -107,6 +108,7 @@ export const translations = {
         operations: "Operations",
       },
       titlePlaceholder: "Title",
+      descriptionPlaceholder: "Description/Comments",
       functionalPointText: "FP",
       functionalPointReadyText: "TP (Complete)",
       classNamePlaceholder: "Select Classname",
@@ -191,6 +193,7 @@ export const translations = {
       degreeOfCompletion: "Valmistumis-\naste",
       functionalPoints: "Toiminto-\npisteet",
       title: "Otsikko",
+      description: "Kuvaus/Kommentit",
       totalFunctionalPoints: "Toimintopisteet Yhteensä",
     },
     functionalClassComponent: {
@@ -247,6 +250,7 @@ export const translations = {
         operations: "Operaatiot",
       },
       titlePlaceholder: "Otsikko",
+      descriptionPlaceholder: "Kuvaus/Kommentit",
       functionalPointText: "TP",
       functionalPointReadyText: "TP (Valmis)",
       classNamePlaceholder: "Valitse toimintoluokka",

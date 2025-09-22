@@ -123,6 +123,7 @@ public class ProjectController {
                           functionalComponent.getOperations(),
                           functionalComponent.getDegreeOfCompletion(),
                           functionalComponent.getTitle(),
+                          functionalComponent.getDescription(),
                           functionalComponent.getId(),
                           functionalComponent.getOrderPosition()))
               .collect(Collectors.toSet());

@@ -175,6 +175,11 @@ components:
           format: double
         title:
           type: string
+        description:
+          type: string
+        orderPosition:
+          type: integer
+          format: int32
         previousFCId:
           type: integer
           format: int64

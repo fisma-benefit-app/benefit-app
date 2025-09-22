@@ -14,6 +14,9 @@ export const encodeComponentForCSV = (component: TGenericComponent) => ({
   ...component,
   // CSV can't handle commas inside cells without quotation marks, so let's wrap all comments with ""
   title: component.title ? `"${component.title.replace(/[",]/g, "")}"` : null,
+  description: component.description
+    ? `"${component.description.replace(/[",]/g, "")}"`
+    : null,
 });
 
 export const downloadCSV = (csvData: string, filename: string = "data.csv") => {
@@ -107,6 +110,7 @@ export const createPdf = (
     degreeOfCompletion: string;
     functionalPoints: string;
     title: string;
+    description: string;
     totalFunctionalPoints: string;
   }
 ) => {
@@ -156,6 +160,7 @@ export const createPdf = (
             <th>${translation.degreeOfCompletion}</th>
             <th>${translation.functionalPoints}</th>
             <th>${translation.title}</th>
+            <th>${translation.description}</th>
           </tr>
           ${project.functionalComponents
             .map((comp) => {

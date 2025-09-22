@@ -19,6 +19,7 @@ export type TGenericComponentNoId = {
   operations: number | null;
   degreeOfCompletion: number | null;
   title: string | null;
+  description: string | null;
   previousFCId: number | null;
   orderPosition: number;
 };
@@ -58,6 +59,7 @@ export type TGenericComponent = {
   operations: number | null;
   degreeOfCompletion: number | null;
   title: string | null;
+  description: string | null;
   previousFCId: number | null;
   orderPosition: number;
 };

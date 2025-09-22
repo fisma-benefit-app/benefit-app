@@ -30,6 +30,7 @@ create table if not exists functional_component
     operations            integer,
     degree_of_completion  decimal,
     title                 text,
+    description           text,
     previous_FC_id        bigint,
     project_id            bigint not null references project (id),
     order_position        integer not null default 0
