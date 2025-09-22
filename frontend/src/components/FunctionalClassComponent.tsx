@@ -55,7 +55,7 @@ export default function FunctionalClassComponent({
 
   //todo: does the user need to explicitly select component type for points to be calculated?
   const calculateFunction = getCalculateFuntion(
-    component.className && component.componentType ? component.className : ""
+    component.className && component.componentType ? component.className : "",
   );
 
   const fullPoints = calculateFunction ? calculateFunction(component) : 0;
@@ -75,7 +75,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent
+          : functionalComponent,
     );
 
     const updatedProject = {
@@ -94,7 +94,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent
+          : functionalComponent,
     );
 
     const updatedProject = {
@@ -105,7 +105,7 @@ export default function FunctionalClassComponent({
   };
 
   const handleComponentChange = (
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
   ) => {
     let updatedComponent;
     let value = e.target.value;
@@ -147,7 +147,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent
+          : functionalComponent,
     );
     const updatedProject = {
       ...project,
