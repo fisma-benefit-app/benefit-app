@@ -6,7 +6,7 @@ import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class AppUserService {
   private final AppUserRepository appUserRepository;
   private final ProjectRepository projectRepository;
-  private final BCryptPasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
   public void changePassword(String updatedPassword, Authentication authentication) {
     var appUser = appUserRepository.findByUsername(authentication.getName());

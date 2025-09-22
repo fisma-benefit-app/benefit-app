@@ -4,6 +4,7 @@ import fi.fisma.backend.service.AppUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,7 +15,9 @@ public class AppUserController {
 
   @PutMapping
   public ResponseEntity<Void> changePassword(
-      @RequestBody String updatedPassword, Authentication authentication) {
+      @RequestBody String updatedPassword,
+      Authentication authentication,
+      BCryptPasswordEncoder passwordEncoder) {
 
     appUserService.changePassword(updatedPassword, authentication);
     return ResponseEntity.ok().build();
