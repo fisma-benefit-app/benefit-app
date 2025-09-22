@@ -51,7 +51,7 @@ export const translations = {
       operations: "Operations",
       degreeOfCompletion: "Degree Of Completion",
       functionalPoints: "Functional Points",
-      comment: "Comment",
+      title: "Title",
       totalFunctionalPoints: "Total Functional Points",
     },
     functionalClassComponent: {
@@ -65,7 +65,7 @@ export const translations = {
           "Interface service from other applications",
           "Data storage service",
           "Algorithmic or manipulation service",
-        ].map((key) => [key, key]),
+        ].map((key) => [key, key])
       ),
       //creates an object where keys and their values are the same
       componentTypeOptions: Object.fromEntries(
@@ -98,7 +98,7 @@ export const translations = {
           "formatting routines",
           "database cleaning routines",
           "other manipulation routines",
-        ].map((key) => [key, key]),
+        ].map((key) => [key, key])
       ),
       parameters: {
         dataElements: "Data Elements",
@@ -106,7 +106,7 @@ export const translations = {
         readingReferences: "Reading References",
         operations: "Operations",
       },
-      commentPlaceholder: "Comment",
+      titlePlaceholder: "Title",
       functionalPointText: "FP",
       functionalPointReadyText: "TP (Complete)",
       classNamePlaceholder: "Select Classname",
@@ -190,7 +190,7 @@ export const translations = {
       operations: "Operaatiot",
       degreeOfCompletion: "Valmistumis-\naste",
       functionalPoints: "Toiminto-\npisteet",
-      comment: "Kommentti",
+      title: "Otsikko",
       totalFunctionalPoints: "Toimintopisteet Yhteensä",
     },
     functionalClassComponent: {
@@ -246,7 +246,7 @@ export const translations = {
         readingReferences: "Lukuviittaukset",
         operations: "Operaatiot",
       },
-      commentPlaceholder: "Kommentti",
+      titlePlaceholder: "Otsikko",
       functionalPointText: "TP",
       functionalPointReadyText: "TP (Valmis)",
       classNamePlaceholder: "Valitse toimintoluokka",

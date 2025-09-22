@@ -18,7 +18,7 @@ export type TGenericComponentNoId = {
   functionalMultiplier: number | null;
   operations: number | null;
   degreeOfCompletion: number | null;
-  comment: string | null;
+  title: string | null;
   previousFCId: number | null;
   orderPosition: number;
 };
@@ -57,7 +57,7 @@ export type TGenericComponent = {
   functionalMultiplier: number | null;
   operations: number | null;
   degreeOfCompletion: number | null;
-  comment: string | null;
+  title: string | null;
   previousFCId: number | null;
   orderPosition: number;
 };

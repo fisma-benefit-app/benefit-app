@@ -55,7 +55,7 @@ export default function FunctionalClassComponent({
 
   //todo: does the user need to explicitly select component type for points to be calculated?
   const calculateFunction = getCalculateFuntion(
-    component.className && component.componentType ? component.className : "",
+    component.className && component.componentType ? component.className : ""
   );
 
   const fullPoints = calculateFunction ? calculateFunction(component) : 0;
@@ -75,7 +75,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent,
+          : functionalComponent
     );
 
     const updatedProject = {
@@ -94,7 +94,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent,
+          : functionalComponent
     );
 
     const updatedProject = {
@@ -110,7 +110,7 @@ export default function FunctionalClassComponent({
 
     //check if the updated attribute needs to be converted to a number for math
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
-    if (["comment"].includes(e.target.id)) {
+    if (["title"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
     } else {
       if (e.target.id === "degreeOfCompletion") {
@@ -129,7 +129,7 @@ export default function FunctionalClassComponent({
           if (num < 0) value = "0";
           if (num > 1) value = "1";
         }
-      } else if (e.target.id !== "comment") {
+      } else if (e.target.id !== "title") {
         const num = parseFloat(value);
         // correct any number greater than 99999 and less than 0
         if (num > 99999) {
@@ -145,7 +145,7 @@ export default function FunctionalClassComponent({
       (functionalComponent) =>
         functionalComponent.id === component.id
           ? updatedComponent
-          : functionalComponent,
+          : functionalComponent
     );
     const updatedProject = {
       ...project,
@@ -165,9 +165,9 @@ export default function FunctionalClassComponent({
             <p>{component.orderPosition} pos</p>
             <input
               className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
-              id="comment"
-              placeholder={translation.commentPlaceholder}
-              value={component.comment || ""}
+              id="title"
+              placeholder={translation.titlePlaceholder}
+              value={component.title || ""}
               onChange={handleComponentChange}
               disabled={!isLatest}
             />
@@ -297,8 +297,8 @@ export default function FunctionalClassComponent({
 
       <ConfirmModal
         message={
-          component.comment
-            ? `${translation.confirmDeleteMessage} "${component.comment}?"`
+          component.title
+            ? `${translation.confirmDeleteMessage} "${component.title}?"`
             : `${translation.confirmDeleteMessage}?`
         }
         open={isConfirmModalOpen}

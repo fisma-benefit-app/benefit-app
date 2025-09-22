@@ -19,7 +19,7 @@ public class FunctionalComponent {
   private Integer functionalMultiplier;
   private Integer operations;
   private Double degreeOfCompletion;
-  private String comment;
+  private String title;
   private Long previousFCId;
   private Integer orderPosition;
 }

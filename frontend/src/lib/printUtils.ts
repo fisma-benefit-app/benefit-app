@@ -13,9 +13,7 @@ export const convertToCSV = <T extends Record<string, unknown>>(data: T[]) => {
 export const encodeComponentForCSV = (component: TGenericComponent) => ({
   ...component,
   // CSV can't handle commas inside cells without quotation marks, so let's wrap all comments with ""
-  comment: component.comment
-    ? `"${component.comment.replace(/[",]/g, "")}"`
-    : null,
+  title: component.title ? `"${component.title.replace(/[",]/g, "")}"` : null,
 });
 
 export const downloadCSV = (csvData: string, filename: string = "data.csv") => {
@@ -32,7 +30,7 @@ export const downloadCSV = (csvData: string, filename: string = "data.csv") => {
 
 export const downloadProjectComponentsCsv = async (project: Project) => {
   const csvData = convertToCSV(
-    project.functionalComponents.map(encodeComponentForCSV),
+    project.functionalComponents.map(encodeComponentForCSV)
   );
   downloadCSV(csvData, `${project.projectName}.csv`);
 };
@@ -40,7 +38,7 @@ export const downloadProjectComponentsCsv = async (project: Project) => {
 // Compares values for current and previous project, then returns changed values in blue and bold text
 const valueComparer = (
   currentValue: string | number | null,
-  prevValue: string | number | null,
+  prevValue: string | number | null
 ) => {
   const changed = prevValue !== currentValue;
   const className = changed ? "project-data highlighted" : "project-data";
@@ -64,7 +62,7 @@ const dateLocalizer = (insertedDate: string) => {
 //  calculate-funktiot kopioituna (tätä vois yksinkertaistaa?)
 const calculateFunctionalComponentPoints = (
   component: TGenericComponent | null,
-  multiplier: number | null,
+  multiplier: number | null
 ) => {
   if (!component) return 0;
   if (!component.className || !component.componentType) return 0;
@@ -77,13 +75,13 @@ const calculateFunctionalComponentPoints = (
 
 // Calculates total functional points from all components of a project
 const calculateTotalFunctionalComponentPoints = (
-  components: TGenericComponent[],
+  components: TGenericComponent[]
 ) => {
   let totalPoints = 0;
   for (const component of components) {
     totalPoints += calculateFunctionalComponentPoints(
       component,
-      component.degreeOfCompletion,
+      component.degreeOfCompletion
     );
   }
   return totalPoints;
@@ -108,13 +106,13 @@ export const createPdf = (
     operations: string;
     degreeOfCompletion: string;
     functionalPoints: string;
-    comment: string;
+    title: string;
     totalFunctionalPoints: string;
-  },
+  }
 ) => {
   // Maps functional components for previous project so that they can be compared to the current project
   const previousComponentsMap = Object.fromEntries(
-    oldProject.functionalComponents.map((comp) => [comp.id, comp]),
+    oldProject.functionalComponents.map((comp) => [comp.id, comp])
   );
 
   const pdfContent = `
@@ -157,7 +155,7 @@ export const createPdf = (
             <th>${translation.operations}</th>
             <th>${translation.degreeOfCompletion}</th>
             <th>${translation.functionalPoints}</th>
-            <th>${translation.comment}</th>
+            <th>${translation.title}</th>
           </tr>
           ${project.functionalComponents
             .map((comp) => {
@@ -181,14 +179,14 @@ export const createPdf = (
               <td>${valueComparer(
                 calculateFunctionalComponentPoints(
                   comp || null,
-                  comp.degreeOfCompletion,
+                  comp.degreeOfCompletion
                 ).toFixed(2),
                 calculateFunctionalComponentPoints(
                   prevComp || null,
-                  prevComp?.degreeOfCompletion || null,
-                ).toFixed(2),
+                  prevComp?.degreeOfCompletion || null
+                ).toFixed(2)
               )}</td>
-              <td>${valueComparer(comp.comment, prevComp?.comment || null)}</td>
+              <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
             </tr>
             `;
             })

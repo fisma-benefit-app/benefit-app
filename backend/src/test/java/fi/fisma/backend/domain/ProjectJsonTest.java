@@ -95,7 +95,7 @@ class ProjectJsonTest {
                       "functionalMultiplier": 1,
                       "operations": null,
                       "degreeOfCompletion": 0.13,
-                      "comment": "This is an exceptional functional component!",
+                      "title": "This is an exceptional functional component!",
                       "previousFCId": 99,
                       "orderPosition": 1
                     },
@@ -109,7 +109,7 @@ class ProjectJsonTest {
                       "functionalMultiplier": null,
                       "operations": null,
                       "degreeOfCompletion": 0.27,
-                      "comment": "Needs further adjustment!",
+                      "title": "Needs further adjustment!",
                       "previousFCId": 100,
                       "orderPosition": 2
                     }

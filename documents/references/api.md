@@ -14,7 +14,6 @@ includes: []
 search: true
 highlight_theme: darkula
 headingLevel: 2
-
 ---
 
 <!-- Generator: Widdershins v4.0.1 -->
@@ -25,7 +24,7 @@ headingLevel: 2
 
 Base URLs:
 
-* <a href="http://localhost:8080">http://localhost:8080</a>
+- <a href="http://localhost:8080">http://localhost:8080</a>
 
 <h1 id="openapi-definition-project-controller">project-controller</h1>
 
@@ -50,23 +49,21 @@ Accept: */*
 ```
 
 ```javascript
-
 const headers = {
-  'Accept':'*/*'
+  Accept: "*/*",
 };
 
-fetch('http://localhost:8080/projects/{requestedId}',
-{
-  method: 'GET',
+fetch("http://localhost:8080/projects/{requestedId}", {
+  method: "GET",
 
-  headers: headers
+  headers: headers,
 })
-.then(function(res) {
+  .then(function (res) {
     return res.json();
-}).then(function(body) {
+  })
+  .then(function (body) {
     console.log(body);
-});
-
+  });
 ```
 
 ```ruby
@@ -174,9 +171,9 @@ func main() {
 
 <h3 id="getproject-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|requestedId|path|integer(int64)|true|none|
+| Name        | In   | Type           | Required | Description |
+| ----------- | ---- | -------------- | -------- | ----------- |
+| requestedId | path | integer(int64) | true     | none        |
 
 > Example responses
 
@@ -184,9 +181,9 @@ func main() {
 
 <h3 id="getproject-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Project](#schemaproject)|
+| Status | Meaning                                                 | Description | Schema                    |
+| ------ | ------------------------------------------------------- | ----------- | ------------------------- |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [Project](#schemaproject) |
 
 <aside class="success">
 This operation does not require authentication
@@ -234,7 +231,7 @@ const inputBody = '{
       "functionalMultiplier": 0,
       "operations": 0,
       "degreeOfCompletion": 0.1,
-      "comment": "string",
+      "title": "string",
       "previousFCId": 0
     }
   ],
@@ -392,7 +389,7 @@ func main() {
       "functionalMultiplier": 0,
       "operations": 0,
       "degreeOfCompletion": 0.1,
-      "comment": "string",
+      "title": "string",
       "previousFCId": 0
     }
   ],
@@ -406,31 +403,31 @@ func main() {
 
 <h3 id="updateproject-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|requestedId|path|integer(int64)|true|none|
-|body|body|[Project](#schemaproject)|true|none|
-|» id|body|integer(int64)|false|none|
-|» projectName|body|string|false|none|
-|» version|body|integer(int32)|false|none|
-|» createdDate|body|string(date-time)|false|none|
-|» versionDate|body|string(date-time)|false|none|
-|» editedDate|body|string(date-time)|false|none|
-|» totalPoints|body|number(double)|false|none|
-|» functionalComponents|body|[[FunctionalComponent](#schemafunctionalcomponent)]|false|none|
-|»» id|body|integer(int64)|false|none|
-|»» className|body|string|false|none|
-|»» componentType|body|string|false|none|
-|»» dataElements|body|integer(int32)|false|none|
-|»» readingReferences|body|integer(int32)|false|none|
-|»» writingReferences|body|integer(int32)|false|none|
-|»» functionalMultiplier|body|integer(int32)|false|none|
-|»» operations|body|integer(int32)|false|none|
-|»» degreeOfCompletion|body|number(double)|false|none|
-|»» comment|body|string|false|none|
-|»» previousFCId|body|integer(int64)|false|none|
-|» appUsers|body|[[ProjectAppUser](#schemaprojectappuser)]|false|none|
-|»» appUserId|body|integer(int64)|false|none|
+| Name                    | In   | Type                                                | Required | Description |
+| ----------------------- | ---- | --------------------------------------------------- | -------- | ----------- |
+| requestedId             | path | integer(int64)                                      | true     | none        |
+| body                    | body | [Project](#schemaproject)                           | true     | none        |
+| » id                    | body | integer(int64)                                      | false    | none        |
+| » projectName           | body | string                                              | false    | none        |
+| » version               | body | integer(int32)                                      | false    | none        |
+| » createdDate           | body | string(date-time)                                   | false    | none        |
+| » versionDate           | body | string(date-time)                                   | false    | none        |
+| » editedDate            | body | string(date-time)                                   | false    | none        |
+| » totalPoints           | body | number(double)                                      | false    | none        |
+| » functionalComponents  | body | [[FunctionalComponent](#schemafunctionalcomponent)] | false    | none        |
+| »» id                   | body | integer(int64)                                      | false    | none        |
+| »» className            | body | string                                              | false    | none        |
+| »» componentType        | body | string                                              | false    | none        |
+| »» dataElements         | body | integer(int32)                                      | false    | none        |
+| »» readingReferences    | body | integer(int32)                                      | false    | none        |
+| »» writingReferences    | body | integer(int32)                                      | false    | none        |
+| »» functionalMultiplier | body | integer(int32)                                      | false    | none        |
+| »» operations           | body | integer(int32)                                      | false    | none        |
+| »» degreeOfCompletion   | body | number(double)                                      | false    | none        |
+| »» title                | body | string                                              | false    | none        |
+| »» previousFCId         | body | integer(int64)                                      | false    | none        |
+| » appUsers              | body | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none        |
+| »» appUserId            | body | integer(int64)                                      | false    | none        |
 
 > Example responses
 
@@ -438,9 +435,9 @@ func main() {
 
 <h3 id="updateproject-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Project](#schemaproject)|
+| Status | Meaning                                                 | Description | Schema                    |
+| ------ | ------------------------------------------------------- | ----------- | ------------------------- |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [Project](#schemaproject) |
 
 <aside class="success">
 This operation does not require authentication
@@ -465,18 +462,15 @@ Host: localhost:8080
 ```
 
 ```javascript
-
-fetch('http://localhost:8080/projects/{requestedId}',
-{
-  method: 'DELETE'
-
+fetch("http://localhost:8080/projects/{requestedId}", {
+  method: "DELETE",
 })
-.then(function(res) {
+  .then(function (res) {
     return res.json();
-}).then(function(body) {
+  })
+  .then(function (body) {
     console.log(body);
-});
-
+  });
 ```
 
 ```ruby
@@ -569,15 +563,15 @@ func main() {
 
 <h3 id="deleteproject-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|requestedId|path|integer(int64)|true|none|
+| Name        | In   | Type           | Required | Description |
+| ----------- | ---- | -------------- | -------- | ----------- |
+| requestedId | path | integer(int64) | true     | none        |
 
 <h3 id="deleteproject-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|None|
+| Status | Meaning                                                 | Description | Schema |
+| ------ | ------------------------------------------------------- | ----------- | ------ |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | None   |
 
 <aside class="success">
 This operation does not require authentication
@@ -604,23 +598,21 @@ Accept: */*
 ```
 
 ```javascript
-
 const headers = {
-  'Accept':'*/*'
+  Accept: "*/*",
 };
 
-fetch('http://localhost:8080/projects',
-{
-  method: 'GET',
+fetch("http://localhost:8080/projects", {
+  method: "GET",
 
-  headers: headers
+  headers: headers,
 })
-.then(function(res) {
+  .then(function (res) {
     return res.json();
-}).then(function(body) {
+  })
+  .then(function (body) {
     console.log(body);
-});
-
+  });
 ```
 
 ```ruby
@@ -732,38 +724,38 @@ func main() {
 
 <h3 id="getallprojects-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|Inline|
+| Status | Meaning                                                 | Description | Schema |
+| ------ | ------------------------------------------------------- | ----------- | ------ |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | Inline |
 
 <h3 id="getallprojects-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[Project](#schemaproject)]|false|none|none|
-|» id|integer(int64)|false|none|none|
-|» projectName|string|false|none|none|
-|» version|integer(int32)|false|none|none|
-|» createdDate|string(date-time)|false|none|none|
-|» versionDate|string(date-time)|false|none|none|
-|» editedDate|string(date-time)|false|none|none|
-|» totalPoints|number(double)|false|none|none|
-|» functionalComponents|[[FunctionalComponent](#schemafunctionalcomponent)]|false|none|none|
-|»» id|integer(int64)|false|none|none|
-|»» className|string|false|none|none|
-|»» componentType|string|false|none|none|
-|»» dataElements|integer(int32)|false|none|none|
-|»» readingReferences|integer(int32)|false|none|none|
-|»» writingReferences|integer(int32)|false|none|none|
-|»» functionalMultiplier|integer(int32)|false|none|none|
-|»» operations|integer(int32)|false|none|none|
-|»» degreeOfCompletion|number(double)|false|none|none|
-|»» comment|string|false|none|none|
-|»» previousFCId|integer(int64)|false|none|none|
-|» appUsers|[[ProjectAppUser](#schemaprojectappuser)]|false|none|none|
-|»» appUserId|integer(int64)|false|none|none|
+| Name                    | Type                                                | Required | Restrictions | Description |
+| ----------------------- | --------------------------------------------------- | -------- | ------------ | ----------- |
+| _anonymous_             | [[Project](#schemaproject)]                         | false    | none         | none        |
+| » id                    | integer(int64)                                      | false    | none         | none        |
+| » projectName           | string                                              | false    | none         | none        |
+| » version               | integer(int32)                                      | false    | none         | none        |
+| » createdDate           | string(date-time)                                   | false    | none         | none        |
+| » versionDate           | string(date-time)                                   | false    | none         | none        |
+| » editedDate            | string(date-time)                                   | false    | none         | none        |
+| » totalPoints           | number(double)                                      | false    | none         | none        |
+| » functionalComponents  | [[FunctionalComponent](#schemafunctionalcomponent)] | false    | none         | none        |
+| »» id                   | integer(int64)                                      | false    | none         | none        |
+| »» className            | string                                              | false    | none         | none        |
+| »» componentType        | string                                              | false    | none         | none        |
+| »» dataElements         | integer(int32)                                      | false    | none         | none        |
+| »» readingReferences    | integer(int32)                                      | false    | none         | none        |
+| »» writingReferences    | integer(int32)                                      | false    | none         | none        |
+| »» functionalMultiplier | integer(int32)                                      | false    | none         | none        |
+| »» operations           | integer(int32)                                      | false    | none         | none        |
+| »» degreeOfCompletion   | number(double)                                      | false    | none         | none        |
+| »» title                | string                                              | false    | none         | none        |
+| »» previousFCId         | integer(int64)                                      | false    | none         | none        |
+| » appUsers              | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none         | none        |
+| »» appUserId            | integer(int64)                                      | false    | none         | none        |
 
 <aside class="success">
 This operation does not require authentication
@@ -809,7 +801,7 @@ const inputBody = '{
       "functionalMultiplier": 0,
       "operations": 0,
       "degreeOfCompletion": 0.1,
-      "comment": "string",
+      "title": "string",
       "previousFCId": 0
     }
   ],
@@ -962,7 +954,7 @@ func main() {
       "functionalMultiplier": 0,
       "operations": 0,
       "degreeOfCompletion": 0.1,
-      "comment": "string",
+      "title": "string",
       "previousFCId": 0
     }
   ],
@@ -976,36 +968,36 @@ func main() {
 
 <h3 id="createproject-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[Project](#schemaproject)|true|none|
-|» id|body|integer(int64)|false|none|
-|» projectName|body|string|false|none|
-|» version|body|integer(int32)|false|none|
-|» createdDate|body|string(date-time)|false|none|
-|» versionDate|body|string(date-time)|false|none|
-|» editedDate|body|string(date-time)|false|none|
-|» totalPoints|body|number(double)|false|none|
-|» functionalComponents|body|[[FunctionalComponent](#schemafunctionalcomponent)]|false|none|
-|»» id|body|integer(int64)|false|none|
-|»» className|body|string|false|none|
-|»» componentType|body|string|false|none|
-|»» dataElements|body|integer(int32)|false|none|
-|»» readingReferences|body|integer(int32)|false|none|
-|»» writingReferences|body|integer(int32)|false|none|
-|»» functionalMultiplier|body|integer(int32)|false|none|
-|»» operations|body|integer(int32)|false|none|
-|»» degreeOfCompletion|body|number(double)|false|none|
-|»» comment|body|string|false|none|
-|»» previousFCId|body|integer(int64)|false|none|
-|» appUsers|body|[[ProjectAppUser](#schemaprojectappuser)]|false|none|
-|»» appUserId|body|integer(int64)|false|none|
+| Name                    | In   | Type                                                | Required | Description |
+| ----------------------- | ---- | --------------------------------------------------- | -------- | ----------- |
+| body                    | body | [Project](#schemaproject)                           | true     | none        |
+| » id                    | body | integer(int64)                                      | false    | none        |
+| » projectName           | body | string                                              | false    | none        |
+| » version               | body | integer(int32)                                      | false    | none        |
+| » createdDate           | body | string(date-time)                                   | false    | none        |
+| » versionDate           | body | string(date-time)                                   | false    | none        |
+| » editedDate            | body | string(date-time)                                   | false    | none        |
+| » totalPoints           | body | number(double)                                      | false    | none        |
+| » functionalComponents  | body | [[FunctionalComponent](#schemafunctionalcomponent)] | false    | none        |
+| »» id                   | body | integer(int64)                                      | false    | none        |
+| »» className            | body | string                                              | false    | none        |
+| »» componentType        | body | string                                              | false    | none        |
+| »» dataElements         | body | integer(int32)                                      | false    | none        |
+| »» readingReferences    | body | integer(int32)                                      | false    | none        |
+| »» writingReferences    | body | integer(int32)                                      | false    | none        |
+| »» functionalMultiplier | body | integer(int32)                                      | false    | none        |
+| »» operations           | body | integer(int32)                                      | false    | none        |
+| »» degreeOfCompletion   | body | number(double)                                      | false    | none        |
+| »» title                | body | string                                              | false    | none        |
+| »» previousFCId         | body | integer(int64)                                      | false    | none        |
+| » appUsers              | body | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none        |
+| »» appUserId            | body | integer(int64)                                      | false    | none        |
 
 <h3 id="createproject-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|None|
+| Status | Meaning                                                 | Description | Schema |
+| ------ | ------------------------------------------------------- | ----------- | ------ |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | None   |
 
 <aside class="success">
 This operation does not require authentication
@@ -1051,7 +1043,7 @@ const inputBody = '{
       "functionalMultiplier": 0,
       "operations": 0,
       "degreeOfCompletion": 0.1,
-      "comment": "string",
+      "title": "string",
       "previousFCId": 0
     }
   ],
@@ -1204,7 +1196,7 @@ func main() {
       "functionalMultiplier": 0,
       "operations": 0,
       "degreeOfCompletion": 0.1,
-      "comment": "string",
+      "title": "string",
       "previousFCId": 0
     }
   ],
@@ -1218,36 +1210,36 @@ func main() {
 
 <h3 id="createprojectversion-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[Project](#schemaproject)|true|none|
-|» id|body|integer(int64)|false|none|
-|» projectName|body|string|false|none|
-|» version|body|integer(int32)|false|none|
-|» createdDate|body|string(date-time)|false|none|
-|» versionDate|body|string(date-time)|false|none|
-|» editedDate|body|string(date-time)|false|none|
-|» totalPoints|body|number(double)|false|none|
-|» functionalComponents|body|[[FunctionalComponent](#schemafunctionalcomponent)]|false|none|
-|»» id|body|integer(int64)|false|none|
-|»» className|body|string|false|none|
-|»» componentType|body|string|false|none|
-|»» dataElements|body|integer(int32)|false|none|
-|»» readingReferences|body|integer(int32)|false|none|
-|»» writingReferences|body|integer(int32)|false|none|
-|»» functionalMultiplier|body|integer(int32)|false|none|
-|»» operations|body|integer(int32)|false|none|
-|»» degreeOfCompletion|body|number(double)|false|none|
-|»» comment|body|string|false|none|
-|»» previousFCId|body|integer(int64)|false|none|
-|» appUsers|body|[[ProjectAppUser](#schemaprojectappuser)]|false|none|
-|»» appUserId|body|integer(int64)|false|none|
+| Name                    | In   | Type                                                | Required | Description |
+| ----------------------- | ---- | --------------------------------------------------- | -------- | ----------- |
+| body                    | body | [Project](#schemaproject)                           | true     | none        |
+| » id                    | body | integer(int64)                                      | false    | none        |
+| » projectName           | body | string                                              | false    | none        |
+| » version               | body | integer(int32)                                      | false    | none        |
+| » createdDate           | body | string(date-time)                                   | false    | none        |
+| » versionDate           | body | string(date-time)                                   | false    | none        |
+| » editedDate            | body | string(date-time)                                   | false    | none        |
+| » totalPoints           | body | number(double)                                      | false    | none        |
+| » functionalComponents  | body | [[FunctionalComponent](#schemafunctionalcomponent)] | false    | none        |
+| »» id                   | body | integer(int64)                                      | false    | none        |
+| »» className            | body | string                                              | false    | none        |
+| »» componentType        | body | string                                              | false    | none        |
+| »» dataElements         | body | integer(int32)                                      | false    | none        |
+| »» readingReferences    | body | integer(int32)                                      | false    | none        |
+| »» writingReferences    | body | integer(int32)                                      | false    | none        |
+| »» functionalMultiplier | body | integer(int32)                                      | false    | none        |
+| »» operations           | body | integer(int32)                                      | false    | none        |
+| »» degreeOfCompletion   | body | number(double)                                      | false    | none        |
+| »» title                | body | string                                              | false    | none        |
+| »» previousFCId         | body | integer(int64)                                      | false    | none        |
+| » appUsers              | body | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none        |
+| »» appUserId            | body | integer(int64)                                      | false    | none        |
 
 <h3 id="createprojectversion-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|None|
+| Status | Meaning                                                 | Description | Schema |
+| ------ | ------------------------------------------------------- | ----------- | ------ |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | None   |
 
 <aside class="success">
 This operation does not require authentication
@@ -1276,23 +1268,22 @@ Content-Type: application/json
 ```
 
 ```javascript
-const inputBody = 'string';
+const inputBody = "string";
 const headers = {
-  'Content-Type':'application/json'
+  "Content-Type": "application/json",
 };
 
-fetch('http://localhost:8080/appusers',
-{
-  method: 'PUT',
+fetch("http://localhost:8080/appusers", {
+  method: "PUT",
   body: inputBody,
-  headers: headers
+  headers: headers,
 })
-.then(function(res) {
+  .then(function (res) {
     return res.json();
-}).then(function(body) {
+  })
+  .then(function (body) {
     console.log(body);
-});
-
+  });
 ```
 
 ```ruby
@@ -1409,16 +1400,16 @@ func main() {
 
 <h3 id="changepassword-parameters">Parameters</h3>
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|passwordEncoder|query|[BCryptPasswordEncoder](#schemabcryptpasswordencoder)|true|none|
-|body|body|string|true|none|
+| Name            | In    | Type                                                  | Required | Description |
+| --------------- | ----- | ----------------------------------------------------- | -------- | ----------- |
+| passwordEncoder | query | [BCryptPasswordEncoder](#schemabcryptpasswordencoder) | true     | none        |
+| body            | body  | string                                                | true     | none        |
 
 <h3 id="changepassword-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|None|
+| Status | Meaning                                                 | Description | Schema |
+| ------ | ------------------------------------------------------- | ----------- | ------ |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | None   |
 
 <aside class="success">
 This operation does not require authentication
@@ -1443,18 +1434,15 @@ Host: localhost:8080
 ```
 
 ```javascript
-
-fetch('http://localhost:8080/appusers',
-{
-  method: 'DELETE'
-
+fetch("http://localhost:8080/appusers", {
+  method: "DELETE",
 })
-.then(function(res) {
+  .then(function (res) {
     return res.json();
-}).then(function(body) {
+  })
+  .then(function (body) {
     console.log(body);
-});
-
+  });
 ```
 
 ```ruby
@@ -1547,9 +1535,9 @@ func main() {
 
 <h3 id="deleteappuser-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|None|
+| Status | Meaning                                                 | Description | Schema |
+| ------ | ------------------------------------------------------- | ----------- | ------ |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | None   |
 
 <aside class="success">
 This operation does not require authentication
@@ -1578,23 +1566,21 @@ Accept: */*
 ```
 
 ```javascript
-
 const headers = {
-  'Accept':'*/*'
+  Accept: "*/*",
 };
 
-fetch('http://localhost:8080/token',
-{
-  method: 'POST',
+fetch("http://localhost:8080/token", {
+  method: "POST",
 
-  headers: headers
+  headers: headers,
 })
-.then(function(res) {
+  .then(function (res) {
     return res.json();
-}).then(function(body) {
+  })
+  .then(function (body) {
     console.log(body);
-});
-
+  });
 ```
 
 ```ruby
@@ -1706,9 +1692,9 @@ func main() {
 
 <h3 id="gettoken-responses">Responses</h3>
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|Inline|
+| Status | Meaning                                                 | Description | Schema |
+| ------ | ------------------------------------------------------- | ----------- | ------ |
+| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | Inline |
 
 <h3 id="gettoken-responseschema">Response Schema</h3>
 
@@ -1736,27 +1722,26 @@ This operation does not require authentication
   "functionalMultiplier": 0,
   "operations": 0,
   "degreeOfCompletion": 0.1,
-  "comment": "string",
+  "title": "string",
   "previousFCId": 0
 }
-
 ```
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|false|none|none|
-|className|string|false|none|none|
-|componentType|string|false|none|none|
-|dataElements|integer(int32)|false|none|none|
-|readingReferences|integer(int32)|false|none|none|
-|writingReferences|integer(int32)|false|none|none|
-|functionalMultiplier|integer(int32)|false|none|none|
-|operations|integer(int32)|false|none|none|
-|degreeOfCompletion|number(double)|false|none|none|
-|comment|string|false|none|none|
-|previousFCId|integer(int64)|false|none|none|
+| Name                 | Type           | Required | Restrictions | Description |
+| -------------------- | -------------- | -------- | ------------ | ----------- |
+| id                   | integer(int64) | false    | none         | none        |
+| className            | string         | false    | none         | none        |
+| componentType        | string         | false    | none         | none        |
+| dataElements         | integer(int32) | false    | none         | none        |
+| readingReferences    | integer(int32) | false    | none         | none        |
+| writingReferences    | integer(int32) | false    | none         | none        |
+| functionalMultiplier | integer(int32) | false    | none         | none        |
+| operations           | integer(int32) | false    | none         | none        |
+| degreeOfCompletion   | number(double) | false    | none         | none        |
+| title                | string         | false    | none         | none        |
+| previousFCId         | integer(int64) | false    | none         | none        |
 
 <h2 id="tocS_Project">Project</h2>
 <!-- backwards compatibility -->
@@ -1785,7 +1770,7 @@ This operation does not require authentication
       "functionalMultiplier": 0,
       "operations": 0,
       "degreeOfCompletion": 0.1,
-      "comment": "string",
+      "title": "string",
       "previousFCId": 0
     }
   ],
@@ -1795,22 +1780,21 @@ This operation does not require authentication
     }
   ]
 }
-
 ```
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|false|none|none|
-|projectName|string|false|none|none|
-|version|integer(int32)|false|none|none|
-|createdDate|string(date-time)|false|none|none|
-|versionDate|string(date-time)|false|none|none|
-|editedDate|string(date-time)|false|none|none|
-|totalPoints|number(double)|false|none|none|
-|functionalComponents|[[FunctionalComponent](#schemafunctionalcomponent)]|false|none|none|
-|appUsers|[[ProjectAppUser](#schemaprojectappuser)]|false|none|none|
+| Name                 | Type                                                | Required | Restrictions | Description |
+| -------------------- | --------------------------------------------------- | -------- | ------------ | ----------- |
+| id                   | integer(int64)                                      | false    | none         | none        |
+| projectName          | string                                              | false    | none         | none        |
+| version              | integer(int32)                                      | false    | none         | none        |
+| createdDate          | string(date-time)                                   | false    | none         | none        |
+| versionDate          | string(date-time)                                   | false    | none         | none        |
+| editedDate           | string(date-time)                                   | false    | none         | none        |
+| totalPoints          | number(double)                                      | false    | none         | none        |
+| functionalComponents | [[FunctionalComponent](#schemafunctionalcomponent)] | false    | none         | none        |
+| appUsers             | [[ProjectAppUser](#schemaprojectappuser)]           | false    | none         | none        |
 
 <h2 id="tocS_ProjectAppUser">ProjectAppUser</h2>
 <!-- backwards compatibility -->
@@ -1823,14 +1807,13 @@ This operation does not require authentication
 {
   "appUserId": 0
 }
-
 ```
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|appUserId|integer(int64)|false|none|none|
+| Name      | Type           | Required | Restrictions | Description |
+| --------- | -------------- | -------- | ------------ | ----------- |
+| appUserId | integer(int64) | false    | none         | none        |
 
 <h2 id="tocS_BCryptPasswordEncoder">BCryptPasswordEncoder</h2>
 <!-- backwards compatibility -->
@@ -1841,10 +1824,8 @@ This operation does not require authentication
 
 ```json
 null
-
 ```
 
 ### Properties
 
-*None*
-
+_None_

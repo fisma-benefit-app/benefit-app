@@ -3,39 +3,39 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:8080
-  description: Generated server url
+  - url: http://localhost:8080
+    description: Generated server url
 paths:
   /projects/{requestedId}:
     get:
       tags:
-      - project-controller
+        - project-controller
       operationId: getProject
       parameters:
-      - name: requestedId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: requestedId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/Project"
     put:
       tags:
-      - project-controller
+        - project-controller
       operationId: updateProject
       parameters:
-      - name: requestedId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: requestedId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -46,34 +46,34 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/Project"
     delete:
       tags:
-      - project-controller
+        - project-controller
       operationId: deleteProject
       parameters:
-      - name: requestedId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: requestedId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "200":
           description: OK
   /appusers:
     put:
       tags:
-      - app-user-controller
+        - app-user-controller
       operationId: changePassword
       parameters:
-      - name: passwordEncoder
-        in: query
-        required: true
-        schema:
-          $ref: "#/components/schemas/BCryptPasswordEncoder"
+        - name: passwordEncoder
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/BCryptPasswordEncoder"
       requestBody:
         content:
           application/json:
@@ -85,7 +85,7 @@ paths:
           description: OK
     delete:
       tags:
-      - app-user-controller
+        - app-user-controller
       operationId: deleteAppUser
       responses:
         "200":
@@ -93,32 +93,32 @@ paths:
   /token:
     post:
       tags:
-      - token-controller
+        - token-controller
       operationId: getToken
       responses:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
   /projects:
     get:
       tags:
-      - project-controller
+        - project-controller
       operationId: getAllProjects
       responses:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/Project"
     post:
       tags:
-      - project-controller
+        - project-controller
       operationId: createProject
       requestBody:
         content:
@@ -132,7 +132,7 @@ paths:
   /projects/create-version:
     post:
       tags:
-      - project-controller
+        - project-controller
       operationId: createProjectVersion
       requestBody:
         content:
@@ -173,7 +173,7 @@ components:
         degreeOfCompletion:
           type: number
           format: double
-        comment:
+        title:
           type: string
         previousFCId:
           type: integer
