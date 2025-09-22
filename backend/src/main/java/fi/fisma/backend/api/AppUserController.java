@@ -1,50 +1,28 @@
 package fi.fisma.backend.api;
 
-import fi.fisma.backend.domain.AppUser;
-import fi.fisma.backend.repository.AppUserRepository;
-import fi.fisma.backend.repository.ProjectRepository;
+import fi.fisma.backend.service.AppUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/appusers")
 public class AppUserController {
-  private final AppUserRepository appUserRepository;
-  private final ProjectRepository projectRepository;
+  private final AppUserService appUserService;
 
   @PutMapping
-  private ResponseEntity<Void> changePassword(
-      @RequestBody String updatedPassword,
-      Authentication authentication,
-      BCryptPasswordEncoder passwordEncoder) {
-    var appUser = appUserRepository.findByUsername(authentication.getName());
-    if (appUser != null) {
-      appUserRepository.save(
-          new AppUser(
-              appUser.getId(), appUser.getUsername(), passwordEncoder.encode(updatedPassword)));
-      return ResponseEntity.noContent().build();
-    }
-    return ResponseEntity.notFound().build(); // Todo - refactor with exception handling
+  public ResponseEntity<Void> changePassword(
+      @RequestBody String updatedPassword, Authentication authentication) {
+
+    appUserService.changePassword(updatedPassword, authentication);
+    return ResponseEntity.ok().build();
   }
 
   @DeleteMapping
-  private ResponseEntity<Void> deleteAppUser(Authentication authentication) {
-    var appUser = appUserRepository.findByUsername(authentication.getName());
-    if (appUser != null) {
-      var appUsersPrjects = projectRepository.findAllByUsername(authentication.getName());
-      appUsersPrjects.forEach(
-          project -> {
-            if (project.getAppUsers().size() == 1) {
-              projectRepository.deleteById(project.getId());
-            }
-          });
-      appUserRepository.deleteById(appUser.getId());
-      return ResponseEntity.noContent().build();
-    }
-    return ResponseEntity.notFound().build(); // Todo - refactor with exception handling
+  public ResponseEntity<Void> deleteAppUser(Authentication authentication) {
+    appUserService.deleteAppUser(authentication);
+    return ResponseEntity.noContent().build();
   }
 }
