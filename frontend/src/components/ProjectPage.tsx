@@ -85,6 +85,9 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [lastAddedComponentId, setLastAddedComponentId] = useState<
+    number | null
+  >(null);
 
   const translation = useTranslations().projectPage;
 
@@ -168,17 +171,19 @@ export default function ProjectPage() {
           projectWithNewComponent,
         );
 
-        // sort the components after adding the new one
+        // Find the new component by comparing IDs
+        const prevIds = new Set(project.functionalComponents.map((c) => c.id));
+        const newComponent = updatedProject.functionalComponents.find(
+          (c) => !prevIds.has(c.id),
+        );
+        if (newComponent) {
+          setLastAddedComponentId(newComponent.id);
+        } else {
+          setLastAddedComponentId(null);
+        }
 
-        const sortedComponents = updatedProject.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition);
-        setProject({
-          ...updatedProject,
-          functionalComponents: sortedComponents,
-        });
+        setProject(updatedProject);
 
-        // Scroll to the bottom to show the newly added component
         setTimeout(() => {
           bottomRef.current?.scrollIntoView({ behavior: "smooth" });
         }, 100);
@@ -298,6 +303,10 @@ export default function ProjectPage() {
     setProject({ ...project, functionalComponents: reOrdered });
   };
 
+  useEffect(() => {
+    setLastAddedComponentId(null);
+  }, [collapseAll]);
+
   if (loadingProject) return <LoadingSpinner />;
 
   return (
@@ -316,13 +325,17 @@ export default function ProjectPage() {
                 >
                   {sortedComponents?.map((component) => (
                     <SortableFunctionalComponent
+                      key={component.id}
+                      component={component}
                       project={project}
                       setProject={setProject}
-                      component={component}
                       deleteFunctionalComponent={deleteFunctionalComponent}
-                      key={component.id}
                       isLatest={isLatest}
-                      forceCollapsed={collapseAll}
+                      forceCollapsed={
+                        collapseAll
+                          ? component.id !== lastAddedComponentId
+                          : false
+                      }
                       collapseVersion={collapseVersion}
                     />
                   ))}
@@ -362,7 +375,7 @@ export default function ProjectPage() {
                   setCollapseVersion((prev) => prev + 1);
                 }}
               >
-                {collapseAll ? translation.collapseAll : translation.expandAll}
+                {collapseAll ? translation.expandAll : translation.collapseAll}
               </button>
             </div>
             <div className="flex flex-row gap-2 w-full">

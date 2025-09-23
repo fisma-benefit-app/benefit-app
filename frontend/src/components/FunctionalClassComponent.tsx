@@ -4,7 +4,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ChangeEvent, useState, useEffect } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import {
@@ -39,12 +39,15 @@ export default function FunctionalClassComponent({
   setProject,
   isLatest,
   forceCollapsed,
+  collapseVersion,
   dragHandleProps,
 }: FunctionalClassComponentProps) {
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed);
+  const [collapsed, setCollapsed] = useState(forceCollapsed);
+
+  // Sync collapsed state with forceCollapsed prop
   useEffect(() => {
-    setIsCollapsed(forceCollapsed);
-  }, [forceCollapsed]);
+    setCollapsed(forceCollapsed);
+  }, [forceCollapsed, collapseVersion]);
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
@@ -197,10 +200,10 @@ export default function FunctionalClassComponent({
               {/* Collapse button */}
               <button
                 type="button"
-                onClick={() => setIsCollapsed((prev) => !prev)}
+                onClick={() => setCollapsed((prev) => !prev)}
                 className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
               >
-                <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
+                <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
               </button>
               {/* Delete button */}
               <button
@@ -215,7 +218,7 @@ export default function FunctionalClassComponent({
           </div>
         </div>
 
-        {isCollapsed && (
+        {!collapsed && (
           <>
             <div className="flex flex-col gap-1">
               <label htmlFor="description" className="font-medium">
