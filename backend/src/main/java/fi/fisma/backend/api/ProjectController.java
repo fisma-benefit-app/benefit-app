@@ -32,7 +32,7 @@ public class ProjectController {
 
   @PutMapping("/{requestedId}")
   public ResponseEntity<Project> updateProject(
-      @PathVariable Long requestedId,
+      @PathVariable("requestedId") Long requestedId,
       @RequestBody Project projectUpdate,
       Authentication authentication) {
     return ResponseEntity.ok(
@@ -73,7 +73,7 @@ public class ProjectController {
 
   @DeleteMapping("/{requestedId}")
   public ResponseEntity<Void> deleteProject(
-      @PathVariable Long requestedId, Authentication authentication) {
+      @PathVariable("requestedId") Long requestedId, Authentication authentication) {
     projectService.deleteProject(requestedId, authentication.getName());
     return ResponseEntity.noContent().build();
   }
