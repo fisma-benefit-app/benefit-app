@@ -107,7 +107,8 @@ public class ProjectService {
                         fc.getFunctionalMultiplier(),
                         fc.getOperations(),
                         fc.getDegreeOfCompletion(),
-                        fc.getComment(),
+                        fc.getTitle(),
+                        fc.getDescription(),
                         fc.getId(),
                         fc.getOrderPosition()))
             .collect(Collectors.toSet());
