@@ -40,6 +40,7 @@ class ProjectJsonTest {
                     null,
                     0.13,
                     "This is an exceptional functional component!",
+                    "Description for hakijan syöte",
                     99L,
                     1),
                 new FunctionalComponent(
@@ -53,6 +54,7 @@ class ProjectJsonTest {
                     null,
                     0.27,
                     "Needs further adjustment!",
+                    "Description for montako tulee",
                     100L,
                     2)),
             Set.of(new ProjectAppUser(13L)));
@@ -95,7 +97,8 @@ class ProjectJsonTest {
                       "functionalMultiplier": 1,
                       "operations": null,
                       "degreeOfCompletion": 0.13,
-                      "comment": "This is an exceptional functional component!",
+                      "title": "This is an exceptional functional component!",
+                      "description": "Description for hakijan syöte",
                       "previousFCId": 99,
                       "orderPosition": 1
                     },
@@ -109,7 +112,8 @@ class ProjectJsonTest {
                       "functionalMultiplier": null,
                       "operations": null,
                       "degreeOfCompletion": 0.27,
-                      "comment": "Needs further adjustment!",
+                      "title": "Needs further adjustment!",
+                      "description": "Description for montako tulee",
                       "previousFCId": 100,
                       "orderPosition": 2
                     }
