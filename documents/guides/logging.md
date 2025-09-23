@@ -11,7 +11,7 @@ This logging guide describes how logs are used within the Benefit app both in lo
 
 ## Prerequisites
 
-- If you wish to view logs in production, you'll need to have Heroku CLI installed. Refer to [the guide](/documents/guides/heroku_cli_setup.md) on this if needed.
+If you wish to view logs in production, you'll need to have Heroku CLI installed. Refer to [the guide](/documents/guides/heroku_cli_setup.md) on this if needed.
 
 ## Backend (Spring Boot, Java)
 
@@ -103,7 +103,7 @@ These logs can be seen in the terminal by running `./gradlew test` or as part of
 
 ### Build logs
 
-Local build logs are shown in the terminal where you run `npm run build` or `npm start`. Using Heroku, build logs are found in [GitHub Actions](https://github.com/fisma-benefit-app/benefit-app/actions).
+Local build logs are shown in the terminal where you run `npm run dev`. Using Heroku, build logs are found in [GitHub Actions](https://github.com/fisma-benefit-app/benefit-app/actions).
 
 ### Runtime logs
 

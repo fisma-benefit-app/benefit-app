@@ -331,7 +331,9 @@ export default function ProjectPage() {
                       deleteFunctionalComponent={deleteFunctionalComponent}
                       isLatest={isLatest}
                       forceCollapsed={
-                        collapseAll && component.id !== lastAddedComponentId
+                        collapseAll
+                          ? component.id !== lastAddedComponentId
+                          : false
                       }
                       collapseVersion={collapseVersion}
                     />
@@ -372,7 +374,7 @@ export default function ProjectPage() {
                   setCollapseVersion((prev) => prev + 1);
                 }}
               >
-                {collapseAll ? translation.collapseAll : translation.expandAll}
+                {collapseAll ? translation.expandAll : translation.collapseAll}
               </button>
             </div>
             <div className="flex flex-row gap-2 w-full">

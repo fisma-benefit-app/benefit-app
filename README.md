@@ -56,7 +56,10 @@
     <li>
         <a href="#quality-assurance-and-security">Quality Assurance and Security</a>
     </li>
-        <li>
+    <li>
+        <a href="#logging">Logging</a>
+    </li>
+    <li>
         <a href="#roadmap">Roadmap</a>
     </li>
     <li>
@@ -173,13 +176,25 @@ Benefit's API documentation has been created using SpringDoc and Widdershins. It
 
 ## Getting Started
 
+This guide explains how to set up the Benefit App locally for development.
+
 ### 1) Prerequisites
 
-- **Docker** installed (and running).
+- **Docker Desktop 4.39.0 or newer** installed (and running).
 - Or, for local-only dev (without Dockerized backend):
   - a local **PostgreSQL** installation (or use only the dockerized database - see 3B)
   - **Java 21**
-  - **Nodejs** and **npm**
+  - **Nodejs** and **npm** (latest LTS recommended)
+  - (Optional) **Git** and a code editor (e.g. VS Code ≥ 1.98.2)
+
+Check Java version:
+
+```bash
+java --version
+echo $JAVA_HOME # or echo %JAVA_HOME% on Windows
+```
+
+If `JAVA_HOME` is unset or points to the wrong directory, Gradle builds may fail.
 
 ### 2) Setup
 
@@ -219,7 +234,7 @@ Open:
 
 #### B) Development Without Docker (local backend)
 
-1. You only need the **frontend .env** file (`frontend/.env` with VITE_API_URL pointing to your backend).
+1. You only need the `frontend/.env` file with VITE_API_URL pointing to your backend (`http://localhost:8080` by default).
 2. If you have previously run Docker, clean backend build dirs once to avoid permission issues:
    ```bash
    sudo rm -rf backend/.gradle backend/build
@@ -229,20 +244,36 @@ Open:
      ```bash
      docker compose up db
      ```
+   - Test DB connection:
+     ```bash
+     docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+     ```
    - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
 4. Start backend:
+
    ```bash
    cd backend
    ./gradlew bootRun
    ```
+
+   Or build and run packaged jar:
+
+   ```bash
+   ./gradlew build
+   java -jar build/libs/backend-0.0.1-SNAPSHOT.jar
+   ```
+
 5. Start frontend:
+
    ```bash
    cd frontend
    npm install
    npm run dev
    ```
-   
-## 4) Other steps
+
+   By default, the app runs at `http://localhost:5173`.
+
+### 4) Other steps
 
 IMPORTANT! If you continue on developing this app, it is important to keep consistent formatting in your changes. Benefit app has a `pre-commit` Git hook to run all necessary formattings on each commit. To take advantage of this, run this command in your terminal:
 
@@ -252,13 +283,36 @@ git config core.hooksPath .githooks
 
 This command tells Git to look for the `pre-commit` hook from the `.githooks` folder.
 
----
-
-### (Optional) Quick Troubleshooting
+### (Optional) Troubleshooting
 
 - **No seed users** → ensure backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset DB once.
 - **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`.
-- npm install fails because of permissions? -> `rm -rf node_modules` inside the frontend folder
+- **Java not detected / build fails** → Ensure `JAVA_HOME` points to your JDK 21 installation. Example (PowerShell):
+
+  ```powershell
+  $javaPath = Split-Path -Path (Split-Path -Path (Get-Command java).Source -Parent) -Parent
+  setx /m JAVA_HOME $javaPath
+  ```
+
+- **Backend build errors** → Run `./gradlew clean build` and verify that `build.gradle` uses:
+
+  ```gradle
+  java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+  }
+  ```
+
+- **Database connection issues** → Double-check Docker is running, and test with `psql` as shown above. If using local Postgres, ensure the port and credentials match `application.yaml`.
+- **Switching between Docker/local backend** → Always clean `backend/.gradle` and `backend/build` before switching.
+- **Login fails with** `Error getting JWT ... Status: 404` or **Error fetching projects / JSON parse errors** → `VITE_API_URL` is likely misconfigured. Ensure it matches your backend’s URL.
+- `npm install` **fails (permissions)** → Remove the node_modules folder and try again:
+
+  ```bash
+  rm -rf node_modules
+  npm install
+  ```
 
 ### (Optional) Notes
 
@@ -374,7 +428,9 @@ or, if you want to run a specific test class:
 
 Basic authentication is used. After successful authentication, a JWT is generated and returned. A more detailed authentication guide can be found [here](documents/guides/authentication.md). Authenticated users are authorized with the role ROLE_USER.
 
-### Logging
+<!-- LOGGING -->
+
+## Logging
 
 Logging in the Benefit app covers both runtime and build/test events:
 

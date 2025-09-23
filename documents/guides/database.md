@@ -1,124 +1,69 @@
-# Database manual
+# Database Guide
 
-This is manual for Benefit-app's staging -database. You can use SQL Shell to access it, or any graphic database tool. In this example, a free tool called DBeaver is used.
+This guide explains how to connect to the Benefit App database in both local development and staging environments.
 
-## Access deployed database
-Using heroku cli:
+## 1. Local Database (Docker)
+
+For development, Postgres runs inside Docker Compose. See compose.yaml in project root for the container name, user, password, and database.
+
+### Access via Docker
+
+```sh
+docker exec -it benefit-app-postgres-1 psql -U <username> <database>
+```
+
+### Access via local psql
+
+If you have PostgreSQL installed locally:
+
+```sh
+psql -h localhost -p 5433 -U <username> <database>
+```
+
+## 2. Staging Database (Heroku Postgres)
+
+The staging database is hosted on Heroku Postgres.
+
+### Access via Heroku CLI
 
 ```sh
 heroku pg:psql postgresql-graceful-97698 --app fisma-benefit-app
 ```
 
-Or use psql with the credentials from Heroku -> Postgres -> Settings -> Database Credentials -> View credentials
+### Access via direct psql
 
-## Access local database
-See **compose.yaml** for credentials.
-
-Using Docker
+You can also connect using credentials from Heroku Dashboard:
 
 ```sh
-Docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+psql -h <host> -p <port> -U <username> <database>
 ```
 
-Or psql
+You’ll be prompted for the password.
 
-## 1) Where is database published?
+### Access via DBeaver (GUI)
 
-It was deployed to Heroku platform.
-Please read more from
+- 1. Install [DBeaver](dbeaver.io/download/).
+- 2. Go to Database → New Connection → PostgreSQL.
+- 3. Enter the values from Heroku (host, port, database, username, password).
+- 4. Click Finish. The database schema and tables will appear in the left-hand panel.
 
-## 2) How to access the database using DBeaver
+## 3. Connection URL Format
 
-### 1. Install DBeaver: https://dbeaver.io/download/
+Postgres JDBC URL format:
 
-### 2. Select Database -> New Connetion from JDBC URL:
-
-![New connection from JDBC URL](../img/images_for_guides/database_manual_new_connection_from_JDBC_URL.png)
-
-### 3. Enter your database url:
-
-It should be in the following format:
-
-`jdbc:postgresql://xxxxxx.xxxxx.xxxxx.amazonaws.com:5432/db_name`
-
-Into the opening window and click proceed:
-
-![Enter URL.](../img/images_for_guides/database_manual_enter_url.png)
-
-
-### 4. Enter username and password in the opening window:
-
-
-![Enter username and password](../img/images_for_guides/database_manual_enter_username_and_password.png)
-
-### 5. The database connection opens in the window on the left:
-
-
-![Database connection.](../img/images_for_guides/database_manual_database_connection.png)
-
-### 6. The tables can be opened and will be displayed in the central window:
-
-Data contained in the table is shown in the data-tab:
-
-
-![Database tables.](../img/images_for_guides/database_manual_tables.png)
-
-### 7: Right-clicking the rows opens a menu where data can be deleted, edited. etc.:
-
-
-![Menu for deleting data.](../img/images_for_guides/database_manual_menu_for_delete_data.png)
-
-
-
-## 3) How to access database with SQL Shell
-
-You need to install latest version of PostgreSQL DBMS in your workstation via e.g. installer from official PostgreSQL website:
-https://www.postgresql.org/
-
-Our group had 17.4.2 version during development cycle.
-
-The software is called SQL Shell in your Windows. You can activate it 
-via terminal:
-
-```sh
-psql
+```php-template
+jdbc:postgresql://<host>:<port>/<database>
 ```
 
-Then you have insert credentials to access staging -database.
+Example:
 
-2) Where are credentials?
-
-See README.md documentation from backend-credentials -repository on 
-fisma-benefit-app organisation at Github.
-
-Canonically, the credentials can be also found from Heroku.
-First go data.heroku.com and login with Heroku credentials.
-
-Then move to Add-On Services section and click "Heroku Postgres" -service from the Heroku dashboard.
-
-Lastly move from Overview to Settings -tab, move then to ADMINISTRATION -> Database Credentials section and click finally "View Credentials" -button. 
-
-In the terminal, add Host credentials in server location:
-```sh
-Server [localhost]: [INSERT Host]
+```bash
+jdbc:postgresql://ec2-00-00-00-00.compute-1.amazonaws.com:5433/fisma_db
 ```
 
-Second, add Database credentials in database section:
-```sh
-Database [postgres] : [INSERT Database]
-```
+## 4. Credentials
 
-Third, add Port credentials in port section:
-```sh
-Port [5432] : [INSERT Port]
-```
+- Source of truth: All database credentials are stored in the private backend-credentials repository.
+- Alternative: You can also view credentials in the Heroku dashboard.
 
-Fourth, add User credentials in username section:
-```sh
-Username: [Insert User]
-```
-
-Fifth and final, add Password in 
-```sh
-Password: [Insert Password]
-```
+Never commit credentials to this repository.
