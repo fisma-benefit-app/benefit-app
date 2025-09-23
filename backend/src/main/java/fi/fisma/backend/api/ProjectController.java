@@ -122,7 +122,8 @@ public class ProjectController {
                           functionalComponent.getFunctionalMultiplier(),
                           functionalComponent.getOperations(),
                           functionalComponent.getDegreeOfCompletion(),
-                          functionalComponent.getComment(),
+                          functionalComponent.getTitle(),
+                          functionalComponent.getDescription(),
                           functionalComponent.getId(),
                           functionalComponent.getOrderPosition()))
               .collect(Collectors.toSet());

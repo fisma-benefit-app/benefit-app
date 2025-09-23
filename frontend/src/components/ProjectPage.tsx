@@ -151,7 +151,8 @@ export default function ProjectPage() {
         functionalMultiplier: null,
         operations: null,
         degreeOfCompletion: null,
-        comment: null,
+        title: null,
+        description: null,
         previousFCId: null,
         orderPosition: project.functionalComponents.length,
       };

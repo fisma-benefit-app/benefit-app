@@ -95,6 +95,7 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         99L,
                         0),
                     new FunctionalComponent(
@@ -108,6 +109,7 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         100L,
                         0)),
                 Set.of(new ProjectAppUser(13L))));
@@ -153,6 +155,7 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         99L,
                         0),
                     new FunctionalComponent(
@@ -166,6 +169,7 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         100L,
                         0)),
                 Set.of(new ProjectAppUser(13L), new ProjectAppUser(15L))));
@@ -211,6 +215,7 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         99L,
                         0),
                     new FunctionalComponent(
@@ -224,6 +229,7 @@ class AppUserControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         100L,
                         0)),
                 Set.of(new ProjectAppUser(13L))));

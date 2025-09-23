@@ -67,6 +67,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     99L,
                     0),
                 new FunctionalComponent(
@@ -80,6 +81,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     100L,
                     0)),
             Set.of(new ProjectAppUser(13L)));
@@ -151,6 +153,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     99L,
                     0),
                 new FunctionalComponent(
@@ -164,6 +167,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     100L,
                     0)),
             Set.of(new ProjectAppUser(15L)));
@@ -201,6 +205,7 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         99L,
                         0),
                     new FunctionalComponent(
@@ -214,6 +219,7 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         100L,
                         0)),
                 Set.of(new ProjectAppUser(13L))),
@@ -237,6 +243,7 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         99L,
                         0),
                     new FunctionalComponent(
@@ -250,6 +257,7 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         100L,
                         0)),
                 Set.of(new ProjectAppUser(13L))));
@@ -307,6 +315,7 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         99L,
                         0),
                     new FunctionalComponent(
@@ -320,6 +329,7 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         100L,
                         0)),
                 Set.of(new ProjectAppUser(15L))),
@@ -343,6 +353,7 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         99L,
                         0),
                     new FunctionalComponent(
@@ -356,6 +367,7 @@ class ProjectControllerTest {
                         null,
                         0.34,
                         "hakijan valinnat",
+                        "Kommentti",
                         100L,
                         0)),
                 Set.of(new ProjectAppUser(15L))));
@@ -392,6 +404,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     99L,
                     0),
                 new FunctionalComponent(
@@ -405,10 +418,11 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     100L,
                     0),
                 new FunctionalComponent(
-                    101L, null, null, null, null, null, null, null, null, null, 101L, 0)),
+                    101L, null, null, null, null, null, null, null, null, null, null, 101L, 0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.save(updatedProject)).thenReturn(updatedProject);
 
@@ -469,6 +483,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     99L,
                     0),
                 new FunctionalComponent(
@@ -482,10 +497,11 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     100L,
                     0),
                 new FunctionalComponent(
-                    101L, null, null, null, null, null, null, null, null, null, 101L, 0)),
+                    101L, null, null, null, null, null, null, null, null, null, null, 101L, 0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.save(projectThatDoesNotExist)).thenReturn(projectThatDoesNotExist);
 
@@ -532,6 +548,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     49L,
                     0),
                 new FunctionalComponent(
@@ -545,6 +562,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     400L,
                     0)),
             Set.of(new ProjectAppUser(16L)));
@@ -572,6 +590,7 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     99L,
                     0),
                 new FunctionalComponent(
@@ -585,10 +604,11 @@ class ProjectControllerTest {
                     null,
                     0.34,
                     "hakijan valinnat",
+                    "Kommentti",
                     100L,
                     0),
                 new FunctionalComponent(
-                    101L, null, null, null, null, null, null, null, null, null, 101L, 0)),
+                    101L, null, null, null, null, null, null, null, null, null, null, 101L, 0)),
             Set.of(new ProjectAppUser(13L)));
     when(projectRepository.save(projectThatIsTriedToUpdate)).thenReturn(projectThatIsTriedToUpdate);
 
