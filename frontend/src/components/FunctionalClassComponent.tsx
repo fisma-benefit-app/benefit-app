@@ -104,13 +104,15 @@ export default function FunctionalClassComponent({
     setProject(updatedProject);
   };
 
-  const handleComponentChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleComponentChange = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     let updatedComponent;
     let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
-    if (["comment"].includes(e.target.id)) {
+    if (["title", "description"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
     } else {
       if (e.target.id === "degreeOfCompletion") {
@@ -129,7 +131,7 @@ export default function FunctionalClassComponent({
           if (num < 0) value = "0";
           if (num > 1) value = "1";
         }
-      } else if (e.target.id !== "comment") {
+      } else if (e.target.id !== "title" && e.target.id !== "description") {
         const num = parseFloat(value);
         // correct any number greater than 99999 and less than 0
         if (num > 99999) {
@@ -162,12 +164,13 @@ export default function FunctionalClassComponent({
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex-1 min-w-[200px]">
-            <p>{component.orderPosition} pos</p>
+            {/* TODO: Remove this once you know why positioning doesn't work */}
+            <p>{component.orderPosition} pos</p>{" "}
             <input
               className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
-              id="comment"
-              placeholder={translation.commentPlaceholder}
-              value={component.comment || ""}
+              id="title"
+              placeholder={translation.titlePlaceholder}
+              value={component.title || ""}
               onChange={handleComponentChange}
               disabled={!isLatest}
             />
@@ -214,6 +217,20 @@ export default function FunctionalClassComponent({
 
         {isCollapsed && (
           <>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="description" className="font-medium">
+                {translation.descriptionPlaceholder}:
+              </label>
+              <textarea
+                id="description"
+                value={component.description || ""}
+                onChange={handleComponentChange}
+                className="w-1/2 border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
+                rows={3}
+                disabled={!isLatest}
+              />
+            </div>
+
             <label className="font-medium">
               {translation.degreeOfCompletionPlaceholder}:
             </label>
@@ -297,8 +314,8 @@ export default function FunctionalClassComponent({
 
       <ConfirmModal
         message={
-          component.comment
-            ? `${translation.confirmDeleteMessage} "${component.comment}?"`
+          component.title
+            ? `${translation.confirmDeleteMessage} "${component.title}?"`
             : `${translation.confirmDeleteMessage}?`
         }
         open={isConfirmModalOpen}
