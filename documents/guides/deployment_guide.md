@@ -4,7 +4,7 @@ This guide describes the step-by-step process of deploying the backend (Heroku) 
 
 We can deploy the app to two different environments: testing (staging) and production environments.
 
-## 1. Backend Deployment (Heroku)
+## Backend Deployment (Heroku)
 
 - Testing:
   - Heroku App Dashboard (testing): https://dashboard.heroku.com/apps/fisma-benefit-app-testing
@@ -34,7 +34,7 @@ pg_dump <db-url> > backup.sql
 # To restore the database if needed
 psql <db-url> < backup.sql
 
-# Example: pg_dump postgres://username:password@host:port/dbname > backup.sql
+# Example: psql postgres://username:password@host:port/dbname < backup.sql
 ```
 
 ### 2. Deploy via Heroku Dashboard
@@ -92,9 +92,9 @@ VITE_BASE_PATH=/benefit-app/testing/
 
 ### 3. Build & Deploy
 
-Make sure to have pulled the latest changes in `sprint/X` and `main` branches. In `sprint/X`, `X` is the number of current sprint.
+Make sure to have pulled the latest changes in `sprint/X` and `main` branches. In `sprint/X`, `X` is the number of the current sprint.
 
-Deployment to testing environment is done from `sprint/X` branch. Deployment to production environment is done from `main` branch.
+Deployment to testing environment is done from the `sprint/X` branch. Deployment to production environment is done from the `main` branch.
 
 ```bash
 # To deploy to testing environment
