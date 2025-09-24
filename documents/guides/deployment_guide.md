@@ -74,7 +74,7 @@ npm install
 
 ### 2. Set .env variables
 
-Edit `frontend/.env.production` and `frontend/.env.testing` with the corrent backend URL and GitHub Pages base path:
+Edit `frontend/.env.production` and `frontend/.env.testing` with the correct backend URL and GitHub Pages base path:
 
 ```bash
 # .env.production
