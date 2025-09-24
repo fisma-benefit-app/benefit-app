@@ -21,13 +21,21 @@ We can deploy the app to two different environments: testing (staging) and produ
 
 ### 1. Backup Database
 
-Before any deployment, ensure a database backup is taken.
+Before any deployment, ensure a database backup is taken. Get credentials from the `backend-credentials` repo.
 
 ```bash
+# Make database backup
 pg_dump <db-url> > backup.sql
+
+# Example: pg_dump postgres://username:password@host:port/dbname > backup.sql
 ```
 
-(Get credentials from the `backend-credentials` repo.)
+```bash
+# To restore the database if needed
+psql <db-url> < backup.sql
+
+# Example: pg_dump postgres://username:password@host:port/dbname > backup.sql
+```
 
 ### 2. Deploy via Heroku Dashboard
 
@@ -66,7 +74,7 @@ npm install
 
 ### 2. Set .env variables
 
-Edit `frontend/.env.production` and `frontend/.env.testing` with the correnct backend URL and GitHub Pages base path:
+Edit `frontend/.env.production` and `frontend/.env.testing` with the corrent backend URL and GitHub Pages base path:
 
 ```bash
 # .env.production
@@ -91,7 +99,7 @@ Deployment to testing environment is done from `sprint/X` branch. Deployment to 
 ```bash
 # To deploy to testing environment
 git switch sprint/X
-git pull origin sprint/9
+git pull origin sprint/X
 cd frontend
 npm run deploy:testing
 ```
@@ -122,4 +130,4 @@ These run:
 
 - Always backup the database before backend deployment
 - Ensure `.env.testing` and `.env.production` have the correct Heroku backend URLs and base paths before building frontend to testing or production
-- Run frontend deployment scripts from correct branches (`sprint/X` branch for testing, `main` for testing)
+- Run frontend deployment scripts from correct branches (`sprint/X` branch for testing, `main` for production)
