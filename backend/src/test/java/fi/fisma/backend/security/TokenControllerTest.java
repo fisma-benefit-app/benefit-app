@@ -1,23 +1,54 @@
 package fi.fisma.backend.security;
 
-import fi.fisma.backend.api.ProjectController;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import fi.fisma.backend.repository.AppUserRepository;
-import fi.fisma.backend.repository.ProjectRepository;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@WebMvcTest({TokenController.class, ProjectController.class})
+@WebMvcTest({TokenController.class})
 @Import({SecurityConfig.class, UserDetailsServiceImpl.class, TokenService.class})
 class TokenControllerTest {
 
   @Autowired MockMvcTester mockMvc;
 
   @MockitoBean AppUserRepository appUserRepository;
+  @MockitoBean TokenService tokenService;
 
-  @MockitoBean ProjectRepository projectRepository;
+  private final JwtRequestPostProcessor jwtAuth =
+      org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+          .jwt()
+          .jwt(jwt -> jwt.subject("test-user"));
+
+  @Test
+  void testGetToken() {
+    when(tokenService.generateToken(any())).thenReturn("mocked-jwt");
+
+    var response = mockMvc.post().uri("/token").with(jwtAuth).exchange();
+
+    assertThat(response).hasStatus(HttpStatus.OK);
+
+    // Assert Authorization header
+    String authHeader = response.getResponse().getHeader(HttpHeaders.AUTHORIZATION);
+    assertThat(authHeader).isEqualTo("Bearer mocked-jwt");
+
+    // Assert CORS header is present
+    String exposedHeader =
+        response.getResponse().getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS);
+    assertThat(exposedHeader).isEqualTo("Authorization");
+
+    verify(tokenService).generateToken(any());
+  }
 
   /*
 

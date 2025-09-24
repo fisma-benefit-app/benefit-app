@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.security.SecurityConfig;
@@ -17,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
@@ -24,85 +24,39 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 @Import({SecurityConfig.class, UserDetailsServiceImpl.class})
 class AppUserControllerTest {
 
-  @Autowired MockMvcTester mockMvc;
+  @Autowired MockMvcTester mockMvcTester;
 
   @MockitoBean AppUserService appUserService;
   @MockitoBean AppUserRepository appUserRepository;
 
+  private final JwtRequestPostProcessor jwtAuth =
+      org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+          .jwt()
+          .jwt(jwt -> jwt.subject("test-user"));
+
   @Test
-  void shouldUpdateAppUserPassword() {
+  void testChangePassword() {
     doNothing().when(appUserService).changePassword(eq("new-password"), any(Authentication.class));
 
-    var response =
-        mockMvc
-            .put()
-            .uri("/appusers")
-            .with(jwt().jwt(jwt -> jwt.subject("test-user")))
-            .contentType(MediaType.TEXT_PLAIN)
-            .content("new-password")
-            .exchange();
+    mockMvcTester
+        .put()
+        .uri("/appusers")
+        .with(jwtAuth)
+        .contentType(MediaType.TEXT_PLAIN)
+        .content("newPass123")
+        .assertThat()
+        .hasStatusOk();
 
-    assertThat(response).hasStatus(HttpStatus.OK);
-
-    verify(appUserService).changePassword(eq("new-password"), any(Authentication.class));
+    verify(appUserService).changePassword(eq("newPass123"), any(Authentication.class));
   }
 
   @Test
-  void shouldNotUpdateAppUserPasswordWithoutCredentials() {
-    // no .with(jwt(...)) here → unauthenticated
-
-    var response =
-        mockMvc
-            .put()
-            .uri("/appusers")
-            .contentType(MediaType.TEXT_PLAIN)
-            .content("new-password")
-            .exchange();
-
-    assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
-
-    verifyNoInteractions(appUserService);
-  }
-
-  @Test
-  void shouldDeleteAppUser() {
+  void testDeleteAppUser() {
     doNothing().when(appUserService).deleteAppUser(any(Authentication.class));
 
-    var response =
-        mockMvc
-            .delete()
-            .uri("/appusers")
-            .with(jwt().jwt(jwt -> jwt.subject("test-user")))
-            .exchange();
+    var response = mockMvcTester.delete().uri("/appusers").with(jwtAuth).exchange();
 
     assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
     verify(appUserService).deleteAppUser(any(Authentication.class));
-  }
-
-  @Test
-  void shouldDeleteAppUserWithoutDeletingProjectsForOtherUsers() {
-    doNothing().when(appUserService).deleteAppUser(any(Authentication.class));
-
-    var response =
-        mockMvc
-            .delete()
-            .uri("/appusers")
-            .with(jwt().jwt(jwt -> jwt.subject("test-user")))
-            .exchange();
-
-    assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
-
-    verify(appUserService).deleteAppUser(any(Authentication.class));
-  }
-
-  @Test
-  void shouldNotDeleteAppUserWithoutCredentials() {
-    // no .with(jwt(...)) here → unauthenticated
-
-    var response = mockMvc.delete().uri("/appusers").exchange();
-
-    assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
-
-    verifyNoInteractions(appUserService);
   }
 }

@@ -18,7 +18,6 @@ public class AppUserController {
       @RequestBody String updatedPassword,
       Authentication authentication,
       BCryptPasswordEncoder passwordEncoder) {
-
     appUserService.changePassword(updatedPassword, authentication);
     return ResponseEntity.ok().build();
   }
