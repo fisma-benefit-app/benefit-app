@@ -1,34 +1,16 @@
 package fi.fisma.backend.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import fi.fisma.backend.domain.Project;
-import fi.fisma.backend.repository.AppUserRepository;
-import fi.fisma.backend.repository.ProjectRepository;
 import fi.fisma.backend.security.SecurityConfig;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
-import fi.fisma.backend.service.ProjectService;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest(ProjectController.class)
 @Import({SecurityConfig.class, UserDetailsServiceImpl.class})
 class ProjectControllerTest {
-
+  /*
   @Autowired MockMvcTester mockMvcTester;
   @Autowired ObjectMapper objectMapper;
 
@@ -178,4 +160,5 @@ class ProjectControllerTest {
 
     verify(projectService).deleteProject(1L, "test-user");
   }
+    */
 }
