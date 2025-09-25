@@ -1,131 +1,79 @@
 package fi.fisma.backend.service;
 
-import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
+import fi.fisma.backend.dto.ProjectRequest;
+import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.exception.EntityNotFoundException;
+import fi.fisma.backend.exception.UnauthorizedException;
+import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProjectService {
 
   private final ProjectRepository projectRepository;
   private final AppUserRepository appUserRepository;
+  private final ProjectMapper projectMapper;
 
-  public Project getProject(Long projectId, String username) {
-    var project =
-        projectRepository
-            .findByProjectIdAndUsername(projectId, username)
-            .orElseThrow(
-                () -> new EntityNotFoundException("Project not found with id: " + projectId));
-
-    return project;
+  public ProjectResponse getProject(Long projectId, String username) {
+    return projectMapper.toResponse(findProjectForUser(projectId, username));
   }
 
-  public List<Project> getAllProjects(String username) {
-    return projectRepository.findAllByUsername(username);
+  public List<ProjectResponse> getAllProjects(String username) {
+    return projectRepository.findAllByUsername(username).stream()
+        .map(projectMapper::toResponse)
+        .collect(Collectors.toList());
   }
 
-  public Project updateProject(Long projectId, Project projectUpdate, String username) {
-    var existingProject =
-        projectRepository
-            .findByProjectIdAndUsername(projectId, username)
-            .orElseThrow(
-                () -> new EntityNotFoundException("Project not found with id: " + projectId));
-
-    var updatedProject =
-        new Project(
-            existingProject.getId(),
-            projectUpdate.getProjectName(),
-            projectUpdate.getVersion(),
-            projectUpdate.getCreatedDate(),
-            projectUpdate.getVersionDate(),
-            projectUpdate.getEditedDate(),
-            projectUpdate.getTotalPoints(),
-            projectUpdate.getFunctionalComponents(),
-            projectUpdate.getAppUsers());
-
-    return projectRepository.save(updatedProject);
+  public ProjectResponse updateProject(
+      Long projectId, ProjectRequest projectUpdate, String username) {
+    var project = findProjectForUser(projectId, username);
+    projectMapper.updateEntityFromRequest(project, projectUpdate);
+    return projectMapper.toResponse(projectRepository.save(project));
   }
 
-  public Optional<Project> createProject(Project newProjectRequest, String username) {
+  public ProjectResponse createProject(ProjectRequest newProjectRequest, String username) {
     var appUser = appUserRepository.findByUsername(username);
-    if (appUser == null) return Optional.empty();
+    if (appUser == null) {
+      throw new UnauthorizedException("User not found: " + username);
+    }
 
-    var savedProject =
-        projectRepository.save(
-            new Project(
-                null,
-                newProjectRequest.getProjectName(),
-                newProjectRequest.getVersion(),
-                newProjectRequest.getCreatedDate(),
-                newProjectRequest.getVersionDate(),
-                newProjectRequest.getEditedDate(),
-                newProjectRequest.getTotalPoints(),
-                newProjectRequest.getFunctionalComponents(),
-                Set.of(new ProjectAppUser(appUser.getId()))));
-
-    return Optional.of(savedProject);
+    var project = projectMapper.toEntity(newProjectRequest);
+    project.setAppUsers(Set.of(new ProjectAppUser(appUser.getId())));
+    return projectMapper.toResponse(projectRepository.save(project));
   }
 
-  public Optional<Project> createProjectVersion(Project newProjectVersion, String username) {
+  public ProjectResponse createProjectVersion(
+      Long projectId, ProjectRequest versionRequest, String username) {
+    var originalProject = findProjectForUser(projectId, username);
     var appUser = appUserRepository.findByUsername(username);
-    if (appUser == null) return Optional.empty();
+    if (appUser == null) {
+      throw new UnauthorizedException("User not found: " + username);
+    }
 
-    var savedNewVersionProject =
-        projectRepository.save(
-            new Project(
-                null,
-                newProjectVersion.getProjectName(),
-                newProjectVersion.getVersion(),
-                newProjectVersion.getCreatedDate(),
-                newProjectVersion.getVersionDate(),
-                newProjectVersion.getEditedDate(),
-                newProjectVersion.getTotalPoints(),
-                Set.of(),
-                newProjectVersion.getAppUsers()));
-
-    var functionalComponentsForNewVersion =
-        newProjectVersion.getFunctionalComponents().stream()
-            .map(
-                fc ->
-                    new FunctionalComponent(
-                        null,
-                        fc.getClassName(),
-                        fc.getComponentType(),
-                        fc.getDataElements(),
-                        fc.getReadingReferences(),
-                        fc.getWritingReferences(),
-                        fc.getFunctionalMultiplier(),
-                        fc.getOperations(),
-                        fc.getDegreeOfCompletion(),
-                        fc.getTitle(),
-                        fc.getDescription(),
-                        fc.getId(),
-                        fc.getOrderPosition()))
-            .collect(Collectors.toSet());
-
-    savedNewVersionProject.setFunctionalComponents(functionalComponentsForNewVersion);
-    projectRepository.save(savedNewVersionProject);
-
-    return Optional.of(savedNewVersionProject);
+    var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
+    newVersion.setAppUsers(Set.of(new ProjectAppUser(appUser.getId())));
+    return projectMapper.toResponse(projectRepository.save(newVersion));
   }
 
   public void deleteProject(Long projectId, String username) {
-    var existingProject =
-        projectRepository
-            .findByProjectIdAndUsername(projectId, username)
-            .orElseThrow(
-                () -> new EntityNotFoundException("Project not found with id: " + projectId));
+    var project = findProjectForUser(projectId, username);
+    projectRepository.deleteById(project.getId());
+  }
 
-    projectRepository.deleteById(existingProject.getId());
+  private Project findProjectForUser(Long projectId, String username) {
+    return projectRepository
+        .findByProjectIdAndUsername(projectId, username)
+        .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
   }
 }
