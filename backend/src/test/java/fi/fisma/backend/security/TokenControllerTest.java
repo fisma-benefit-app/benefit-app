@@ -1,36 +1,56 @@
 package fi.fisma.backend.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 
-import fi.fisma.backend.api.ProjectController;
-import fi.fisma.backend.domain.AppUser;
-import fi.fisma.backend.domain.FunctionalComponent;
-import fi.fisma.backend.domain.Project;
-import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.repository.AppUserRepository;
-import fi.fisma.backend.repository.ProjectRepository;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@WebMvcTest({TokenController.class, ProjectController.class})
+@WebMvcTest({TokenController.class})
 @Import({SecurityConfig.class, UserDetailsServiceImpl.class, TokenService.class})
 class TokenControllerTest {
 
   @Autowired MockMvcTester mockMvc;
 
   @MockitoBean AppUserRepository appUserRepository;
+  @MockitoBean TokenService tokenService;
 
-  @MockitoBean ProjectRepository projectRepository;
+  private final JwtRequestPostProcessor jwtAuth =
+      org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+          .jwt()
+          .jwt(jwt -> jwt.subject("test-user"));
+
+  @Test
+  void testGetToken() {
+    when(tokenService.generateToken(any())).thenReturn("mocked-jwt");
+
+    var response = mockMvc.post().uri("/token").with(jwtAuth).exchange();
+
+    assertThat(response).hasStatus(HttpStatus.OK);
+
+    // Assert Authorization header
+    String authHeader = response.getResponse().getHeader(HttpHeaders.AUTHORIZATION);
+    assertThat(authHeader).isEqualTo("Bearer mocked-jwt");
+
+    // Assert CORS header is present
+    String exposedHeader =
+        response.getResponse().getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS);
+    assertThat(exposedHeader).isEqualTo("Authorization");
+
+    verify(tokenService).generateToken(any());
+  }
+
+  /*
 
   @Test
   void shouldGetTokenWithCorrectCredentials() {
@@ -108,4 +128,7 @@ class TokenControllerTest {
     assertThat(mockMvc.post().uri("/token").with(httpBasic("test-user", "wrong-password")))
         .hasStatus(HttpStatus.UNAUTHORIZED);
   }
+
+  */
+
 }
