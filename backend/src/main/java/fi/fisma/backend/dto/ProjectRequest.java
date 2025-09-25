@@ -2,9 +2,9 @@ package fi.fisma.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.Set;
 import lombok.Data;
 
 @Data
@@ -16,31 +16,12 @@ public class ProjectRequest {
       regexp = "^[\\w\\-\\s]+$",
       message = "Project name can only contain letters, numbers, spaces, and hyphens")
   @Schema(description = "Name of the project", example = "My Project")
-  private String name;
+  private String projectName;
 
-  @NotNull(message = "Project type must be specified")
-  @Pattern(
-      regexp = "^(BACKEND|FRONTEND|FULLSTACK|MOBILE|DESKTOP|OTHER)$",
-      message = "Project type must be one of: BACKEND, FRONTEND, FULLSTACK, MOBILE, DESKTOP, OTHER")
-  @Schema(description = "Type of the project", example = "BACKEND")
-  private String projectType;
+  @Schema(description = "Version of the project", example = "1")
+  private Integer version;
 
-  @Size(max = 1000, message = "Description cannot exceed 1000 characters")
-  @Schema(
-      description = "Optional description of the project",
-      example = "A backend service for user management")
-  private String description;
+  Set<FunctionalComponentRequest> functionalComponents;
 
-  @NotNull(message = "Language must be specified")
-  @Pattern(
-      regexp = "^(JAVA|PYTHON|JAVASCRIPT|TYPESCRIPT|CSHARP|OTHER)$",
-      message = "Language must be one of: JAVA, PYTHON, JAVASCRIPT, TYPESCRIPT, CSHARP, OTHER")
-  @Schema(description = "Primary programming language of the project", example = "JAVA")
-  private String language;
-
-  @Pattern(
-      regexp = "^\\d+\\.\\d+\\.\\d+$",
-      message = "Version must be in semantic versioning format (e.g., 1.0.0)")
-  @Schema(description = "Version of the project in semantic versioning format", example = "1.0.0")
-  private String version;
+  Set<Long> appUserIds;
 }

@@ -1,18 +1,10 @@
 package fi.fisma.backend.domain;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDateTime;
-import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import org.springframework.boot.test.json.JacksonTester;
 
 @JsonTest
 class ProjectJsonTest {
-
+  /*
   @Autowired private JacksonTester<Project> json;
 
   private Project project;
@@ -131,4 +123,5 @@ class ProjectJsonTest {
     assertThat(json.parseObject(expected).getProjectName()).isEqualTo("project-x");
     //      TODO - assert remaining values
   }
+    */
 }

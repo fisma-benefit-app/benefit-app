@@ -15,19 +15,18 @@ public class ProjectMapper {
   public ProjectResponse toResponse(Project project) {
     var response = new ProjectResponse();
     response.setId(project.getId());
-    response.setName(project.getProjectName());
+    response.setProjectName(project.getProjectName());
     response.setVersion(project.getVersion());
-    response.setCreatedAt(project.getCreatedDate());
-    response.setUpdatedAt(project.getEditedDate());
+    response.setCreatedDate(project.getCreatedDate());
+    response.setEditedDate(project.getEditedDate());
     return response;
   }
 
   public Project toEntity(ProjectRequest request) {
     return new Project(
         null,
-        request.getName(),
+        request.getProjectName(),
         request.getVersion(),
-        LocalDateTime.now(),
         LocalDateTime.now(),
         LocalDateTime.now(),
         0.0, // Initial total points
@@ -37,7 +36,7 @@ public class ProjectMapper {
   }
 
   public void updateEntityFromRequest(Project project, ProjectRequest request) {
-    project.setProjectName(request.getName());
+    project.setProjectName(request.getProjectName());
     project.setVersion(request.getVersion());
     project.setEditedDate(LocalDateTime.now());
   }
@@ -46,9 +45,8 @@ public class ProjectMapper {
     Project newVersion =
         new Project(
             null,
-            request.getName(),
+            request.getProjectName(),
             request.getVersion(),
-            originalProject.getCreatedDate(),
             LocalDateTime.now(), // new version date
             LocalDateTime.now(), // new edited date
             originalProject.getTotalPoints(),
