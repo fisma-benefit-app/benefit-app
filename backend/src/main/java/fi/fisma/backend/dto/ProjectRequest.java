@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
 
-@Data
+@Data // Make request-type DTO mutable
 @Schema(description = "Request object for creating or updating a project")
 public class ProjectRequest {
   @NotBlank(message = "Project name is required")

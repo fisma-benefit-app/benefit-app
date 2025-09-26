@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-@Data
+@Data // Make request-type DTO mutable
 @Schema(
     description = "Request object for creating or updating functional components within a project")
 public class FunctionalComponentRequest {

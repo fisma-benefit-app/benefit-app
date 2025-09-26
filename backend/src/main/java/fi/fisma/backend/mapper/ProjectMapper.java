@@ -2,8 +2,11 @@ package fi.fisma.backend.mapper;
 
 import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
+import fi.fisma.backend.dto.AppUserSummary;
+import fi.fisma.backend.dto.FunctionalComponentResponse;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
+import fi.fisma.backend.repository.AppUserRepository;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,13 +15,48 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectMapper {
 
+  private final AppUserRepository appUserRepository;
+
+  public ProjectMapper(AppUserRepository appUserRepository) {
+    this.appUserRepository = appUserRepository;
+  }
+
   public ProjectResponse toResponse(Project project) {
-    var response = new ProjectResponse();
-    response.setId(project.getId());
-    response.setProjectName(project.getProjectName());
-    response.setVersion(project.getVersion());
-    response.setCreatedDate(project.getCreatedDate());
-    response.setEditedDate(project.getEditedDate());
+    var response =
+        new ProjectResponse(
+            project.getId(),
+            project.getProjectName(),
+            project.getVersion(),
+            project.getCreatedDate(),
+            project.getVersionDate(),
+            project.getEditedDate(),
+            project.getTotalPoints(),
+            project.getFunctionalComponents().stream()
+                .map(
+                    fc ->
+                        new FunctionalComponentResponse(
+                            fc.getId(),
+                            fc.getClassName(),
+                            fc.getComponentType(),
+                            fc.getDataElements(),
+                            fc.getReadingReferences(),
+                            fc.getWritingReferences(),
+                            fc.getFunctionalMultiplier(),
+                            fc.getOperations(),
+                            fc.getDegreeOfCompletion(),
+                            fc.getTitle(),
+                            fc.getDescription(),
+                            fc.getPreviousFCId(),
+                            fc.getOrderPosition()))
+                .collect(Collectors.toSet()),
+            project.getAppUsers().stream()
+                .map(
+                    pau ->
+                        appUserRepository
+                            .findById(pau.getAppUserId())
+                            .map(user -> new AppUserSummary(user.getId(), user.getUsername()))
+                            .orElseThrow(() -> new RuntimeException("User not found")))
+                .collect(Collectors.toSet()));
     return response;
   }
 

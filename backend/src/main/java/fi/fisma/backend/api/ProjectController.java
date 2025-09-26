@@ -75,7 +75,7 @@ public class ProjectController {
       UriComponentsBuilder ucb,
       Authentication authentication) {
     var savedProject = projectService.createProject(newProjectRequest, authentication.getName());
-    URI location = ucb.path("/api/v1/projects/{id}").buildAndExpand(savedProject.getId()).toUri();
+    URI location = ucb.path("/api/v1/projects/{id}").buildAndExpand(savedProject.id()).toUri();
     return ResponseEntity.created(location).build();
   }
 
@@ -93,7 +93,7 @@ public class ProjectController {
       UriComponentsBuilder ucb) {
     var savedProject =
         projectService.createProjectVersion(id, versionRequest, authentication.getName());
-    URI location = ucb.path("/api/v1/projects/{id}").buildAndExpand(savedProject.getId()).toUri();
+    URI location = ucb.path("/api/v1/projects/{id}").buildAndExpand(savedProject.id()).toUri();
     return ResponseEntity.created(location).build();
   }
 

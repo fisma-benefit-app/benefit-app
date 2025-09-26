@@ -34,24 +34,4 @@ public class AppUser {
   @Size(max = 64, message = "Password must not exceed 64 characters")
   @Column("password")
   private String password;
-
-  public AppUser(String username, String password) {
-    this.username = username;
-    this.password = password;
-  }
-
-  // Custom equals method to avoid password comparison
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof AppUser)) return false;
-    AppUser other = (AppUser) o;
-    return id != null && id.equals(other.getId());
-  }
-
-  // Custom hashCode to match equals
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
-  }
 }

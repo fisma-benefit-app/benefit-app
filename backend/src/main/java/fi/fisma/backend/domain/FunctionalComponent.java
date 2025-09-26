@@ -69,36 +69,4 @@ public class FunctionalComponent {
   @Min(value = 0, message = "Order position cannot be negative")
   @Column("order_position")
   private Integer orderPosition = 0;
-
-  public FunctionalComponent(String className, String componentType, String title) {
-    this.className = className;
-    this.componentType = componentType;
-    this.title = title;
-  }
-
-  public double calculatePoints() {
-    double basePoints =
-        (dataElements + readingReferences + writingReferences) * functionalMultiplier * operations;
-    return basePoints * degreeOfCompletion;
-  }
-
-  public void incrementReferences() {
-    this.readingReferences++;
-    this.writingReferences++;
-  }
-
-  public void setCompletionStatus(double completion) {
-    if (completion < 0.0 || completion > 1.0) {
-      throw new IllegalArgumentException("Completion must be between 0 and 1");
-    }
-    this.degreeOfCompletion = completion;
-  }
-
-  public boolean isComplete() {
-    return Double.compare(degreeOfCompletion, 1.0) == 0;
-  }
-
-  public boolean hasReferences() {
-    return readingReferences > 0 || writingReferences > 0;
-  }
 }

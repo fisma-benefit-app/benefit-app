@@ -18,28 +18,18 @@ public class ProjectAppUser {
 
   @Id private Long id;
 
+  // Will result in N+1 query problems with large numbers of users in the
+  // future, consider adding ManyToOne relationship to AppUser instead
   @NotNull(message = "User ID is required")
   @Column("app_user_id")
   private Long appUserId;
 
+  // Consider adding ManyToOne relationship to Project instead
   @NotNull(message = "Project ID is required")
   @Column("project_id")
   private Long projectId;
 
   public ProjectAppUser(Long appUserId) {
     this.appUserId = appUserId;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ProjectAppUser)) return false;
-    ProjectAppUser other = (ProjectAppUser) o;
-    return id != null && id.equals(other.getId());
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
   }
 }

@@ -58,36 +58,4 @@ public class Project {
 
   @MappedCollection(idColumn = "project_id")
   private Set<ProjectAppUser> appUsers = new HashSet<>();
-
-  public Project(String projectName) {
-    this.projectName = projectName;
-  }
-
-  public void addFunctionalComponent(FunctionalComponent component) {
-    functionalComponents.add(component);
-    recalculateTotalPoints();
-  }
-
-  public void removeFunctionalComponent(FunctionalComponent component) {
-    functionalComponents.remove(component);
-    recalculateTotalPoints();
-  }
-
-  public void addUser(ProjectAppUser user) {
-    appUsers.add(user);
-  }
-
-  public void removeUser(ProjectAppUser user) {
-    appUsers.remove(user);
-  }
-
-  private void recalculateTotalPoints() {
-    this.totalPoints =
-        functionalComponents.stream().mapToDouble(FunctionalComponent::calculatePoints).sum();
-  }
-
-  public void incrementVersion() {
-    this.version++;
-    this.versionDate = LocalDateTime.now();
-  }
 }
