@@ -35,7 +35,7 @@ values (99, 'project-x', 1, '2025-01-28T17:23:19', '2025-01-28T17:23:19', '2025-
        (101, 'users another project', 3, '2025-01-29T19:19:22', '2025-01-29T19:19:22', '2025-01-28T17:23:19',32);
 
 insert into functional_component (id, class_name, component_type, data_elements, reading_references, writing_references,
-                                  functional_multiplier, operations, degree_of_completion, title, description, previous_FC_id , project_id, order_position)
+                                  functional_multiplier, operations, degree_of_completion, title, description, previous_fc_id, project_id, order_position)
 values (1, 'Interactive end-user input service', '1-functional', 2, 4, 2, null, 3, 0.12, 'hakijan syöte', 'Description for hakijan syöte', 1, 99, 1),
        (5, 'Interactive end-user input service', '1-functional', 2, 4, 2, null, 3, 0.34, 'montako tulee', 'Description for montako tulee', 5, 100, 2),
        (6, 'Interactive end-user input service', '1-functional', 2, 4, 2, null, 3, 0.5, 'valittavana kaupungit', 'Description for valittavana kaupungit', 6, 101, 3);

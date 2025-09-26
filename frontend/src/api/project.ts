@@ -114,7 +114,7 @@ const createNewProjectVersion = async (
   if (!sessionToken)
     throw new Error("User needs to be logged in to create a project!");
 
-  const fetchURL = `${API_URL}/projects/versions`;
+  const fetchURL = `${API_URL}/projects/${previousProject.id}/versions`;
   const headers = {
     Authorization: sessionToken,
     "Content-Type": "application/json",

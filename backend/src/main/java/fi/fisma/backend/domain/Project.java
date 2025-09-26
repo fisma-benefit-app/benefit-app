@@ -7,20 +7,18 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 @Table("project")
 public class Project {
@@ -38,15 +36,14 @@ public class Project {
 
   @NotNull(message = "Creation date is required")
   @Column("created_date")
-  private final LocalDateTime createdDate = LocalDateTime.now();
+  private LocalDateTime createdDate;
 
   @NotNull(message = "Version date is required")
   @Column("version_date")
-  private LocalDateTime versionDate = LocalDateTime.now();
+  private LocalDateTime versionDate;
 
-  @LastModifiedDate
   @Column("edited_date")
-  private LocalDateTime editedDate = LocalDateTime.now();
+  private LocalDateTime editedDate;
 
   @NotNull(message = "Total points are required")
   @PositiveOrZero(message = "Total points cannot be negative")

@@ -5,7 +5,6 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +15,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 @Table("functional_component")
 public class FunctionalComponent {
@@ -62,7 +61,7 @@ public class FunctionalComponent {
   @Column("description")
   private String description;
 
-  @Column("previous_FC_id")
+  @Column("previous_fc_id")
   private Long previousFCId;
 
   @NotNull(message = "Order position is required")

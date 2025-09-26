@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -15,8 +14,6 @@ import org.springframework.data.relational.core.mapping.Table;
 @AllArgsConstructor
 @Table("project_app_user")
 public class ProjectAppUser {
-
-  @Id private Long id;
 
   // Will result in N+1 query problems with large numbers of users in the
   // future, consider adding ManyToOne relationship to AppUser instead

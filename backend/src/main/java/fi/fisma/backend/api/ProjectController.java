@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/projects")
 @RequiredArgsConstructor
 @Tag(name = "Project Management", description = "Endpoints for managing projects")
 public class ProjectController {
@@ -75,7 +75,7 @@ public class ProjectController {
       UriComponentsBuilder ucb,
       Authentication authentication) {
     var savedProject = projectService.createProject(newProjectRequest, authentication.getName());
-    URI location = ucb.path("/api/v1/projects/{id}").buildAndExpand(savedProject.id()).toUri();
+    URI location = ucb.path("/projects/{id}").buildAndExpand(savedProject.id()).toUri();
     return ResponseEntity.created(location).build();
   }
 
@@ -93,7 +93,7 @@ public class ProjectController {
       UriComponentsBuilder ucb) {
     var savedProject =
         projectService.createProjectVersion(id, versionRequest, authentication.getName());
-    URI location = ucb.path("/api/v1/projects/{id}").buildAndExpand(savedProject.id()).toUri();
+    URI location = ucb.path("/projects/{id}").buildAndExpand(savedProject.id()).toUri();
     return ResponseEntity.created(location).build();
   }
 
