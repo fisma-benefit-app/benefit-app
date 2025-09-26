@@ -1,15 +1,57 @@
 package fi.fisma.backend.domain;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table("app_user")
 public class AppUser {
+
   @Id private Long id;
+
+  @NotEmpty(message = "Username is required")
+  @Size(max = 50, message = "Username must not exceed 50 characters")
+  @Pattern(
+      regexp = "^[a-zA-Z0-9._-]+$",
+      message = "Username can only contain letters, numbers, dots, underscores and hyphens")
+  @Column("username")
   private String username;
+
+  // Why max 64 characters? See OWASP's Authentication Cheat Sheet:
+  // https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
+  @NotEmpty(message = "Password is required")
+  @Size(max = 64, message = "Password must not exceed 64 characters")
+  @Column("password")
   private String password;
+
+  public AppUser(String username, String password) {
+    this.username = username;
+    this.password = password;
+  }
+
+  // Custom equals method to avoid password comparison
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AppUser)) return false;
+    AppUser other = (AppUser) o;
+    return id != null && id.equals(other.getId());
+  }
+
+  // Custom hashCode to match equals
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }

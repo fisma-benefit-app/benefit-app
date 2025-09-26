@@ -2,8 +2,11 @@ package fi.fisma.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
 
@@ -11,17 +14,24 @@ import lombok.Data;
 @Schema(description = "Request object for creating or updating a project")
 public class ProjectRequest {
   @NotBlank(message = "Project name is required")
-  @Size(min = 1, max = 255, message = "Project name must be between 1 and 255 characters")
+  @Size(max = 255, message = "Project name must not exceed 255 characters")
   @Pattern(
       regexp = "^[\\w\\-\\s]+$",
       message = "Project name can only contain letters, numbers, spaces, and hyphens")
-  @Schema(description = "Name of the project", example = "My Project")
+  @Schema(
+      description = "Name of the project",
+      example = "User Authentication System",
+      required = true)
   private String projectName;
 
+  @NotNull(message = "Version is required")
+  @PositiveOrZero
   @Schema(description = "Version of the project", example = "1")
-  private Integer version;
+  private int version;
 
-  Set<FunctionalComponentRequest> functionalComponents;
+  @Schema(description = "List of functional components in the project")
+  private Set<FunctionalComponentRequest> functionalComponents = new HashSet<>();
 
-  Set<Long> appUserIds;
+  @Schema(description = "List of user IDs with access to the project")
+  private Set<Long> appUserIds = new HashSet<>();
 }

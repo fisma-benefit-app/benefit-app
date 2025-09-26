@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
@@ -23,31 +22,33 @@ import org.springframework.data.relational.core.mapping.Table;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table("projects")
+@Table("project")
 public class Project {
   @Id private Long id;
 
   @NotBlank(message = "Project name is required")
-  @Size(min = 1, max = 255, message = "Project name must be between 1 and 255 characters")
-  @Column("name")
+  @Size(max = 255, message = "Project name must not exceed 255 characters")
+  @Column("project_name")
   private String projectName;
 
-  @Version
+  @NotNull(message = "Version is required")
   @PositiveOrZero
   @Column("version")
   private int version;
 
   @NotNull(message = "Creation date is required")
-  @Column("created_at")
+  @Column("created_date")
   private final LocalDateTime createdDate = LocalDateTime.now();
 
+  @NotNull(message = "Version date is required")
   @Column("version_date")
   private LocalDateTime versionDate = LocalDateTime.now();
 
   @LastModifiedDate
-  @Column("updated_at")
+  @Column("edited_date")
   private LocalDateTime editedDate = LocalDateTime.now();
 
+  @NotNull(message = "Total points are required")
   @PositiveOrZero(message = "Total points cannot be negative")
   @Column("total_points")
   private double totalPoints = 0.0;
