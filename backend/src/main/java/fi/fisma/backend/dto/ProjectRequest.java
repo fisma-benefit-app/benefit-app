@@ -3,7 +3,6 @@ package fi.fisma.backend.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.util.HashSet;
@@ -15,9 +14,6 @@ import lombok.Data;
 public class ProjectRequest {
   @NotBlank(message = "Project name is required")
   @Size(max = 255, message = "Project name must not exceed 255 characters")
-  @Pattern(
-      regexp = "^[\\w\\-\\s]+$",
-      message = "Project name can only contain letters, numbers, spaces, and hyphens")
   @Schema(
       description = "Name of the project",
       example = "User Authentication System",

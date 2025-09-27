@@ -5,7 +5,6 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -13,9 +12,9 @@ import lombok.Data;
 @Schema(
     description = "Request object for creating or updating functional components within a project")
 public class FunctionalComponentRequest {
-  @Pattern(
-      regexp = "^[A-Z][a-zA-Z0-9]*$",
-      message = "Class name must start with uppercase letter and contain only letters and numbers")
+  @Schema(description = "Unique identifier", example = "1")
+  private Long id;
+
   @Size(max = 255, message = "Class name must not exceed 255 characters")
   @Schema(description = "Name of the class", example = "UserAccount", required = true)
   private String className;
@@ -72,4 +71,6 @@ public class FunctionalComponentRequest {
   @Min(value = 0, message = "Order position must be non-negative")
   @Schema(description = "Position in the component list", example = "1", minimum = "0")
   private Integer orderPosition;
+
+  private Long projectId;
 }

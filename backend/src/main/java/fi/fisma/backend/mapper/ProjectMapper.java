@@ -1,7 +1,9 @@
 package fi.fisma.backend.mapper;
 
+import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
+import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.dto.FunctionalComponentResponse;
 import fi.fisma.backend.dto.ProjectRequest;
@@ -74,10 +76,52 @@ public class ProjectMapper {
         );
   }
 
-  public void updateEntityFromRequest(Project project, ProjectRequest request) {
-    project.setProjectName(request.getProjectName());
-    project.setVersion(request.getVersion());
-    project.setEditedDate(LocalDateTime.now());
+  public Project updateEntityFromRequest(Project project, ProjectRequest request) {
+    Set<FunctionalComponent> functionalComponents =
+        request.getFunctionalComponents().stream()
+            .map(
+                fc ->
+                    new FunctionalComponent(
+                        fc.getId(),
+                        fc.getClassName(),
+                        fc.getComponentType(),
+                        fc.getDataElements(),
+                        fc.getReadingReferences(),
+                        fc.getWritingReferences(),
+                        fc.getFunctionalMultiplier(),
+                        fc.getOperations(),
+                        fc.getDegreeOfCompletion(),
+                        fc.getTitle(),
+                        fc.getDescription(),
+                        fc.getPreviousFCId(),
+                        fc.getOrderPosition(),
+                        project.getId()))
+            .collect(Collectors.toSet());
+
+    Set<ProjectAppUser> appUsers =
+        request.getAppUserIds().stream()
+            .map(
+                userId -> {
+                  AppUser user =
+                      appUserRepository
+                          .findById(userId)
+                          .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+                  return new ProjectAppUser(project.getId(), user.getId());
+                })
+            .collect(Collectors.toSet());
+
+    Project updatedProject =
+        new Project(
+            project.getId(),
+            request.getProjectName(),
+            request.getVersion(),
+            project.getCreatedDate(),
+            project.getVersionDate(),
+            LocalDateTime.now(), // new edited date
+            project.getTotalPoints(),
+            functionalComponents,
+            appUsers);
+    return updatedProject;
   }
 
   public Project createNewVersion(Project originalProject, ProjectRequest request) {
@@ -112,7 +156,8 @@ public class ProjectMapper {
                     fc.getTitle(),
                     fc.getDescription(),
                     fc.getId(),
-                    fc.getOrderPosition()))
+                    fc.getOrderPosition(),
+                    fc.getProjectId()))
         .collect(Collectors.toSet());
   }
 }

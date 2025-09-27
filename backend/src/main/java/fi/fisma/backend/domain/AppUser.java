@@ -1,7 +1,6 @@
 package fi.fisma.backend.domain;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,9 +21,6 @@ public class AppUser {
 
   @NotEmpty(message = "Username is required")
   @Size(max = 50, message = "Username must not exceed 50 characters")
-  @Pattern(
-      regexp = "^[a-zA-Z0-9._-]+$",
-      message = "Username can only contain letters, numbers, dots, underscores and hyphens")
   @Column("username")
   private String username;
 

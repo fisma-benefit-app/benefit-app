@@ -60,8 +60,8 @@ public class ProjectController {
       @Parameter(description = "ID of the project to update") @PathVariable("id") Long id,
       @Valid @RequestBody ProjectRequest projectUpdate,
       Authentication authentication) {
-    return ResponseEntity.ok(
-        projectService.updateProject(id, projectUpdate, authentication.getName()));
+    var updatedProject = projectService.updateProject(id, projectUpdate, authentication.getName());
+    return ResponseEntity.ok(updatedProject);
   }
 
   @PostMapping

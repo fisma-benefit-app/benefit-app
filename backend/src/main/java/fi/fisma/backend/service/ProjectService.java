@@ -63,8 +63,8 @@ public class ProjectService {
   public ProjectResponse updateProject(
       Long projectId, ProjectRequest projectUpdate, String username) {
     var project = findProjectForUser(projectId, username);
-    projectMapper.updateEntityFromRequest(project, projectUpdate);
-    return projectMapper.toResponse(projectRepository.save(project));
+    var updatedProject = projectMapper.updateEntityFromRequest(project, projectUpdate);
+    return projectMapper.toResponse(projectRepository.save(updatedProject));
   }
 
   /**

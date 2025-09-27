@@ -68,4 +68,7 @@ public class FunctionalComponent {
   @Min(value = 0, message = "Order position cannot be negative")
   @Column("order_position")
   private Integer orderPosition = 0;
+
+  @Column("project_id")
+  private Long projectId;
 }
