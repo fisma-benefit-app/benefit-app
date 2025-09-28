@@ -1,6 +1,8 @@
 package fi.fisma.backend.setup;
 
-import fi.fisma.backend.dto.AppUserSummary;
+import fi.fisma.backend.dto.FunctionalComponentRequest;
+import fi.fisma.backend.dto.PasswordChangeRequest;
+import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,10 +16,6 @@ public class StandaloneSetup {
 
   private StandaloneSetup() {
     // utility class -> prevent instantiation
-  }
-
-  public static AppUserSummary appUserSummary() {
-    return new AppUserSummary(1L, "john.doe");
   }
 
   public static ProjectResponse project() {
@@ -94,5 +92,36 @@ public class StandaloneSetup {
         95.0,
         Set.of(),
         Set.of());
+  }
+
+  public static FunctionalComponentRequest createFunctionalComponentRequest(
+      FunctionalComponentRequest dto) {
+    dto.setId(1L);
+    dto.setClassName("UserAccount");
+    dto.setComponentType("Entity");
+    dto.setDataElements(5);
+    dto.setReadingReferences(2);
+    dto.setWritingReferences(1);
+    dto.setFunctionalMultiplier(3);
+    dto.setOperations(4);
+    dto.setDegreeOfCompletion(0.75);
+    dto.setTitle("Create User Account");
+    dto.setDescription("Handles user account creation process");
+    dto.setPreviousFCId(123L);
+    dto.setOrderPosition(1);
+    dto.setProjectId(10L);
+    return dto;
+  }
+
+  public static PasswordChangeRequest createPasswordChangeRequest(PasswordChangeRequest dto) {
+    dto.setNewPassword("mySecret123");
+    return dto;
+  }
+
+  public static ProjectRequest createProjectRequest(ProjectRequest dto) {
+    dto.setProjectName("User Authentication System");
+    dto.setVersion(1);
+    dto.setAppUserIds(Set.of(10L, 20L));
+    return dto;
   }
 }
