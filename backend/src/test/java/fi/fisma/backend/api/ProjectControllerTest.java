@@ -1,16 +1,35 @@
 package fi.fisma.backend.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fi.fisma.backend.dto.ProjectRequest;
+import fi.fisma.backend.dto.ProjectResponse;
+import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.ProjectRepository;
 import fi.fisma.backend.security.SecurityConfig;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
+import fi.fisma.backend.service.ProjectService;
+import fi.fisma.backend.setup.StandaloneSetup;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest(ProjectController.class)
 @Import({SecurityConfig.class, UserDetailsServiceImpl.class})
 class ProjectControllerTest {
-  /*
+
   @Autowired MockMvcTester mockMvcTester;
   @Autowired ObjectMapper objectMapper;
 
@@ -23,44 +42,53 @@ class ProjectControllerTest {
           .jwt()
           .jwt(jwt -> jwt.subject("test-user"));
 
+  private ProjectResponse project;
+  private List<ProjectResponse> projects;
+  private ProjectResponse updated;
+  private ProjectResponse savedProject;
+  private ProjectResponse savedVersion;
+
+  @BeforeEach
+  void setUp() {
+    project = StandaloneSetup.project();
+    projects = StandaloneSetup.projects();
+    updated = StandaloneSetup.updated();
+    savedProject = StandaloneSetup.savedProject();
+    savedVersion = StandaloneSetup.savedVersion();
+  }
+
   @Test
   void testGetProject() {
-    Project project = new Project();
-    project.setId(1L);
-
     when(projectService.getProject(1L, "test-user")).thenReturn(project);
 
     var response = mockMvcTester.get().uri("/projects/{id}", 1L).with(jwtAuth).exchange();
 
     assertThat(response).hasStatusOk();
     assertThat(response).bodyJson().extractingPath("$.id").isEqualTo(1);
+    assertThat(response).bodyJson().extractingPath("$.projectName").isEqualTo("Test Project");
   }
 
   @Test
   void testGetAllProjects() throws Exception {
-    Project project1 = new Project();
-    project1.setId(1L);
-    Project project2 = new Project();
-    project2.setId(2L);
-    List<Project> projects = Arrays.asList(project1, project2);
-
-    when(projectService.getAllProjects("test-user")).thenReturn(List.of(project1, project2));
+    when(projectService.getAllProjects("test-user")).thenReturn(projects);
 
     var response = mockMvcTester.get().uri("/projects").with(jwtAuth).exchange();
 
     assertThat(response).hasStatusOk();
 
-    Project[] returnedProjects =
-        objectMapper.readValue(response.getResponse().getContentAsByteArray(), Project[].class);
-    assertThat(returnedProjects).hasSize(projects.size());
+    ProjectResponse[] returned =
+        objectMapper.readValue(
+            response.getResponse().getContentAsByteArray(), ProjectResponse[].class);
+    assertThat(returned).hasSize(2);
   }
 
   @Test
   void testUpdateProject() {
-    Project updated = new Project();
-    updated.setId(1L);
+    ProjectRequest updateReq = new ProjectRequest();
+    updateReq.setProjectName("Updated Project");
+    updateReq.setVersion(2);
 
-    when(projectService.updateProject(eq(1L), any(Project.class), eq("test-user")))
+    when(projectService.updateProject(eq(1L), any(ProjectRequest.class), eq("test-user")))
         .thenReturn(updated);
 
     var response =
@@ -69,20 +97,27 @@ class ProjectControllerTest {
             .uri("/projects/{id}", 1L)
             .with(jwtAuth)
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"id\":1}")
+            .content(
+                """
+                {
+                  "projectName": "Updated Project",
+                  "version": 2
+                }
+                """)
             .exchange();
 
     assertThat(response).hasStatusOk();
-    assertThat(response).bodyJson().extractingPath("$.id").isEqualTo(1);
+    assertThat(response).bodyJson().extractingPath("$.projectName").isEqualTo("Updated Project");
   }
 
   @Test
   void testCreateProject_Success() {
-    Project saved = new Project();
-    saved.setId(1L);
+    ProjectRequest newProject = new ProjectRequest();
+    newProject.setProjectName("New Project");
+    newProject.setVersion(1);
 
-    when(projectService.createProject(any(Project.class), eq("test-user")))
-        .thenReturn(Optional.of(saved));
+    when(projectService.createProject(any(ProjectRequest.class), eq("test-user")))
+        .thenReturn(savedProject);
 
     var response =
         mockMvcTester
@@ -90,64 +125,47 @@ class ProjectControllerTest {
             .uri("/projects")
             .with(jwtAuth)
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"id\":1}")
+            .content(
+                """
+                {
+                  "projectName": "New Project",
+                  "version": 1
+                }
+                """)
             .exchange();
 
     assertThat(response).hasStatus(HttpStatus.CREATED);
-  }
-
-  @Test
-  void testCreateProject_Unauthorized() {
-    when(projectService.createProject(any(Project.class), eq("test-user")))
-        .thenReturn(Optional.empty());
-
-    var response =
-        mockMvcTester
-            .post()
-            .uri("/projects")
-            .with(jwtAuth)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"id\":1}")
-            .exchange();
-
-    assertThat(response).hasStatus(HttpStatus.UNAUTHORIZED);
+    assertThat(response.getResponse().getHeader("Location"))
+        .isEqualTo("http://localhost/projects/1");
   }
 
   @Test
   void testCreateProjectVersion_Success() {
-    Project saved = new Project();
-    saved.setId(2L);
+    ProjectRequest versionReq = new ProjectRequest();
+    versionReq.setProjectName("Versioned Project");
+    versionReq.setVersion(2);
 
-    when(projectService.createProjectVersion(any(Project.class), eq("test-user")))
-        .thenReturn(Optional.of(saved));
+    when(projectService.createProjectVersion(eq(1L), any(ProjectRequest.class), eq("test-user")))
+        .thenReturn(savedVersion);
 
     var response =
         mockMvcTester
             .post()
-            .uri("/projects/create-version")
+            .uri("/projects/{id}/versions", 1L)
             .with(jwtAuth)
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"id\":2}")
+            .content(
+                """
+                {
+                  "projectName": "Versioned Project",
+                  "version": 2
+                }
+                """)
             .exchange();
 
     assertThat(response).hasStatus(HttpStatus.CREATED);
-  }
-
-  @Test
-  void testCreateProjectVersion_Unauthorized() {
-    when(projectService.createProjectVersion(any(Project.class), eq("test-user")))
-        .thenReturn(Optional.empty());
-
-    var response =
-        mockMvcTester
-            .post()
-            .uri("/projects/create-version")
-            .with(jwtAuth)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"id\":2}")
-            .exchange();
-
-    assertThat(response).hasStatus(HttpStatus.UNAUTHORIZED);
+    assertThat(response.getResponse().getHeader("Location"))
+        .isEqualTo("http://localhost/projects/2");
   }
 
   @Test
@@ -157,8 +175,6 @@ class ProjectControllerTest {
     var response = mockMvcTester.delete().uri("/projects/{id}", 1L).with(jwtAuth).exchange();
 
     assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
-
     verify(projectService).deleteProject(1L, "test-user");
   }
-    */
 }

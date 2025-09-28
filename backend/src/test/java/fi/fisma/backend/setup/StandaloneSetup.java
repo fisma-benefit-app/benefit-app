@@ -1,22 +1,13 @@
 package fi.fisma.backend.setup;
 
-/*
-import static org.mockito.Mockito.when;
-
-import fi.fisma.backend.domain.AppUser;
-import fi.fisma.backend.domain.FunctionalComponent;
-import fi.fisma.backend.domain.Project;
-import fi.fisma.backend.domain.ProjectAppUser;
-import fi.fisma.backend.repository.AppUserRepository;
-import fi.fisma.backend.repository.ProjectRepository;
+import fi.fisma.backend.dto.AppUserSummary;
+import fi.fisma.backend.dto.ProjectResponse;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
-*/
 
 /*
  * Utility class for setting up commonly used test data and mock behaviors.
- * Currently unused!
  */
 
 public class StandaloneSetup {
@@ -24,146 +15,84 @@ public class StandaloneSetup {
   private StandaloneSetup() {
     // utility class -> prevent instantiation
   }
-  /*
-    public static AppUser testUser() {
-      return new AppUser(13L, "test-user", "test-user-password");
-    }
 
-    public static AppUser someoneAppUser() {
-      return new AppUser(15L, "someone", "someone-password");
-    }
+  public static AppUserSummary appUserSummary() {
+    return new AppUserSummary(1L, "john.doe");
+  }
 
-    public static Project testProject() {
-      return new Project(
-          77L,
-          "project-x",
-          1,
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          100.12,
-          Set.of(
-              new FunctionalComponent(
-                  99L,
-                  "Interactive end-user input service",
-                  "1-functional",
-                  2,
-                  4,
-                  3,
-                  1,
-                  null,
-                  0.34,
-                  "hakijan valinnat",
-                  "Kommentti",
-                  99L,
-                  0),
-              new FunctionalComponent(
-                  100L,
-                  "Data storage service",
-                  "entities or classes",
-                  4,
-                  null,
-                  null,
-                  null,
-                  null,
-                  0.34,
-                  "hakijan valinnat",
-                  "Kommentti",
-                  100L,
-                  0)),
-          Set.of(new ProjectAppUser(13L)));
-    }
+  public static ProjectResponse project() {
+    return new ProjectResponse(
+        1L,
+        "Test Project",
+        1,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        100.0,
+        Set.of(),
+        Set.of());
+  }
 
-    public static Project someonesProject() {
-      return new Project(
-          88L,
-          "someones project",
-          1,
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          100.12,
-          Set.of(
-              new FunctionalComponent(
-                  99L,
-                  "Interactive end-user input service",
-                  "1-functional",
-                  2,
-                  4,
-                  3,
-                  1,
-                  null,
-                  0.34,
-                  "hakijan valinnat",
-                  "Kommentti",
-                  99L,
-                  0),
-              new FunctionalComponent(
-                  100L,
-                  "Data storage service",
-                  "entities or classes",
-                  4,
-                  null,
-                  null,
-                  null,
-                  null,
-                  0.34,
-                  "hakijan valinnat",
-                  "Kommentti",
-                  100L,
-                  0)),
-          Set.of(new ProjectAppUser(15L)));
-    }
+  public static List<ProjectResponse> projects() {
+    return List.of(
+        new ProjectResponse(
+            1L,
+            "P1",
+            1,
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            50.0,
+            Set.of(),
+            Set.of()),
+        new ProjectResponse(
+            2L,
+            "P2",
+            1,
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            75.0,
+            Set.of(),
+            Set.of()));
+  }
 
-    public static Project anotherProject() {
-      return new Project(
-          98L,
-          "project two",
-          1,
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          LocalDateTime.of(2025, 1, 28, 17, 23, 19),
-          100.12,
-          Set.of(
-              new FunctionalComponent(
-                  99L,
-                  "Interactive end-user input service",
-                  "1-functional",
-                  2,
-                  4,
-                  3,
-                  1,
-                  null,
-                  0.34,
-                  "hakijan valinnat",
-                  "Kommentti",
-                  99L,
-                  0),
-              new FunctionalComponent(
-                  100L,
-                  "Data storage service",
-                  "entities or classes",
-                  4,
-                  null,
-                  null,
-                  null,
-                  null,
-                  0.34,
-                  "hakijan valinnat",
-                  "Kommentti",
-                  100L,
-                  0)),
-          Set.of(new ProjectAppUser(13L)));
-    }
+  public static ProjectResponse updated() {
+    return new ProjectResponse(
+        1L,
+        "Updated Project",
+        2,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        120.0,
+        Set.of(),
+        Set.of());
+  }
 
-    public static void setupMocks(
-        AppUserRepository appUserRepository, ProjectRepository projectRepository) {
-      var user = testUser();
-      var project = testProject();
+  public static ProjectResponse savedProject() {
+    return new ProjectResponse(
+        1L,
+        "New Project",
+        1,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        80.0,
+        Set.of(),
+        Set.of());
+  }
 
-      when(appUserRepository.findByUsername("test-user")).thenReturn(user);
-      when(projectRepository.findByProjectIdAndUsername(77L, "test-user"))
-          .thenReturn(Optional.of(project));
-    }
-  */
+  public static ProjectResponse savedVersion() {
+    return new ProjectResponse(
+        2L,
+        "Versioned Project",
+        2,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        95.0,
+        Set.of(),
+        Set.of());
+  }
 }
