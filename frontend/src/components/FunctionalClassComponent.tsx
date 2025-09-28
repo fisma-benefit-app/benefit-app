@@ -226,8 +226,7 @@ export default function FunctionalClassComponent({
                 disabled={!isLatest}
               />
               <p className="text-xs text-gray-900">
-                {translation.degreeOfCompletionHelpText ??
-                  "Enter a value between 0 and 1 (e.g., 0.75 = 75% complete)."}
+                {translation.degreeOfCompletionDescription}
               </p>
             </div>
 
