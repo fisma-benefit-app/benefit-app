@@ -293,7 +293,6 @@ export default function ProjectPage() {
     setProject({ ...project, functionalComponents: reOrdered });
   };
 
-
   const saveProjectVersion = async () => {
     if (project) {
       setLoadingProject(true);
@@ -340,47 +339,47 @@ export default function ProjectPage() {
         <div className="flex justify-between">
           <div className="w-[calc(100%-340px)] mt-15">
             {project ? ( //TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
-  <DndContext
-    collisionDetection={closestCenter}
-    onDragEnd={handleDragEnd}
-  >
-    <SortableContext
-      items={sortedComponents.map((c) => c.id)}
-      strategy={rectSortingStrategy}
-    >
-      {/* Grid wrapper for components */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-        {sortedComponents?.map((component) => (
-          <SortableFunctionalComponent
-            key={component.id}
-            component={component}
-            project={project}
-            setProject={setProject}
-            deleteFunctionalComponent={deleteFunctionalComponent}
-            isLatest={isLatest}
-            forceCollapsed={
-              collapseAll
-                ? component.id !== lastAddedComponentId
-                : false
-            }
-            collapseVersion={collapseVersion}
-          />
-        ))}
-      </div>
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={sortedComponents.map((c) => c.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  {/* Grid wrapper for components */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+                    {sortedComponents?.map((component) => (
+                      <SortableFunctionalComponent
+                        key={component.id}
+                        component={component}
+                        project={project}
+                        setProject={setProject}
+                        deleteFunctionalComponent={deleteFunctionalComponent}
+                        isLatest={isLatest}
+                        forceCollapsed={
+                          collapseAll
+                            ? component.id !== lastAddedComponentId
+                            : false
+                        }
+                        collapseVersion={collapseVersion}
+                      />
+                    ))}
+                  </div>
 
-      {sortedComponents.length === 0 && (
-        <p className="text-gray-500 p-4">
-          {translation.noFunctionalComponents}
-        </p>
-      )}
-      <div ref={bottomRef} />
-    </SortableContext>
-  </DndContext>
-) : error ? (
-  <p>{error}</p>
-) : (
-  <p></p>
-)}
+                  {sortedComponents.length === 0 && (
+                    <p className="text-gray-500 p-4">
+                      {translation.noFunctionalComponents}
+                    </p>
+                  )}
+                  <div ref={bottomRef} />
+                </SortableContext>
+              </DndContext>
+            ) : error ? (
+              <p>{error}</p>
+            ) : (
+              <p></p>
+            )}
           </div>
         </div>
       </div>
