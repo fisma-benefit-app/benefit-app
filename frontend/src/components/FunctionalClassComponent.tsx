@@ -185,7 +185,6 @@ export default function FunctionalClassComponent({
           </div>
 
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
-
             <div className="flex gap-2 items-center">
 
               {/* Collapse button */}
@@ -210,22 +209,11 @@ export default function FunctionalClassComponent({
         </div>
 
         {!collapsed && (
-          <>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="description" className="font-medium">
-                {translation.descriptionPlaceholder}:
-              </label>
-              <textarea
-                id="description"
-                value={component.description || ""}
-                onChange={handleComponentChange}
-                className="w-1/2 border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
-                rows={3}
-                disabled={!isLatest}
-              />
-            </div>
+        <>
 
-            <label className="font-medium">
+          {/* Degree of Completion Section */}
+          <div className="flex flex-col gap-2 bg-fisma-light-gray border-2 border-fisma-gray p-3 rounded-md">
+            <label className="font-bold text-fisma-blue">
               {translation.degreeOfCompletionPlaceholder}:
             </label>
             <input
@@ -236,74 +224,106 @@ export default function FunctionalClassComponent({
               step={0.01}
               value={component.degreeOfCompletion || ""}
               onChange={handleComponentChange}
-              className="border-2 border-fisma-light-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base"
+              className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
               disabled={!isLatest}
             />
+            <p className="text-xs text-gray-900">
+              {translation.degreeOfCompletionHelpText ??
+                "Enter a value between 0 and 1 (e.g., 0.75 = 75% complete)."}
+            </p>
+          </div>
 
-            <div className="flex flex-row flex-wrap gap-3 items-center">
-              <select
-                id="className"
-                value={component.className || ""}
-                onChange={handleClassNameChange}
-                className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base"
-                disabled={!isLatest}
-              >
-                <option disabled value="">
-                  {translation.classNamePlaceholder}
+          {/* Description / Comment Section */}
+          <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md">
+            <label htmlFor="description" className="font-medium text-fisma-blue">
+              {translation.descriptionPlaceholder}:
+            </label>
+            <textarea
+              id="description"
+              value={component.description || ""}
+              onChange={handleComponentChange}
+              className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md"
+              rows={3}
+              disabled={!isLatest}
+              placeholder={translation.descriptionPlaceholder}
+            />
+          </div>
+
+          {/* Metadata Section */}
+          <div className="flex flex-row flex-wrap gap-3 items-center">
+            <select
+              id="className"
+              value={component.className || ""}
+              onChange={handleClassNameChange}
+              className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
+              disabled={!isLatest}
+            >
+              <option disabled value="">
+                {translation.classNamePlaceholder}
+              </option>
+              {classNameOptions.map((className) => (
+                <option key={className} value={className}>
+                  {translation.classNameOptions[className]}
                 </option>
-                {classNameOptions.map((className) => (
-                  <option key={className} value={className}>
-                    {translation.classNameOptions[className]}
-                  </option>
-                ))}
-              </select>
-
-              {component.className && (
-                <>
-                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
-                    <select
-                      id="componentType"
-                      value={component.componentType || ""}
-                      onChange={handleOptionTypeChange}
-                      className="border-2 border-fisma-light-gray bg-white p-2 text-base"
-                      disabled={!isLatest}
-                    >
-                      <option disabled value="">
-                        {translation.componentTypePlaceholder}
-                      </option>
-                      {componentTypeOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {translation.componentTypeOptions[option]}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
-            </div>
+              ))}
+            </select>
 
             {component.className && (
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(component)
-                  .filter(([key]) => inputFields.includes(key))
-                  .map(([key, value]) => (
-                    <div key={key} className="flex flex-col gap-1 items-start">
-                      <label htmlFor={key} className="font-medium">
-                        {translation.parameters[key as CalculationParameter]}:
-                      </label>
-                      <input
-                        id={key}
-                        type="number"
-                        value={(value as number) || ""}
-                        onChange={handleComponentChange}
-                        className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
-                      />
-                    </div>
+              <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                <select
+                  id="componentType"
+                  value={component.componentType || ""}
+                  onChange={handleOptionTypeChange}
+                  className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
+                  disabled={!isLatest}
+                >
+                  <option disabled value="">
+                    {translation.componentTypePlaceholder}
+                  </option>
+                  {componentTypeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {translation.componentTypeOptions[option]}
+                    </option>
                   ))}
+                </select>
               </div>
             )}
-          </>
-        )}
+          </div>
+
+          {/* Parameters Section */}
+          {component.className && (
+            <div className="flex flex-wrap gap-4 bg-white border-2 border-fisma-light-gray p-3 rounded-md mt-2">
+              {Object.entries(component)
+                .filter(([key]) => inputFields.includes(key))
+                .map(([key, value]) => (
+                  <div key={key} className="flex flex-col gap-1 items-start">
+                    <label htmlFor={key} className="font-medium">
+                      {translation.parameters[key as CalculationParameter]}:
+                    </label>
+                    <input
+                      id={key}
+                      type="number"
+                      value={(value as number) || ""}
+                      onChange={handleComponentChange}
+                      className="w-[120px] border-2 border-fisma-light-gray bg-white p-2 rounded-md"
+                    />
+                  </div>
+                ))}
+            </div>
+          )}
+        </>
+      )}
+
+
+        <div className="mt-4 border-t pt-2 text-sm sm:text-base flex justify-between text-fisma-blue font-semibold">
+          <span>
+            {translation.functionalPointText}: {pointsByDegreeOfCompletion.toFixed(2)}
+          </span>
+          <span>
+            {translation.functionalPointReadyText}: {fullPoints.toFixed(2)}
+          </span>
+        </div>
+
       </form>
 
       <ConfirmModal
