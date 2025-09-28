@@ -25,7 +25,7 @@ import ConfirmModal from "./ConfirmModal.tsx";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import {
   SortableContext,
-  rectSortingStrategy,
+  verticalListSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -101,11 +101,8 @@ export default function ProjectPage() {
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
-  // sort functional components by order (ascending)
-  const sortedComponents =
-    project?.functionalComponents
-      .slice() // copy first so we don’t mutate state
-      .sort((a, b) => a.orderPosition - b.orderPosition) || [];
+  //sort functional components by order (ascending)
+  const sortedComponents = project?.functionalComponents || [];
 
   useEffect(() => {
     const getProject = async () => {
@@ -116,13 +113,15 @@ export default function ProjectPage() {
           Number(selectedProjectId),
         );
 
-        // normalize & sort after fetching
-        const normalized = projectFromDb.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
+        // sort the components after fetching
+        (
+          projectFromDb.functionalComponents as Array<{ orderPosition: number }>
+        ).sort(
+          (a: { orderPosition: number }, b: { orderPosition: number }) =>
+            a.orderPosition - b.orderPosition,
+        );
 
-        setProject({ ...projectFromDb, functionalComponents: normalized });
+        setProject(projectFromDb);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
@@ -183,13 +182,7 @@ export default function ProjectPage() {
           setLastAddedComponentId(null);
         }
 
-        // normalize order after adding
-        const normalized = updatedProject.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
-
-        setProject({ ...updatedProject, functionalComponents: normalized });
+        setProject(updatedProject);
 
         setTimeout(() => {
           bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -211,16 +204,9 @@ export default function ProjectPage() {
       const filteredComponents = project?.functionalComponents.filter(
         (component) => component.id !== componentId,
       );
-
-      // normalize after deletion
-      const normalized = filteredComponents.map((c, idx) => ({
-        ...c,
-        orderPosition: idx,
-      }));
-
       const filteredProject: Project = {
         ...project,
-        functionalComponents: normalized,
+        functionalComponents: filteredComponents,
       };
       try {
         const updatedProject = await updateProject(
@@ -243,17 +229,7 @@ export default function ProjectPage() {
     setLoadingProject(true);
     if (project) {
       try {
-        // normalize before saving
-        const normalized = project.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
-
-        const editedProject = {
-          ...project,
-          functionalComponents: normalized,
-          editedDate: CreateCurrentDate(),
-        };
+        const editedProject = { ...project, editedDate: CreateCurrentDate() };
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
       } catch (err) {
@@ -265,32 +241,6 @@ export default function ProjectPage() {
         setLoadingProject(false);
       }
     }
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!project || !over || active.id === over.id) return;
-
-    const oldIndex = project.functionalComponents.findIndex(
-      (c) => c.id === active.id,
-    );
-    const newIndex = project.functionalComponents.findIndex(
-      (c) => c.id === over.id,
-    );
-
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const updatedComponents = [...project.functionalComponents];
-    const [moved] = updatedComponents.splice(oldIndex, 1);
-    updatedComponents.splice(newIndex, 0, moved);
-
-    // Update orderPosition values
-    const reOrdered = updatedComponents.map((c, index) => ({
-      ...c,
-      orderPosition: index,
-    }));
-
-    setProject({ ...project, functionalComponents: reOrdered });
   };
 
   const saveProjectVersion = async () => {
@@ -327,6 +277,32 @@ export default function ProjectPage() {
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!project || !over || active.id === over.id) return;
+
+    const oldIndex = project.functionalComponents.findIndex(
+      (c) => c.id === active.id,
+    );
+    const newIndex = project.functionalComponents.findIndex(
+      (c) => c.id === over.id,
+    );
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const updatedComponents = [...project.functionalComponents];
+    const [moved] = updatedComponents.splice(oldIndex, 1);
+    updatedComponents.splice(newIndex, 0, moved);
+
+    // Update orderPosition values
+    const reOrdered = updatedComponents.map((c, index) => ({
+      ...c,
+      orderPosition: index,
+    }));
+
+    setProject({ ...project, functionalComponents: reOrdered });
+  };
+
   useEffect(() => {
     setLastAddedComponentId(null);
   }, [collapseAll]);
@@ -345,28 +321,24 @@ export default function ProjectPage() {
               >
                 <SortableContext
                   items={sortedComponents.map((c) => c.id)}
-                  strategy={rectSortingStrategy}
+                  strategy={verticalListSortingStrategy}
                 >
-                  {/* Grid wrapper for components */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-                    {sortedComponents?.map((component) => (
-                      <SortableFunctionalComponent
-                        key={component.id}
-                        component={component}
-                        project={project}
-                        setProject={setProject}
-                        deleteFunctionalComponent={deleteFunctionalComponent}
-                        isLatest={isLatest}
-                        forceCollapsed={
-                          collapseAll
-                            ? component.id !== lastAddedComponentId
-                            : false
-                        }
-                        collapseVersion={collapseVersion}
-                      />
-                    ))}
-                  </div>
-
+                  {sortedComponents?.map((component) => (
+                    <SortableFunctionalComponent
+                      key={component.id}
+                      component={component}
+                      project={project}
+                      setProject={setProject}
+                      deleteFunctionalComponent={deleteFunctionalComponent}
+                      isLatest={isLatest}
+                      forceCollapsed={
+                        collapseAll
+                          ? component.id !== lastAddedComponentId
+                          : false
+                      }
+                      collapseVersion={collapseVersion}
+                    />
+                  ))}
                   {sortedComponents.length === 0 && (
                     <p className="text-gray-500 p-4">
                       {translation.noFunctionalComponents}
