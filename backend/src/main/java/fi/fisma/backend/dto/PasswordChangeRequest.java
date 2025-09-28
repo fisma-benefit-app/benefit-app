@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-@Data
+@Data // Make request-type DTO mutable
 @Schema(description = "Request object containing details on password change")
 public class PasswordChangeRequest {
   @NotEmpty(message = "Password cannot be empty")
