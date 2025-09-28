@@ -78,17 +78,17 @@ Edit `frontend/.env.production` and `frontend/.env.testing` with the correct bac
 
 ```bash
 # .env.production
-VITE_API_URL=https://fisma-benefit-app-XXXXXXXXX.herokuapp.com/
+VITE_API_URL=https://fisma-benefit-app-XXXXXXXXX.herokuapp.com
 VITE_BASE_PATH=/benefit-app/
 ```
 
 ```bash
 # .env.testing
-VITE_API_URL=https://fisma-benefit-app-testing-XXXXXXXXX.herokuapp.com/
+VITE_API_URL=https://fisma-benefit-app-testing-XXXXXXXXX.herokuapp.com
 VITE_BASE_PATH=/benefit-app/testing/
 ```
 
-`VITE_BASE_PATH` must be set here so that Vite knows to dynamically set the base path according to the run deployment script.
+`VITE_BASE_PATH` must be set here so that Vite knows to dynamically set the base path according to the run deployment script. Without `VITE_BASE_PATH`, deployment fails.
 
 ### 3. Build & Deploy
 
