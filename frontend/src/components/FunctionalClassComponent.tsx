@@ -163,12 +163,17 @@ export default function FunctionalClassComponent({
     <>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="flex flex-col gap-4 border-2 border-fisma-gray bg-white my-5 w-full p-4"
+        className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 my-5 w-full p-4 rounded-lg"
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Drag handle */}
+          <div
+            {...dragHandleProps}
+            className="cursor-grab bg-fisma-gray text-white py-2 px-2"
+          >
+            ::
+          </div>
           <div className="flex-1 min-w-[200px]">
-            {/* TODO: Remove this once you know why positioning doesn't work */}
-            <p>{component.orderPosition} pos</p>{" "}
             <input
               className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
               id="title"
@@ -180,23 +185,9 @@ export default function FunctionalClassComponent({
           </div>
 
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
-            <div className="flex gap-2 text-sm sm:text-base">
-              <span>
-                = {pointsByDegreeOfCompletion.toFixed(2)}{" "}
-                {translation.functionalPointText}
-              </span>
-              <span>
-                = {fullPoints.toFixed(2)} {translation.functionalPointReadyText}
-              </span>
-            </div>
+
             <div className="flex gap-2 items-center">
-              {/* Drag handle */}
-              <div
-                {...dragHandleProps}
-                className="cursor-grab bg-fisma-gray text-white py-2 px-3"
-              >
-                ::
-              </div>
+
               {/* Collapse button */}
               <button
                 type="button"
