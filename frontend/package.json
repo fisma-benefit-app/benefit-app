@@ -6,11 +6,14 @@
   "homepage": "https://fisma-benefit-app.github.io/benefit-app/",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "build:testing": "vite build --mode testing",
+    "build:production": "vite build --mode production",
+    "predeploy:testing": "npm run build:testing",
+    "predeploy:production": "npm run build:production",
+    "deploy:testing": "gh-pages -d dist -b gh-pages --dest testing",
+    "deploy:production": "gh-pages -d dist"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
