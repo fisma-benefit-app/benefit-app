@@ -82,7 +82,7 @@ public class ProjectService {
     }
 
     var project = projectMapper.toEntity(newProjectRequest);
-    project.setAppUsers(Set.of(new ProjectAppUser(appUser.getId())));
+    project.setAppUsers(Set.of(new ProjectAppUser(appUser.getId(), null)));
     return projectMapper.toResponse(projectRepository.save(project));
   }
 
@@ -106,7 +106,7 @@ public class ProjectService {
     }
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
-    newVersion.setAppUsers(Set.of(new ProjectAppUser(appUser.getId())));
+    newVersion.setAppUsers(Set.of(new ProjectAppUser(appUser.getId(), null)));
     return projectMapper.toResponse(projectRepository.save(newVersion));
   }
 

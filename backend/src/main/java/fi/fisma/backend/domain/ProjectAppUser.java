@@ -25,8 +25,4 @@ public class ProjectAppUser {
   @NotNull(message = "Project ID is required")
   @Column("project_id")
   private Long projectId;
-
-  public ProjectAppUser(Long appUserId) {
-    this.appUserId = appUserId;
-  }
 }

@@ -94,8 +94,7 @@ public class ProjectMapper {
                         fc.getTitle(),
                         fc.getDescription(),
                         fc.getPreviousFCId(),
-                        fc.getOrderPosition(),
-                        project.getId()))
+                        fc.getOrderPosition()))
             .collect(Collectors.toSet());
 
     Set<ProjectAppUser> appUsers =
@@ -106,7 +105,7 @@ public class ProjectMapper {
                       appUserRepository
                           .findById(userId)
                           .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-                  return new ProjectAppUser(project.getId(), user.getId());
+                  return new ProjectAppUser(user.getId(), project.getId());
                 })
             .collect(Collectors.toSet());
 
@@ -156,8 +155,7 @@ public class ProjectMapper {
                     fc.getTitle(),
                     fc.getDescription(),
                     fc.getId(),
-                    fc.getOrderPosition(),
-                    fc.getProjectId()))
+                    fc.getOrderPosition()))
         .collect(Collectors.toSet());
   }
 }
