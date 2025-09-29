@@ -1,4 +1,8 @@
-import { Project, ProjectWithUpdate } from "../lib/types";
+import {
+  Project,
+  ProjectWithUpdate,
+  TGenericComponentNoId,
+} from "../lib/types";
 const API_URL = import.meta.env.VITE_API_URL;
 import CreateCurrentDate from "../api/date.ts";
 import { CreateCurrentDateNewVersion } from "../api/date.ts";
@@ -216,6 +220,78 @@ const deleteProject = async (
   }
 };
 
+const createFunctionalComponent = async (
+  token: string | null,
+  projectId: number | undefined,
+  component: TGenericComponentNoId,
+): Promise<Project> => {
+  if (!token)
+    throw new Error(
+      "User needs to be logged in to create functional component!",
+    );
+  if (!projectId) throw new Error("Request needs the id of the project!");
+
+  const fetchURL = `${API_URL}/functional-components/projects/${projectId}`;
+
+  const headers = {
+    Authorization: token,
+    "Content-Type": "application/json",
+  };
+
+  const response = await fetch(fetchURL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(component),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
+    }
+    throw new Error(
+      `Error creating a new functional component in createFunctionalComponent! Status: ${response.status}`,
+    );
+  }
+
+  if (!response.ok) {
+    if (response.status === 401) throw new Error("Unauthorized!");
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
+const deleteFunctionalComponent = async (
+  token: string | null,
+  componentId: number | undefined,
+  projectId: number | undefined,
+): Promise<Project> => {
+  if (!token)
+    throw new Error(
+      "User needs to be logged in to delete functional component!",
+    );
+  if (!componentId) throw new Error("Request needs the id of the component!");
+  if (!projectId) throw new Error("Request needs the id of the project!");
+
+  const fetchURL = `${API_URL}/functional-components/${componentId}/projects/${projectId}`;
+  const headers = {
+    Authorization: token,
+  };
+
+  const response = await fetch(fetchURL, { method: "DELETE", headers });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
+    }
+    throw new Error(
+      `Error deleting functional component in deleteFunctionalComponent! Status: ${response.status}`,
+    );
+  }
+
+  return response.json();
+};
+
 export {
   fetchAllProjects,
   fetchProject,
@@ -223,4 +299,6 @@ export {
   updateProject,
   deleteProject,
   createNewProjectVersion,
+  createFunctionalComponent,
+  deleteFunctionalComponent,
 };

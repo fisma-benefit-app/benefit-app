@@ -130,7 +130,7 @@ public class ProjectService {
    * @return Project
    * @throws EntityNotFoundException if the project is not found or does not belong to the user
    */
-  private Project findProjectForUser(Long projectId, String username) {
+  public Project findProjectForUser(Long projectId, String username) {
     return projectRepository
         .findByProjectIdAndUsername(projectId, username)
         .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
