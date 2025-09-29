@@ -71,6 +71,4 @@ public class FunctionalComponentRequest {
   @Min(value = 0, message = "Order position must be non-negative")
   @Schema(description = "Position in the component list", example = "1", minimum = "0")
   private Integer orderPosition;
-
-  private Long projectId;
 }

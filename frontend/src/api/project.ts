@@ -74,18 +74,18 @@ const createProject = async (
     "Content-Type": "application/json",
   };
 
-  const project = {
+  // Build ProjectRequest DTO
+  const projectRequest = {
     projectName: nameForProject,
-    version: 1,
-    createdDate: CreateCurrentDate(),
-    versionDate: CreateCurrentDate(),
-    editedDate: CreateCurrentDate(),
+    version: 1, // first version
+    functionalComponents: [], // start empty
+    appUserIds: [],
   };
 
   const response = await fetch(fetchURL, {
     method: "POST",
     headers,
-    body: JSON.stringify(project),
+    body: JSON.stringify(projectRequest),
   });
 
   if (!response.ok) {
@@ -124,18 +124,32 @@ const createNewProjectVersion = async (
     "Content-Type": "application/json",
   };
 
-  const project = {
-    ...previousProject,
-    id: null,
+  // Map Project -> ProjectRequest
+  const projectRequest = {
+    projectName: previousProject.projectName,
     version: previousProject.version + 1,
-    versionDate: CreateCurrentDateNewVersion(),
-    editedDate: CreateCurrentDateNewVersion(),
+    functionalComponents: previousProject.functionalComponents.map((fc) => ({
+      // adapt to FunctionalComponentRequest DTO
+      className: fc.className,
+      componentType: fc.componentType,
+      dataElements: fc.dataElements,
+      readingReferences: fc.readingReferences,
+      writingReferences: fc.writingReferences,
+      functionalMultiplier: fc.functionalMultiplier,
+      operations: fc.operations,
+      degreeOfCompletion: fc.degreeOfCompletion,
+      title: fc.title,
+      description: fc.description,
+      previousFCId: fc.previousFCId,
+      orderPosition: fc.orderPosition,
+    })),
+    appUsers: previousProject.appUsers ?? [],
   };
 
   const response = await fetch(fetchURL, {
     method: "POST",
     headers,
-    body: JSON.stringify(project),
+    body: JSON.stringify(projectRequest),
   });
 
   if (!response.ok) {
@@ -163,10 +177,7 @@ const createNewProjectVersion = async (
   return newProjectId;
 };
 
-const updateProject = async (
-  sessionToken: string | null,
-  project: Project | ProjectWithUpdate,
-) => {
+const updateProject = async (sessionToken: string | null, project: Project) => {
   if (!sessionToken)
     throw new Error("User needs to be logged in to update project!");
 
@@ -176,10 +187,32 @@ const updateProject = async (
     "Content-Type": "application/json",
   };
 
+  // Map Project -> ProjectRequest
+  const projectRequest = {
+    projectName: project.projectName,
+    version: project.version,
+    functionalComponents: project.functionalComponents.map((fc) => ({
+      // adapt to FunctionalComponentRequest DTO
+      className: fc.className,
+      componentType: fc.componentType,
+      dataElements: fc.dataElements,
+      readingReferences: fc.readingReferences,
+      writingReferences: fc.writingReferences,
+      functionalMultiplier: fc.functionalMultiplier,
+      operations: fc.operations,
+      degreeOfCompletion: fc.degreeOfCompletion,
+      title: fc.title,
+      description: fc.description,
+      previousFCId: fc.previousFCId,
+      orderPosition: fc.orderPosition,
+    })),
+    appUsers: project.appUsers ?? [],
+  };
+
   const response = await fetch(fetchURL, {
     method: "PUT",
     headers,
-    body: JSON.stringify(project),
+    body: JSON.stringify(projectRequest),
   });
 
   if (!response.ok) {
@@ -251,11 +284,6 @@ const createFunctionalComponent = async (
     throw new Error(
       `Error creating a new functional component in createFunctionalComponent! Status: ${response.status}`,
     );
-  }
-
-  if (!response.ok) {
-    if (response.status === 401) throw new Error("Unauthorized!");
-    throw new Error(`HTTP error! status: ${response.status}`);
   }
 
   return response.json();

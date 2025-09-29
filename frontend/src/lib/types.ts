@@ -48,6 +48,28 @@ export type Project = {
   appUsers: projectAppUser[];
 };
 
+export type ProjectRequest = {
+  projectName: string;
+  version: number;
+  functionalComponents: FunctionalComponentRequest[];
+  appUserIds: number[];
+};
+
+export type FunctionalComponentRequest = {
+  className: ClassName;
+  componentType: ComponentType | null;
+  dataElements: number | null;
+  readingReferences: number | null;
+  writingReferences: number | null;
+  functionalMultiplier: number | null;
+  operations: number | null;
+  degreeOfCompletion: number | null;
+  title: string | null;
+  description: string | null;
+  previousFCId: number | null;
+  orderPosition: number;
+};
+
 export type TGenericComponent = {
   id: number;
   className: ClassName;
