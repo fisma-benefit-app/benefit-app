@@ -28,7 +28,7 @@ public class FunctionalComponentService {
     // Add new component with normalized order
     int newPosition = project.getFunctionalComponents().size();
     request.setOrderPosition(newPosition);
-    project.getFunctionalComponents().add(functionalComponentMapper.toEntity(request));
+    project.getFunctionalComponents().add(functionalComponentMapper.toEntity(request, project));
 
     // Save and return updated project
     Project updatedProject = projectRepository.save(project);

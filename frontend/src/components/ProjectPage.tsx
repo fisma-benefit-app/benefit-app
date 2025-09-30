@@ -10,7 +10,6 @@ import {
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
-  ProjectWithUpdate,
   TGenericComponentNoId,
   TGenericComponent,
 } from "../lib/types.ts";

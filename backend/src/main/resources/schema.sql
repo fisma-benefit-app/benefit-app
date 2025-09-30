@@ -38,6 +38,7 @@ create table if not exists functional_component
 
 create table if not exists project_app_user
 (
+    id          bigserial primary key,
     project_id  bigint not null references project (id),
     app_user_id bigint not null references app_user (id)
 )

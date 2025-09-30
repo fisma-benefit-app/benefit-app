@@ -1,11 +1,5 @@
-import {
-  Project,
-  ProjectWithUpdate,
-  TGenericComponentNoId,
-} from "../lib/types";
+import { Project, TGenericComponentNoId } from "../lib/types";
 const API_URL = import.meta.env.VITE_API_URL;
-import CreateCurrentDate from "../api/date.ts";
-import { CreateCurrentDateNewVersion } from "../api/date.ts";
 
 const fetchAllProjects = async (sessionToken: string | null) => {
   if (!sessionToken)
@@ -79,7 +73,7 @@ const createProject = async (
     projectName: nameForProject,
     version: 1, // first version
     functionalComponents: [], // start empty
-    appUserIds: [],
+    appUserIds: [], // start with no users
   };
 
   const response = await fetch(fetchURL, {
@@ -143,7 +137,7 @@ const createNewProjectVersion = async (
       previousFCId: fc.previousFCId,
       orderPosition: fc.orderPosition,
     })),
-    appUsers: previousProject.appUsers ?? [],
+    appUserIds: (previousProject.appUsers ?? []).map((user) => user.appUserId),
   };
 
   const response = await fetch(fetchURL, {
@@ -206,7 +200,7 @@ const updateProject = async (sessionToken: string | null, project: Project) => {
       previousFCId: fc.previousFCId,
       orderPosition: fc.orderPosition,
     })),
-    appUsers: project.appUsers ?? [],
+    appUserIds: (project.appUsers ?? []).map((user) => user.appUserId),
   };
 
   const response = await fetch(fetchURL, {

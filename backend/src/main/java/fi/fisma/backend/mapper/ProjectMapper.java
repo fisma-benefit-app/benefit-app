@@ -144,7 +144,7 @@ public class ProjectMapper {
         .map(
             fc ->
                 new FunctionalComponent(
-                    null,
+                    fc.getId(),
                     fc.getClassName(),
                     fc.getComponentType(),
                     fc.getDataElements(),

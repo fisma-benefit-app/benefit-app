@@ -41,12 +41,13 @@ values (1, 'Interactive end-user input service', '1-functional', 2, 4, 2, null, 
        (6, 'Interactive end-user input service', '1-functional', 2, 4, 2, null, 3, 0.5, 'valittavana kaupungit', 'Description for valittavana kaupungit', 6, 101, 3);
 
 
-insert into project_app_user (project_id, app_user_id)
-values (99, 23),
-       (100, 13),
-       (101, 23);
+insert into project_app_user (id, project_id, app_user_id)
+values (1, 99, 23),
+       (2, 100, 13),
+       (3, 101, 23);
 
 
 SELECT setval('app_user_id_seq', (SELECT MAX(id) FROM app_user));
 SELECT setval('project_id_seq', (SELECT MAX(id) FROM project));
 SELECT setval('functional_component_id_seq', (SELECT MAX(id) FROM functional_component));
+SELECT setval('project_app_user_id_seq', (SELECT MAX(id) FROM project_app_user));
