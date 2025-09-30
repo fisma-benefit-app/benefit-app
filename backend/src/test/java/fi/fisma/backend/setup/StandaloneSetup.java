@@ -109,7 +109,6 @@ public class StandaloneSetup {
     dto.setDescription("Handles user account creation process");
     dto.setPreviousFCId(123L);
     dto.setOrderPosition(1);
-    dto.setProjectId(10L);
     return dto;
   }
 
