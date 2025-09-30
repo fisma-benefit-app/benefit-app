@@ -1,5 +1,6 @@
 package fi.fisma.backend.service;
 
+import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.ProjectRequest;
@@ -106,6 +107,29 @@ public class ProjectService {
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
+
+    var functionalComponents =
+        originalProject.getFunctionalComponents().stream()
+            .map(
+                fc ->
+                    new FunctionalComponent(
+                        fc.getClassName(),
+                        fc.getComponentType(),
+                        fc.getDataElements(),
+                        fc.getReadingReferences(),
+                        fc.getWritingReferences(),
+                        fc.getFunctionalMultiplier(),
+                        fc.getOperations(),
+                        fc.getDegreeOfCompletion(),
+                        fc.getTitle(),
+                        fc.getDescription(),
+                        fc.getPreviousFCId(),
+                        fc.getOrderPosition(),
+                        fc.getProject()))
+            .collect(Collectors.toSet());
+
+    // Associate the project with the copied functional components
+    newVersion.setFunctionalComponents(functionalComponents);
 
     // Associate the project with the requesting user
     newVersion.setAppUsers(Set.of(new ProjectAppUser(newVersion, appUser)));

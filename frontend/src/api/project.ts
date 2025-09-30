@@ -112,6 +112,12 @@ const createNewProjectVersion = async (
   if (!sessionToken)
     throw new Error("User needs to be logged in to create a project!");
 
+  console.log(`Previous project id: ${previousProject.id}`);
+  console.log(
+    `Functional components: ${previousProject.functionalComponents.length}`,
+  );
+  console.log(`App users: ${previousProject.appUsers?.length}`);
+
   const fetchURL = `${API_URL}/projects/${previousProject.id}/versions`;
   const headers = {
     Authorization: sessionToken,
@@ -161,14 +167,18 @@ const createNewProjectVersion = async (
     throw new Error("Project created but no Location header found!");
   }
 
-  const parts = location.split("projects/");
-  const newProjectId = parts.length > 1 ? parts[1] : null;
+  try {
+    const url = new URL(location);
+    const newProjectId = url.pathname.split("/").pop();
 
-  if (!newProjectId) {
-    throw new Error("Id of new project could not be parsed!");
+    if (!newProjectId) {
+      throw new Error("Id of new project could not be parsed!");
+    }
+
+    return newProjectId;
+  } catch (error) {
+    throw new Error(`Invalid Location header: ${location}`);
   }
-
-  return newProjectId;
 };
 
 const updateProject = async (sessionToken: string | null, project: Project) => {
@@ -187,6 +197,7 @@ const updateProject = async (sessionToken: string | null, project: Project) => {
     version: project.version,
     functionalComponents: project.functionalComponents.map((fc) => ({
       // adapt to FunctionalComponentRequest DTO
+      id: fc.id,
       className: fc.className,
       componentType: fc.componentType,
       dataElements: fc.dataElements,

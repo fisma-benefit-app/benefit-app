@@ -105,7 +105,12 @@ public class ProjectMapper {
                       appUserRepository
                           .findById(userId)
                           .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-                  return new ProjectAppUser(project, user);
+
+                  // First try to find existing ProjectAppUser
+                  return project.getAppUsers().stream()
+                      .filter(pau -> pau.getAppUser().getId().equals(userId))
+                      .findFirst()
+                      .orElse(new ProjectAppUser(project, user)); // Create new if not found
                 })
             .collect(Collectors.toSet());
 
@@ -133,18 +138,19 @@ public class ProjectMapper {
             LocalDateTime.now(), // new version date
             LocalDateTime.now(), // new edited date
             originalProject.getTotalPoints(),
-            copyFunctionalComponents(originalProject.getFunctionalComponents()),
-            null // AppUsers will be set by service
+            // copyFunctionalComponents(originalProject.getFunctionalComponents()),
+            Set.of(), // FunctionalComponents will be set by service
+            Set.of() // AppUsers will be set by service
             );
     return newVersion;
   }
-
+  /*
   private Set<FunctionalComponent> copyFunctionalComponents(Set<FunctionalComponent> components) {
     return components.stream()
         .map(
             fc ->
                 new FunctionalComponent(
-                    fc.getId(),
+                    null,
                     fc.getClassName(),
                     fc.getComponentType(),
                     fc.getDataElements(),
@@ -160,4 +166,5 @@ public class ProjectMapper {
                     fc.getProject()))
         .collect(Collectors.toSet());
   }
+        */
 }

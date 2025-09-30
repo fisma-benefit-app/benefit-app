@@ -16,7 +16,7 @@ public class FunctionalComponentRequest {
   private Long id;
 
   @Size(max = 255, message = "Class name must not exceed 255 characters")
-  @Schema(description = "Name of the class", example = "UserAccount", required = true)
+  @Schema(description = "Name of the class", example = "UserAccount")
   private String className;
 
   @Schema(description = "Type of the functional component")
