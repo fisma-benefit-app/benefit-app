@@ -21,6 +21,7 @@ public class FunctionalComponentMapper {
         request.getTitle(),
         request.getDescription(),
         request.getPreviousFCId(),
-        request.getOrderPosition());
+        request.getOrderPosition(),
+        null);
   }
 }

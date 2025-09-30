@@ -76,13 +76,13 @@ public class ProjectService {
    * @throws UnauthorizedException if the user is not found
    */
   public ProjectResponse createProject(ProjectRequest newProjectRequest, String username) {
-    var appUser = appUserRepository.findByUsername(username);
-    if (appUser == null) {
-      throw new UnauthorizedException("User not found: " + username);
-    }
+    var appUser =
+        appUserRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var project = projectMapper.toEntity(newProjectRequest);
-    project.setAppUsers(Set.of(new ProjectAppUser(appUser.getId(), null)));
+    project.setAppUsers(Set.of(new ProjectAppUser(project, appUser)));
     return projectMapper.toResponse(projectRepository.save(project));
   }
 
@@ -100,14 +100,19 @@ public class ProjectService {
   public ProjectResponse createProjectVersion(
       Long projectId, ProjectRequest versionRequest, String username) {
     var originalProject = findProjectForUser(projectId, username);
-    var appUser = appUserRepository.findByUsername(username);
-    if (appUser == null) {
-      throw new UnauthorizedException("User not found: " + username);
-    }
+    var appUser =
+        appUserRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
-    newVersion.setAppUsers(Set.of(new ProjectAppUser(appUser.getId(), null)));
-    return projectMapper.toResponse(projectRepository.save(newVersion));
+
+    // Associate the project with the requesting user
+    newVersion.setAppUsers(Set.of(new ProjectAppUser(newVersion, appUser)));
+
+    var savedProject = projectRepository.save(newVersion);
+
+    return projectMapper.toResponse(savedProject);
   }
 
   /**

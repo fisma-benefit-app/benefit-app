@@ -80,10 +80,11 @@ public class AppUserService {
       throw new UnauthorizedException("User not authenticated");
     }
 
-    AppUser appUser = appUserRepository.findByUsername(authentication.getName());
-    if (appUser == null) {
-      throw new EntityNotFoundException("User not found: " + authentication.getName());
-    }
+    AppUser appUser =
+        appUserRepository
+            .findByUsername(authentication.getName())
+            .orElseThrow(
+                () -> new EntityNotFoundException("User not found: " + authentication.getName()));
 
     return appUser;
   }

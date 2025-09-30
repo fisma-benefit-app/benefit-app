@@ -1,8 +1,9 @@
 package fi.fisma.backend.repository;
 
 import fi.fisma.backend.domain.AppUser;
-import org.springframework.data.repository.ListCrudRepository;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AppUserRepository extends ListCrudRepository<AppUser, Long> {
-  <Optional> AppUser findByUsername(String username);
+public interface AppUserRepository extends JpaRepository<AppUser, Long> {
+  Optional<AppUser> findByUsername(String username);
 }

@@ -53,11 +53,10 @@ public class ProjectMapper {
                 .collect(Collectors.toSet()),
             project.getAppUsers().stream()
                 .map(
-                    pau ->
-                        appUserRepository
-                            .findById(pau.getAppUserId())
-                            .map(user -> new AppUserSummary(user.getId(), user.getUsername()))
-                            .orElseThrow(() -> new RuntimeException("User not found")))
+                    pau -> {
+                      AppUser user = pau.getAppUser();
+                      return new AppUserSummary(user.getId(), user.getUsername());
+                    })
                 .collect(Collectors.toSet()));
     return response;
   }
@@ -94,7 +93,8 @@ public class ProjectMapper {
                         fc.getTitle(),
                         fc.getDescription(),
                         fc.getPreviousFCId(),
-                        fc.getOrderPosition()))
+                        fc.getOrderPosition(),
+                        project))
             .collect(Collectors.toSet());
 
     Set<ProjectAppUser> appUsers =
@@ -105,7 +105,7 @@ public class ProjectMapper {
                       appUserRepository
                           .findById(userId)
                           .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-                  return new ProjectAppUser(user.getId(), project.getId());
+                  return new ProjectAppUser(project, user);
                 })
             .collect(Collectors.toSet());
 
@@ -134,7 +134,8 @@ public class ProjectMapper {
             LocalDateTime.now(), // new edited date
             originalProject.getTotalPoints(),
             copyFunctionalComponents(originalProject.getFunctionalComponents()),
-            originalProject.getAppUsers());
+            null // AppUsers will be set by service
+            );
     return newVersion;
   }
 
@@ -155,7 +156,8 @@ public class ProjectMapper {
                     fc.getTitle(),
                     fc.getDescription(),
                     fc.getId(),
-                    fc.getOrderPosition()))
+                    fc.getOrderPosition(),
+                    fc.getProject()))
         .collect(Collectors.toSet());
   }
 }
