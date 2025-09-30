@@ -1,33 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap");
 @import "tailwindcss";
 
 @theme {
-    --color-fisma-blue: #1e73be;
-    --color-fisma-chathams-blue: #13517a;
-    --color-fisma-dark-blue: #221d5e;
-    --color-fisma-gray: #636363;
-    --color-fisma-red: #c82026;
-    --color-fisma-light-gray: #99a1af;
-    /* --drop-shadow-fisma-logo: 0 2px 2px rgb(255 255 255 / 0.30) */
+  --color-fisma-blue: #1e73be;
+  --color-fisma-chathams-blue: #13517a;
+  --color-fisma-dark-blue: #221d5e;
+  --color-fisma-gray: #636363;
+  --color-fisma-red: #c82026;
+  --color-fisma-light-gray: #99a1af;
+  /* --drop-shadow-fisma-logo: 0 2px 2px rgb(255 255 255 / 0.30) */
 }
 
 button:disabled {
-    filter: brightness(70%);
-    pointer-events: none;
+  filter: brightness(70%);
+  pointer-events: none;
 }
 
 :root {
-    font-family: 'Roboto Slab', serif;
+  font-family: "Roboto Slab", serif;
 }
 
 input {
-    @apply text-fisma-dark-blue placeholder-fisma-light-gray focus:outline-fisma-dark-blue;
+  @apply text-fisma-dark-blue placeholder-fisma-light-gray focus:outline-fisma-dark-blue;
 }
 
 input:focus {
-    color: var(--color-fisma-dark-blue) !important;
+  color: var(--color-fisma-dark-blue) !important;
 }
-
 
 /* This can be used to see where the element-boxes are. */
 /* * {

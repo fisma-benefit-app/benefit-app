@@ -1,73 +1,121 @@
-import { faCaretDown, faCaretUp, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ChangeEvent, useState } from "react";
+import {
+  faCaretDown,
+  faCaretUp,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ChangeEvent, useEffect, useState } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
-import { getCalculateFuntion, getComponentTypeOptions, getInputFields } from "../lib/fc-service-functions.ts";
-import { CalculationParameter, ClassName, ComponentType, Project, TGenericComponent } from "../lib/types.ts";
+import {
+  getCalculateFuntion,
+  getComponentTypeOptions,
+  getInputFields,
+} from "../lib/fc-service-functions.ts";
+import {
+  CalculationParameter,
+  ClassName,
+  ComponentType,
+  Project,
+  TGenericComponent,
+} from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
-import { useEffect } from "react";
 
 type FunctionalClassComponentProps = {
-  component: TGenericComponent,
-  deleteFunctionalComponent: (componentId: number) => Promise<void>,
-  project: Project,
-  setProject: React.Dispatch<React.SetStateAction<Project | null>>,
-  isLatest: boolean
-  forceCollapsed: boolean,
-  collapseVersion: number,
+  component: TGenericComponent;
+  deleteFunctionalComponent: (componentId: number) => Promise<void>;
+  project: Project;
+  setProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  isLatest: boolean;
+  forceCollapsed: boolean;
+  collapseVersion: number;
+  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
 };
 
-export default function FunctionalClassComponent({ component, deleteFunctionalComponent, project, setProject, isLatest, forceCollapsed }: FunctionalClassComponentProps) {
+export default function FunctionalClassComponent({
+  component,
+  deleteFunctionalComponent,
+  project,
+  setProject,
+  isLatest,
+  forceCollapsed,
+  collapseVersion,
+  dragHandleProps,
+}: FunctionalClassComponentProps) {
+  const [collapsed, setCollapsed] = useState(forceCollapsed);
 
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(forceCollapsed);
+  // Sync collapsed state with forceCollapsed prop
   useEffect(() => {
-    setIsCollapsed(forceCollapsed);
-  }, [forceCollapsed]);
+    setCollapsed(forceCollapsed);
+  }, [forceCollapsed, collapseVersion]);
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
   const translation = useTranslations().functionalClassComponent;
 
   const componentTypeOptions = getComponentTypeOptions(component.className);
-
   const inputFields = getInputFields(component.className);
 
   //todo: does the user need to explicitly select component type for points to be calculated?
-  const calculateFunction = getCalculateFuntion((component.className && component.componentType) ? component.className : "");
+  const calculateFunction = getCalculateFuntion(
+    component.className && component.componentType ? component.className : "",
+  );
 
   const fullPoints = calculateFunction ? calculateFunction(component) : 0;
-  const pointsByDegreeOfCompletion = (component.degreeOfCompletion || 0) * fullPoints;
+  const pointsByDegreeOfCompletion =
+    (component.degreeOfCompletion || 0) * fullPoints;
 
   const handleClassNameChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select classname only from predefined options
     const newClassName = e.target.value as ClassName;
 
-    const updatedComponent = { ...component, className: newClassName, componentType: null };
-    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
+    const updatedComponent = {
+      ...component,
+      className: newClassName,
+      componentType: null,
+    };
+    const updatedComponents = project.functionalComponents.map(
+      (functionalComponent) =>
+        functionalComponent.id === component.id
+          ? updatedComponent
+          : functionalComponent,
+    );
 
-    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    const updatedProject = {
+      ...project,
+      functionalComponents: updatedComponents,
+    };
     setProject(updatedProject);
-  }
+  };
 
   const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select component type only from predefined options
     const newOptionType = e.target.value as ComponentType;
 
     const updatedComponent = { ...component, componentType: newOptionType };
-    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
+    const updatedComponents = project.functionalComponents.map(
+      (functionalComponent) =>
+        functionalComponent.id === component.id
+          ? updatedComponent
+          : functionalComponent,
+    );
 
-    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    const updatedProject = {
+      ...project,
+      functionalComponents: updatedComponents,
+    };
     setProject(updatedProject);
-  }
+  };
 
-  const handleComponentChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleComponentChange = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     let updatedComponent;
     let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
-    if (["comment"].includes(e.target.id)) {
+    if (["title", "description"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
     } else {
       if (e.target.id === "degreeOfCompletion") {
@@ -86,54 +134,67 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           if (num < 0) value = "0";
           if (num > 1) value = "1";
         }
-      } else if (e.target.id !== "comment") {
+      } else if (e.target.id !== "title" && e.target.id !== "description") {
         const num = parseFloat(value);
         // correct any number greater than 99999 and less than 0
         if (num > 99999) {
           value = "99999";
         } else if (num < 0) {
-          value = "0"
+          value = "0";
         }
       }
 
       updatedComponent = { ...component, [e.target.id]: value };
     }
-    const updatedComponents = project.functionalComponents.map(functionalComponent => functionalComponent.id === component.id ? updatedComponent : functionalComponent);
-    const updatedProject = { ...project, functionalComponents: updatedComponents };
+    const updatedComponents = project.functionalComponents.map(
+      (functionalComponent) =>
+        functionalComponent.id === component.id
+          ? updatedComponent
+          : functionalComponent,
+    );
+    const updatedProject = {
+      ...project,
+      functionalComponents: updatedComponents,
+    };
     setProject(updatedProject);
-  }
+  };
 
   return (
     <>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="flex flex-col gap-4 border-2 border-fisma-gray bg-white my-5 w-full p-4"
+        className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 my-5 w-full p-4 rounded-lg"
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Drag handle */}
+          <div
+            {...dragHandleProps}
+            className="cursor-grab bg-fisma-gray text-white py-2 px-2"
+          >
+            ::
+          </div>
           <div className="flex-1 min-w-[200px]">
             <input
               className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
-              id="comment"
-              placeholder={translation.commentPlaceholder}
-              value={component.comment || ""}
+              id="title"
+              placeholder={translation.titlePlaceholder}
+              value={component.title || ""}
               onChange={handleComponentChange}
               disabled={!isLatest}
             />
           </div>
 
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
-            <div className="flex gap-2 text-sm sm:text-base">
-              <span>= {pointsByDegreeOfCompletion.toFixed(2)} {translation.functionalPointText}</span>
-              <span>= {fullPoints.toFixed(2)} {translation.functionalPointReadyText}</span>
-            </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              {/* Collapse button */}
               <button
                 type="button"
-                onClick={() => setIsCollapsed((prev) => !prev)}
+                onClick={() => setCollapsed((prev) => !prev)}
                 className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
               >
-                <FontAwesomeIcon icon={isCollapsed ? faCaretUp : faCaretDown} />
+                <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
               </button>
+              {/* Delete button */}
               <button
                 type="button"
                 className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
@@ -146,32 +207,60 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
           </div>
         </div>
 
-        {isCollapsed && (
+        {!collapsed && (
           <>
-            <label className="font-medium">
-              {translation.degreeOfCompletionPlaceholder}:
-            </label>
-            <input
-              id="degreeOfCompletion"
-              type="number"
-              min={0.01}
-              max={1}
-              step={0.01}
-              value={component.degreeOfCompletion || ""}
-              onChange={handleComponentChange}
-              className="border-2 border-fisma-light-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base"
-              disabled={!isLatest}
-            />
+            {/* Degree of Completion Section */}
+            <div className="flex flex-col gap-2 bg-fisma-light-gray border-2 border-fisma-gray p-3 rounded-md">
+              <label className="font-bold text-fisma-blue">
+                {translation.degreeOfCompletionPlaceholder}:
+              </label>
+              <input
+                id="degreeOfCompletion"
+                type="number"
+                min={0.01}
+                max={1}
+                step={0.01}
+                value={component.degreeOfCompletion || ""}
+                onChange={handleComponentChange}
+                className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                disabled={!isLatest}
+              />
+              <p className="text-xs text-gray-900">
+                {translation.degreeOfCompletionDescription}
+              </p>
+            </div>
 
+            {/* Description / Comment Section */}
+            <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md">
+              <label
+                htmlFor="description"
+                className="font-medium text-fisma-blue"
+              >
+                {translation.descriptionPlaceholder}:
+              </label>
+              <textarea
+                id="description"
+                value={component.description || ""}
+                onChange={handleComponentChange}
+                className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md"
+                rows={3}
+                disabled={!isLatest}
+                placeholder={translation.descriptionPlaceholder}
+              />
+            </div>
+
+            {/* Metadata Section */}
             <div className="flex flex-row flex-wrap gap-3 items-center">
               <select
                 id="className"
                 value={component.className || ""}
                 onChange={handleClassNameChange}
-                className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base"
+                className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
                 disabled={!isLatest}
               >
-                <option disabled value="">{translation.classNamePlaceholder}</option>
+                <option disabled value="">
+                  {translation.classNamePlaceholder}
+                </option>
                 {classNameOptions.map((className) => (
                   <option key={className} value={className}>
                     {translation.classNameOptions[className]}
@@ -180,32 +269,30 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
               </select>
 
               {component.className && (
-                <>
-                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
-                    <select
-                      id="componentType"
-                      value={component.componentType || ""}
-                      onChange={handleOptionTypeChange}
-                      className="border-2 border-fisma-light-gray bg-white p-2 text-base"
-                      disabled={!isLatest}
-                    >
-                      <option disabled value="">
-                        {translation.componentTypePlaceholder}
+                <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                  <select
+                    id="componentType"
+                    value={component.componentType || ""}
+                    onChange={handleOptionTypeChange}
+                    className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
+                    disabled={!isLatest}
+                  >
+                    <option disabled value="">
+                      {translation.componentTypePlaceholder}
+                    </option>
+                    {componentTypeOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {translation.componentTypeOptions[option]}
                       </option>
-                      {componentTypeOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {translation.componentTypeOptions[option]}
-                        </option>
-                      ))}
-                    </select>
-
-                  </div>
-                </>
+                    ))}
+                  </select>
+                </div>
               )}
             </div>
 
+            {/* Parameters Section */}
             {component.className && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-4 bg-white border-2 border-fisma-light-gray p-3 rounded-md mt-2">
                 {Object.entries(component)
                   .filter(([key]) => inputFields.includes(key))
                   .map(([key, value]) => (
@@ -216,9 +303,9 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
                       <input
                         id={key}
                         type="number"
-                        value={value as number || ""}
+                        value={(value as number) || ""}
                         onChange={handleComponentChange}
-                        className="w-[120px] border-2 border-fisma-light-gray bg-white p-2"
+                        className="w-[120px] border-2 border-fisma-light-gray bg-white p-2 rounded-md"
                       />
                     </div>
                   ))}
@@ -226,12 +313,22 @@ export default function FunctionalClassComponent({ component, deleteFunctionalCo
             )}
           </>
         )}
+
+        <div className="mt-4 border-t pt-2 text-sm sm:text-base flex justify-between text-fisma-blue font-semibold">
+          <span>
+            {translation.functionalPointText}:{" "}
+            {pointsByDegreeOfCompletion.toFixed(2)}
+          </span>
+          <span>
+            {translation.functionalPointReadyText}: {fullPoints.toFixed(2)}
+          </span>
+        </div>
       </form>
 
       <ConfirmModal
         message={
-          component.comment
-            ? `${translation.confirmDeleteMessage} "${component.comment}?"`
+          component.title
+            ? `${translation.confirmDeleteMessage} "${component.title}?"`
             : `${translation.confirmDeleteMessage}?`
         }
         open={isConfirmModalOpen}

@@ -1,301 +1,528 @@
-# Benefit app main repository.
-All-in-one repository for the Benefit application. Includes frontend, backend, documents, etc.
+<a id="readme-top"></a>
 
-**Product owner**: FiSMA ry, 2025.
+[![Contributors][contributors-shield]][contributors-url]
+[![Last commit][commit-shield]][commit-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
 
-<img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" width="200">
+<!--
+[![Build][build-shield]][build-url]
+-->
 
-**Representative supervisor**: Heikki Naski.
+<br />
+<div align="center">
+  <a href="https://www.fisma.fi/in-english/">
+    <img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" alt="FiSMA shield" width="200">
+  </a>
+  <a href="https://www.haaga-helia.fi/en">
+    <img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" alt="Haaga-Helia shield" width="200">
+  </a>
 
+  <h3 align="center">Benefit application</h3>
 
+  <p align="center">
+    All in one repository for the Benefit application developed in collaboration
+    <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
+    <br />
+    <a href="#getting-started"><strong>Get Started »</strong></a>
+  </p>
+</div>
 
-**Collaborators**: Haaga-Helia University of Applied Sciences, 2025.
+<br>
+<details>
+<summary><b>Table of Contents</b></summary>
+  <ol>
+    <li>
+        <a href="#about-the-project">About the Project</a>
+    </li>
+    <li>
+        <a href="#built-with">Built With</a>
+    </li>
+    <li>
+        <a href="#architecture">Architecture</a>
+    </li>
+    <li>
+        <a href="#api">API</a>
+    </li>     
+    <li>
+        <a href="#getting-started">Getting Started</a>
+    </li>
+    <li>
+        <a href="#usage">Usage</a>
+    </li>
+    <li>
+        <a href="#cicd">CI/CD</a>
+    </li>
+    <li>
+        <a href="#quality-assurance-and-security">Quality Assurance and Security</a>
+    </li>
+    <li>
+        <a href="#logging">Logging</a>
+    </li>
+    <li>
+        <a href="#roadmap">Roadmap</a>
+    </li>
+    <li>
+        <a href="#license">License</a>
+    </li>
+    <li>
+        <a href="#contact">Contact</a>
+    </li>
+  </ol>
+</details><br>
 
-<img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" width="200">
+<!-- ABOUT THE PROJECT -->
 
-## Deployment and Development
-See sections 4. Frontend and 5. Backend
+## About the Project
 
----
+The Benefit application has been developed in collaboration with FiSMA ry and Haaga-Helia University of Applied Sciences. It's designed for function point analysis, primarily supporting Scope Managers in performing calculations, reporting, and archiving. The main functionality of the app follows standard ISO/IEC 29881.
 
-## Table of contents
+### What is Function Point Analysis?
 
-1. Introduction
-2. Core functionality
-3. Tools
-4. Frontend
-5. Backend
-6. Database
-7. CI/CD
-8. Testing
-9. Results
-10. Known bugs
-11. Future improvements
+Function point analysis is used to measure the functional size of software. This measurement can then be applied when analyzing productivity or preparing workload estimates.
 
----
+There are several function point analysis methods, but in this project, the term specifically refers to the FiSMA 1.1 method.
 
-## 1. Introduction
+### FiSMA 1.1 Method Overview
 
+In FiSMA 1.1, each user-relevant function is classified into a function category and function type, and entered as a row in a table. Each function is assigned:
 
-**What is Benefit application and its main purpose?**
+- A unique identifier
+- Required measurable attributes, including:
+  - Data elements
+  - Read references
+  - Write references
+  - Operations
+  - Function factor
 
-Benefit application is a project by FiSMA ry, developed during Spring 2025. 
-It is a software tool designed for estimating the size of a software project, 
-which calculates function points for navigation and queries, external interfaces, 
-inputs and outputs. Based on these, it helps estimate the project's budget and costs.
+Examples of functions:
 
-![Benefit-app's frontend UI page, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
+- A list view on a web page
+- A CSV report
+- An integration
+- A database table
 
-Picture 1: A visual representation of the Benefit application's UI. [TODO: Update placeholder!]
+Not considered functions:
 
+- Technical features (e.g. internal logging, developer utilities)
+- Quality-related features (e.g. caching)
 
-**Whom is application made for?**
+These are excluded because they do not directly provide new functionality to the user. Functional size is measured strictly through functional requirements or working software features.
 
-The application is designed for businesses and individuals who want to estimate the size and costs of a software project.
+### northernSCOPE™ Concept
 
-The application can be useful for experts, who want to easily calculate
-function points of other applications.
-
-**What are prerequisites?**
-
-User should have at least basic knowledge on software size measurements
-and function points calculations. Fisma ry have great manuals for these.
-
-Then we expect user have great knowledge on advanced developers' tools, 
-such as Java with Gradle for backend, Typescript for frontend, PostgreSQL for database, 
-Heroku environment for backend's deployment, etc. We have documented all essential
-tools and their implementation in the software in the 
-
-
-**Why are the frontend, backend, and other components stored in a single repository?**
-
-The frontend, backend, and other components are stored in a single repository 
-in order streamline the development process, allowing the team to work efficiently 
-and coordinate changes more easily. Due Fisma ry request, the repository was opened publicly
-as open source.
-
-The only exception is the backend-credentials repository, which is seperated from 
-the single repository and is private. It contains sensitive credentials for deploying
-backend to Heroku.
-
----
-
-## 2. Core functionality
-
-The main functionality of the Benefit-app is executed in *calculations.ts* file,
-which located in frontend libraries directory (i.e. './frontend/src/lib/calculations.ts')
-
-The calculation method follows standard ISO/IEC 29881.
-
----
-
-## 3. Tools
-
-We have used following tools in the project, alphabetically:
-  
-* Figma for preliminary sketching UI design. 
-
-* Java with Gradle for backend.
-
-* Docker, due it will automatically install required languages and libraries 
-(e.g. PostgreSQL) for the new member. Thus it will save both time and hussle for future groups.  
-
-* PostgreSQL for the database. Everyone of our team has used SQL for databases. 
-Thus production will be most effective, when we are working with familiar language.
-We also used PostgreSQL over other SQL DBMS due product owner's wishes. 
-
-* Spring boot for backend.
-
-* Typescript for frontend.
-
-* Visual Studio Code (version 1.96.4 and newer) as our team's main IDE for coding. 
-
-
----
-
-## 4. Frontend
-
-The frontend was developed in Typescript. Due Fisma ry's
-request, we have tried to limit of importing dependencies
-(e.g. third party libraries) as many as possible. 
-
-This was due minimize the need of updating or reconfiguring 
-dependencies.
-
-Please read frontend_manual.md from documents -directory for more information.
-
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_frontend.md
-
-For deployment of frontend, we used gh-pages method by Github, which
-you can read in more detail from frontend_gh_pages_deployment.md -manual.
-
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/frontend_gh_pages_deployment.md 
-
----
-
-## 5. Backend
-
-The backend was developed in Java with Gradle.
-
-### Install
-For installing backend locally, please read install_backend_locally_manual.md 
-from documents -directory for more information.
-
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/install_backend_locally.md
+The [northernSCOPE™](https://www.fisma.fi/wp-content/uploads/2022/01/northernscope-brochure-v152.pdf) concept is a framework developed and provided by FiSMA to support the application of function point analysis in software projects.
 
 ### Deployment
-For deployment of backend, we used Heroku platform, which
-you can read in more detail from backend_heroku_deployment.md -manual.
 
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/backend_heroku_deployment.md
+The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [deployment guide](/documents/guides/deployment.md).
 
-### Automatic tests
-**TODO** How to run on CLI?
-Tests are configured in the file **backend/build.gradle** 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
----
+<!-- BUILT WITH -->
 
-## 6. Database
+## Built With
 
-The structure of Benefit's SQL database is shown in the diagram below:
+This project is built with:
 
-![Database diagram.](/documents/img/images_for_manuals/database_diagram.png)
+![Back-end][back-end-shield]<br>
+[![Java][java-shield]][java-url]
+[![Spring Boot][spring-shield]][spring-url]
+[![Gradle][gradle-shield]][gradle-url]
 
-Picture #: Diagram of Benefit's database.
+![Front-end][front-end-shield]<br>
+[![TypeScript][typescript-shield]][typescript-url]
+[![React][react-shield]][react-url]
 
-Please read database_manual.md document from documents -directory
-for more information
+![Database][database-shield]<br>
+[![PostgreSQL][postgres-shield]][postgres-url]
 
-Link: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/database_manual.md
+![Tools][tools-shield]<br>
+[![Docker][docker-shield]][docker-url]
+[![Figma][figma-shield]][figma-url]
+[![GitHub][github-shield]][github-url]
+[![GitHub Actions][github-actions-shield]][github-actions-url]
+[![Visual Studio Code][vs-code-shield]][vs-code-url]
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- ARCHITECTURE -->
 
-## 7. CD/CI
+## Architecture
 
-a) **KISS**. From the very first sprint and on,
-Fisma ry required our team to keep Benefit-app 
-simple as possible in every development.
+<details>
+<summary><b>Click here to view the software architecture</b></summary>
+<img src="./documents/img/images_for_guides/architecture.jpg" height="500" />
+</details>
 
-This meant such as creating minimal viable product as
-soon as possible, deploying the Benefit-app as cheaply as
-possible (no more than 10 euros), limiting imports of
-third party libraries and tools, etc.
+<details>
+<summary><b>Click here to view the database diagram</b></summary>
+<img src="./documents/img/images_for_guides/database_diagram.png" />
+</details><br>
 
-In order Fisma ry can review every small solutions and changes
-as soon as possible, we held Sprint reviews every second week
-(with few exceptions due holidays). 
+More information on how to access the database can found in the [database guide](/documents/guides/database.md).
 
-b) Originally, we had three branches: dev, main and qa.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-*  **Dev** is our so called sandbox branch, where we can expirement and test new possible solution and tools.
+<!-- API -->
 
-*  **Qa** is our product review branch, where we pull all _functional_ codes for Sprint Review together with product owners.
+## API
 
-*  **Main** is our official branch, where project has been deployed (finalized) and refactor all unnecessary, broken solutions and tools.
+Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/how_to_generate_api_docs.md).
 
-After third sprint and on, we had more branches for specific development or issues,
-such as bug fixes and logout functionality.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Despite of having many branches, this ensured that no git conflicts, 
-nor code errors, wouldn't happen regularly during development process.
+<!-- GETTING STARTED -->
 
-When it was time to pull working solutions (or codes) from other branches 
-to the dev or main branch via pull requests, we implemented a functionality 
-where every pull request must be reviewed and accepted by other team members. 
-This was due assuring quality of the codes and minimize possible errors.
+## Getting Started
 
+This guide explains how to set up the Benefit App locally for development.
 
----
+### 1) Prerequisites
 
-## 8. Testing
+- **Docker Desktop 4.39.0 or newer** installed (and running).
+- Or, for local-only dev (without Dockerized backend):
+  - a local **PostgreSQL** installation (or use only the dockerized database - see 3B)
+  - **Java 21**
+  - **Nodejs** and **npm** (latest LTS recommended)
+  - (Optional) **Git** and a code editor (e.g. VS Code ≥ 1.98.2)
 
-While we didn't had an industry standard testing of the Benefit-app during development,
-we held two seminars with students from Haaga-Helia University of Applied Sciences.
-These student gave essential feedbacks when reviewing our Benefit-app, which
-you can read in detail in following documents:
+Check Java version:
 
-* testing_report_from_April_02_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_02_2025.md )
+```bash
+java --version
+echo $JAVA_HOME # or echo %JAVA_HOME% on Windows
+```
 
-* testing_report_from_April_03_2025.md ( https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/testing_report_from_April_03_2025.md )
+If `JAVA_HOME` is unset or points to the wrong directory, Gradle builds may fail.
 
-Note these aren't considered as official systematical testing reports for Benefit-app.
-This was pointed by Fisma ry during one sprint review.
+### 2) Setup
 
----
+```bash
+# clone
+git clone <your-repo-url>
+cd benefit-app
 
-## 9. Results
+# root env
+cp .env.example .env
 
-The application is actively running on the following website:
+# frontend env
+cp frontend/.env.example frontend/.env
+```
 
-https://fisma-benefit-app.github.io/benefit-app/#/login
+| You can change them as you wish, but the dev environment should usually work with the default values.
 
-The *login site*, which is linked to App user's account information
-from database is working fine.
+### 3) Run Options
 
-![Benefit-app's frontend login page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_login_page_14_05_2025.png)
+#### A) Full Dockerized Setup
+
+```bash
+# start (build on first run or when Dockerfiles change)
+docker compose up --build
 
-The *new project site* with functionalities suching creating a new project,
-saving project and its version, export project into CSV and PDF, etc.
-is working fine.
+# stop (keep DB data and caches)
+docker compose down
 
-![Benefit-app's frontend project page UI, taken on May 14 2025](/documents/img/images_for_manuals/UI_project_page_14_05_2025.png)
+# stop and reset EVERYTHING (DB, caches, volumes)
+docker compose down -v
+```
 
+Open:
 
-Below is a demo of the Benefit-app, recorded on May 14 2025.
-Demo was splitted into two parts due memory size limitation in md-files.
+- Frontend: http://localhost:5173/benefit-app/login
+- Backend: http://localhost:8080/actuator/health
 
+#### B) Development Without Docker (local backend)
 
-**Part 1**: Login to user account, new project creation, new functional points creation and different version control.
+1. You only need the `frontend/.env` file with VITE_API_URL pointing to your backend (`http://localhost:8080` by default).
+2. If you have previously run Docker, clean backend build dirs once to avoid permission issues:
+   ```bash
+   sudo rm -rf backend/.gradle backend/build
+   ```
+3. Make sure a Postgres DB is available:
+   - Run only Postgres via Docker:
+     ```bash
+     docker compose up db
+     ```
+   - Test DB connection:
+     ```bash
+     docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+     ```
+   - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
+4. Start backend:
 
-https://github.com/user-attachments/assets/1407d6b8-f1fe-47c1-9fae-3c74588a6606
+   ```bash
+   cd backend
+   ./gradlew bootRun
+   ```
 
+   Or build and run packaged jar:
 
-**Part 2**: Project exporting to CSV & PDF, changing language from English to Finnish, deleting project 
-and trying login non-existing account.
+   ```bash
+   ./gradlew build
+   java -jar build/libs/backend-0.0.1-SNAPSHOT.jar
+   ```
 
-https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba
+5. Start frontend:
 
-If the videos are not playing or are bad quality, then you can download 
-both videos from documents' video directory:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
+   By default, the app runs at `http://localhost:5173`.
 
-**Part 1 video**: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/videos/benefit_app_demo_sd_14_05_2025_part_1.mp4
+### 4) Other steps
 
+IMPORTANT! If you continue on developing this app, it is important to keep consistent formatting in your changes. Benefit app has a `pre-commit` Git hook to run all necessary formattings on each commit. To take advantage of this, run this command in your terminal:
 
-**Part 2 video**: https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/videos/benefit_app_demo_sd_14_05_2025_part_2.mp4
+```sh
+git config core.hooksPath .githooks
+```
 
----
+This command tells Git to look for the `pre-commit` hook from the `.githooks` folder.
 
-## 10. Known bugs and technical issues
+### (Optional) Troubleshooting
 
-Please read "Known issues" -document from Documents' directory 
-for list of known bugs and other unresolved technical difficulties:
+- **No seed users** → ensure backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset DB once.
+- **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`.
+- **Java not detected / build fails** → Ensure `JAVA_HOME` points to your JDK 21 installation. Example (PowerShell):
 
-https://github.com/fisma-benefit-app/benefit-app/blob/main/documents/known_issues.md
+  ```powershell
+  $javaPath = Split-Path -Path (Split-Path -Path (Get-Command java).Source -Parent) -Parent
+  setx /m JAVA_HOME $javaPath
+  ```
 
----
+- **Backend build errors** → Run `./gradlew clean build` and verify that `build.gradle` uses:
 
-## 11. Future improvements
+  ```gradle
+  java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+  }
+  ```
 
-Here are planned improvements and future features for the application:
+- **Database connection issues** → Double-check Docker is running, and test with `psql` as shown above. If using local Postgres, ensure the port and credentials match `application.yaml`.
+- **Switching between Docker/local backend** → Always clean `backend/.gradle` and `backend/build` before switching.
+- **Login fails with** `Error getting JWT ... Status: 404` or **Error fetching projects / JSON parse errors** → `VITE_API_URL` is likely misconfigured. Ensure it matches your backend’s URL.
+- `npm install` **fails (permissions)** → Remove the node_modules folder and try again:
 
-* Benefit-app is not applied for mobile devices.
+  ```bash
+  rm -rf node_modules
+  npm install
+  ```
 
-* Multilayer architecture functionality was not implemented to Benefit-app.
-See issue #111: "94. Monikerrosarkkitehtuuri-valinta toiminnolle.".
+### (Optional) Notes
 
-* Error management could be improved in Benefit-app.
+- Change host ports in `.env` if 5173/8080/5433 are taken.
+- Use a DB GUI (e.g., DBeaver) with host `localhost`, port `5433`, db `fisma_db`, user `myuser`, pass `secret`.
 
-* Benefit-app lacks quality check. It requires refactoring.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-* Projects' listing could be improved in Benefit-app, such as
-search functionality for projects, improved edit functionality
-for projects and sorting of projects.
+<!-- USAGE -->
 
-* Some documents require updates and further explaination. For example,
-the user_authentication_guide.md needs a description on how Benefit-app
-handles login tokens from which database to which API endpoint, and vice versa.
+## Usage
 
-* Some functionalities requires documentations, for example data security on JVT tokens
-and cookies. See issue #157: "112. Tietoturvallisuudesta dokumentointi.". 
+You can check Benefit out yourself at https://fisma-benefit-app.github.io/benefit-app/#/login.
+
+### Login
+
+- Login with username and password.
+<details>
+<summary><b>Click here to view an image of the login page</b></summary>
+<img src="./documents/img/images_for_guides/UI_login_page_14_05_2025.png" height="500"/>
+</details><br>
+
+### Main View
+
+- Create, save, and export (CSV, PDF) projects.
+<details>
+<summary><b>Click here to view an image of the front page</b></summary>
+<img src="./documents/img/images_for_guides/UI_project_page_14_05_2025.png" height="500"/>
+</details><br>
+
+### Demos
+
+Below are two demos of the app recorded on May 14 2025.
+
+#### Part 1
+
+- Login, create new project, calculate functional points, and view version control.
+
+[Click here to see demo part 1](https://github.com/user-attachments/assets/1407d6b8-f1fe-47c1-9fae-3c74588a6606)
+
+#### Part 2
+
+- Export project, change language, delete project, and attempt login with faulty credentials.
+
+[Click here to see demo part 2](https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba)
+
+#### Troubleshooting
+
+Both videos can be downloaded and watched [here](/documents/demo/).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CI/CD -->
+
+## CI/CD
+
+Benefit application's CI/CD pipeline includes a branching strategy and automated checks through GitHub actions.
+
+### Branching Strategy
+
+Benefit application's branching strategy is currently following these guidelines:
+
+- `main` branch: production branch, containing finalized and refactored code
+- `sprint/X` branch: branch that includes all changes, added features, bugfixes etc. made during a certain sprint (`X`)
+- `issue/#X` brances: branches what contain changes covered in a single issue (`#X`)
+
+The `main` branch is sacred and pushes to it are prohibited. Changes described in issues are developed in individual `issue/X` branches which are merged to `sprint/X` branch through pull requests. And at the end of a sprint, the `sprint/X` branch is merged to the `main` branch, provided it passes all the checks and tests. For full explanation of the branching strategy, see [branching strategy](./documents/guides/branching_strategy.md).
+
+### Code Quality and Collaboration
+
+Developer team minimizes errors and maintains good code quality by
+
+- merging all changes only through pull requests
+- merging only quality code (ie. pull requests passes all checks in GitHub Actions)
+- merging changes only after another team member has given the pull request a peer review and an approval
+- resolving all possible conversations, comments and/or change requests in GitHub.
+
+### GitHub Actions
+
+The Benefit application's GitHub repository features a GitHub Actions workflow which runs automated checks and tests on every pull request. Only those pull requests that pass all checks are allowed to merge. These checks are
+
+- formatting checks for frontend (Prettier) and backend (Spotless / Google Java Format)
+- backend unit tests
+
+### Code Quality and Collaboration
+
+To minimize errors and maintain quality:
+
+- All changes were merged via pull requests
+- Every pull request required peer review and approval from another team member
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- QUALITY ASSURANCE AND SECURITY -->
+
+## Quality Assurance and Security
+
+### Unit Tests
+
+Benefit is covered by unit tests in the backend using JUnit and Mockito. These are configured in the `gradle.build` file. All tests can be run from the `backend/` folder using the command:
+
+```bash
+./gradlew test
+```
+
+or, if you want to run a specific test class:
+
+```bash
+./gradlew test --tests fi.fisma.backend.YourTestClass
+```
+
+### Authentication and Authorization
+
+Basic authentication is used. After successful authentication, a JWT is generated and returned. A more detailed authentication guide can be found [here](documents/guides/authentication.md). Authenticated users are authorized with the role ROLE_USER.
+
+<!-- LOGGING -->
+
+## Logging
+
+Logging in the Benefit app covers both runtime and build/test events:
+
+- **Backend**: Spring Boot’s default logging plus Spring Security logs (configurable in `application.yaml`).
+  - Tests: Gradle test results with detailed exceptions and stack traces (configured in `build.gradle`).
+- **Frontend**:
+  - Build logs: terminal (local) or GitHub Actions (Heroku).
+  - Runtime logs: browser DevTools console.
+
+Logs are written to the terminal during local development and can be streamed in production with the Heroku CLI. For full details, see the [logging guide](/documents/guides/logging.md).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- ROADMAP -->
+
+## Roadmap
+
+- [ ] Multilayer architecture
+- [ ] Improve error management
+- [ ] Improve quality assurance
+- [ ] Improve project listing
+  - [ ] Implement search functionality
+  - [ ] Improve edit functionality
+  - [ ] Improve project sorting
+- [ ] Update documentation
+  - [ ] Document how Benefit handles login tokens (database to API, and vice versa) in user_authentication_guide.md
+  - [ ] Document information security on JWTs and cookies
+- [ ] Compatibility with mobile
+
+The project's requirement specification can be found [here](https://docs.google.com/document/d/1FXYXPMAwyoZNdxBxYVOIQPrcBr01fXAB4nvHD-Diy7w/edit?tab=t.0#heading=h.6dj02y3xjnh0). See the [open issues](https://github.com/fisma-benefit-app/benefit-app/issues) for a full list of proposed features and known issues.
+
+  <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
+
+## License
+
+Distributed under the MIT License. See [LICENSE](https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/LICENSE) for more information.
+
+  <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTACT -->
+
+## Contact
+
+Representative supervisor: Heikki Naski, FiSMA ry
+
+Project Link: [https://github.com/fisma-benefit-app/benefit-app](https://github.com/fisma-benefit-app/benefit-app)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- BANNER LINKS -->
+
+[contributors-shield]: https://img.shields.io/github/contributors/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[contributors-url]: https://github.com/fisma-benefit-app/benefit-app/graphs/contributors
+
+<!--[build-shield]: https://img.shields.io/github/actions/workflow/status/fisma-benefit-app/benefit-app/pages-build-deployment.yml?branch=main
+[build-url]: https://github.com/fisma-benefit-app/benefit-app/actions/workflows/pages/pages-build-deployment.yml
+-->
+
+[commit-shield]: https://img.shields.io/github/last-commit/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[commit-url]: https://github.com/fisma-benefit-app/benefit-app/commits/main/
+[issues-shield]: https://img.shields.io/github/issues/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[issues-url]: https://github.com/fisma-benefit-app/benefit-app/issues
+[license-shield]: https://img.shields.io/github/license/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[license-url]: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/LICENSE
+
+<!-- BUILT WITH LINKS -->
+
+[front-end-shield]: https://img.shields.io/badge/FrontEnd-000000?style=for-the-badge
+[back-end-shield]: https://img.shields.io/badge/BackEnd-000000?style=for-the-badge
+[database-shield]: https://img.shields.io/badge/Database-000000?style=for-the-badge
+[tools-shield]: https://img.shields.io/badge/Tools-000000?style=for-the-badge
+[docker-shield]: https://img.shields.io/badge/docker-257bd6?style=for-the-badge&shield=docker&shieldColor=white
+[docker-url]: https://www.docker.com/
+[figma-shield]: https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&shield=figma&shieldColor=white
+[figma-url]: https://www.figma.com/
+[github-shield]: https://img.shields.io/badge/GitHub-%23121011.svg?shield=github&shieldColor=white&style=for-the-badge
+[github-url]: https://github.com/
+[github-actions-shield]: https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&shield=githubactions&shieldColor=white
+[github-actions-url]: https://github.com/features/actions
+[gradle-shield]: https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&shield=Gradle&shieldColor=white
+[gradle-url]: https://gradle.org/
+[java-shield]: https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&shield=openjdk&shieldColor=white
+[java-url]: https://www.java.com/en/
+[postgres-shield]: https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&shield=postgresql&shieldColor=white
+[postgres-url]: https://www.postgresql.org/
+[react-shield]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&shield=react&shieldColor=%2361DAFB
+[react-url]: https://react.dev/
+[spring-shield]: https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&shield=springboot&shieldColor=white
+[spring-url]: https://spring.io/
+[typescript-shield]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&shield=typescript&shieldColor=white
+[typescript-url]: https://www.typescriptlang.org/
+[vs-code-shield]: https://custom-icon-badges.demolab.com/badge/Visual%20Studio%20Code-0078d7.svg?shield=vsc&shieldColor=white&style=for-the-badge
+[vs-code-url]: https://code.visualstudio.com/

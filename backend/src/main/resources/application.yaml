@@ -2,40 +2,39 @@ spring:
   application:
     name: backend
 
-# These values are variables for Heroku deployment for the backend's database. Consult deployment documentation on how to use them during deployment.
-# If you wish to use a different database during development, change the values to your db's appropriate credentials (see below).
-# Leaving them as-is and running the application locally will use compose.yaml from the project root to start the db with docker.
+  # These values are variables for Heroku deployment for the backend's database. Consult deployment documentation on how to use them during deployment.
+  # If you wish to use a different database during development, change the values to your db's appropriate credentials (see below).
+  # Leaving them as-is and running the application locally will use compose.yaml from the project root to start the db with docker.
   #datasource:
-    #username: ${SPRING_DATASOURCE_USERNAME}
-    #password: ${SPRING_DATASOURCE_PASSWORD}
-    #url: ${SPRING_DATASOURCE_URL}
+  #username: ${SPRING_DATASOURCE_USERNAME}
+  #password: ${SPRING_DATASOURCE_PASSWORD}
+  #url: ${SPRING_DATASOURCE_URL}
 
-# Like this:
+  # Like this:
   datasource:
-    username: myuser
-    password: secret
-    url: jdbc:postgresql://127.0.0.1:5432/fisma_db
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/fisma_db}
+    username: ${SPRING_DATASOURCE_USERNAME:myuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
 
-# Set this to always when you want to initialize the database using the schema.sql and data.sql files.
-# Set it to never when the database is initialized and working.
+  # Set this to always when you want to initialize the database using the schema.sql and data.sql files.
+  # Set it to never when the database is initialized and working.
   sql:
     init:
       mode: always
-  cloud:
-    aws:
-      secretsmanager:
-        region: eu-north-1
 
 jwt:
   private.key: classpath:./jwt-keys/app.key
   public.key: classpath:./jwt-keys/app.pub
 
-
+# TODO: Use this for production!
+#logging:
+#  level:
+#    org.springframework.security: info
 logging:
   level:
-    org.springframework:
-      security: trace
-
+    org.springframework.security: info
+    org.springframework.security.web: debug
+    org.springframework.security.oauth2: debug
 
 management:
   endpoints:
@@ -43,5 +42,6 @@ management:
       exposure:
         include: health, info
 
-
-
+docker:
+  compose:
+    enabled: ${SPRING_DOCKER_COMPOSE_ENABLED:false}

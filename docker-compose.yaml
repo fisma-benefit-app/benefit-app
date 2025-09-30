@@ -1,0 +1,66 @@
+name: fisma-dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fisma_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${HOST_DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: fisma_backend
+    working_dir: /workspace
+    environment:
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      SPRING_DOCKER_COMPOSE_FILE: /workspace/compose.yaml
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      GRADLE_USER_HOME: /gradle-cache
+      SPRING_DEVTOOLS_RESTART_POLL_INTERVAL: "2s"
+      SPRING_DEVTOOLS_RESTART_QUIET_PERIOD: "1s"
+    ports:
+      - "${HOST_BACKEND_PORT}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/workspace
+      - gradle-cache:/gradle-cache
+    command: ["./gradlew", "bootRun"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: fisma_frontend
+    working_dir: /workspace
+    environment:
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
+      VITE_PORT: ${VITE_PORT}
+    ports:
+      - "${HOST_FRONTEND_PORT}:${HOST_FRONTEND_PORT}"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/workspace
+      - /workspace/node_modules
+    command: ["npm", "run", "dev", "--", "--host", "--port", "${VITE_PORT}"]
+
+volumes:
+  pgdata:
+  gradle-cache:

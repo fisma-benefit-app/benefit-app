@@ -1,4 +1,4 @@
-# Logs
+# Logs (for future needs)
 logs
 *.log
 npm-debug.log*
@@ -7,15 +7,19 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Local env files
+.env
+.env.* 
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Editor files
 .DS_Store
 *.suo
 *.ntvs*
@@ -23,8 +27,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# IntelliJ IDEA
+# IntelliJ project file
 /frontend.iml
-
-#Environment variables
-.env

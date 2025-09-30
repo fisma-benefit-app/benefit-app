@@ -1,8 +1,17 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
-import { fetchAllProjects, fetchProject, updateProject } from "../api/project.ts";
+import {
+  fetchAllProjects,
+  fetchProject,
+  updateProject,
+} from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import { Project, ProjectWithUpdate, TGenericComponentNoId } from "../lib/types.ts";
+import {
+  Project,
+  ProjectWithUpdate,
+  TGenericComponentNoId,
+  TGenericComponent,
+} from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
@@ -11,6 +20,55 @@ import CreateCurrentDate from "../api/date.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
+
+// dnd-kit imports
+import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+function SortableFunctionalComponent({
+  component,
+  project,
+  setProject,
+  deleteFunctionalComponent,
+  isLatest,
+  forceCollapsed,
+  collapseVersion,
+}: {
+  component: TGenericComponent;
+  project: Project;
+  setProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  deleteFunctionalComponent: (id: number) => Promise<void>;
+  isLatest: boolean;
+  forceCollapsed: boolean;
+  collapseVersion: number;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: component.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <FunctionalClassComponent
+        project={project}
+        setProject={setProject}
+        component={component}
+        deleteFunctionalComponent={deleteFunctionalComponent}
+        isLatest={isLatest}
+        forceCollapsed={forceCollapsed}
+        collapseVersion={collapseVersion}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
+  );
+}
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
@@ -27,39 +85,63 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [lastAddedComponentId, setLastAddedComponentId] = useState<
+    number | null
+  >(null);
 
   const translation = useTranslations().projectPage;
 
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
   //get all versions of the same project
-  const allProjectVersions: Project[] = sortedProjects.filter(projectInArray => project?.projectName === projectInArray.projectName);
+  const allProjectVersions: Project[] = sortedProjects.filter(
+    (projectInArray) => project?.projectName === projectInArray.projectName,
+  );
 
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
-  //sort functional components by id (order of creation from oldest to newest)
-  const sortedComponents = project?.functionalComponents.sort((a, b) => a.id - b.id) || [];
+  // sort functional components by order (ascending)
+  const sortedComponents =
+    project?.functionalComponents
+      .slice() // copy first so we don’t mutate state
+      .sort((a, b) => a.orderPosition - b.orderPosition) || [];
 
   useEffect(() => {
     const getProject = async () => {
       setLoadingProject(true);
       try {
-        const projectFromDb = await fetchProject(sessionToken, Number(selectedProjectId));
-        setProject(projectFromDb);
+        const projectFromDb = await fetchProject(
+          sessionToken,
+          Number(selectedProjectId),
+        );
+
+        // normalize & sort after fetching
+        const normalized = projectFromDb.functionalComponents
+          .slice()
+          .sort((a, b) => a.orderPosition - b.orderPosition)
+          .map((c, idx) => ({ ...c, orderPosition: idx }));
+
+        setProject({ ...projectFromDb, functionalComponents: normalized });
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
         }
         console.error("Error fetching project:", err);
-        setError(err instanceof Error ? err.message : "Unexpected error occurred when getting project from backend.");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Unexpected error occurred when getting project from backend.",
+        );
       } finally {
         setLoadingProject(false);
       }
     };
     getProject();
-  }, [selectedProjectId, sessionToken]);
+  }, [selectedProjectId, sessionToken, logout]);
 
   const createFunctionalComponent = async () => {
-    setLoadingProject(true)
+    setLoadingProject(true);
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
         className: "Interactive end-user navigation and query service",
@@ -70,15 +152,48 @@ export default function ProjectPage() {
         functionalMultiplier: null,
         operations: null,
         degreeOfCompletion: null,
-        comment: null,
+        title: null,
+        description: null,
         previousFCId: null,
+        orderPosition: project.functionalComponents.length,
       };
 
-      const projectWithNewComponent: ProjectWithUpdate = { ...project, functionalComponents: [...project.functionalComponents, newFunctionalComponent,] };
+      const projectWithNewComponent: ProjectWithUpdate = {
+        ...project,
+        functionalComponents: [
+          ...project.functionalComponents,
+          newFunctionalComponent,
+        ],
+      };
 
       try {
-        const updatedProject: Project = await updateProject(sessionToken, projectWithNewComponent);
-        setProject(updatedProject);
+        const updatedProject: Project = await updateProject(
+          sessionToken,
+          projectWithNewComponent,
+        );
+
+        // Find the new component by comparing IDs
+        const prevIds = new Set(project.functionalComponents.map((c) => c.id));
+        const newComponent = updatedProject.functionalComponents.find(
+          (c) => !prevIds.has(c.id),
+        );
+        if (newComponent) {
+          setLastAddedComponentId(newComponent.id);
+        } else {
+          setLastAddedComponentId(null);
+        }
+
+        // normalize order after adding
+        const normalized = updatedProject.functionalComponents
+          .slice()
+          .sort((a, b) => a.orderPosition - b.orderPosition)
+          .map((c, idx) => ({ ...c, orderPosition: idx }));
+
+        setProject({ ...updatedProject, functionalComponents: normalized });
+
+        setTimeout(() => {
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
@@ -93,10 +208,25 @@ export default function ProjectPage() {
   const deleteFunctionalComponent = async (componentId: number) => {
     setLoadingProject(true);
     if (project) {
-      const filteredComponents = project?.functionalComponents.filter((component) => component.id !== componentId);
-      const filteredProject: Project = { ...project, functionalComponents: filteredComponents };
+      const filteredComponents = project?.functionalComponents.filter(
+        (component) => component.id !== componentId,
+      );
+
+      // normalize after deletion
+      const normalized = filteredComponents.map((c, idx) => ({
+        ...c,
+        orderPosition: idx,
+      }));
+
+      const filteredProject: Project = {
+        ...project,
+        functionalComponents: normalized,
+      };
       try {
-        const updatedProject = await updateProject(sessionToken, filteredProject);
+        const updatedProject = await updateProject(
+          sessionToken,
+          filteredProject,
+        );
         setProject(updatedProject);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
@@ -113,7 +243,17 @@ export default function ProjectPage() {
     setLoadingProject(true);
     if (project) {
       try {
-        const editedProject = { ...project, editedDate: CreateCurrentDate() };
+        // normalize before saving
+        const normalized = project.functionalComponents
+          .slice()
+          .sort((a, b) => a.orderPosition - b.orderPosition)
+          .map((c, idx) => ({ ...c, orderPosition: idx }));
+
+        const editedProject = {
+          ...project,
+          functionalComponents: normalized,
+          editedDate: CreateCurrentDate(),
+        };
         const savedProject = await updateProject(sessionToken, editedProject);
         setProject(savedProject);
       } catch (err) {
@@ -127,12 +267,41 @@ export default function ProjectPage() {
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!project || !over || active.id === over.id) return;
+
+    const oldIndex = project.functionalComponents.findIndex(
+      (c) => c.id === active.id,
+    );
+    const newIndex = project.functionalComponents.findIndex(
+      (c) => c.id === over.id,
+    );
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const updatedComponents = [...project.functionalComponents];
+    const [moved] = updatedComponents.splice(oldIndex, 1);
+    updatedComponents.splice(newIndex, 0, moved);
+
+    // Update orderPosition values
+    const reOrdered = updatedComponents.map((c, index) => ({
+      ...c,
+      orderPosition: index,
+    }));
+
+    setProject({ ...project, functionalComponents: reOrdered });
+  };
+
   const saveProjectVersion = async () => {
     if (project) {
       setLoadingProject(true);
       try {
-        await saveProject(); //TODO: Automatic saving instead?
-        const idOfNewProjectVersion = await createNewProjectVersion(sessionToken, project);
+        await saveProject(); //TODO: Automatic saving instead? (Could use useQuery or similar)
+        const idOfNewProjectVersion = await createNewProjectVersion(
+          sessionToken,
+          project,
+        );
         const updatedProjects = await fetchAllProjects(sessionToken);
         setProjects(updatedProjects);
         navigate(`/project/${idOfNewProjectVersion}`);
@@ -149,12 +318,18 @@ export default function ProjectPage() {
 
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
-    const selectedProject = sortedProjects.find((p: Project) => p.id === selectedId);
+    const selectedProject = sortedProjects.find(
+      (p: Project) => p.id === selectedId,
+    );
 
     if (selectedProject) {
       navigate(`/project/${selectedId}`);
     }
-  }
+  };
+
+  useEffect(() => {
+    setLastAddedComponentId(null);
+  }, [collapseAll]);
 
   if (loadingProject) return <LoadingSpinner />;
 
@@ -163,26 +338,47 @@ export default function ProjectPage() {
       <div className="pl-5 pr-5">
         <div className="flex justify-between">
           <div className="w-[calc(100%-340px)] mt-15">
-            {project ? (//TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
-              <>
-                {sortedComponents?.map((component) => (
-                  <FunctionalClassComponent
-                    project={project}
-                    setProject={setProject}
-                    component={component}
-                    deleteFunctionalComponent={deleteFunctionalComponent}
-                    key={component.id}
-                    isLatest={isLatest}
-                    forceCollapsed={collapseAll}
-                    collapseVersion={collapseVersion}
-                  />
-                ))}
-              </>
+            {project ? ( //TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={sortedComponents.map((c) => c.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  {/* Grid wrapper for components */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+                    {sortedComponents?.map((component) => (
+                      <SortableFunctionalComponent
+                        key={component.id}
+                        component={component}
+                        project={project}
+                        setProject={setProject}
+                        deleteFunctionalComponent={deleteFunctionalComponent}
+                        isLatest={isLatest}
+                        forceCollapsed={
+                          collapseAll
+                            ? component.id !== lastAddedComponentId
+                            : false
+                        }
+                        collapseVersion={collapseVersion}
+                      />
+                    ))}
+                  </div>
+
+                  {sortedComponents.length === 0 && (
+                    <p className="text-gray-500 p-4">
+                      {translation.noFunctionalComponents}
+                    </p>
+                  )}
+                  <div ref={bottomRef} />
+                </SortableContext>
+              </DndContext>
             ) : error ? (
               <p>{error}</p>
             ) : (
               <p></p>
-              //TODO: If no components are present show message
             )}
           </div>
         </div>
@@ -193,17 +389,21 @@ export default function ProjectPage() {
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center w-full">
               <div className="flex-grow-0 flex flex-col max-w-[calc(100% - 140px)]">
-                <div className="text-left font-medium">{translation.nameOfProject}:</div>
-                <div className="text-left break-words">{project?.projectName}</div>
+                <div className="text-left font-medium">
+                  {translation.nameOfProject}:
+                </div>
+                <div className="text-left break-words">
+                  {project?.projectName}
+                </div>
               </div>
               <button
                 className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
                 onClick={() => {
-                  setCollapseAll(prev => !prev);
-                  setCollapseVersion(prev => prev + 1);
+                  setCollapseAll((prev) => !prev);
+                  setCollapseVersion((prev) => prev + 1);
                 }}
               >
-                {collapseAll ? translation.collapseAll : translation.expandAll}
+                {collapseAll ? translation.expandAll : translation.collapseAll}
               </button>
             </div>
             <div className="flex flex-row gap-2 w-full">
@@ -228,9 +428,13 @@ export default function ProjectPage() {
               defaultValue=""
               disabled={loadingProject}
             >
-              <option value="" disabled>{translation.selectProjectVersion}</option>
+              <option value="" disabled>
+                {translation.selectProjectVersion}
+              </option>
               {allProjectVersions.map((project) => (
-                <option key={project.id} value={project.id}>{translation.version} {project.version}</option>
+                <option key={project.id} value={project.id}>
+                  {translation.version} {project.version}
+                </option>
               ))}
             </select>
             <button
@@ -242,9 +446,10 @@ export default function ProjectPage() {
             </button>
           </div>
 
-          {Array.isArray(project?.functionalComponents) && project.functionalComponents.length > 0 && (
-            <FunctionalPointSummary project={project} />
-          )}
+          {Array.isArray(project?.functionalComponents) &&
+            project.functionalComponents.length > 0 && (
+              <FunctionalPointSummary project={project} />
+            )}
         </div>
       </div>
 

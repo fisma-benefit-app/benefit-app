@@ -17,7 +17,9 @@
       "functionalMultiplier": 1,
       "operations": null,
       "degreeOfCompletion": 0.13,
-      "comment": "This is an exceptional functional component!"
+      "title": "This is an exceptional functional component!",
+      "description": "Description for hakijan syöte",
+      "orderPosition": 1
     },
     {
       "id": 100,
@@ -29,7 +31,9 @@
       "functionalMultiplier": null,
       "operations": null,
       "degreeOfCompletion": 0.27,
-      "comment": "Needs further adjustment!"
+      "title": "Needs further adjustment!",
+      "description": "Description for montako tulee",
+      "orderPosition": 2
     }
   ],
   "appUsers": [
