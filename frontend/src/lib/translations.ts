@@ -110,7 +110,7 @@ export const translations = {
       titlePlaceholder: "Title",
       descriptionPlaceholder: "Description/Comments",
       functionalPointText: "FP",
-      functionalPointReadyText: "TP (Complete)",
+      functionalPointReadyText: "FP (Complete)",
       classNamePlaceholder: "Select Classname",
       componentTypePlaceholder: "Select Component Type",
       degreeOfCompletionPlaceholder: "Degree of Completion",
