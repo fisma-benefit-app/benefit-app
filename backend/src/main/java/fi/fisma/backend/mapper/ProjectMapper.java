@@ -155,7 +155,7 @@ public class ProjectMapper {
                     fc.getDegreeOfCompletion(),
                     fc.getTitle(),
                     fc.getDescription(),
-                    fc.getId(),
+                    fc.getPreviousFCId(),
                     fc.getOrderPosition(),
                     fc.getProject()))
         .collect(Collectors.toSet());
