@@ -10,6 +10,7 @@ import {
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
+  ProjectResponse,
   TGenericComponentNoId,
   TGenericComponent,
 } from "../lib/types.ts";
@@ -35,6 +36,7 @@ function SortableFunctionalComponent({
   component,
   project,
   setProject,
+  setProjectResponse,
   deleteFunctionalComponent,
   isLatest,
   forceCollapsed,
@@ -43,6 +45,9 @@ function SortableFunctionalComponent({
   component: TGenericComponent;
   project: Project;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  setProjectResponse: React.Dispatch<
+    React.SetStateAction<ProjectResponse | null>
+  >;
   deleteFunctionalComponent: (id: number) => Promise<void>;
   isLatest: boolean;
   forceCollapsed: boolean;
@@ -60,6 +65,7 @@ function SortableFunctionalComponent({
       <FunctionalClassComponent
         project={project}
         setProject={setProject}
+        setProjectResponse={setProjectResponse}
         component={component}
         deleteFunctionalComponent={deleteFunctionalComponent}
         isLatest={isLatest}
@@ -82,6 +88,8 @@ export default function ProjectPage() {
   const [collapseVersion, setCollapseVersion] = useState<number>(0);
 
   const [project, setProject] = useState<Project | null>(null);
+  const [projectResponse, setProjectResponse] =
+    useState<ProjectResponse | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -229,7 +237,7 @@ export default function ProjectPage() {
           editedDate: CreateCurrentDate(),
         };
         const savedProject = await updateProject(sessionToken, editedProject);
-        setProject(savedProject);
+        setProjectResponse(savedProject);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
@@ -329,6 +337,7 @@ export default function ProjectPage() {
                         component={component}
                         project={project}
                         setProject={setProject}
+                        setProjectResponse={setProjectResponse}
                         deleteFunctionalComponent={
                           handleDeleteFunctionalComponent
                         }

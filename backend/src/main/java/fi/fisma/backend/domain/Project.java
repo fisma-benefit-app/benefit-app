@@ -61,18 +61,18 @@ public class Project {
   private Set<FunctionalComponent> functionalComponents = new HashSet<>();
 
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<ProjectAppUser> appUsers = new HashSet<>();
+  private Set<ProjectAppUser> projectAppUsers = new HashSet<>();
 
   public Project(
       String projectName,
       int version,
       Set<FunctionalComponent> functionalComponents,
-      Set<ProjectAppUser> appUsers) {
+      Set<ProjectAppUser> projectAppUsers) {
     this.projectName = projectName;
     this.version = version;
     this.createdDate = LocalDateTime.now();
     this.versionDate = LocalDateTime.now();
     this.functionalComponents = functionalComponents;
-    this.appUsers = appUsers;
+    this.projectAppUsers = projectAppUsers;
   }
 }

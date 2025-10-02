@@ -83,7 +83,7 @@ public class ProjectService {
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var project = projectMapper.toEntity(newProjectRequest);
-    project.setAppUsers(Set.of(new ProjectAppUser(project, appUser)));
+    project.setProjectAppUsers(Set.of(new ProjectAppUser(project, appUser)));
     return projectMapper.toResponse(projectRepository.save(project));
   }
 
@@ -113,6 +113,7 @@ public class ProjectService {
             .map(
                 fc ->
                     new FunctionalComponent(
+                        null,
                         fc.getClassName(),
                         fc.getComponentType(),
                         fc.getDataElements(),
@@ -125,14 +126,14 @@ public class ProjectService {
                         fc.getDescription(),
                         fc.getPreviousFCId(),
                         fc.getOrderPosition(),
-                        fc.getProject()))
+                        newVersion))
             .collect(Collectors.toSet());
 
     // Associate the project with the copied functional components
     newVersion.setFunctionalComponents(functionalComponents);
 
     // Associate the project with the requesting user
-    newVersion.setAppUsers(Set.of(new ProjectAppUser(newVersion, appUser)));
+    newVersion.setProjectAppUsers(Set.of(new ProjectAppUser(newVersion, appUser)));
 
     var savedProject = projectRepository.save(newVersion);
 

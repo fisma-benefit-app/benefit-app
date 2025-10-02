@@ -1,4 +1,9 @@
-import { Project, TGenericComponentNoId } from "../lib/types";
+import {
+  Project,
+  ProjectRequest,
+  ProjectResponse,
+  TGenericComponentNoId,
+} from "../lib/types";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const fetchAllProjects = async (sessionToken: string | null) => {
@@ -116,7 +121,7 @@ const createNewProjectVersion = async (
   console.log(
     `Functional components: ${previousProject.functionalComponents.length}`,
   );
-  console.log(`App users: ${previousProject.appUsers?.length}`);
+  console.log(`App users: ${previousProject.projectAppUsers?.length}`);
 
   const fetchURL = `${API_URL}/projects/${previousProject.id}/versions`;
   const headers = {
@@ -125,7 +130,7 @@ const createNewProjectVersion = async (
   };
 
   // Map Project -> ProjectRequest
-  const projectRequest = {
+  const projectRequest: ProjectRequest = {
     projectName: previousProject.projectName,
     version: previousProject.version + 1,
     functionalComponents: previousProject.functionalComponents.map((fc) => ({
@@ -140,10 +145,10 @@ const createNewProjectVersion = async (
       degreeOfCompletion: fc.degreeOfCompletion,
       title: fc.title,
       description: fc.description,
-      previousFCId: fc.previousFCId,
+      previousFCId: fc.id,
       orderPosition: fc.orderPosition,
     })),
-    appUserIds: (previousProject.appUsers ?? []).map((user) => user.appUserId),
+    projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
 
   const response = await fetch(fetchURL, {
@@ -181,7 +186,10 @@ const createNewProjectVersion = async (
   }
 };
 
-const updateProject = async (sessionToken: string | null, project: Project) => {
+const updateProject = async (
+  sessionToken: string | null,
+  project: Project,
+): Promise<ProjectResponse> => {
   if (!sessionToken)
     throw new Error("User needs to be logged in to update project!");
 
@@ -192,7 +200,7 @@ const updateProject = async (sessionToken: string | null, project: Project) => {
   };
 
   // Map Project -> ProjectRequest
-  const projectRequest = {
+  const projectRequest: ProjectRequest = {
     projectName: project.projectName,
     version: project.version,
     functionalComponents: project.functionalComponents.map((fc) => ({
@@ -211,7 +219,7 @@ const updateProject = async (sessionToken: string | null, project: Project) => {
       previousFCId: fc.previousFCId,
       orderPosition: fc.orderPosition,
     })),
-    appUserIds: (project.appUsers ?? []).map((user) => user.appUserId),
+    projectAppUserIds: project.projectAppUsers.map((pau) => pau.id),
   };
 
   const response = await fetch(fetchURL, {
@@ -229,8 +237,7 @@ const updateProject = async (sessionToken: string | null, project: Project) => {
     );
   }
 
-  const updatedProject = await response.json();
-  return updatedProject;
+  return response.json();
 };
 
 const deleteProject = async (

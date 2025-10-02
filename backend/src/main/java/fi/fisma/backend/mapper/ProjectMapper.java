@@ -1,11 +1,11 @@
 package fi.fisma.backend.mapper;
 
-import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.dto.FunctionalComponentResponse;
+import fi.fisma.backend.dto.ProjectAppUserResponse;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.repository.AppUserRepository;
@@ -51,11 +51,13 @@ public class ProjectMapper {
                             fc.getPreviousFCId(),
                             fc.getOrderPosition()))
                 .collect(Collectors.toSet()),
-            project.getAppUsers().stream()
+            project.getProjectAppUsers().stream()
                 .map(
                     pau -> {
-                      AppUser user = pau.getAppUser();
-                      return new AppUserSummary(user.getId(), user.getUsername());
+                      return new ProjectAppUserResponse(
+                          pau.getId(),
+                          new AppUserSummary(
+                              pau.getAppUser().getId(), pau.getAppUser().getUsername()));
                     })
                 .collect(Collectors.toSet()));
     return response;
@@ -71,7 +73,7 @@ public class ProjectMapper {
         LocalDateTime.now(),
         0.0, // Initial total points
         Set.of(), // Empty functional components initially
-        Set.of() // AppUsers will be set by service
+        Set.of() // ProjectAppUsers will be set by service
         );
   }
 
@@ -97,21 +99,19 @@ public class ProjectMapper {
                         project))
             .collect(Collectors.toSet());
 
-    Set<ProjectAppUser> appUsers =
-        request.getAppUserIds().stream()
+    Set<ProjectAppUser> projectAppUsers =
+        request.getProjectAppUserIds().stream()
             .map(
-                userId -> {
-                  AppUser user =
-                      appUserRepository
-                          .findById(userId)
-                          .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-
-                  // First try to find existing ProjectAppUser
-                  return project.getAppUsers().stream()
-                      .filter(pau -> pau.getAppUser().getId().equals(userId))
-                      .findFirst()
-                      .orElse(new ProjectAppUser(project, user)); // Create new if not found
-                })
+                id ->
+                    new ProjectAppUser(
+                        id,
+                        project,
+                        appUserRepository
+                            .findByProjectAppUserId(id)
+                            .orElseThrow(
+                                () ->
+                                    new IllegalArgumentException(
+                                        "AppUser not found with projectAppUser id: " + id))))
             .collect(Collectors.toSet());
 
     Project updatedProject =
@@ -124,7 +124,7 @@ public class ProjectMapper {
             LocalDateTime.now(), // new edited date
             project.getTotalPoints(),
             functionalComponents,
-            appUsers);
+            projectAppUsers);
     return updatedProject;
   }
 
@@ -140,7 +140,7 @@ public class ProjectMapper {
             originalProject.getTotalPoints(),
             // copyFunctionalComponents(originalProject.getFunctionalComponents()),
             Set.of(), // FunctionalComponents will be set by service
-            Set.of() // AppUsers will be set by service
+            Set.of() // ProjectAppUsers will be set by service
             );
     return newVersion;
   }

@@ -24,4 +24,5 @@ public record ProjectResponse(
         double totalPoints,
     @Schema(description = "Functional components in the project")
         Set<FunctionalComponentResponse> functionalComponents,
-    @Schema(description = "Users with access to the project") Set<AppUserSummary> appUsers) {}
+    @Schema(description = "Users associated with the project")
+        Set<ProjectAppUserResponse> projectAppUsers) {}

@@ -54,7 +54,7 @@ public class AppUserService {
 
     userProjects.forEach(
         project -> {
-          if (project.getAppUsers().size() == 1) {
+          if (project.getProjectAppUsers().size() == 1) {
             projectRepository.deleteById(project.getId());
           }
         });

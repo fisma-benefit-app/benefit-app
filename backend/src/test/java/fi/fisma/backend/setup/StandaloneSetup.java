@@ -120,7 +120,7 @@ public class StandaloneSetup {
   public static ProjectRequest createProjectRequest(ProjectRequest dto) {
     dto.setProjectName("User Authentication System");
     dto.setVersion(1);
-    dto.setAppUserIds(Set.of(10L, 20L));
+    dto.setProjectAppUserIds(Set.of(10L, 20L));
     return dto;
   }
 }

@@ -45,6 +45,6 @@ class ProjectRequestTest {
 
     assertThat(dto.getProjectName()).isEqualTo("User Authentication System");
     assertThat(dto.getVersion()).isEqualTo(1);
-    assertThat(dto.getAppUserIds()).containsExactlyInAnyOrder(10L, 20L);
+    assertThat(dto.getProjectAppUserIds()).containsExactlyInAnyOrder(10L, 20L);
   }
 }

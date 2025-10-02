@@ -28,6 +28,6 @@ public class ProjectRequest {
   @Schema(description = "List of functional components in the project")
   private Set<FunctionalComponentRequest> functionalComponents = new HashSet<>();
 
-  @Schema(description = "List of user IDs with access to the project")
-  private Set<Long> appUserIds = new HashSet<>();
+  @Schema(description = "List of user IDs to associate with the project")
+  private Set<Long> projectAppUserIds = new HashSet<>();
 }
