@@ -158,9 +158,10 @@ export const createPdf = (
               return `
             <tr>
               <td>${valueComparer(
-                classNameTranslation[comp.className],
+                classNameTranslation[comp.className] || comp.className,
                 prevComp?.className
-                  ? classNameTranslation[prevComp?.className]
+                  ? classNameTranslation[prevComp?.className] ||
+                      prevComp.className
                   : null,
               )}</td>
               <td>${valueComparer(
