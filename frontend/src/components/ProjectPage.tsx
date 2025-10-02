@@ -223,8 +223,6 @@ export default function ProjectPage() {
 
   const saveProject = async () => {
     setLoadingProject(true);
-    // Declare projectResponse for no other reason but to clear linting check, feel free to remove later
-    projectResponse;
     if (project) {
       try {
         // normalize before saving
