@@ -138,33 +138,9 @@ public class ProjectMapper {
             LocalDateTime.now(), // new version date
             LocalDateTime.now(), // new edited date
             originalProject.getTotalPoints(),
-            // copyFunctionalComponents(originalProject.getFunctionalComponents()),
             Set.of(), // FunctionalComponents will be set by service
             Set.of() // ProjectAppUsers will be set by service
             );
     return newVersion;
   }
-  /*
-  private Set<FunctionalComponent> copyFunctionalComponents(Set<FunctionalComponent> components) {
-    return components.stream()
-        .map(
-            fc ->
-                new FunctionalComponent(
-                    null,
-                    fc.getClassName(),
-                    fc.getComponentType(),
-                    fc.getDataElements(),
-                    fc.getReadingReferences(),
-                    fc.getWritingReferences(),
-                    fc.getFunctionalMultiplier(),
-                    fc.getOperations(),
-                    fc.getDegreeOfCompletion(),
-                    fc.getTitle(),
-                    fc.getDescription(),
-                    fc.getPreviousFCId(),
-                    fc.getOrderPosition(),
-                    fc.getProject()))
-        .collect(Collectors.toSet());
-  }
-        */
 }

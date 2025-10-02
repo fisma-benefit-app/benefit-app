@@ -34,7 +34,7 @@ class ProjectRequestTest {
         .extractingJsonPathNumberValue("$.version")
         .isEqualTo(1);
 
-    assertThat(json.write(dto)).hasJsonPathArrayValue("$.appUserIds");
+    assertThat(json.write(dto)).hasJsonPathArrayValue("$.projectAppUserIds");
   }
 
   @Test
