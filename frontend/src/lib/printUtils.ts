@@ -93,26 +93,9 @@ const calculateTotalFunctionalComponentPoints = (
 export const createPdf = (
   project: Project,
   oldProject: Project,
-  translation: {
-    projectReport: string;
-    projectId: string;
-    version: string;
-    createdDate: string;
-    versionCreatedDate: string;
-    lastEditedDate: string;
-    className: string;
-    componentType: string;
-    dataElements: string;
-    readingReferences: string;
-    writingReferences: string;
-    functionalMultiplier: string;
-    operations: string;
-    degreeOfCompletion: string;
-    functionalPoints: string;
-    title: string;
-    description: string;
-    totalFunctionalPoints: string;
-  },
+  printUtilsTranslation: Record<string, string> = {},
+  classNameTranslation: Record<string, string> = {},
+  componentTypeTranslation: Record<string, string> = {},
 ) => {
   // Maps functional components for previous project so that they can be compared to the current project
   const previousComponentsMap = Object.fromEntries(
@@ -122,7 +105,7 @@ export const createPdf = (
   const pdfContent = `
     <html>
       <head>
-        <title>${translation.projectReport}</title>
+        <title>${printUtilsTranslation.projectReport}</title>
         <style>
           .project-data {
             font-weight: normal;
@@ -141,26 +124,26 @@ export const createPdf = (
         </style>
       </head>
       <body>
-        <h1>${translation.projectReport}: ${project.projectName}</h1>
+        <h1>${printUtilsTranslation.projectReport}: ${project.projectName}</h1>
         <div class="project-info">
-          <p><strong>${translation.projectId}:</strong> ${valueComparer(project.id, oldProject.id)}</p>
-          <p><strong>${translation.version}:</strong> ${valueComparer(project.version, oldProject.version)}</p>
-          <p><strong>${translation.createdDate}:</strong> ${valueComparer(dateLocalizer(project.createdDate), dateLocalizer(oldProject.createdDate))}</p>
-          <p><strong>${translation.versionCreatedDate}:</strong> ${valueComparer(dateLocalizer(project.versionDate), dateLocalizer(oldProject.versionDate))}</p>
-          <p><strong>${translation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.editedDate), dateLocalizer(oldProject.editedDate))}</p>
+          <p><strong>${printUtilsTranslation.projectId}:</strong> ${valueComparer(project.id, oldProject.id)}</p>
+          <p><strong>${printUtilsTranslation.version}:</strong> ${valueComparer(project.version, oldProject.version)}</p>
+          <p><strong>${printUtilsTranslation.createdDate}:</strong> ${valueComparer(dateLocalizer(project.createdDate), dateLocalizer(oldProject.createdDate))}</p>
+          <p><strong>${printUtilsTranslation.versionCreatedDate}:</strong> ${valueComparer(dateLocalizer(project.versionDate), dateLocalizer(oldProject.versionDate))}</p>
+          <p><strong>${printUtilsTranslation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.editedDate), dateLocalizer(oldProject.editedDate))}</p>
         </div>
         <table>
           <tr>
-            <th>${translation.className}</th>
-            <th>${translation.componentType}</th>
-            <th>${translation.dataElements}</th>
-            <th>${translation.readingReferences}</th>
-            <th>${translation.writingReferences}</th>
-            <th>${translation.operations}</th>
-            <th>${translation.degreeOfCompletion}</th>
-            <th>${translation.functionalPoints}</th>
-            <th>${translation.title}</th>
-            <th>${translation.description}</th>
+            <th>${printUtilsTranslation.className}</th>
+            <th>${printUtilsTranslation.componentType}</th>
+            <th>${printUtilsTranslation.dataElements}</th>
+            <th>${printUtilsTranslation.readingReferences}</th>
+            <th>${printUtilsTranslation.writingReferences}</th>
+            <th>${printUtilsTranslation.operations}</th>
+            <th>${printUtilsTranslation.degreeOfCompletion}</th>
+            <th>${printUtilsTranslation.functionalPoints}</th>
+            <th>${printUtilsTranslation.title}</th>
+            <th>${printUtilsTranslation.description}</th>
           </tr>
           ${project.functionalComponents
             .map((comp) => {
@@ -174,8 +157,23 @@ export const createPdf = (
 
               return `
             <tr>
-              <td>${valueComparer(comp.className, prevComp?.className || null)}</td>
-              <td>${valueComparer(comp.componentType, prevComp?.componentType || null)}</td>
+              <td>${valueComparer(
+                classNameTranslation[comp.className] || comp.className,
+                prevComp?.className
+                  ? classNameTranslation[prevComp?.className] ||
+                      prevComp.className
+                  : null,
+              )}</td>
+              <td>${valueComparer(
+                comp.componentType
+                  ? componentTypeTranslation[comp.componentType] ||
+                      comp.componentType
+                  : null,
+                prevComp?.componentType
+                  ? componentTypeTranslation[prevComp.componentType] ||
+                      prevComp.componentType
+                  : null,
+              )}</td>
               <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
               <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
               <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
@@ -197,7 +195,7 @@ export const createPdf = (
             })
             .join("")}
           <tr class="total-row">
-            <td colspan="8"><b>${translation.totalFunctionalPoints}</b></td>
+            <td colspan="8"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
             <td colspan="2"><b>${valueComparer(calculateTotalFunctionalComponentPoints(project.functionalComponents).toFixed(2), calculateTotalFunctionalComponentPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
           </tr>
         </table>
