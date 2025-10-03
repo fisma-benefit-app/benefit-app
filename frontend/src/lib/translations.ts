@@ -185,7 +185,7 @@ export const translations = {
       createdDate: "Luotu",
       versionCreatedDate: "Versio Luotu",
       lastEditedDate: "Muokattu",
-      className: "Toiminto-\nluokka",
+      className: "Toimintoluokka",
       componentType: "Toiminto-\ntyyppi",
       dataElements: "Tieto-\nelementit",
       readingReferences: "Luku-\nviittaukset",

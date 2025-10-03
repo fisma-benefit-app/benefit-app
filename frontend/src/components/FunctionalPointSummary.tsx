@@ -102,6 +102,17 @@ export const FunctionalPointSummary = ({
   const totalPoints = calculateTotalFunctionalComponentPoints(
     project.functionalComponents,
   );
+
+  const handleExportPdf = () => {
+    createPdf(
+      project,
+      previousOrCurrent,
+      translation.printUtils,
+      translation.functionalClassComponent.classNameOptions,
+      translation.functionalClassComponent.componentTypeOptions,
+    );
+  };
+
   return (
     <div className="flex flex-col border-2 p-4 bg-white h-[calc(55vh-5rem)] overflow-y-auto sticky top-20">
       <div className="max-h-[60vh] overflow-y-auto pr-2">
@@ -177,9 +188,7 @@ export const FunctionalPointSummary = ({
           CSV <FontAwesomeIcon icon={faDownload} />
         </button>
         <button
-          onClick={() =>
-            createPdf(project, previousOrCurrent, translation.printUtils)
-          }
+          onClick={handleExportPdf}
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
         >
           PDF <FontAwesomeIcon icon={faDownload} />
