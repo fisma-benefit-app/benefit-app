@@ -1,14 +1,65 @@
 import { ReactNode } from "react";
 
+// Props types
 export type ContextProviderProps = {
   children: ReactNode;
 };
 
-export type projectAppUser = {
+// DTOs
+export type ProjectRequest = {
+  projectName: string;
+  version: number;
+  functionalComponents: FunctionalComponentRequest[];
+  projectAppUserIds: number[];
+};
+
+export type ProjectResponse = {
+  id: number;
+  projectName: string;
+  version: number;
+  createdDate: string;
+  versionDate: string;
+  editedDate: string;
+  totalPoints: number;
+  functionalComponents: FunctionalComponentResponse[];
+  projectAppUsers: ProjectAppUserResponse[];
+};
+
+export type FunctionalComponentRequest = {
+  className: ClassName;
+  componentType: ComponentType | null;
+  dataElements: number | null;
+  readingReferences: number | null;
+  writingReferences: number | null;
+  functionalMultiplier: number | null;
+  operations: number | null;
+  degreeOfCompletion: number | null;
+  title: string | null;
+  description: string | null;
+  previousFCId: number | null;
+  orderPosition: number;
+};
+
+export type FunctionalComponentResponse = FunctionalComponentRequest & {
+  id: number;
+};
+
+export type ProjectAppUserResponse = {
+  id: number;
+  appUser: AppUserSummary;
+};
+
+export type AppUserSummary = {
+  id: number;
+  username: string;
+};
+
+// Remove if needed
+export type ProjectAppUser = {
+  id: number;
   appUserId: number;
 };
 
-//TODO: the following 2 types are up for change but backend expects this type of data when changing functional components of a project
 export type TGenericComponentNoId = {
   className: ClassName;
   componentType: ComponentType | null;
@@ -33,7 +84,7 @@ export type ProjectWithUpdate = {
   editedDate: string;
   totalPoints: number;
   functionalComponents: (TGenericComponent | TGenericComponentNoId)[];
-  appUsers: projectAppUser[];
+  appUsers: ProjectAppUser[];
 };
 
 export type Project = {
@@ -45,7 +96,7 @@ export type Project = {
   editedDate: string;
   totalPoints: number;
   functionalComponents: TGenericComponent[];
-  appUsers: projectAppUser[];
+  projectAppUsers: ProjectAppUser[];
 };
 
 export type TGenericComponent = {
@@ -64,6 +115,7 @@ export type TGenericComponent = {
   orderPosition: number;
 };
 
+// Enums and constants
 export type ClassName =
   | "Interactive end-user navigation and query service"
   | "Interactive end-user input service"

@@ -40,10 +40,15 @@ class AppUserControllerTest {
 
     mockMvcTester
         .put()
-        .uri("/appusers")
+        .uri("/appusers/password")
         .with(jwtAuth)
-        .contentType(MediaType.TEXT_PLAIN)
-        .content("newPass123")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(
+            """
+                {
+                  "newPassword": "newPass123"
+                }
+                """)
         .assertThat()
         .hasStatusOk();
 

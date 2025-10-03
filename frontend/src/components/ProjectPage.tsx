@@ -4,11 +4,13 @@ import {
   fetchAllProjects,
   fetchProject,
   updateProject,
+  createFunctionalComponent,
+  deleteFunctionalComponent,
 } from "../api/project.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
-  ProjectWithUpdate,
+  ProjectResponse,
   TGenericComponentNoId,
   TGenericComponent,
 } from "../lib/types.ts";
@@ -34,6 +36,7 @@ function SortableFunctionalComponent({
   component,
   project,
   setProject,
+  setProjectResponse,
   deleteFunctionalComponent,
   isLatest,
   forceCollapsed,
@@ -42,6 +45,9 @@ function SortableFunctionalComponent({
   component: TGenericComponent;
   project: Project;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  setProjectResponse: React.Dispatch<
+    React.SetStateAction<ProjectResponse | null>
+  >;
   deleteFunctionalComponent: (id: number) => Promise<void>;
   isLatest: boolean;
   forceCollapsed: boolean;
@@ -59,6 +65,7 @@ function SortableFunctionalComponent({
       <FunctionalClassComponent
         project={project}
         setProject={setProject}
+        setProjectResponse={setProjectResponse}
         component={component}
         deleteFunctionalComponent={deleteFunctionalComponent}
         isLatest={isLatest}
@@ -81,6 +88,8 @@ export default function ProjectPage() {
   const [collapseVersion, setCollapseVersion] = useState<number>(0);
 
   const [project, setProject] = useState<Project | null>(null);
+  const [projectResponse, setProjectResponse] =
+    useState<ProjectResponse | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -140,7 +149,7 @@ export default function ProjectPage() {
     getProject();
   }, [selectedProjectId, sessionToken, logout]);
 
-  const createFunctionalComponent = async () => {
+  const handleCreateFunctionalComponent = async () => {
     setLoadingProject(true);
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
@@ -158,18 +167,11 @@ export default function ProjectPage() {
         orderPosition: project.functionalComponents.length,
       };
 
-      const projectWithNewComponent: ProjectWithUpdate = {
-        ...project,
-        functionalComponents: [
-          ...project.functionalComponents,
-          newFunctionalComponent,
-        ],
-      };
-
       try {
-        const updatedProject: Project = await updateProject(
+        const updatedProject = await createFunctionalComponent(
           sessionToken,
-          projectWithNewComponent,
+          project.id,
+          newFunctionalComponent,
         );
 
         // Find the new component by comparing IDs
@@ -177,19 +179,12 @@ export default function ProjectPage() {
         const newComponent = updatedProject.functionalComponents.find(
           (c) => !prevIds.has(c.id),
         );
+
         if (newComponent) {
           setLastAddedComponentId(newComponent.id);
-        } else {
-          setLastAddedComponentId(null);
         }
 
-        // normalize order after adding
-        const normalized = updatedProject.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
-
-        setProject({ ...updatedProject, functionalComponents: normalized });
+        setProject(updatedProject);
 
         setTimeout(() => {
           bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -205,27 +200,14 @@ export default function ProjectPage() {
     }
   };
 
-  const deleteFunctionalComponent = async (componentId: number) => {
+  const handleDeleteFunctionalComponent = async (componentId: number) => {
     setLoadingProject(true);
     if (project) {
-      const filteredComponents = project?.functionalComponents.filter(
-        (component) => component.id !== componentId,
-      );
-
-      // normalize after deletion
-      const normalized = filteredComponents.map((c, idx) => ({
-        ...c,
-        orderPosition: idx,
-      }));
-
-      const filteredProject: Project = {
-        ...project,
-        functionalComponents: normalized,
-      };
       try {
-        const updatedProject = await updateProject(
+        const updatedProject = await deleteFunctionalComponent(
           sessionToken,
-          filteredProject,
+          componentId,
+          project.id,
         );
         setProject(updatedProject);
       } catch (err) {
@@ -255,7 +237,7 @@ export default function ProjectPage() {
           editedDate: CreateCurrentDate(),
         };
         const savedProject = await updateProject(sessionToken, editedProject);
-        setProject(savedProject);
+        setProjectResponse(savedProject);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
@@ -355,7 +337,10 @@ export default function ProjectPage() {
                         component={component}
                         project={project}
                         setProject={setProject}
-                        deleteFunctionalComponent={deleteFunctionalComponent}
+                        setProjectResponse={setProjectResponse}
+                        deleteFunctionalComponent={
+                          handleDeleteFunctionalComponent
+                        }
                         isLatest={isLatest}
                         forceCollapsed={
                           collapseAll
@@ -438,7 +423,7 @@ export default function ProjectPage() {
               ))}
             </select>
             <button
-              onClick={createFunctionalComponent}
+              onClick={handleCreateFunctionalComponent}
               className={`${isLatest || !loadingProject ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-3 px-4`}
               disabled={!isLatest || loadingProject}
             >

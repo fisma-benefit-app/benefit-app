@@ -61,6 +61,7 @@ public class SecurityConfig {
             (authorize) ->
                 authorize
                     .requestMatchers(
+                        AntPathRequestMatcher.antMatcher("/actuator/health"),
                         AntPathRequestMatcher.antMatcher("/v3/api-docs"),
                         AntPathRequestMatcher.antMatcher("/v3/api-docs.yaml"),
                         AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),

@@ -2,13 +2,13 @@
 
 ## Prerequisites
 
-- Your Spring Boot project is running (see [Getting Started](../README.md#getting-started))
+- Your Spring Boot project is running (see [Getting Started](../../README.md#getting-started))
 - Node.js installed on your system
 
 ## Step 1: Download the OpenAPI Spec
 
 1. Open your browser at http://localhost:8080/v3/api-docs.yaml
-2. Save the file as `documents/api-docs.yaml` (overwrite it if it already exists)
+2. Save the file as `documents/references/api-docs.yaml` (overwrite it if it already exists)
 
 ## Step 2: Install Widdershins (one-time)
 
@@ -18,13 +18,13 @@ npm install -g widdershins
 
 ## Step 3: Generate Markdown Docs
 
-From the `documents/` folder, run:
+From the `documents/references/` folder, run:
 
 ```bash
 widdershins api-docs.yaml -o api.md --summary --expandBody
 ```
 
-This creates `documents/api.md` with:
+This creates `documents/references/api.md` with:
 
 - [x] Summary at the top
 - [x] Expanded request/response bodies

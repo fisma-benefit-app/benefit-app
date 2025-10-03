@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { Project } from "../lib/types";
+import { Project, ProjectResponse } from "../lib/types";
 
 type ProjectsContext = {
   sortedProjects: Project[];
@@ -14,7 +14,7 @@ type ProjectsContext = {
     project: Project,
     allProjectVersions: Project[],
   ) => Project;
-  setProjects: (projects: Project[]) => void;
+  setProjects: (projects: ProjectResponse[]) => void;
 };
 
 export const ProjectsContext = createContext<ProjectsContext | null>(null);
