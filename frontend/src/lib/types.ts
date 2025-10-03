@@ -47,7 +47,6 @@ export type FunctionalComponentResponse = FunctionalComponentRequest & {
 export type ProjectAppUserResponse = {
   id: number;
   appUser: AppUserSummary;
-  joinedAt: string;
 };
 
 export type AppUserSummary = {
