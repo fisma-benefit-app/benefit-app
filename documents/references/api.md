@@ -238,11 +238,10 @@ const inputBody = '{
       "title": "Create User Account",
       "description": "Handles user account creation process",
       "previousFCId": 123,
-      "orderPosition": 1,
-      "projectId": 0
+      "orderPosition": 1
     }
   ],
-  "appUserIds": [
+  "projectAppUserIds": [
     0
   ]
 }';
@@ -394,11 +393,10 @@ Updates an existing project if the authenticated user owns it
       "title": "Create User Account",
       "description": "Handles user account creation process",
       "previousFCId": 123,
-      "orderPosition": 1,
-      "projectId": 0
+      "orderPosition": 1
     }
   ],
-  "appUserIds": [
+  "projectAppUserIds": [
     0
   ]
 }
@@ -414,7 +412,7 @@ Updates an existing project if the authenticated user owns it
 |» version|body|integer(int32)|true|Version of the project|
 |» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
 |»» id|body|integer(int64)|false|Unique identifier|
-|»» className|body|string|true|Name of the class|
+|»» className|body|string|false|Name of the class|
 |»» componentType|body|string|false|Type of the functional component|
 |»» dataElements|body|integer(int32)|false|Number of data elements|
 |»» readingReferences|body|integer(int32)|false|Number of reading references|
@@ -426,8 +424,7 @@ Updates an existing project if the authenticated user owns it
 |»» description|body|string|false|Detailed description of the functional component|
 |»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
-|»» projectId|body|integer(int64)|false|none|
-|» appUserIds|body|[integer]|false|List of user IDs with access to the project|
+|» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
 
 > Example responses
 
@@ -769,9 +766,11 @@ Status Code **200**
 |»» description|string|false|none|Detailed description of the functional component|
 |»» previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
 |»» orderPosition|integer(int32)|false|none|Position in the component list|
-|» appUsers|[[AppUserSummary](#schemaappusersummary)]|false|none|Users with access to the project|
-|»» id|integer(int64)|false|none|Unique identifier of the user|
-|»» username|string|false|none|Username of the user|
+|» projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
+|»» id|integer(int64)|false|none|ID of the project-user relationship|
+|»» appUser|[AppUserSummary](#schemaappusersummary)|false|none|Summary information about an application user|
+|»»» id|integer(int64)|false|none|Unique identifier of the user|
+|»»» username|string|false|none|Username of the user|
 
 <aside class="success">
 This operation does not require authentication
@@ -815,11 +814,10 @@ const inputBody = '{
       "title": "Create User Account",
       "description": "Handles user account creation process",
       "previousFCId": 123,
-      "orderPosition": 1,
-      "projectId": 0
+      "orderPosition": 1
     }
   ],
-  "appUserIds": [
+  "projectAppUserIds": [
     0
   ]
 }';
@@ -966,11 +964,10 @@ Creates a new project for the authenticated user
       "title": "Create User Account",
       "description": "Handles user account creation process",
       "previousFCId": 123,
-      "orderPosition": 1,
-      "projectId": 0
+      "orderPosition": 1
     }
   ],
-  "appUserIds": [
+  "projectAppUserIds": [
     0
   ]
 }
@@ -985,7 +982,7 @@ Creates a new project for the authenticated user
 |» version|body|integer(int32)|true|Version of the project|
 |» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
 |»» id|body|integer(int64)|false|Unique identifier|
-|»» className|body|string|true|Name of the class|
+|»» className|body|string|false|Name of the class|
 |»» componentType|body|string|false|Type of the functional component|
 |»» dataElements|body|integer(int32)|false|Number of data elements|
 |»» readingReferences|body|integer(int32)|false|Number of reading references|
@@ -997,8 +994,7 @@ Creates a new project for the authenticated user
 |»» description|body|string|false|Detailed description of the functional component|
 |»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
-|»» projectId|body|integer(int64)|false|none|
-|» appUserIds|body|[integer]|false|List of user IDs with access to the project|
+|» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
 
 <h3 id="create-a-new-project-responses">Responses</h3>
 
@@ -1049,11 +1045,10 @@ const inputBody = '{
       "title": "Create User Account",
       "description": "Handles user account creation process",
       "previousFCId": 123,
-      "orderPosition": 1,
-      "projectId": 0
+      "orderPosition": 1
     }
   ],
-  "appUserIds": [
+  "projectAppUserIds": [
     0
   ]
 }';
@@ -1200,11 +1195,10 @@ Creates a new version of an existing project
       "title": "Create User Account",
       "description": "Handles user account creation process",
       "previousFCId": 123,
-      "orderPosition": 1,
-      "projectId": 0
+      "orderPosition": 1
     }
   ],
-  "appUserIds": [
+  "projectAppUserIds": [
     0
   ]
 }
@@ -1220,7 +1214,7 @@ Creates a new version of an existing project
 |» version|body|integer(int32)|true|Version of the project|
 |» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
 |»» id|body|integer(int64)|false|Unique identifier|
-|»» className|body|string|true|Name of the class|
+|»» className|body|string|false|Name of the class|
 |»» componentType|body|string|false|Type of the functional component|
 |»» dataElements|body|integer(int32)|false|Number of data elements|
 |»» readingReferences|body|integer(int32)|false|Number of reading references|
@@ -1232,8 +1226,7 @@ Creates a new version of an existing project
 |»» description|body|string|false|Detailed description of the functional component|
 |»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
-|»» projectId|body|integer(int64)|false|none|
-|» appUserIds|body|[integer]|false|List of user IDs with access to the project|
+|» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
 
 <h3 id="create-a-new-version-of-a-project-responses">Responses</h3>
 
@@ -1570,6 +1563,396 @@ Permanently deletes the authenticated user's account
 This operation does not require authentication
 </aside>
 
+<h1 id="openapi-definition-functional-components">Functional Components</h1>
+
+Endpoints for managing functional components within projects
+
+## Create a new functional component
+
+<a id="opIdcreateFunctionalComponent"></a>
+
+> Code samples
+
+```shell
+# You can also use wget
+curl -X POST http://localhost:8080/functional-components/projects/{projectId} \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: */*'
+
+```
+
+```http
+POST http://localhost:8080/functional-components/projects/{projectId} HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Accept: */*
+
+```
+
+```javascript
+const inputBody = '{
+  "id": 1,
+  "className": "UserAccount",
+  "componentType": "string",
+  "dataElements": 5,
+  "readingReferences": 2,
+  "writingReferences": 1,
+  "functionalMultiplier": 3,
+  "operations": 4,
+  "degreeOfCompletion": 0.75,
+  "title": "Create User Account",
+  "description": "Handles user account creation process",
+  "previousFCId": 123,
+  "orderPosition": 1
+}';
+const headers = {
+  'Content-Type':'application/json',
+  'Accept':'*/*'
+};
+
+fetch('http://localhost:8080/functional-components/projects/{projectId}',
+{
+  method: 'POST',
+  body: inputBody,
+  headers: headers
+})
+.then(function(res) {
+    return res.json();
+}).then(function(body) {
+    console.log(body);
+});
+
+```
+
+```ruby
+require 'rest-client'
+require 'json'
+
+headers = {
+  'Content-Type' => 'application/json',
+  'Accept' => '*/*'
+}
+
+result = RestClient.post 'http://localhost:8080/functional-components/projects/{projectId}',
+  params: {
+  }, headers: headers
+
+p JSON.parse(result)
+
+```
+
+```python
+import requests
+headers = {
+  'Content-Type': 'application/json',
+  'Accept': '*/*'
+}
+
+r = requests.post('http://localhost:8080/functional-components/projects/{projectId}', headers = headers)
+
+print(r.json())
+
+```
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$headers = array(
+    'Content-Type' => 'application/json',
+    'Accept' => '*/*',
+);
+
+$client = new \GuzzleHttp\Client();
+
+// Define array of request body.
+$request_body = array();
+
+try {
+    $response = $client->request('POST','http://localhost:8080/functional-components/projects/{projectId}', array(
+        'headers' => $headers,
+        'json' => $request_body,
+       )
+    );
+    print_r($response->getBody()->getContents());
+ }
+ catch (\GuzzleHttp\Exception\BadResponseException $e) {
+    // handle exception or api errors.
+    print_r($e->getMessage());
+ }
+
+ // ...
+
+```
+
+```java
+URL obj = new URL("http://localhost:8080/functional-components/projects/{projectId}");
+HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+con.setRequestMethod("POST");
+int responseCode = con.getResponseCode();
+BufferedReader in = new BufferedReader(
+    new InputStreamReader(con.getInputStream()));
+String inputLine;
+StringBuffer response = new StringBuffer();
+while ((inputLine = in.readLine()) != null) {
+    response.append(inputLine);
+}
+in.close();
+System.out.println(response.toString());
+
+```
+
+```go
+package main
+
+import (
+       "bytes"
+       "net/http"
+)
+
+func main() {
+
+    headers := map[string][]string{
+        "Content-Type": []string{"application/json"},
+        "Accept": []string{"*/*"},
+    }
+
+    data := bytes.NewBuffer([]byte{jsonReq})
+    req, err := http.NewRequest("POST", "http://localhost:8080/functional-components/projects/{projectId}", data)
+    req.Header = headers
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    // ...
+}
+
+```
+
+`POST /functional-components/projects/{projectId}`
+
+Creates a new functional component in the specified project
+
+> Body parameter
+
+```json
+{
+  "id": 1,
+  "className": "UserAccount",
+  "componentType": "string",
+  "dataElements": 5,
+  "readingReferences": 2,
+  "writingReferences": 1,
+  "functionalMultiplier": 3,
+  "operations": 4,
+  "degreeOfCompletion": 0.75,
+  "title": "Create User Account",
+  "description": "Handles user account creation process",
+  "previousFCId": 123,
+  "orderPosition": 1
+}
+```
+
+<h3 id="create-a-new-functional-component-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|projectId|path|integer(int64)|true|none|
+|body|body|[FunctionalComponentRequest](#schemafunctionalcomponentrequest)|true|none|
+|» id|body|integer(int64)|false|Unique identifier|
+|» className|body|string|false|Name of the class|
+|» componentType|body|string|false|Type of the functional component|
+|» dataElements|body|integer(int32)|false|Number of data elements|
+|» readingReferences|body|integer(int32)|false|Number of reading references|
+|» writingReferences|body|integer(int32)|false|Number of writing references|
+|» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
+|» operations|body|integer(int32)|false|Number of operations|
+|» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
+|» title|body|string|false|Title of the functional component|
+|» description|body|string|false|Detailed description of the functional component|
+|» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|» orderPosition|body|integer(int32)|true|Position in the component list|
+
+> Example responses
+
+> 200 Response
+
+<h3 id="create-a-new-functional-component-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[ProjectResponse](#schemaprojectresponse)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+## Delete a functional component
+
+<a id="opIddeleteFunctionalComponent"></a>
+
+> Code samples
+
+```shell
+# You can also use wget
+curl -X DELETE http://localhost:8080/functional-components/{componentId}/projects/{projectId} \
+  -H 'Accept: */*'
+
+```
+
+```http
+DELETE http://localhost:8080/functional-components/{componentId}/projects/{projectId} HTTP/1.1
+Host: localhost:8080
+Accept: */*
+
+```
+
+```javascript
+
+const headers = {
+  'Accept':'*/*'
+};
+
+fetch('http://localhost:8080/functional-components/{componentId}/projects/{projectId}',
+{
+  method: 'DELETE',
+
+  headers: headers
+})
+.then(function(res) {
+    return res.json();
+}).then(function(body) {
+    console.log(body);
+});
+
+```
+
+```ruby
+require 'rest-client'
+require 'json'
+
+headers = {
+  'Accept' => '*/*'
+}
+
+result = RestClient.delete 'http://localhost:8080/functional-components/{componentId}/projects/{projectId}',
+  params: {
+  }, headers: headers
+
+p JSON.parse(result)
+
+```
+
+```python
+import requests
+headers = {
+  'Accept': '*/*'
+}
+
+r = requests.delete('http://localhost:8080/functional-components/{componentId}/projects/{projectId}', headers = headers)
+
+print(r.json())
+
+```
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$headers = array(
+    'Accept' => '*/*',
+);
+
+$client = new \GuzzleHttp\Client();
+
+// Define array of request body.
+$request_body = array();
+
+try {
+    $response = $client->request('DELETE','http://localhost:8080/functional-components/{componentId}/projects/{projectId}', array(
+        'headers' => $headers,
+        'json' => $request_body,
+       )
+    );
+    print_r($response->getBody()->getContents());
+ }
+ catch (\GuzzleHttp\Exception\BadResponseException $e) {
+    // handle exception or api errors.
+    print_r($e->getMessage());
+ }
+
+ // ...
+
+```
+
+```java
+URL obj = new URL("http://localhost:8080/functional-components/{componentId}/projects/{projectId}");
+HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+con.setRequestMethod("DELETE");
+int responseCode = con.getResponseCode();
+BufferedReader in = new BufferedReader(
+    new InputStreamReader(con.getInputStream()));
+String inputLine;
+StringBuffer response = new StringBuffer();
+while ((inputLine = in.readLine()) != null) {
+    response.append(inputLine);
+}
+in.close();
+System.out.println(response.toString());
+
+```
+
+```go
+package main
+
+import (
+       "bytes"
+       "net/http"
+)
+
+func main() {
+
+    headers := map[string][]string{
+        "Accept": []string{"*/*"},
+    }
+
+    data := bytes.NewBuffer([]byte{jsonReq})
+    req, err := http.NewRequest("DELETE", "http://localhost:8080/functional-components/{componentId}/projects/{projectId}", data)
+    req.Header = headers
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    // ...
+}
+
+```
+
+`DELETE /functional-components/{componentId}/projects/{projectId}`
+
+Deletes a functional component from the specified project
+
+<h3 id="delete-a-functional-component-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|componentId|path|integer(int64)|true|none|
+|projectId|path|integer(int64)|true|none|
+
+> Example responses
+
+> 200 Response
+
+<h3 id="delete-a-functional-component-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[ProjectResponse](#schemaprojectresponse)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
 <h1 id="openapi-definition-token-generation">Token Generation</h1>
 
 Endpoint for generating token
@@ -1760,8 +2143,7 @@ This operation does not require authentication
   "title": "Create User Account",
   "description": "Handles user account creation process",
   "previousFCId": 123,
-  "orderPosition": 1,
-  "projectId": 0
+  "orderPosition": 1
 }
 
 ```
@@ -1773,7 +2155,7 @@ Request object for creating or updating functional components within a project
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |id|integer(int64)|false|none|Unique identifier|
-|className|string|true|none|Name of the class|
+|className|string|false|none|Name of the class|
 |componentType|string|false|none|Type of the functional component|
 |dataElements|integer(int32)|false|none|Number of data elements|
 |readingReferences|integer(int32)|false|none|Number of reading references|
@@ -1785,7 +2167,6 @@ Request object for creating or updating functional components within a project
 |description|string|false|none|Detailed description of the functional component|
 |previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
 |orderPosition|integer(int32)|true|none|Position in the component list|
-|projectId|integer(int64)|false|none|none|
 
 <h2 id="tocS_ProjectRequest">ProjectRequest</h2>
 <!-- backwards compatibility -->
@@ -1812,11 +2193,10 @@ Request object for creating or updating functional components within a project
       "title": "Create User Account",
       "description": "Handles user account creation process",
       "previousFCId": 123,
-      "orderPosition": 1,
-      "projectId": 0
+      "orderPosition": 1
     }
   ],
-  "appUserIds": [
+  "projectAppUserIds": [
     0
   ]
 }
@@ -1832,7 +2212,7 @@ Request object for creating or updating a project
 |projectName|string|true|none|Name of the project|
 |version|integer(int32)|true|none|Version of the project|
 |functionalComponents|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|none|List of functional components in the project|
-|appUserIds|[integer]|false|none|List of user IDs with access to the project|
+|projectAppUserIds|[integer]|false|none|List of user IDs to associate with the project|
 
 <h2 id="tocS_AppUserSummary">AppUserSummary</h2>
 <!-- backwards compatibility -->
@@ -1904,6 +2284,33 @@ Response object containing details on functional components within a project
 |previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
 |orderPosition|integer(int32)|false|none|Position in the component list|
 
+<h2 id="tocS_ProjectAppUserResponse">ProjectAppUserResponse</h2>
+<!-- backwards compatibility -->
+<a id="schemaprojectappuserresponse"></a>
+<a id="schema_ProjectAppUserResponse"></a>
+<a id="tocSprojectappuserresponse"></a>
+<a id="tocsprojectappuserresponse"></a>
+
+```json
+{
+  "id": 1,
+  "appUser": {
+    "id": 1,
+    "username": "john.doe"
+  }
+}
+
+```
+
+Response object containing project-user relationship details
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer(int64)|false|none|ID of the project-user relationship|
+|appUser|[AppUserSummary](#schemaappusersummary)|false|none|AppUser details|
+
 <h2 id="tocS_ProjectResponse">ProjectResponse</h2>
 <!-- backwards compatibility -->
 <a id="schemaprojectresponse"></a>
@@ -1937,10 +2344,13 @@ Response object containing details on functional components within a project
       "orderPosition": 1
     }
   ],
-  "appUsers": [
+  "projectAppUsers": [
     {
       "id": 1,
-      "username": "john.doe"
+      "appUser": {
+        "id": 1,
+        "username": "john.doe"
+      }
     }
   ]
 }
@@ -1961,7 +2371,7 @@ Response object containing project details
 |editedDate|string(date-time)|false|none|Last modification timestamp|
 |totalPoints|number(double)|false|none|Total function points of the project|
 |functionalComponents|[[FunctionalComponentResponse](#schemafunctionalcomponentresponse)]|false|none|Functional components in the project|
-|appUsers|[[AppUserSummary](#schemaappusersummary)]|false|none|Users with access to the project|
+|projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
 
 <h2 id="tocS_PasswordChangeRequest">PasswordChangeRequest</h2>
 <!-- backwards compatibility -->

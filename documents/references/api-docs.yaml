@@ -10,6 +10,8 @@ tags:
   description: Endpoints for managing projects
 - name: User Management
   description: Endpoints for managing user accounts
+- name: Functional Components
+  description: Endpoints for managing functional components within projects
 - name: Token Generation
   description: Endpoint for generating token
 paths:
@@ -227,6 +229,60 @@ paths:
           description: Original project not found
         "403":
           description: User does not have permission
+  /functional-components/projects/{projectId}:
+    post:
+      tags:
+      - Functional Components
+      summary: Create a new functional component
+      description: Creates a new functional component in the specified project
+      operationId: createFunctionalComponent
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FunctionalComponentRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+  /functional-components/{componentId}/projects/{projectId}:
+    delete:
+      tags:
+      - Functional Components
+      summary: Delete a functional component
+      description: Deletes a functional component from the specified project
+      operationId: deleteFunctionalComponent
+      parameters:
+      - name: componentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
   /appusers:
     delete:
       tags:
@@ -320,11 +376,7 @@ components:
           description: Position in the component list
           example: 1
           minimum: 0
-        projectId:
-          type: integer
-          format: int64
       required:
-      - className
       - orderPosition
     ProjectRequest:
       type: object
@@ -347,9 +399,9 @@ components:
           items:
             $ref: "#/components/schemas/FunctionalComponentRequest"
           uniqueItems: true
-        appUserIds:
+        projectAppUserIds:
           type: array
-          description: List of user IDs with access to the project
+          description: List of user IDs to associate with the project
           items:
             type: integer
             format: int64
@@ -443,6 +495,18 @@ components:
           description: Position in the component list
           example: 1
           minimum: 0
+    ProjectAppUserResponse:
+      type: object
+      description: Response object containing project-user relationship details
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID of the project-user relationship
+          example: 1
+        appUser:
+          $ref: "#/components/schemas/AppUserSummary"
+          description: AppUser details
     ProjectResponse:
       type: object
       description: Response object containing project details
@@ -487,11 +551,11 @@ components:
           items:
             $ref: "#/components/schemas/FunctionalComponentResponse"
           uniqueItems: true
-        appUsers:
+        projectAppUsers:
           type: array
-          description: Users with access to the project
+          description: Users associated with the project
           items:
-            $ref: "#/components/schemas/AppUserSummary"
+            $ref: "#/components/schemas/ProjectAppUserResponse"
           uniqueItems: true
     PasswordChangeRequest:
       type: object
