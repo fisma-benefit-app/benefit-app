@@ -53,10 +53,11 @@ public class ProjectMapper {
                 .collect(Collectors.toSet()),
             project.getProjectAppUsers().stream()
                 .map(
-                    pau -> new ProjectAppUserResponse(
-                        pau.getId(),
-                        new AppUserSummary(
-                            pau.getAppUser().getId(), pau.getAppUser().getUsername())))
+                    pau ->
+                        new ProjectAppUserResponse(
+                            pau.getId(),
+                            new AppUserSummary(
+                                pau.getAppUser().getId(), pau.getAppUser().getUsername())))
                 .collect(Collectors.toSet()));
     return response;
   }
