@@ -19,7 +19,7 @@ The backend system is built and maintained using a layered architecture. To keep
 - security - Authentication, authorization, and security configuration
 - service - Business logic orchestrating repositories, domain, and mappers
 
-This structure follows common practices in Spring Boot and domain-driven design principles. It provides clear separation of concerns and improves testability. However, there is a risk for over-engineering: making changes now touch multiple layers, even if they are easier to find.
+This structure follows common practices in Spring Boot and domain-driven design principles. It provides clear separation of concerns and improves testability. However, there is a risk for over-engineering: changes now touch multiple layers, even if they are easier to find.
 
 ## Decision
 
