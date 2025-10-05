@@ -31,13 +31,14 @@ create table if not exists functional_component
     degree_of_completion  decimal,
     title                 text,
     description           text,
-    previous_FC_id        bigint,
+    previous_fc_id        bigint,
     project_id            bigint not null references project (id),
     order_position        integer not null default 0
 );
 
 create table if not exists project_app_user
 (
+    id          bigserial primary key,
     project_id  bigint not null references project (id),
     app_user_id bigint not null references app_user (id)
 )
