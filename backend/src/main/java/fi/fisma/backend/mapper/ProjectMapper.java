@@ -70,6 +70,7 @@ public class ProjectMapper {
         LocalDateTime.now(),
         LocalDateTime.now(),
         LocalDateTime.now(),
+        null,
         0.0, // Initial total points
         Set.of(), // Empty functional components initially
         Set.of() // ProjectAppUsers will be set by service
@@ -121,6 +122,7 @@ public class ProjectMapper {
             project.getCreatedDate(),
             project.getVersionDate(),
             LocalDateTime.now(), // new edited date
+            null,
             project.getTotalPoints(),
             functionalComponents,
             projectAppUsers);
@@ -136,6 +138,7 @@ public class ProjectMapper {
             originalProject.getCreatedDate(), // keep original creation date
             LocalDateTime.now(), // new version date
             LocalDateTime.now(), // new edited date
+            null,
             originalProject.getTotalPoints(),
             Set.of(), // FunctionalComponents will be set by service
             Set.of() // ProjectAppUsers will be set by service
