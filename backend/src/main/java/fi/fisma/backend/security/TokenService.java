@@ -15,6 +15,18 @@ import org.springframework.stereotype.Service;
 public class TokenService {
   private final JwtEncoder encoder;
 
+  /**
+   * Generates a signed JWT for the given authenticated user
+   *
+   * <p>The token contains the following claims: issuer: {@code "self"} issuedAt: the current
+   * timestamp expiresAt: 24 hours after issuance subject: the authenticated user’s username scope:
+   * space-separated list of authorities granted to the user
+   *
+   * @param authentication the Spring Security Authentication object representing the authenticated
+   *     user
+   * @return the encoded JWT as a String
+   * @throws IllegalArgumentException if encoding the claims fails
+   */
   public String generateToken(Authentication authentication) {
     Instant now = Instant.now();
     long expiry = 86400L; // 24 hours
