@@ -7,6 +7,7 @@ import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +24,7 @@ public class AppUserService {
   private final PasswordEncoder passwordEncoder;
 
   /**
-   * Changes password for authenticated user
+   * Changes password for authenticated user.
    *
    * @param newPassword New password to set
    * @param authentication Current user's authentication
@@ -41,7 +42,7 @@ public class AppUserService {
   }
 
   /**
-   * Deletes user account and associated projects
+   * Soft deletes user account and associated projects.
    *
    * @param authentication Current user's authentication
    * @throws EntityNotFoundException if user not found
@@ -55,15 +56,17 @@ public class AppUserService {
     userProjects.forEach(
         project -> {
           if (project.getProjectAppUsers().size() == 1) {
-            projectRepository.deleteById(project.getId());
+            project.setDeletedAt(LocalDateTime.now());
+            projectRepository.save(project);
           }
         });
 
-    appUserRepository.deleteById(appUser.getId());
+    appUser.setDeletedAt(LocalDateTime.now());
+    appUserRepository.save(appUser);
   }
 
   /**
-   * Helper method that gets user summary for authenticated user
+   * Helper method that gets user summary for authenticated user.
    *
    * @param authentication Current user's authentication
    * @return AppUserSummary

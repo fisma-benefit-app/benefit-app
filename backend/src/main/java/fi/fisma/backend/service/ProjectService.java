@@ -10,6 +10,7 @@ import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class ProjectService {
   private final ProjectMapper projectMapper;
 
   /**
-   * Retrieves a project by its ID for the specified user and maps it to a response DTO
+   * Retrieves a project by its ID for the specified user and maps it to a response DTO.
    *
    * @param projectId the ID of the project to retrieve
    * @param username the username of the user requesting the project
@@ -41,7 +42,7 @@ public class ProjectService {
   }
 
   /**
-   * Retrieves all projects associated with the specified user and maps them to response DTOs
+   * Retrieves all projects associated with the specified user and maps them to response DTOs.
    *
    * @param username the username of the user whose projects should be retrieved
    * @return list of ProjectResponse objects
@@ -53,7 +54,7 @@ public class ProjectService {
   }
 
   /**
-   * Updates an existing project for the specified user with the provided request data
+   * Updates an existing project for the specified user with the provided request data.
    *
    * @param projectId the ID of the project to update
    * @param projectUpdate the request object containing the updated project data
@@ -69,7 +70,7 @@ public class ProjectService {
   }
 
   /**
-   * Creates a new project associated with the specified user
+   * Creates a new project associated with the specified user.
    *
    * @param newProjectRequest the request object containing the new project’s data
    * @param username the username of the user creating the project
@@ -88,7 +89,7 @@ public class ProjectService {
   }
 
   /**
-   * Creates a new version of an existing project for the specified user
+   * Creates a new version of an existing project for the specified user.
    *
    * @param projectId the ID of the original project
    * @param versionRequest the request object containing the new version’s data
@@ -141,7 +142,7 @@ public class ProjectService {
   }
 
   /**
-   * Deletes a project by its ID for the specified user
+   * Soft deletes a project by its ID for the specified user.
    *
    * @param projectId the ID of the project to delete
    * @param username the username of the user performing the deletion
@@ -149,11 +150,13 @@ public class ProjectService {
    */
   public void deleteProject(Long projectId, String username) {
     var project = findProjectForUser(projectId, username);
-    projectRepository.deleteById(project.getId());
+    project.setDeletedAt(LocalDateTime.now());
+    projectRepository.save(project);
   }
 
   /**
-   * Helper method that finds a project by its ID and verifies that it belongs to the specified user
+   * Helper method that finds a project by its ID and verifies that it belongs to the specified
+   * user.
    *
    * @param projectId the ID of the project to find
    * @param username the username of the user who owns the project

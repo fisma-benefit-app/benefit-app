@@ -4,7 +4,8 @@ create table if not exists app_user
 (
     id       bigserial primary key,
     username text not null,
-    password text not null
+    password text not null,
+    deleted_at timestamp
 );
 
 create table if not exists project
@@ -15,6 +16,7 @@ create table if not exists project
     created_date timestamp not null,
     version_date timestamp not null,
     edited_date timestamp,
+    deleted_at timestamp,
     total_points decimal   not null
 );
 

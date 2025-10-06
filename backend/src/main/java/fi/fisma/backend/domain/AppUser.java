@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,9 @@ public class AppUser {
   @Size(max = 64, message = "Password must not exceed 64 characters")
   @Column(name = "password")
   private String password;
+
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
 
   public AppUser(String username, String password) {
     this.username = username;

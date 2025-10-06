@@ -52,6 +52,9 @@ public class Project {
   @Column(name = "edited_date")
   private LocalDateTime editedDate;
 
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
+
   @NotNull(message = "Total points are required")
   @PositiveOrZero(message = "Total points cannot be negative")
   @Column(name = "total_points")

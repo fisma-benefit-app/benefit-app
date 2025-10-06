@@ -34,7 +34,7 @@ public class AppUserController {
   @DeleteMapping
   @Operation(
       summary = "Delete user account",
-      description = "Permanently deletes the authenticated user's account")
+      description = "Soft deletes the authenticated user's account")
   @ApiResponse(responseCode = "204", description = "Account deleted successfully")
   @ApiResponse(responseCode = "401", description = "User not authenticated")
   public ResponseEntity<Void> deleteAppUser(Authentication authentication) {
