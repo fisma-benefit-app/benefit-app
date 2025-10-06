@@ -135,6 +135,7 @@ export const createPdf = (
         <table>
           <tr>
             <th>${printUtilsTranslation.title}</th>
+            <th>${printUtilsTranslation.description}</th>
             <th>${printUtilsTranslation.className}</th>
             <th>${printUtilsTranslation.componentType}</th>
             <th>${printUtilsTranslation.dataElements}</th>
@@ -143,7 +144,6 @@ export const createPdf = (
             <th>${printUtilsTranslation.operations}</th>
             <th>${printUtilsTranslation.degreeOfCompletion}</th>
             <th>${printUtilsTranslation.functionalPoints}</th>
-            <th>${printUtilsTranslation.description}</th>
           </tr>
           ${project.functionalComponents
             .map((comp) => {
@@ -158,6 +158,7 @@ export const createPdf = (
               return `
             <tr>
               <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
+              <td>${valueComparer(comp.description, prevComp?.description || null)}</td>
               <td>${valueComparer(
                 classNameTranslation[comp.className] || comp.className,
                 prevComp?.className
