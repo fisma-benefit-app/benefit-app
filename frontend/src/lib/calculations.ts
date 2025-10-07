@@ -1,5 +1,3 @@
-// DON'T MODIFY THIS FILE! CALCULATIONS MOVED TO frontend/src/lib/centralizedCalculations.ts
-// TODO: Delete this file once all references to this file have been removed.
 import { TGenericComponent } from "./types.ts";
 
 const calculateInteractiveEndUserNavigationAndQueryService = (
