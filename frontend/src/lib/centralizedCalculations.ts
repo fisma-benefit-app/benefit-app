@@ -21,14 +21,14 @@ export const calculateBasePoints = (component: TGenericComponent): number => {
   }
 
   const cacheKey = `base-${generateCacheKey(component)}`;
-  
+
   if (calculationCache.has(cacheKey)) {
     return calculationCache.get(cacheKey)!;
   }
 
   const calculateFunction = getCalculateFuntion(component.className);
   const basePoints = calculateFunction ? calculateFunction(component) : 0;
-  
+
   calculationCache.set(cacheKey, basePoints);
   return basePoints;
 };
@@ -37,9 +37,11 @@ export const calculateBasePoints = (component: TGenericComponent): number => {
  * Calculate functional points for a component including degree of completion
  * Uses memoization for performance optimization
  */
-export const calculateComponentPoints = (component: TGenericComponent): number => {
+export const calculateComponentPoints = (
+  component: TGenericComponent,
+): number => {
   const cacheKey = `component-${generateCacheKey(component)}`;
-  
+
   if (calculationCache.has(cacheKey)) {
     return calculationCache.get(cacheKey)!;
   }
@@ -47,7 +49,7 @@ export const calculateComponentPoints = (component: TGenericComponent): number =
   const basePoints = calculateBasePoints(component);
   const degreeOfCompletion = component.degreeOfCompletion || 0;
   const totalPoints = basePoints * degreeOfCompletion;
-  
+
   calculationCache.set(cacheKey, totalPoints);
   return totalPoints;
 };
@@ -58,10 +60,10 @@ export const calculateComponentPoints = (component: TGenericComponent): number =
  */
 export const calculateComponentPointsWithMultiplier = (
   component: TGenericComponent | null,
-  multiplier: number | null
+  multiplier: number | null,
 ): number => {
   if (!component) return 0;
-  
+
   const basePoints = calculateBasePoints(component);
   return multiplier != null ? basePoints * multiplier : basePoints;
 };
@@ -70,13 +72,18 @@ export const calculateComponentPointsWithMultiplier = (
  * Calculate total functional points for an array of components
  * Uses memoization and optimized iteration
  */
-export const calculateTotalPoints = (components: TGenericComponent[]): number => {
+export const calculateTotalPoints = (
+  components: TGenericComponent[],
+): number => {
   if (components.length === 0) return 0;
 
   // Create a cache key based on component IDs and their essential properties
-  const componentIds = components.map(c => generateCacheKey(c)).sort().join('|');
+  const componentIds = components
+    .map((c) => generateCacheKey(c))
+    .sort()
+    .join("|");
   const totalCacheKey = `total-${componentIds}`;
-  
+
   if (calculationCache.has(totalCacheKey)) {
     return calculationCache.get(totalCacheKey)!;
   }
@@ -85,7 +92,7 @@ export const calculateTotalPoints = (components: TGenericComponent[]): number =>
   for (const component of components) {
     totalPoints += calculateComponentPoints(component);
   }
-  
+
   calculationCache.set(totalCacheKey, totalPoints);
   return totalPoints;
 };
@@ -101,15 +108,21 @@ export const calculateProjectTotalPoints = (project: Project): number => {
  * Calculate total possible functional points for components (if all were 100% complete)
  * Uses memoization for performance optimization
  */
-export const calculateTotalPossiblePoints = (components: TGenericComponent[]): number => {
+export const calculateTotalPossiblePoints = (
+  components: TGenericComponent[],
+): number => {
   if (components.length === 0) return 0;
 
   // Create a cache key based on component IDs and their base properties (excluding degreeOfCompletion)
-  const componentIds = components.map(c => 
-    `${c.id}-${c.className}-${c.componentType}-${c.dataElements}-${c.readingReferences}-${c.writingReferences}-${c.operations}`
-  ).sort().join('|');
+  const componentIds = components
+    .map(
+      (c) =>
+        `${c.id}-${c.className}-${c.componentType}-${c.dataElements}-${c.readingReferences}-${c.writingReferences}-${c.operations}`,
+    )
+    .sort()
+    .join("|");
   const totalPossibleCacheKey = `total-possible-${componentIds}`;
-  
+
   if (calculationCache.has(totalPossibleCacheKey)) {
     return calculationCache.get(totalPossibleCacheKey)!;
   }
@@ -118,7 +131,7 @@ export const calculateTotalPossiblePoints = (components: TGenericComponent[]): n
   for (const component of components) {
     totalPossiblePoints += calculateBasePoints(component);
   }
-  
+
   calculationCache.set(totalPossibleCacheKey, totalPossiblePoints);
   return totalPossiblePoints;
 };
@@ -126,7 +139,9 @@ export const calculateTotalPossiblePoints = (components: TGenericComponent[]): n
 /**
  * Calculate total possible functional points for a project (if all components were 100% complete)
  */
-export const calculateProjectTotalPossiblePoints = (project: Project): number => {
+export const calculateProjectTotalPossiblePoints = (
+  project: Project,
+): number => {
   return calculateTotalPossiblePoints(project.functionalComponents);
 };
 
@@ -134,15 +149,17 @@ export const calculateProjectTotalPossiblePoints = (project: Project): number =>
  * Get unique class names from components
  * Optimized with Set for better performance
  */
-export const getUniqueClassNames = (components: TGenericComponent[]): string[] => {
+export const getUniqueClassNames = (
+  components: TGenericComponent[],
+): string[] => {
   const uniqueClasses = new Set<string>();
-  
+
   for (const component of components) {
     if (component.className) {
       uniqueClasses.add(component.className);
     }
   }
-  
+
   return Array.from(uniqueClasses);
 };
 
@@ -150,15 +167,17 @@ export const getUniqueClassNames = (components: TGenericComponent[]): string[] =
  * Get unique component types from components
  * Optimized with Set for better performance
  */
-export const getUniqueComponentTypes = (components: TGenericComponent[]): string[] => {
+export const getUniqueComponentTypes = (
+  components: TGenericComponent[],
+): string[] => {
   const uniqueTypes = new Set<string>();
-  
+
   for (const component of components) {
     if (component.componentType) {
       uniqueTypes.add(component.componentType);
     }
   }
-  
+
   return Array.from(uniqueTypes);
 };
 
@@ -167,7 +186,7 @@ export const getUniqueComponentTypes = (components: TGenericComponent[]): string
  */
 export const getGroupedComponents = (components: TGenericComponent[]) => {
   const uniqueClasses = getUniqueClassNames(components);
-  
+
   return uniqueClasses.map((className) => {
     const componentsInClass = components.filter(
       (component) => component.className === className,
@@ -208,7 +227,9 @@ export const getCacheSize = (): number => {
 /**
  * Calculate points for components with enhanced CSV export data
  */
-export const calculateComponentsWithPoints = (components: TGenericComponent[]) => {
+export const calculateComponentsWithPoints = (
+  components: TGenericComponent[],
+) => {
   return components.map((component) => ({
     ...component,
     functionalPoints: calculateComponentPoints(component).toFixed(2),
@@ -219,27 +240,37 @@ export const calculateComponentsWithPoints = (components: TGenericComponent[]) =
  * Batch calculate multiple component points efficiently
  * Useful for bulk operations
  */
-export const batchCalculateComponentPoints = (components: TGenericComponent[]): number[] => {
+export const batchCalculateComponentPoints = (
+  components: TGenericComponent[],
+): number[] => {
   return components.map(calculateComponentPoints);
 };
 
 /**
  * Check if component has valid calculation parameters
  */
-export const hasValidCalculationParams = (component: TGenericComponent): boolean => {
+export const hasValidCalculationParams = (
+  component: TGenericComponent,
+): boolean => {
   return !!(component.className && component.componentType);
 };
 
 /**
  * Get components that are ready for calculation (have required fields)
  */
-export const getCalculableComponents = (components: TGenericComponent[]): TGenericComponent[] => {
+export const getCalculableComponents = (
+  components: TGenericComponent[],
+): TGenericComponent[] => {
   return components.filter(hasValidCalculationParams);
 };
 
 /**
  * Get components that are missing calculation parameters
  */
-export const getIncompleteComponents = (components: TGenericComponent[]): TGenericComponent[] => {
-  return components.filter(component => !hasValidCalculationParams(component));
+export const getIncompleteComponents = (
+  components: TGenericComponent[],
+): TGenericComponent[] => {
+  return components.filter(
+    (component) => !hasValidCalculationParams(component),
+  );
 };

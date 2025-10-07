@@ -1,8 +1,4 @@
-import {
-  Project,
-  ClassName,
-  ComponentType,
-} from "../lib/types";
+import { Project, ClassName, ComponentType } from "../lib/types";
 import { downloadProjectComponentsCsv, createPdf } from "../lib/printUtils";
 import {
   calculateTotalPoints,
@@ -38,7 +34,9 @@ export const FunctionalPointSummary = ({
   );
 
   const totalPoints = calculateTotalPoints(project.functionalComponents);
-  const totalPossiblePoints = calculateTotalPossiblePoints(project.functionalComponents);
+  const totalPossiblePoints = calculateTotalPossiblePoints(
+    project.functionalComponents,
+  );
 
   const handleExportPdf = () => {
     createPdf(
@@ -53,51 +51,48 @@ export const FunctionalPointSummary = ({
   return (
     <div className="flex flex-col border-2 p-4 bg-white h-[calc(55vh-5rem)] overflow-y-auto sticky top-20">
       <div className="max-h-[60vh] overflow-y-auto pr-2">
-        {getGroupedComponents(project.functionalComponents).map(
-          (group) => {
-            const componentCount = group.components.reduce(
-              (acc, curr) => acc + curr.count,
-              0,
-            );
-            const totalPoints = group.components.reduce(
-              (acc, curr) => acc + curr.points,
-              0,
-            );
+        {getGroupedComponents(project.functionalComponents).map((group) => {
+          const componentCount = group.components.reduce(
+            (acc, curr) => acc + curr.count,
+            0,
+          );
+          const totalPoints = group.components.reduce(
+            (acc, curr) => acc + curr.points,
+            0,
+          );
 
-            return (
-              <div
-                key={group.className}
-                className="flex gap-2 sm:gap-5 justify-between w-full pb-3 text-sm sm:text-base"
-              >
-                <div>
-                  <b>
-                    {componentCount + "x "}
+          return (
+            <div
+              key={group.className}
+              className="flex gap-2 sm:gap-5 justify-between w-full pb-3 text-sm sm:text-base"
+            >
+              <div>
+                <b>
+                  {componentCount + "x "}
+                  {
+                    translation.functionalClassComponent.classNameOptions[
+                      group.className as ClassName
+                    ]
+                  }{" "}
+                  {}
+                </b>
+                <br />
+                {group.components.map((groupedTypes, idx) => (
+                  <div key={idx}>
+                    {groupedTypes.count}x{" "}
                     {
-                      translation.functionalClassComponent.classNameOptions[
-                        group.className as ClassName
+                      translation.functionalClassComponent.componentTypeOptions[
+                        groupedTypes.type as ComponentType
                       ]
                     }{" "}
-                    {}
-                  </b>
-                  <br />
-                  {group.components.map((groupedTypes, idx) => (
-                    <div key={idx}>
-                      {groupedTypes.count}x{" "}
-                      {
-                        translation.functionalClassComponent
-                          .componentTypeOptions[
-                          groupedTypes.type as ComponentType
-                        ]
-                      }{" "}
-                      {groupedTypes.points.toFixed(2)}
-                    </div>
-                  ))}
-                </div>
-                <div className="font-semibold">{totalPoints.toFixed(2)}</div>
+                    {groupedTypes.points.toFixed(2)}
+                  </div>
+                ))}
               </div>
-            );
-          },
-        )}
+              <div className="font-semibold">{totalPoints.toFixed(2)}</div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="flex flex-col gap-2 w-full border-t pt-4 text-sm sm:text-base">
@@ -117,8 +112,12 @@ export const FunctionalPointSummary = ({
         </div>
         {totalPossiblePoints > 0 && (
           <div className="flex gap-5 justify-between w-full text-sm text-gray-500">
-            <span>{translation.functionalPointSummary.completionPercentage}</span>
-            <span>{((totalPoints / totalPossiblePoints) * 100).toFixed(1)}%</span>
+            <span>
+              {translation.functionalPointSummary.completionPercentage}
+            </span>
+            <span>
+              {((totalPoints / totalPossiblePoints) * 100).toFixed(1)}%
+            </span>
           </div>
         )}
       </div>
@@ -128,7 +127,9 @@ export const FunctionalPointSummary = ({
           onClick={() =>
             downloadProjectComponentsCsv({
               ...project,
-              functionalComponents: calculateComponentsWithPoints(project.functionalComponents),
+              functionalComponents: calculateComponentsWithPoints(
+                project.functionalComponents,
+              ),
             })
           }
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
