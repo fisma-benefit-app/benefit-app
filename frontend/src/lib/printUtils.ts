@@ -2,6 +2,8 @@ import { Project, TGenericComponent } from "./types";
 import {
   calculateComponentPointsWithMultiplier,
   calculateTotalPoints,
+  calculateTotalPossiblePoints,
+  calculateBasePoints,
 } from "./centralizedCalculations.ts";
 
 export const convertToCSV = <T extends Record<string, unknown>>(data: T[]) => {
@@ -121,6 +123,7 @@ export const createPdf = (
             <th>${printUtilsTranslation.operations}</th>
             <th>${printUtilsTranslation.degreeOfCompletion}</th>
             <th>${printUtilsTranslation.functionalPoints}</th>
+            <th>${printUtilsTranslation.totalPossiblePoints}</th>
           </tr>
           ${project.functionalComponents
             .map((comp) => {
@@ -168,13 +171,18 @@ export const createPdf = (
                   prevComp?.degreeOfCompletion || null,
                 ).toFixed(2),
               )}</td>
+              <td>${valueComparer(
+                calculateBasePoints(comp).toFixed(2),
+                prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
+              )}</td>
             </tr>
             `;
             })
             .join("")}
           <tr class="total-row">
-            <td colspan="8"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
-            <td colspan="2"><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+            <td colspan="9"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
+            <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+            <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
           </tr>
         </table>
       </body>
