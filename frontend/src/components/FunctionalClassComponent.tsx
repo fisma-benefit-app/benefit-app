@@ -8,10 +8,13 @@ import { ChangeEvent, useEffect, useState } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import {
-  getCalculateFuntion,
   getComponentTypeOptions,
   getInputFields,
 } from "../lib/fc-service-functions.ts";
+import {
+  calculateBasePoints,
+  calculateComponentPoints,
+} from "../lib/centralizedCalculations.ts";
 import {
   CalculationParameter,
   ClassName,
@@ -60,14 +63,9 @@ export default function FunctionalClassComponent({
   const componentTypeOptions = getComponentTypeOptions(component.className);
   const inputFields = getInputFields(component.className);
 
-  //todo: does the user need to explicitly select component type for points to be calculated?
-  const calculateFunction = getCalculateFuntion(
-    component.className && component.componentType ? component.className : "",
-  );
-
-  const fullPoints = calculateFunction ? calculateFunction(component) : 0;
-  const pointsByDegreeOfCompletion =
-    (component.degreeOfCompletion || 0) * fullPoints;
+  // Calculate functional points using centralized calculations
+  const fullPoints = calculateBasePoints(component);
+  const pointsByDegreeOfCompletion = calculateComponentPoints(component);
 
   const handleClassNameChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select classname only from predefined options

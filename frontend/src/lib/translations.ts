@@ -137,6 +137,8 @@ export const translations = {
     },
     functionalPointSummary: {
       total: "Total",
+      totalPossible: "Total Possible",
+      completionPercentage: "Completion Percentage",
       functionalPointText: "FP",
       csv: "Export CSV",
       pdf: "Export PDF",
@@ -281,6 +283,8 @@ export const translations = {
     },
     functionalPointSummary: {
       total: "Yhteensä",
+      totalPossible: "Mahdollinen Yhteensä",
+      completionPercentage: "Valmistumisprosentti",
       functionalPointText: "TP",
       csv: "Luo CSV",
       pdf: "Luo PDF",

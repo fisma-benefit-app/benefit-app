@@ -1,11 +1,15 @@
 import {
   Project,
-  TGenericComponent,
   ClassName,
   ComponentType,
 } from "../lib/types";
-import { getCalculateFuntion } from "../lib/fc-service-functions";
 import { downloadProjectComponentsCsv, createPdf } from "../lib/printUtils";
+import {
+  calculateTotalPoints,
+  calculateTotalPossiblePoints,
+  getGroupedComponents,
+  calculateComponentsWithPoints,
+} from "../lib/centralizedCalculations";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations.ts";
@@ -15,73 +19,7 @@ type FunctionalClassComponentProps = {
   project: Project;
 };
 
-const calculateFunctionalComponentPoints = (component: TGenericComponent) => {
-  if (!component.className || !component.componentType) return 0;
-
-  const calculateFunction = getCalculateFuntion(component.className);
-  const basePoints = calculateFunction ? calculateFunction(component) : 0;
-
-  const degreeOfCompletion = component.degreeOfCompletion || 0;
-  return basePoints * degreeOfCompletion;
-};
-
-const calculateTotalFunctionalComponentPoints = (
-  components: TGenericComponent[],
-) => {
-  let totalPoints = 0;
-  for (const component of components) {
-    totalPoints += calculateFunctionalComponentPoints(component);
-  }
-  return totalPoints;
-};
-
-const getUniqueClasses = (components: TGenericComponent[]) =>
-  components.reduce<string[]>(
-    (acc, curr) =>
-      !curr.className || acc.some((x) => x === curr.className)
-        ? acc
-        : [...acc, curr.className],
-    [],
-  );
-
-const getUniqueTypes = (components: TGenericComponent[]) =>
-  components.reduce<string[]>(
-    (acc, curr) =>
-      !curr.componentType || acc.some((x) => x === curr.componentType)
-        ? acc
-        : [...acc, curr.componentType],
-    [],
-  );
-
-const getGroupedFunctionalComponents = (components: TGenericComponent[]) => {
-  const grouped = getUniqueClasses(components).map((className) => {
-    const componentTypeInThisClass = components.filter(
-      (component) => component.className === className,
-    );
-
-    const uniqueTypes = getUniqueTypes(componentTypeInThisClass);
-
-    const typesInThisClass = uniqueTypes.map<{
-      count: number;
-      points: number;
-      type: string;
-    }>((componentType) => {
-      const componentsOfThisType = componentTypeInThisClass.filter(
-        (component) => component.componentType === componentType,
-      );
-
-      return {
-        type: componentType,
-        count: componentsOfThisType.length,
-        points: calculateTotalFunctionalComponentPoints(componentsOfThisType),
-      };
-    });
-
-    return { className, components: typesInThisClass };
-  });
-
-  return grouped;
-};
+// All calculation logic moved to centralizedCalculations.ts
 
 export const FunctionalPointSummary = ({
   project,
@@ -99,9 +37,8 @@ export const FunctionalPointSummary = ({
     allProjectVersions,
   );
 
-  const totalPoints = calculateTotalFunctionalComponentPoints(
-    project.functionalComponents,
-  );
+  const totalPoints = calculateTotalPoints(project.functionalComponents);
+  const totalPossiblePoints = calculateTotalPossiblePoints(project.functionalComponents);
 
   const handleExportPdf = () => {
     createPdf(
@@ -116,7 +53,7 @@ export const FunctionalPointSummary = ({
   return (
     <div className="flex flex-col border-2 p-4 bg-white h-[calc(55vh-5rem)] overflow-y-auto sticky top-20">
       <div className="max-h-[60vh] overflow-y-auto pr-2">
-        {getGroupedFunctionalComponents(project.functionalComponents).map(
+        {getGroupedComponents(project.functionalComponents).map(
           (group) => {
             const componentCount = group.components.reduce(
               (acc, curr) => acc + curr.count,
@@ -163,12 +100,27 @@ export const FunctionalPointSummary = ({
         )}
       </div>
 
-      <div className="flex gap-5 justify-between w-full border-t pt-4 text-sm sm:text-base">
-        <b>{translation.functionalPointSummary.total}</b>
-        <b>
-          {totalPoints.toFixed(2)}{" "}
-          {translation.functionalPointSummary.functionalPointText}
-        </b>
+      <div className="flex flex-col gap-2 w-full border-t pt-4 text-sm sm:text-base">
+        <div className="flex gap-5 justify-between w-full">
+          <b>{translation.functionalPointSummary.total}</b>
+          <b>
+            {totalPoints.toFixed(2)}{" "}
+            {translation.functionalPointSummary.functionalPointText}
+          </b>
+        </div>
+        <div className="flex gap-5 justify-between w-full text-gray-600">
+          <span>{translation.functionalPointSummary.totalPossible} (100%)</span>
+          <span>
+            {totalPossiblePoints.toFixed(2)}{" "}
+            {translation.functionalPointSummary.functionalPointText}
+          </span>
+        </div>
+        {totalPossiblePoints > 0 && (
+          <div className="flex gap-5 justify-between w-full text-sm text-gray-500">
+            <span>{translation.functionalPointSummary.completionPercentage}</span>
+            <span>{((totalPoints / totalPossiblePoints) * 100).toFixed(1)}%</span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-row gap-2 mt-3 justify-center">
@@ -176,11 +128,7 @@ export const FunctionalPointSummary = ({
           onClick={() =>
             downloadProjectComponentsCsv({
               ...project,
-              functionalComponents: project.functionalComponents.map((c) => ({
-                ...c,
-                functionalPoints:
-                  calculateFunctionalComponentPoints(c).toFixed(2),
-              })),
+              functionalComponents: calculateComponentsWithPoints(project.functionalComponents),
             })
           }
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
