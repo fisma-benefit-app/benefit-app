@@ -10,14 +10,14 @@ CREATE TABLE IF NOT EXISTS app_users
 
 CREATE TABLE IF NOT EXISTS projects
 (
-    id              BIGSERIAL PRIMARY KEY,
-    project_name    VARCHAR(255) NOT NULL,
-    version         BIGINT NOT NULL,
-    version_date    TIMESTAMP NOT NULL,
-    total_points    DECIMAL NOT NULL,
-    created_at      TIMESTAMP NOT NULL,
-    edited_at       TIMESTAMP(0),
-    deleted_at      TIMESTAMP(0)
+    id                  BIGSERIAL PRIMARY KEY,
+    project_name        VARCHAR(255) NOT NULL,
+    version             BIGINT NOT NULL,
+    version_created_at  TIMESTAMP NOT NULL,
+    total_points        DECIMAL NOT NULL,
+    created_at          TIMESTAMP NOT NULL,
+    edited_at           TIMESTAMP(0),
+    deleted_at          TIMESTAMP(0)
 );
 
 CREATE TABLE IF NOT EXISTS functional_components

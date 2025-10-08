@@ -13,7 +13,7 @@ VALUES  (1, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadu
         (7, 'heikki', '$2a$12$VvPmVx1yxpPVHAEerqvO1.Pmsp96pxLlsw622r9Zun5r0X9NIuNhy', NULL),
         (8, 'altti', '$2a$12$UVmCG.ySaTe6rWo4X5G2yOFpMuu.Mo89GbmmxJzJOUHpnKUAcXfJ.', NULL);
 
-INSERT INTO projects (id, project_name, version,  version_date, total_points, created_at, edited_at, deleted_at)
+INSERT INTO projects (id, project_name, version,  version_created_at, total_points, created_at, edited_at, deleted_at)
 VALUES  (1, 'project-x', 1, '2025-01-28T17:23:19', 120.20, '2025-01-28T17:23:19', '2025-01-28T17:23:19', NULL),
         (2, 'test-project', 1, '2025-02-19T18:28:33', 200.34, '2025-02-19T18:28:33', '2025-01-28T17:23:19', NULL),
         (3, 'users another project', 1, '2025-01-29T19:19:22', 32.00, '2025-01-29T19:19:22', '2025-01-28T17:23:19', NULL);
