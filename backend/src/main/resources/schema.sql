@@ -1,45 +1,48 @@
-drop table if exists project, functional_component, app_user, project_app_user;
+DROP TABLE IF EXISTS projects_app_users, functional_components, projects, app_users;
 
-create table if not exists app_user
+CREATE TABLE IF NOT EXISTS app_users
 (
-    id       bigserial primary key,
-    username text not null,
-    password text not null
+    id              BIGSERIAL PRIMARY KEY,
+    username        VARCHAR(50) NOT NULL,
+    password        VARCHAR(64) NOT NULL,
+    deleted_at      TIMESTAMP(0) -- no fractions of seconds
 );
 
-create table if not exists project
+CREATE TABLE IF NOT EXISTS projects
 (
-    id           bigserial primary key,
-    project_name text      not null,
-    version      integer   not null,
-    created_date timestamp not null,
-    version_date timestamp not null,
-    edited_date timestamp,
-    total_points decimal   not null
+    id              BIGSERIAL PRIMARY KEY,
+    project_name    VARCHAR(255) NOT NULL,
+    version         BIGINT NOT NULL,
+    version_date    TIMESTAMP NOT NULL,
+    total_points    DECIMAL NOT NULL,
+    created_at      TIMESTAMP NOT NULL,
+    edited_at       TIMESTAMP(0),
+    deleted_at      TIMESTAMP(0)
 );
 
-create table if not exists functional_component
+CREATE TABLE IF NOT EXISTS functional_components
 (
-    id                    bigserial primary key,
-    class_name            text,
-    component_type        text,
-    data_elements         integer,
-    reading_references    integer,
-    writing_references    integer,
-    functional_multiplier integer,
-    operations            integer,
-    degree_of_completion  decimal,
-    title                 text,
-    description           text,
-    previous_fc_id        bigint,
-    project_id            bigint not null references project (id),
-    order_position        integer not null default 0
+    id                      BIGSERIAL PRIMARY KEY,
+    title                   VARCHAR(255),
+    description             VARCHAR(1000),
+    class_name              VARCHAR(255),
+    component_type          VARCHAR(255),
+    data_elements           BIGINT,
+    reading_references      BIGINT,
+    writing_references      BIGINT,
+    functional_multiplier   BIGINT,
+    operations              BIGINT,
+    degree_of_completion    DECIMAL,
+    previous_fc_id          BIGINT,
+    order_position          BIGINT NOT NULL DEFAULT 0,
+    project_id              BIGINT NOT NULL REFERENCES projects (id),
+    deleted_at              TIMESTAMP(0)
 );
 
-create table if not exists project_app_user
+CREATE TABLE IF NOT EXISTS projects_app_users
 (
-    id          bigserial primary key,
-    project_id  bigint not null references project (id),
-    app_user_id bigint not null references app_user (id)
+    id              BIGSERIAL PRIMARY KEY,
+    project_id      BIGINT NOT NULL REFERENCES projects (id),
+    app_user_id     BIGINT NOT NULL REFERENCES app_users (id)
 )
 

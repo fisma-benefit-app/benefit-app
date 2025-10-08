@@ -1,53 +1,50 @@
-delete
-from project;
-delete
-from functional_component;
+DELETE FROM  projects_app_users;
+DELETE FROM  functional_components;
+DELETE FROM  app_users;
+DELETE FROM  projects;
 
-insert into app_user (id, username, password)
-values (23, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (13, 'john', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (14, 'jusju', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (15, 'heikki', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (16, 'altti', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (63, 'user2', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (64, 'user3', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (65, 'user4', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (66, 'user5', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (67, 'user6', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (68, 'user7', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (69, 'user8', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (70, 'user9', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (71, 'user10', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (72, 'user11', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (73, 'user12', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (74, 'user13', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (75, 'user14', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (76, 'user15', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (77, 'user16', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (78, 'user17', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (79, 'user18', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (80, 'user19', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue'),
-       (81, 'user20', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue');
-       
-insert into project (id, project_name, version, created_date, version_date, edited_date,  total_points)
-values (99, 'project-x', 1, '2025-01-28T17:23:19', '2025-01-28T17:23:19', '2025-01-28T17:23:19', 120.20),
-       (100, 'john-project', 1, '2025-02-19T18:28:33', '2025-02-19T18:28:33', '2025-01-28T17:23:19', 200.34),
-       (101, 'users another project', 3, '2025-01-29T19:19:22', '2025-01-29T19:19:22', '2025-01-28T17:23:19',32);
+INSERT INTO app_users (id, username, password, deleted_at)
+VALUES  (1, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue', NULL),
+        (2, 'user2', '$2a$12$4JuHucPwX0CfxAeRD87I/OMrD8SndXaptn3Yp2MJeOiLklIbJ3XjW', NULL),
+        (3, 'user3', '$2a$12$tJY5QjbeRPU4HN0hGV48HOu2tIV9dMVCqyqJxNOtjsuNQCbNkUeza', NULL),
+        (4, 'user4', '$2a$12$RTbuJ9r1PLJxd.anzqEzGuxNMlnRe0DylL0v6fgrzNzCTEVDzz1ci', NULL),
+        (5, 'user5', '$2a$12$kHh09CQz9p0RLGMXnBkyS.fueTfRcOqI9Q2MvI8eyNcDjiC7a5Ada', NULL),
+        (6, 'jukka', '$2a$12$HalfqF43RCkPeRRJ7EkQMOjWcjDqLZ4udbTC6DYZRR7C6P0kRpoCm', NULL),
+        (7, 'heikki', '$2a$12$VvPmVx1yxpPVHAEerqvO1.Pmsp96pxLlsw622r9Zun5r0X9NIuNhy', NULL),
+        (8, 'altti', '$2a$12$UVmCG.ySaTe6rWo4X5G2yOFpMuu.Mo89GbmmxJzJOUHpnKUAcXfJ.', NULL);
 
-insert into functional_component (id, class_name, component_type, data_elements, reading_references, writing_references,
-                                  functional_multiplier, operations, degree_of_completion, title, description, previous_fc_id, project_id, order_position)
-values (1, 'Interactive end-user input service', '1-functional', 2, 4, 2, null, 3, 0.12, 'hakijan syöte', 'Description for hakijan syöte', 1, 99, 1),
-       (5, 'Interactive end-user input service', '1-functional', 2, 4, 2, null, 3, 0.34, 'montako tulee', 'Description for montako tulee', 5, 100, 2),
-       (6, 'Interactive end-user input service', '1-functional', 2, 4, 2, null, 3, 0.5, 'valittavana kaupungit', 'Description for valittavana kaupungit', 6, 101, 3);
+INSERT INTO projects (id, project_name, version,  version_date, total_points, created_at, edited_at, deleted_at)
+VALUES  (1, 'project-x', 1, '2025-01-28T17:23:19', 120.20, '2025-01-28T17:23:19', '2025-01-28T17:23:19', NULL),
+        (2, 'test-project', 1, '2025-02-19T18:28:33', 200.34, '2025-02-19T18:28:33', '2025-01-28T17:23:19', NULL),
+        (3, 'users another project', 1, '2025-01-29T19:19:22', 32.00, '2025-01-29T19:19:22', '2025-01-28T17:23:19', NULL);
 
+INSERT INTO functional_components (
+    id,
+    title,
+    description,
+    class_name,
+    component_type,
+    data_elements,
+    reading_references,
+    writing_references,
+    functional_multiplier,
+    operations,
+    degree_of_completion,
+    previous_fc_id,
+    order_position,
+    project_id,
+    deleted_at
+)
+VALUES  (1, 'Hakijan syöte', 'Kenttä hakijan syötteelle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.12, NULL, 1, 1, NULL),
+        (2, 'Lukumäärän valintapainike', 'Valintapainike lukumäärälle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.34, 1, 2, 2, NULL),
+        (3, 'Lähetä-painike', 'Painikkeella käyttäjä lähettää tiedot', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.5, 2, 3, 1, NULL);
 
-insert into project_app_user (id, project_id, app_user_id)
-values (1, 99, 23),
-       (2, 100, 13),
-       (3, 101, 23);
+INSERT INTO projects_app_users (id, project_id, app_user_id)
+VALUES  (1, 1, 1),
+        (2, 2, 7),
+        (3, 3, 1);
 
-
-SELECT setval('app_user_id_seq', (SELECT MAX(id) FROM app_user));
-SELECT setval('project_id_seq', (SELECT MAX(id) FROM project));
-SELECT setval('functional_component_id_seq', (SELECT MAX(id) FROM functional_component));
-SELECT setval('project_app_user_id_seq', (SELECT MAX(id) FROM project_app_user));
+SELECT setval('app_users_id_seq', (SELECT MAX(id) FROM app_users));
+SELECT setval('projects_id_seq', (SELECT MAX(id) FROM projects));
+SELECT setval('functional_components_id_seq', (SELECT MAX(id) FROM functional_components));
+SELECT setval('projects_app_users_id_seq', (SELECT MAX(id) FROM projects_app_users));
