@@ -114,6 +114,8 @@ public class ProjectService {
                 fc ->
                     new FunctionalComponent(
                         null,
+                        fc.getTitle(),
+                        fc.getDescription(),
                         fc.getClassName(),
                         fc.getComponentType(),
                         fc.getDataElements(),
@@ -122,11 +124,10 @@ public class ProjectService {
                         fc.getFunctionalMultiplier(),
                         fc.getOperations(),
                         fc.getDegreeOfCompletion(),
-                        fc.getTitle(),
-                        fc.getDescription(),
                         fc.getPreviousFCId(),
                         fc.getOrderPosition(),
-                        newVersion))
+                        newVersion,
+                        null))
             .collect(Collectors.toSet());
 
     // Associate the project with the copied functional components

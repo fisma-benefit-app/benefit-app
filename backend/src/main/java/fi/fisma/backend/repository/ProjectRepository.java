@@ -12,9 +12,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
       value =
           """
               SELECT p.*
-              FROM project p
-              JOIN project_app_user pau ON p.id = pau.project_id
-              JOIN app_user u ON pau.app_user_id = u.id
+              FROM projects p
+              JOIN projects_app_users pau ON p.id = pau.project_id
+              JOIN app_users u ON pau.app_user_id = u.id
               WHERE p.id = :projectId AND u.username = :username
               """,
       nativeQuery = true)
@@ -25,9 +25,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
       value =
           """
               SELECT p.*
-              FROM project p
-              JOIN project_app_user pau ON p.id = pau.project_id
-              JOIN app_user u ON pau.app_user_id = u.id
+              FROM projects p
+              JOIN projects_app_users pau ON p.id = pau.project_id
+              JOIN app_users u ON pau.app_user_id = u.id
               WHERE u.username = :username
               """,
       nativeQuery = true)
