@@ -57,7 +57,7 @@ export const FunctionalPointSummary = ({
             (acc, curr) => acc + curr.count,
             0,
           );
-          const totalPoints = group.components.reduce(
+          const totalPointsForClass = group.components.reduce(
             (acc, curr) => acc + curr.points,
             0,
           );
@@ -115,7 +115,7 @@ export const FunctionalPointSummary = ({
                 })}
               </div>
               <div className="font-semibold text-right">
-                <div>{totalPoints.toFixed(2)}</div>
+                <div>{totalPointsForClass.toFixed(2)}</div>
                 <div className="text-xs text-gray-400">
                   / {possiblePointsForClass.toFixed(2)}
                 </div>
