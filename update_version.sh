@@ -87,13 +87,13 @@ if ! grep -q "version = '[0-9]\+\.[0-9]\+\.[0-9]\+-SNAPSHOT'" build.gradle; then
     echo "Example format: version = '1.2.0-SNAPSHOT'"
     exit 1
 fi
-sed -i "s/version = '[0-9]\+\.[0-9]\+\.[0-9]\+-SNAPSHOT'/version = '$VERSION-SNAPSHOT'/g" build.gradle
+sed -i "s/version = '[0-9]\+\.[0-9]\+\.[0-9]\+-SNAPSHOT'/version = '${VERSION}-SNAPSHOT'/g" build.gradle
 git add build.gradle
 cd ..
 
 # Update version in package.json and package-lock.json (frontend)
 echo -e "\n--- Updating frontend version ---"
-cd frontend 
+cd frontend
 npm version "$VERSION" --no-git-tag-version
 git add package.json package-lock.json
 cd ..
