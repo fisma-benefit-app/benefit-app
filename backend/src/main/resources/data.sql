@@ -41,7 +41,7 @@ VALUES  (1, 'Hakijan syöte', 'Kenttä hakijan syötteelle', 'Interactive end-us
 
 INSERT INTO projects_app_users (id, project_id, app_user_id)
 VALUES  (1, 1, 1),
-        (2, 2, 7),
+        (2, 2, 1),
         (3, 3, 1);
 
 SELECT setval('app_users_id_seq', (SELECT MAX(id) FROM app_users));
