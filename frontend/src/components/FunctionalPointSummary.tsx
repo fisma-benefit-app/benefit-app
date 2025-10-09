@@ -5,6 +5,7 @@ import {
   calculateTotalPossiblePoints,
   getGroupedComponents,
   calculateComponentsWithPoints,
+  calculateBasePoints,
 } from "../lib/centralizedCalculations";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
@@ -60,6 +61,12 @@ export const FunctionalPointSummary = ({
             (acc, curr) => acc + curr.points,
             0,
           );
+          const componentsInThisClass = project.functionalComponents.filter(
+            (component) => component.className === group.className,
+          );
+          const possiblePointsForClass = calculateTotalPossiblePoints(
+            componentsInThisClass,
+          );
 
           return (
             <div
@@ -68,7 +75,9 @@ export const FunctionalPointSummary = ({
             >
               <div>
                 <b>
-                  {componentCount + "x "}
+                  <span className="text-blue-600 pr-2">
+                    {componentCount + " "}
+                  </span>
                   {
                     translation.functionalClassComponent.classNameOptions[
                       group.className as ClassName
@@ -77,49 +86,59 @@ export const FunctionalPointSummary = ({
                   {}
                 </b>
                 <br />
-                {group.components.map((groupedTypes, idx) => (
-                  <div key={idx}>
-                    {groupedTypes.count}x{" "}
-                    {
-                      translation.functionalClassComponent.componentTypeOptions[
-                        groupedTypes.type as ComponentType
-                      ]
-                    }{" "}
-                    {groupedTypes.points.toFixed(2)}
-                  </div>
-                ))}
+                {group.components.map((groupedTypes, idx) => {
+                  // Calculate possible points for this specific component type
+                  const componentsOfThisType = componentsInThisClass.filter(
+                    (component) =>
+                      component.componentType === groupedTypes.type,
+                  );
+                  const possiblePointsForType =
+                    calculateTotalPossiblePoints(componentsOfThisType);
+
+                  return (
+                    <div key={idx}>
+                      <span className="text-blue-500 pr-2">
+                        {groupedTypes.count}{" "}
+                      </span>
+                      {
+                        translation.functionalClassComponent
+                          .componentTypeOptions[
+                          groupedTypes.type as ComponentType
+                        ]
+                      }{" "}
+                      <b>{groupedTypes.points.toFixed(2)}</b>{" "}
+                      <span className="text-gray-400">
+                        / {possiblePointsForType.toFixed(2)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="font-semibold">{totalPoints.toFixed(2)}</div>
+              <div className="font-semibold text-right">
+                <div>{totalPoints.toFixed(2)}</div>
+                <div className="text-xs text-gray-400">
+                  / {possiblePointsForClass.toFixed(2)}
+                </div>
+              </div>
             </div>
           );
         })}
       </div>
 
-      <div className="flex flex-col gap-2 w-full border-t pt-4 text-sm sm:text-base">
-        <div className="flex gap-5 justify-between w-full">
-          <b>{translation.functionalPointSummary.total}</b>
-          <b>
-            {totalPoints.toFixed(2)}{" "}
-            {translation.functionalPointSummary.functionalPointText}
-          </b>
-        </div>
-        <div className="flex gap-5 justify-between w-full text-gray-600">
-          <span>{translation.functionalPointSummary.totalPossible} (100%)</span>
+      <div className="w-full">
+        <div className="flex justify-between text-sm font-medium">
           <span>
-            {totalPossiblePoints.toFixed(2)}{" "}
-            {translation.functionalPointSummary.functionalPointText}
+            {totalPoints.toFixed(2)} FP (
+            {((totalPoints / totalPossiblePoints) * 100).toFixed(1)}%)
           </span>
+          <span>{totalPossiblePoints.toFixed(2)} FP (100%)</span>
         </div>
-        {totalPossiblePoints > 0 && (
-          <div className="flex gap-5 justify-between w-full text-sm text-gray-500">
-            <span>
-              {translation.functionalPointSummary.completionPercentage}
-            </span>
-            <span>
-              {((totalPoints / totalPossiblePoints) * 100).toFixed(1)}%
-            </span>
-          </div>
-        )}
+        <div className="w-full bg-gray-200 rounded-full h-3 mt-1">
+          <div
+            className="bg-blue-600 h-3 rounded-full"
+            style={{ width: `${(totalPoints / totalPossiblePoints) * 100}%` }}
+          />
+        </div>
       </div>
 
       <div className="flex flex-row gap-2 mt-3 justify-center">

@@ -319,7 +319,7 @@ export default function ProjectPage() {
     <>
       <div className="pl-5 pr-5">
         <div className="flex justify-between">
-          <div className="w-[calc(100%-340px)] mt-15">
+          <div className="w-[calc(100%-500px)] mt-15">
             {project ? ( //TODO: Dedicated error page? No project does not render maybe cause of wrong kind of if?
               <DndContext
                 collisionDetection={closestCenter}
@@ -369,7 +369,7 @@ export default function ProjectPage() {
         </div>
       </div>
 
-      <div className="fixed right-5 top-20 w-[320px]">
+      <div className="fixed right-5 top-20 w-[480px]">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center w-full">
