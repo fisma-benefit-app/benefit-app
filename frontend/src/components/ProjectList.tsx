@@ -117,12 +117,12 @@ export default function ProjectList() {
                       .replace(".", ":")}
                   </td>
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
-                    {new Date(project.editedAt).toLocaleDateString("fi-FI", {
+                    {new Date(project.updatedAt).toLocaleDateString("fi-FI", {
                       year: "numeric",
                       month: "2-digit",
                       day: "2-digit",
                     })}{" "}
-                    {new Date(project.editedAt)
+                    {new Date(project.updatedAt)
                       .toLocaleTimeString("fi-FI", {
                         hour: "2-digit",
                         minute: "2-digit",

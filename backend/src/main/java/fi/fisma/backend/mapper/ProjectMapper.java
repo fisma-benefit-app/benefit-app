@@ -32,7 +32,7 @@ public class ProjectMapper {
             project.getTotalPoints(),
             project.getCreatedAt(),
             project.getVersionCreatedAt(),
-            project.getEditedAt(),
+            project.getUpdatedAt(),
             project.getFunctionalComponents().stream()
                 .map(
                     fc ->

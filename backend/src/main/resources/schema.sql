@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS projects
     total_points        DECIMAL NOT NULL,
     created_at          TIMESTAMP(0) NOT NULL,
     version_created_at  TIMESTAMP(0) NOT NULL,
-    edited_at           TIMESTAMP(0),
+    updated_at          TIMESTAMP(0),
     deleted_at          TIMESTAMP(0)
 );
 

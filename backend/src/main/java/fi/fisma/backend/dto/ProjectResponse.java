@@ -20,8 +20,8 @@ public record ProjectResponse(
         @Schema(description = "Last version update timestamp", example = "2025-09-25T15:45:00")
         LocalDateTime versionCreatedAt,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        @Schema(description = "Last modification timestamp", example = "2025-09-25T15:45:00")
-        LocalDateTime editedAt,
+        @Schema(description = "Last update timestamp", example = "2025-09-25T15:45:00")
+        LocalDateTime updatedAt,
     @Schema(description = "Functional components in the project")
         Set<FunctionalComponentResponse> functionalComponents,
     @Schema(description = "Users associated with the project")

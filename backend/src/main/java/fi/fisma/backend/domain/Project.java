@@ -54,8 +54,8 @@ public class Project {
   @Column(name = "version_created_at")
   private LocalDateTime versionCreatedAt;
 
-  @Column(name = "edited_at")
-  private LocalDateTime editedAt;
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
