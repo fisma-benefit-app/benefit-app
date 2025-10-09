@@ -25,7 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "project")
+@Table(name = "projects")
 public class Project {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,21 +41,24 @@ public class Project {
   @Column(name = "version")
   private int version;
 
-  @NotNull(message = "Creation date is required")
-  @Column(name = "created_date")
-  private LocalDateTime createdDate;
-
-  @NotNull(message = "Version date is required")
-  @Column(name = "version_date")
-  private LocalDateTime versionDate;
-
-  @Column(name = "edited_date")
-  private LocalDateTime editedDate;
-
   @NotNull(message = "Total points are required")
   @PositiveOrZero(message = "Total points cannot be negative")
   @Column(name = "total_points")
   private double totalPoints = 0.0;
+
+  @NotNull(message = "Creation date is required")
+  @Column(name = "created_at")
+  private LocalDateTime createdAt;
+
+  @NotNull(message = "Version date is required")
+  @Column(name = "version_created_at")
+  private LocalDateTime versionCreatedAt;
+
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
+
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
 
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<FunctionalComponent> functionalComponents = new HashSet<>();
@@ -70,8 +73,8 @@ public class Project {
       Set<ProjectAppUser> projectAppUsers) {
     this.projectName = projectName;
     this.version = version;
-    this.createdDate = LocalDateTime.now();
-    this.versionDate = LocalDateTime.now();
+    this.createdAt = LocalDateTime.now();
+    this.versionCreatedAt = LocalDateTime.now();
     this.functionalComponents = functionalComponents;
     this.projectAppUsers = projectAppUsers;
   }

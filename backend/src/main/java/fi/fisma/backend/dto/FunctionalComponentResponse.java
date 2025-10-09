@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
     description = "Response object containing details on functional components within a project")
 public record FunctionalComponentResponse(
     @Schema(description = "Unique identifier", example = "1") Long id,
+    @Schema(description = "Title of the functional component", example = "Create User Account")
+        String title,
+    @Schema(description = "Detailed description of the functional component") String description,
     @Schema(description = "Name of the class", example = "UserAccount") String className,
     @Schema(description = "Type of the functional component") String componentType,
     @Schema(description = "Number of data elements", example = "5", minimum = "0")
@@ -26,9 +29,6 @@ public record FunctionalComponentResponse(
             minimum = "0",
             maximum = "1")
         Double degreeOfCompletion,
-    @Schema(description = "Title of the functional component", example = "Create User Account")
-        String title,
-    @Schema(description = "Detailed description of the functional component") String description,
     @Schema(description = "ID of the previous functional component for ordering", example = "123")
         Long previousFCId,
     @Schema(description = "Position in the component list", example = "1", minimum = "0")

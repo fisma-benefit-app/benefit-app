@@ -19,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "project_app_user")
+@Table(name = "projects_app_users")
 public class ProjectAppUser {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
