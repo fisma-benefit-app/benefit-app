@@ -1,5 +1,5 @@
 import { TGenericComponent, Project } from "./types";
-import { getCalculateFuntion } from "./fc-service-functions";
+import { getCalculateFunction } from "./fc-service-functions";
 
 // Memoization cache for expensive calculations
 const calculationCache = new Map<string, number>();
@@ -26,7 +26,7 @@ export const calculateBasePoints = (component: TGenericComponent): number => {
     return calculationCache.get(cacheKey)!;
   }
 
-  const calculateFunction = getCalculateFuntion(component.className);
+  const calculateFunction = getCalculateFunction(component.className);
   const basePoints = calculateFunction ? calculateFunction(component) : 0;
 
   calculationCache.set(cacheKey, basePoints);
