@@ -56,7 +56,7 @@ git push origin main
 
 # Create and push Git tag
 echo -e "\n--- Creating and pushing git tag v$VERSION ---"
-git tag "v$VERSION"
+git tag -a "v$VERSION" -m "Release version v$VERSION. See release notes in Releases section for more details."
 git push origin "v$VERSION"
 
 echo -e "\n--- Version update complete ---"
