@@ -81,13 +81,13 @@ fi
 # Update version in build.gradle (backend)
 echo -e "\n--- Updating backend version ---"
 cd backend
-if ! grep -q "version = '[0-9]\+\.[0-9]\+\.[0-9]\+-SNAPSHOT'" build.gradle; then
+if ! grep -q "version = '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*-SNAPSHOT'" build.gradle; then
     echo -e "\nError: Current version in build.gradle does not match expected format."
     echo "Expected format: version = 'X.Y.Z-SNAPSHOT'"
     echo "Example format: version = '1.2.0-SNAPSHOT'"
     exit 1
 fi
-sed -i "s/version = '[0-9]\+\.[0-9]\+\.[0-9]\+-SNAPSHOT'/version = '${VERSION}-SNAPSHOT'/g" build.gradle
+sed -i "s/version = '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*-SNAPSHOT'/version = '${VERSION}-SNAPSHOT'/g" build.gradle
 git add build.gradle
 cd ..
 
