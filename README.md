@@ -157,7 +157,7 @@ This project is built with:
 
 <details>
 <summary><b>Click here to view the database diagram</b></summary>
-<img src="./documents/img/images_for_guides/database_diagram.png" />
+<img src="./documents/img/images_for_guides/database_diagram.png" height="508" width="1290"/>
 </details><br>
 
 More information on how to access the database can found in the [database guide](/documents/guides/database.md).

@@ -86,12 +86,12 @@ export default function ProjectList() {
                     v{project.version}
                   </td>
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
-                    {new Date(project.createdDate).toLocaleDateString("fi-FI", {
+                    {new Date(project.createdAt).toLocaleDateString("fi-FI", {
                       year: "numeric",
                       month: "2-digit",
                       day: "2-digit",
                     })}{" "}
-                    {new Date(project.createdDate)
+                    {new Date(project.createdAt)
                       .toLocaleTimeString("fi-FI", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -100,12 +100,15 @@ export default function ProjectList() {
                       .replace(".", ":")}
                   </td>
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
-                    {new Date(project.versionDate).toLocaleDateString("fi-FI", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })}{" "}
-                    {new Date(project.versionDate)
+                    {new Date(project.versionCreatedAt).toLocaleDateString(
+                      "fi-FI",
+                      {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      },
+                    )}{" "}
+                    {new Date(project.versionCreatedAt)
                       .toLocaleTimeString("fi-FI", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -114,12 +117,12 @@ export default function ProjectList() {
                       .replace(".", ":")}
                   </td>
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
-                    {new Date(project.editedDate).toLocaleDateString("fi-FI", {
+                    {new Date(project.updatedAt).toLocaleDateString("fi-FI", {
                       year: "numeric",
                       month: "2-digit",
                       day: "2-digit",
                     })}{" "}
-                    {new Date(project.editedDate)
+                    {new Date(project.updatedAt)
                       .toLocaleTimeString("fi-FI", {
                         hour: "2-digit",
                         minute: "2-digit",

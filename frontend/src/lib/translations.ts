@@ -179,7 +179,7 @@ export const translations = {
       version: "Versio",
       createdAt: "Luotu",
       modifiedAt: "Muokattu",
-      versionCreatedAt: "Versio Luotu",
+      versionCreatedAt: "Versio luotu",
       noProjectsCouldBeFound: "Projekteja ei löytynyt.",
     },
     printUtils: {
