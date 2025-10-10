@@ -8,17 +8,24 @@ const calculationCache = new Map<string, number>();
  * Generates a cache key for memoization
  */
 const generateCacheKey = (component: TGenericComponent): string => {
-  // Use JSON.stringify to ensure undefined and missing values are handled consistently
-  return JSON.stringify({
-    id: component.id ?? "",
-    className: component.className ?? "",
-    componentType: component.componentType ?? "",
-    dataElements: component.dataElements ?? "",
-    readingReferences: component.readingReferences ?? "",
-    writingReferences: component.writingReferences ?? "",
-    operations: component.operations ?? "",
-    degreeOfCompletion: component.degreeOfCompletion ?? "",
-  });
+  return [
+    component.id ?? "",
+    component.className ?? "",
+    component.componentType ?? "",
+    Array.isArray(component.dataElements)
+      ? component.dataElements.join(",")
+      : (component.dataElements ?? ""),
+    Array.isArray(component.readingReferences)
+      ? component.readingReferences.join(",")
+      : (component.readingReferences ?? ""),
+    Array.isArray(component.writingReferences)
+      ? component.writingReferences.join(",")
+      : (component.writingReferences ?? ""),
+    Array.isArray(component.operations)
+      ? component.operations.join(",")
+      : (component.operations ?? ""),
+    component.degreeOfCompletion ?? "",
+  ].join("|");
 };
 
 /**
