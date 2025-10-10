@@ -133,7 +133,10 @@ export const FunctionalPointSummary = ({
           <span>
             {totalPoints.toFixed(2)}{" "}
             {translation.functionalPointSummary.functionalPointText} (
-            {((totalPoints / totalPossiblePoints) * 100).toFixed(1)}%)
+            {totalPossiblePoints > 0
+              ? ((totalPoints / totalPossiblePoints) * 100).toFixed(1)
+              : "0.0"}
+            %)
           </span>
           <span>
             {totalPossiblePoints.toFixed(2)}{" "}
@@ -143,7 +146,12 @@ export const FunctionalPointSummary = ({
         <div className="w-full bg-gray-200 rounded-full h-3 mt-1">
           <div
             className="bg-blue-600 h-3 rounded-full"
-            style={{ width: `${(totalPoints / totalPossiblePoints) * 100}%` }}
+            style={{
+              width:
+                totalPossiblePoints > 0
+                  ? `${(totalPoints / totalPossiblePoints) * 100}%`
+                  : "0%",
+            }}
           />
         </div>
       </div>

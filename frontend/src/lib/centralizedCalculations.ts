@@ -78,6 +78,21 @@ export const calculateComponentPointsWithMultiplier = (
   return multiplier != null ? basePoints * multiplier : basePoints;
 };
 
+// Helper: Order-independent hash for array of strings
+function hashComponentKeys(keys: string[]): string {
+  // Simple commutative hash: XOR of string hashes
+  let hash = 0;
+  for (const key of keys) {
+    let strHash = 0;
+    for (let i = 0; i < key.length; i++) {
+      strHash = (strHash << 5) - strHash + key.charCodeAt(i);
+      strHash |= 0; // Convert to 32bit integer
+    }
+    hash ^= strHash;
+  }
+  return hash.toString(16);
+}
+
 /**
  * Calculate total functional points for an array of components
  * Uses memoization and optimized iteration
@@ -88,11 +103,9 @@ export const calculateTotalPoints = (
   if (components.length === 0) return 0;
 
   // Create a cache key based on component IDs and their essential properties
-  const componentIds = components
-    .map((c) => generateCacheKey(c))
-    .sort()
-    .join("|");
-  const totalCacheKey = `total-${componentIds}`;
+  const componentKeys = components.map((c) => generateCacheKey(c));
+  const hash = hashComponentKeys(componentKeys);
+  const totalCacheKey = `total-${hash}`;
 
   if (calculationCache.has(totalCacheKey)) {
     return calculationCache.get(totalCacheKey)!;
