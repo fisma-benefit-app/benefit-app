@@ -5,7 +5,6 @@ import {
   calculateTotalPossiblePoints,
   getGroupedComponents,
   calculateComponentsWithPoints,
-  calculateBasePoints,
 } from "../lib/centralizedCalculations";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
