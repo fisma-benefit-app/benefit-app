@@ -114,11 +114,15 @@ export const FunctionalPointSummary = ({
                   );
                 })}
               </div>
-              <div className="font-semibold text-right">
-                <div>{totalPointsForClass.toFixed(2)}</div>
-                <div className="text-xs text-gray-400">
+
+              <div className="whitespace-nowrap">
+                <span className="font-semibold text-right">
+                  {totalPointsForClass.toFixed(2)}
+                </span>
+                <span className="text-gray-400">
+                  {" "}
                   / {possiblePointsForClass.toFixed(2)}
-                </div>
+                </span>
               </div>
             </div>
           );
@@ -128,10 +132,14 @@ export const FunctionalPointSummary = ({
       <div className="w-full">
         <div className="flex justify-between text-sm font-medium">
           <span>
-            {totalPoints.toFixed(2)} FP (
+            {totalPoints.toFixed(2)}{" "}
+            {translation.functionalPointSummary.functionalPointText} (
             {((totalPoints / totalPossiblePoints) * 100).toFixed(1)}%)
           </span>
-          <span>{totalPossiblePoints.toFixed(2)} FP (100%)</span>
+          <span>
+            {totalPossiblePoints.toFixed(2)}{" "}
+            {translation.functionalPointSummary.functionalPointText} (100%)
+          </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3 mt-1">
           <div
