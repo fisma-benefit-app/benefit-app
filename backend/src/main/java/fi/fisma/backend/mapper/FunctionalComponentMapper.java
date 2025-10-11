@@ -79,8 +79,7 @@ public class FunctionalComponentMapper {
   }
 
   private FunctionalComponent createNewComponent(FunctionalComponentRequest fc, Project project) {
-    var component = toEntity(fc, project);
-    return component;
+    return toEntity(fc, project);
   }
 
   private void updateComponentFields(FunctionalComponent existing, FunctionalComponentRequest fc) {
