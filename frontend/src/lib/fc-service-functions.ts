@@ -12,7 +12,7 @@ export const getComponentTypeOptions = (className: ClassName) => {
   return options || [];
 };
 
-export const getCalculateFuntion = (className: ClassName | string) => {
+export const getCalculateFunction = (className: ClassName | string) => {
   const calculateFunction = calculateFunctions.find(
     (calculate) => calculate.className === className,
   )?.calculateFunction;
