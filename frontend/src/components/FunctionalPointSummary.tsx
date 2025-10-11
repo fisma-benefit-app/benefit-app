@@ -75,8 +75,8 @@ export const FunctionalPointSummary = ({
               <div>
                 <b>
                   <span className="text-blue-600 pr-2">
-                    {componentCount + " "}
-                  </span>
+                    {componentCount}
+                  </span>{" "}
                   {
                     translation.functionalClassComponent.classNameOptions[
                       group.className as ClassName
