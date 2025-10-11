@@ -1,67 +1,73 @@
 openapi: 3.1.0
 info:
-  title: OpenAPI definition
-  version: v0
+  title: Project API
+  version: "1.1.0"
+  description: API for managing software project function point calculations
 servers:
-- url: http://localhost:8080
-  description: Generated server url
+  - url: http://localhost:8080
+    description: Generated server url
 tags:
-- name: Project Management
-  description: Endpoints for managing projects
-- name: User Management
-  description: Endpoints for managing user accounts
-- name: Token Generation
-  description: Endpoint for generating token
+  - name: Project Management
+    description: Endpoints for managing projects
+  - name: User Management
+    description: Endpoints for managing user accounts
+  - name: Functional Components
+    description: Endpoints for managing functional components within projects
+  - name: Token Generation
+    description: Endpoint for generating token
 paths:
   /projects/{id}:
     get:
       tags:
-      - Project Management
+        - Project Management
       summary: Get a project by ID
-      description: Retrieves a specific project if the authenticated user has access
+      description:
+        Retrieves a specific project if the authenticated user has access
         to it
       operationId: getProject
       parameters:
-      - name: id
-        in: path
-        description: ID of the project to retrieve
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          description: ID of the project to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "200":
           description: Project found and returned
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Project not found
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "403":
           description: User does not have access to this project
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
+      security:
+        - bearerAuth: []
     put:
       tags:
-      - Project Management
+        - Project Management
       summary: Update a project
       description: Updates an existing project if the authenticated user owns it
       operationId: updateProject
       parameters:
-      - name: id
-        in: path
-        description: ID of the project to update
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          description: ID of the project to update
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -72,35 +78,37 @@ paths:
         "200":
           description: Project updated successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Project not found
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "403":
           description: User does not have permission to update this project
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
+      security:
+        - bearerAuth: []
     delete:
       tags:
-      - Project Management
+        - Project Management
       summary: Delete a project
       description: Deletes a project if the authenticated user owns it
       operationId: deleteProject
       parameters:
-      - name: id
-        in: path
-        description: ID of the project to delete
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          description: ID of the project to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "204":
           description: Project deleted successfully
@@ -108,10 +116,12 @@ paths:
           description: Project not found
         "403":
           description: User does not have permission to delete this project
+      security:
+        - bearerAuth: []
   /appusers/password:
     put:
       tags:
-      - User Management
+        - User Management
       summary: Change user password
       description: Allows authenticated users to change their password
       operationId: changePassword
@@ -125,25 +135,27 @@ paths:
         "200":
           description: Password changed successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         "400":
           description: Invalid password format
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         "401":
           description: User not authenticated
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
+      security:
+        - bearerAuth: []
   /token:
     post:
       tags:
-      - Token Generation
+        - Token Generation
       summary: Generate a JWT
       description: Generates a signed JWT for an authenticated user
       operationId: getToken
@@ -151,25 +163,25 @@ paths:
         "200":
           description: Token generated successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
         "401":
           description: User not authenticated
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
         "500":
           description: Failed to encode the token
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
   /projects:
     get:
       tags:
-      - Project Management
+        - Project Management
       summary: Get all projects
       description: Retrieves all projects accessible to the authenticated user
       operationId: getAllProjects
@@ -177,14 +189,16 @@ paths:
         "200":
           description: List of projects returned
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/ProjectResponse"
+      security:
+        - bearerAuth: []
     post:
       tags:
-      - Project Management
+        - Project Management
       summary: Create a new project
       description: Creates a new project for the authenticated user
       operationId: createProject
@@ -199,21 +213,23 @@ paths:
           description: Project created successfully
         "400":
           description: Invalid project data
+      security:
+        - bearerAuth: []
   /projects/{id}/versions:
     post:
       tags:
-      - Project Management
+        - Project Management
       summary: Create a new version of a project
       description: Creates a new version of an existing project
       operationId: createProjectVersion
       parameters:
-      - name: id
-        in: path
-        description: ID of the project to version
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          description: ID of the project to version
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -227,10 +243,70 @@ paths:
           description: Original project not found
         "403":
           description: User does not have permission
+      security:
+        - bearerAuth: []
+  /functional-components/projects/{projectId}:
+    post:
+      tags:
+        - Functional Components
+      summary: Create a new functional component
+      description: Creates a new functional component in the specified project
+      operationId: createFunctionalComponent
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FunctionalComponentRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+      security:
+        - bearerAuth: []
+  /functional-components/{componentId}/projects/{projectId}:
+    delete:
+      tags:
+        - Functional Components
+      summary: Delete a functional component
+      description: Deletes a functional component from the specified project
+      operationId: deleteFunctionalComponent
+      parameters:
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+      security:
+        - bearerAuth: []
   /appusers:
     delete:
       tags:
-      - User Management
+        - User Management
       summary: Delete user account
       description: Permanently deletes the authenticated user's account
       operationId: deleteAppUser
@@ -239,11 +315,14 @@ paths:
           description: Account deleted successfully
         "401":
           description: User not authenticated
+      security:
+        - bearerAuth: []
 components:
   schemas:
     FunctionalComponentRequest:
       type: object
-      description: Request object for creating or updating functional components within
+      description:
+        Request object for creating or updating functional components within
         a project
       properties:
         id:
@@ -251,6 +330,18 @@ components:
           format: int64
           description: Unique identifier
           example: 1
+        title:
+          type: string
+          description: Title of the functional component
+          example: Create User Account
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+          description: Detailed description of the functional component
+          example: Handles user account creation process
+          maxLength: 1000
+          minLength: 0
         className:
           type: string
           description: Name of the class
@@ -297,18 +388,6 @@ components:
           example: 0.75
           maximum: 1.0
           minimum: 0.0
-        title:
-          type: string
-          description: Title of the functional component
-          example: Create User Account
-          maxLength: 255
-          minLength: 0
-        description:
-          type: string
-          description: Detailed description of the functional component
-          example: Handles user account creation process
-          maxLength: 1000
-          minLength: 0
         previousFCId:
           type: integer
           format: int64
@@ -320,12 +399,8 @@ components:
           description: Position in the component list
           example: 1
           minimum: 0
-        projectId:
-          type: integer
-          format: int64
       required:
-      - className
-      - orderPosition
+        - orderPosition
     ProjectRequest:
       type: object
       description: Request object for creating or updating a project
@@ -347,16 +422,16 @@ components:
           items:
             $ref: "#/components/schemas/FunctionalComponentRequest"
           uniqueItems: true
-        appUserIds:
+        projectAppUserIds:
           type: array
-          description: List of user IDs with access to the project
+          description: List of user IDs to associate with the project
           items:
             type: integer
             format: int64
           uniqueItems: true
       required:
-      - projectName
-      - version
+        - projectName
+        - version
     AppUserSummary:
       type: object
       description: Summary information about an application user
@@ -373,7 +448,8 @@ components:
           maxLength: 50
     FunctionalComponentResponse:
       type: object
-      description: Response object containing details on functional components within
+      description:
+        Response object containing details on functional components within
         a project
       properties:
         id:
@@ -381,6 +457,13 @@ components:
           format: int64
           description: Unique identifier
           example: 1
+        title:
+          type: string
+          description: Title of the functional component
+          example: Create User Account
+        description:
+          type: string
+          description: Detailed description of the functional component
         className:
           type: string
           description: Name of the class
@@ -425,13 +508,6 @@ components:
           example: 0.75
           maximum: 1
           minimum: 0
-        title:
-          type: string
-          description: Title of the functional component
-          example: Create User Account
-        description:
-          type: string
-          description: Detailed description of the functional component
         previousFCId:
           type: integer
           format: int64
@@ -443,6 +519,18 @@ components:
           description: Position in the component list
           example: 1
           minimum: 0
+    ProjectAppUserResponse:
+      type: object
+      description: Response object containing project-user relationship details
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID of the project-user relationship
+          example: 1
+        appUser:
+          $ref: "#/components/schemas/AppUserSummary"
+          description: AppUser details
     ProjectResponse:
       type: object
       description: Response object containing project details
@@ -461,37 +549,37 @@ components:
           format: int32
           description: Version of the project
           example: 1
-        createdDate:
-          type: string
-          format: date-time
-          description: Creation timestamp
-          example: 2025-09-25T10:30:00
-        versionDate:
-          type: string
-          format: date-time
-          description: Last version update timestamp
-          example: 2025-09-25T15:45:00
-        editedDate:
-          type: string
-          format: date-time
-          description: Last modification timestamp
-          example: 2025-09-25T15:45:00
         totalPoints:
           type: number
           format: double
           description: Total function points of the project
           example: 150.5
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: 2025-09-25T10:30:00
+        versionCreatedAt:
+          type: string
+          format: date-time
+          description: Last version update timestamp
+          example: 2025-09-25T15:45:00
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: 2025-09-25T15:45:00
         functionalComponents:
           type: array
           description: Functional components in the project
           items:
             $ref: "#/components/schemas/FunctionalComponentResponse"
           uniqueItems: true
-        appUsers:
+        projectAppUsers:
           type: array
-          description: Users with access to the project
+          description: Users associated with the project
           items:
-            $ref: "#/components/schemas/AppUserSummary"
+            $ref: "#/components/schemas/ProjectAppUserResponse"
           uniqueItems: true
     PasswordChangeRequest:
       type: object
@@ -502,4 +590,9 @@ components:
           maxLength: 64
           minLength: 0
       required:
-      - newPassword
+        - newPassword
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
