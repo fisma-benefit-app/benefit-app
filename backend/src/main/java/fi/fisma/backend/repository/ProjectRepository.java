@@ -15,7 +15,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
       value =
           """
         SELECT p.*
-        FROM Project p
+        FROM projects p
         WHERE p.deleted_at IS NULL
         """,
       nativeQuery = true)
