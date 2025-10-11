@@ -128,12 +128,14 @@ export const createPdf = (
         <div class="project-info">
           <p><strong>${printUtilsTranslation.projectId}:</strong> ${valueComparer(project.id, oldProject.id)}</p>
           <p><strong>${printUtilsTranslation.version}:</strong> ${valueComparer(project.version, oldProject.version)}</p>
-          <p><strong>${printUtilsTranslation.createdDate}:</strong> ${valueComparer(dateLocalizer(project.createdDate), dateLocalizer(oldProject.createdDate))}</p>
-          <p><strong>${printUtilsTranslation.versionCreatedDate}:</strong> ${valueComparer(dateLocalizer(project.versionDate), dateLocalizer(oldProject.versionDate))}</p>
-          <p><strong>${printUtilsTranslation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.editedDate), dateLocalizer(oldProject.editedDate))}</p>
+          <p><strong>${printUtilsTranslation.createdDate}:</strong> ${valueComparer(dateLocalizer(project.createdAt), dateLocalizer(oldProject.createdAt))}</p>
+          <p><strong>${printUtilsTranslation.versionCreatedDate}:</strong> ${valueComparer(dateLocalizer(project.versionCreatedAt), dateLocalizer(oldProject.versionCreatedAt))}</p>
+          <p><strong>${printUtilsTranslation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.updatedAt), dateLocalizer(oldProject.updatedAt))}</p>
         </div>
         <table>
           <tr>
+            <th>${printUtilsTranslation.title}</th>
+            <th>${printUtilsTranslation.description}</th>
             <th>${printUtilsTranslation.className}</th>
             <th>${printUtilsTranslation.componentType}</th>
             <th>${printUtilsTranslation.dataElements}</th>
@@ -142,8 +144,6 @@ export const createPdf = (
             <th>${printUtilsTranslation.operations}</th>
             <th>${printUtilsTranslation.degreeOfCompletion}</th>
             <th>${printUtilsTranslation.functionalPoints}</th>
-            <th>${printUtilsTranslation.title}</th>
-            <th>${printUtilsTranslation.description}</th>
           </tr>
           ${project.functionalComponents
             .map((comp) => {
@@ -157,6 +157,8 @@ export const createPdf = (
 
               return `
             <tr>
+              <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
+              <td>${valueComparer(comp.description, prevComp?.description || null)}</td>
               <td>${valueComparer(
                 classNameTranslation[comp.className] || comp.className,
                 prevComp?.className
@@ -189,7 +191,6 @@ export const createPdf = (
                   prevComp?.degreeOfCompletion || null,
                 ).toFixed(2),
               )}</td>
-              <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
             </tr>
             `;
             })

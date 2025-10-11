@@ -23,10 +23,10 @@ public class StandaloneSetup {
         1L,
         "Test Project",
         1,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
         100.0,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
         Set.of(),
         Set.of());
   }
@@ -37,20 +37,20 @@ public class StandaloneSetup {
             1L,
             "P1",
             1,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            LocalDateTime.now(),
             50.0,
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
             Set.of(),
             Set.of()),
         new ProjectResponse(
             2L,
             "P2",
             1,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            LocalDateTime.now(),
             75.0,
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
             Set.of(),
             Set.of()));
   }
@@ -60,10 +60,10 @@ public class StandaloneSetup {
         1L,
         "Updated Project",
         2,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
         120.0,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
         Set.of(),
         Set.of());
   }
@@ -73,10 +73,10 @@ public class StandaloneSetup {
         1L,
         "New Project",
         1,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
         80.0,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
         Set.of(),
         Set.of());
   }
@@ -86,10 +86,10 @@ public class StandaloneSetup {
         2L,
         "Versioned Project",
         2,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
         95.0,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
         Set.of(),
         Set.of());
   }
@@ -97,6 +97,8 @@ public class StandaloneSetup {
   public static FunctionalComponentRequest createFunctionalComponentRequest(
       FunctionalComponentRequest dto) {
     dto.setId(1L);
+    dto.setTitle("Create User Account");
+    dto.setDescription("Handles user account creation process");
     dto.setClassName("UserAccount");
     dto.setComponentType("Entity");
     dto.setDataElements(5);
@@ -105,8 +107,6 @@ public class StandaloneSetup {
     dto.setFunctionalMultiplier(3);
     dto.setOperations(4);
     dto.setDegreeOfCompletion(0.75);
-    dto.setTitle("Create User Account");
-    dto.setDescription("Handles user account creation process");
     dto.setPreviousFCId(123L);
     dto.setOrderPosition(1);
     return dto;
