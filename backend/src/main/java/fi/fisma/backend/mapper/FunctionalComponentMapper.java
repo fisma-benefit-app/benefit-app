@@ -11,6 +11,8 @@ public class FunctionalComponentMapper {
   public FunctionalComponent toEntity(FunctionalComponentRequest request, Project project) {
     return new FunctionalComponent(
         null,
+        request.getTitle(),
+        request.getDescription(),
         request.getClassName(),
         request.getComponentType(),
         request.getDataElements(),
@@ -19,10 +21,9 @@ public class FunctionalComponentMapper {
         request.getFunctionalMultiplier(),
         request.getOperations(),
         request.getDegreeOfCompletion(),
-        request.getTitle(),
-        request.getDescription(),
         request.getPreviousFCId(),
         request.getOrderPosition(),
-        project);
+        project,
+        null);
   }
 }

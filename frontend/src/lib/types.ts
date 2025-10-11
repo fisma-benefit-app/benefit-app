@@ -17,15 +17,17 @@ export type ProjectResponse = {
   id: number;
   projectName: string;
   version: number;
-  createdDate: string;
-  versionDate: string;
-  editedDate: string;
+  createdAt: string;
+  versionCreatedAt: string;
+  updatedAt: string;
   totalPoints: number;
   functionalComponents: FunctionalComponentResponse[];
   projectAppUsers: ProjectAppUserResponse[];
 };
 
 export type FunctionalComponentRequest = {
+  title: string | null;
+  description: string | null;
   className: ClassName;
   componentType: ComponentType | null;
   dataElements: number | null;
@@ -34,8 +36,6 @@ export type FunctionalComponentRequest = {
   functionalMultiplier: number | null;
   operations: number | null;
   degreeOfCompletion: number | null;
-  title: string | null;
-  description: string | null;
   previousFCId: number | null;
   orderPosition: number;
 };
@@ -61,6 +61,8 @@ export type ProjectAppUser = {
 };
 
 export type TGenericComponentNoId = {
+  title: string | null;
+  description: string | null;
   className: ClassName;
   componentType: ComponentType | null;
   dataElements: number | null;
@@ -69,8 +71,6 @@ export type TGenericComponentNoId = {
   functionalMultiplier: number | null;
   operations: number | null;
   degreeOfCompletion: number | null;
-  title: string | null;
-  description: string | null;
   previousFCId: number | null;
   orderPosition: number;
 };
@@ -79,9 +79,9 @@ export type ProjectWithUpdate = {
   id: number;
   projectName: string;
   version: number;
-  createdDate: string;
-  versionDate: string;
-  editedDate: string;
+  createdAt: string;
+  versionCreatedAt: string;
+  updatedAt: string;
   totalPoints: number;
   functionalComponents: (TGenericComponent | TGenericComponentNoId)[];
   appUsers: ProjectAppUser[];
@@ -91,9 +91,9 @@ export type Project = {
   id: number;
   projectName: string;
   version: number;
-  createdDate: string;
-  versionDate: string;
-  editedDate: string;
+  createdAt: string;
+  versionCreatedAt: string;
+  updatedAt: string;
   totalPoints: number;
   functionalComponents: TGenericComponent[];
   projectAppUsers: ProjectAppUser[];
@@ -101,6 +101,8 @@ export type Project = {
 
 export type TGenericComponent = {
   id: number;
+  title: string | null;
+  description: string | null;
   className: ClassName;
   componentType: ComponentType | null;
   dataElements: number | null;
@@ -109,8 +111,6 @@ export type TGenericComponent = {
   functionalMultiplier: number | null;
   operations: number | null;
   degreeOfCompletion: number | null;
-  title: string | null;
-  description: string | null;
   previousFCId: number | null;
   orderPosition: number;
 };

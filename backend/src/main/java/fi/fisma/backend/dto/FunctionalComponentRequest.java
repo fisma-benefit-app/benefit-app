@@ -15,6 +15,16 @@ public class FunctionalComponentRequest {
   @Schema(description = "Unique identifier", example = "1")
   private Long id;
 
+  @Size(max = 255, message = "Title must not exceed 255 characters")
+  @Schema(description = "Title of the functional component", example = "Create User Account")
+  private String title;
+
+  @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+  @Schema(
+      description = "Detailed description of the functional component",
+      example = "Handles user account creation process")
+  private String description;
+
   @Size(max = 255, message = "Class name must not exceed 255 characters")
   @Schema(description = "Name of the class", example = "UserAccount")
   private String className;
@@ -53,16 +63,6 @@ public class FunctionalComponentRequest {
       minimum = "0",
       maximum = "1")
   private Double degreeOfCompletion;
-
-  @Size(max = 255, message = "Title must not exceed 255 characters")
-  @Schema(description = "Title of the functional component", example = "Create User Account")
-  private String title;
-
-  @Size(max = 1000, message = "Description cannot exceed 1000 characters")
-  @Schema(
-      description = "Detailed description of the functional component",
-      example = "Handles user account creation process")
-  private String description;
 
   @Schema(description = "ID of the previous functional component for ordering", example = "123")
   private Long previousFCId;
