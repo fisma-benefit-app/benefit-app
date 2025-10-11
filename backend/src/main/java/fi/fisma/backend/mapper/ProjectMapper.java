@@ -4,7 +4,6 @@ import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.AppUserSummary;
-import fi.fisma.backend.dto.FunctionalComponentResponse;
 import fi.fisma.backend.dto.ProjectAppUserResponse;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
@@ -18,9 +17,12 @@ import org.springframework.stereotype.Component;
 public class ProjectMapper {
 
   private final AppUserRepository appUserRepository;
+  private final FunctionalComponentMapper functionalComponentMapper;
 
-  public ProjectMapper(AppUserRepository appUserRepository) {
+  public ProjectMapper(
+      AppUserRepository appUserRepository, FunctionalComponentMapper functionalComponentMapper) {
     this.appUserRepository = appUserRepository;
+    this.functionalComponentMapper = functionalComponentMapper;
   }
 
   public ProjectResponse toResponse(Project project) {
@@ -34,22 +36,7 @@ public class ProjectMapper {
             project.getVersionCreatedAt(),
             project.getUpdatedAt(),
             project.getFunctionalComponents().stream()
-                .map(
-                    fc ->
-                        new FunctionalComponentResponse(
-                            fc.getId(),
-                            fc.getTitle(),
-                            fc.getDescription(),
-                            fc.getClassName(),
-                            fc.getComponentType(),
-                            fc.getDataElements(),
-                            fc.getReadingReferences(),
-                            fc.getWritingReferences(),
-                            fc.getFunctionalMultiplier(),
-                            fc.getOperations(),
-                            fc.getDegreeOfCompletion(),
-                            fc.getPreviousFCId(),
-                            fc.getOrderPosition()))
+                .map(fc -> functionalComponentMapper.toResponse(fc))
                 .collect(Collectors.toSet()),
             project.getProjectAppUsers().stream()
                 .map(
@@ -79,27 +66,7 @@ public class ProjectMapper {
 
   public Project updateEntityFromRequest(Project project, ProjectRequest request) {
     Set<FunctionalComponent> functionalComponents =
-        request.getFunctionalComponents().stream()
-            .map(
-                fc ->
-                    new FunctionalComponent(
-                        fc.getId(),
-                        fc.getTitle(),
-                        fc.getDescription(),
-                        fc.getClassName(),
-                        fc.getComponentType(),
-                        fc.getDataElements(),
-                        fc.getReadingReferences(),
-                        fc.getWritingReferences(),
-                        fc.getFunctionalMultiplier(),
-                        fc.getOperations(),
-                        fc.getDegreeOfCompletion(),
-                        fc.getPreviousFCId(),
-                        fc.getOrderPosition(),
-                        project,
-                        null // No deletion date initially
-                        ))
-            .collect(Collectors.toSet());
+        functionalComponentMapper.updateEntityFromRequest(project, request);
 
     Set<ProjectAppUser> projectAppUsers =
         request.getProjectAppUserIds().stream()

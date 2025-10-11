@@ -10,6 +10,7 @@ import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.FunctionalComponentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,7 @@ public class ProjectService {
 
   private final ProjectRepository projectRepository;
   private final AppUserRepository appUserRepository;
+  private final FunctionalComponentRepository functionalComponentRepository;
   private final ProjectMapper projectMapper;
 
   /**
@@ -100,6 +102,7 @@ public class ProjectService {
    *     user
    * @throws UnauthorizedException if the user is not found
    */
+  @Transactional
   public ProjectResponse createProjectVersion(
       Long projectId, ProjectRequest versionRequest, String username) {
     var originalProject = findProjectForUser(projectId, username);
@@ -110,35 +113,38 @@ public class ProjectService {
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
 
+    var savedProject = projectRepository.save(newVersion);
+
     var functionalComponents =
         originalProject.getFunctionalComponents().stream()
             .map(
-                fc ->
-                    new FunctionalComponent(
-                        null,
-                        fc.getTitle(),
-                        fc.getDescription(),
-                        fc.getClassName(),
-                        fc.getComponentType(),
-                        fc.getDataElements(),
-                        fc.getReadingReferences(),
-                        fc.getWritingReferences(),
-                        fc.getFunctionalMultiplier(),
-                        fc.getOperations(),
-                        fc.getDegreeOfCompletion(),
-                        fc.getPreviousFCId(),
-                        fc.getOrderPosition(),
-                        newVersion,
-                        null))
+                fc -> {
+                  var newComponent =
+                      new FunctionalComponent(
+                          null,
+                          fc.getTitle(),
+                          fc.getDescription(),
+                          fc.getClassName(),
+                          fc.getComponentType(),
+                          fc.getDataElements(),
+                          fc.getReadingReferences(),
+                          fc.getWritingReferences(),
+                          fc.getFunctionalMultiplier(),
+                          fc.getOperations(),
+                          fc.getDegreeOfCompletion(),
+                          fc.getId(), // Set previous component's ID
+                          fc.getOrderPosition(),
+                          savedProject,
+                          null);
+                  return functionalComponentRepository.save(newComponent);
+                })
             .collect(Collectors.toSet());
 
     // Associate the project with the copied functional components
-    newVersion.setFunctionalComponents(functionalComponents);
+    savedProject.setFunctionalComponents(functionalComponents);
 
     // Associate the project with the requesting user
-    newVersion.setProjectAppUsers(Set.of(new ProjectAppUser(newVersion, appUser)));
-
-    var savedProject = projectRepository.save(newVersion);
+    savedProject.setProjectAppUsers(Set.of(new ProjectAppUser(savedProject, appUser)));
 
     return projectMapper.toResponse(savedProject);
   }
@@ -161,8 +167,14 @@ public class ProjectService {
 
     LocalDateTime deletionTime = LocalDateTime.now();
 
-    // Soft delete all components
-    project.getFunctionalComponents().forEach(component -> component.setDeletedAt(deletionTime));
+    // Soft delete components
+    project
+        .getFunctionalComponents()
+        .forEach(
+            component -> {
+              component.setDeletedAt(deletionTime);
+              functionalComponentRepository.save(component);
+            });
 
     // Soft delete the project
     project.setDeletedAt(deletionTime);
