@@ -4,6 +4,7 @@ import fi.fisma.backend.dto.FunctionalComponentRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.service.FunctionalComponentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(
     name = "Functional Components",
     description = "Endpoints for managing functional components within projects")
+@SecurityRequirement(name = "bearerAuth")
 public class FunctionalComponentController {
 
   private final FunctionalComponentService functionalComponentService;
