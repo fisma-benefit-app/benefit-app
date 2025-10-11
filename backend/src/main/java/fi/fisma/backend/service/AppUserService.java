@@ -7,6 +7,7 @@ import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 public class AppUserService {
   private final AppUserRepository appUserRepository;
   private final ProjectRepository projectRepository;
+  private final ProjectService projectService;
   private final PasswordEncoder passwordEncoder;
 
   /**
@@ -50,16 +52,19 @@ public class AppUserService {
   public void deleteAppUser(Authentication authentication) {
     AppUser appUser = getUserFromAuthentication(authentication);
 
-    var userProjects = projectRepository.findAllByUsername(appUser.getUsername());
+    // Check if already deleted
+    if (appUser.getDeletedAt() != null) {
+      throw new IllegalStateException("User is already deleted");
+    }
 
-    userProjects.forEach(
-        project -> {
-          if (project.getProjectAppUsers().size() == 1) {
-            projectRepository.deleteById(project.getId());
-          }
-        });
+    LocalDateTime deletionTime = LocalDateTime.now();
 
-    appUserRepository.deleteById(appUser.getId());
+    // Handle associated projects
+    handleProjectsForUserDeletion(appUser, deletionTime);
+
+    // Soft delete the user
+    appUser.setDeletedAt(deletionTime);
+    appUserRepository.save(appUser);
   }
 
   /**
@@ -68,6 +73,7 @@ public class AppUserService {
    * @param authentication Current user's authentication
    * @return AppUserSummary
    * @throws EntityNotFoundException if user not found
+   * @throws IllegalStateException if user is already deleted
    */
   @Transactional(readOnly = true)
   public AppUserSummary getCurrentUser(Authentication authentication) {
@@ -94,5 +100,24 @@ public class AppUserService {
       throw new IllegalArgumentException("Password must be less than 64 characters");
     }
     // Add more password validation rules as needed
+  }
+
+  /** Helper method to handle projects when deleting a user. */
+  private void handleProjectsForUserDeletion(AppUser appUser, LocalDateTime deletionTime) {
+    var userProjects = projectRepository.findAllByUsername(appUser.getUsername());
+
+    userProjects.forEach(
+        project -> {
+          if (project.getProjectAppUsers().size() == 1) {
+            // Soft delete projects where user is the only member
+            projectService.deleteProject(project.getId(), appUser.getUsername());
+          } else {
+            // Remove user from projects with multiple members
+            project
+                .getProjectAppUsers()
+                .removeIf(pau -> pau.getAppUser().getId().equals(appUser.getId()));
+            projectRepository.save(project);
+          }
+        });
   }
 }

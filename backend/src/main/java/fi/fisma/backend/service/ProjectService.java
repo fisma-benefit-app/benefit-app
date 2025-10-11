@@ -6,10 +6,12 @@ import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.exception.EntityNotFoundException;
+import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -147,10 +149,24 @@ public class ProjectService {
    * @param projectId the ID of the project to delete
    * @param username the username of the user performing the deletion
    * @throws EntityNotFoundException if the project is not found or does not belong to the user
+   * @throws IllegalStateException if project is already deleted
    */
   public void deleteProject(Long projectId, String username) {
     var project = findProjectForUser(projectId, username);
-    projectRepository.deleteById(project.getId());
+
+    // Check if already deleted
+    if (project.getDeletedAt() != null) {
+      throw new IllegalStateException("Project is already deleted");
+    }
+
+    LocalDateTime deletionTime = LocalDateTime.now();
+
+    // Soft delete all components
+    project.getFunctionalComponents().forEach(component -> component.setDeletedAt(deletionTime));
+
+    // Soft delete the project
+    project.setDeletedAt(deletionTime);
+    projectRepository.save(project);
   }
 
   /**
