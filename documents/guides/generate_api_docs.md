@@ -35,10 +35,10 @@ This creates `documents/references/api.md` with:
 From the `documents/references/` folder, run:
 
 ```bash
-doctoc api.md
+doctoc api.md --maxlevel 2
 ```
 
-This command scans all headings in `api.md` and inserts (or updates) a clickable Table of Contents at the top of the file.
+This command scans all headings in `api.md` and inserts (or updates) a clickable Table of Contents at the top of the file. Level 3 headings are not included for readability.
 
 ## Troubleshooting
 
