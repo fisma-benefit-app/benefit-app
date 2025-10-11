@@ -29,15 +29,17 @@ public class ProjectMapper {
             project.getId(),
             project.getProjectName(),
             project.getVersion(),
-            project.getCreatedDate(),
-            project.getVersionDate(),
-            project.getEditedDate(),
             project.getTotalPoints(),
+            project.getCreatedAt(),
+            project.getVersionCreatedAt(),
+            project.getUpdatedAt(),
             project.getFunctionalComponents().stream()
                 .map(
                     fc ->
                         new FunctionalComponentResponse(
                             fc.getId(),
+                            fc.getTitle(),
+                            fc.getDescription(),
                             fc.getClassName(),
                             fc.getComponentType(),
                             fc.getDataElements(),
@@ -46,8 +48,6 @@ public class ProjectMapper {
                             fc.getFunctionalMultiplier(),
                             fc.getOperations(),
                             fc.getDegreeOfCompletion(),
-                            fc.getTitle(),
-                            fc.getDescription(),
                             fc.getPreviousFCId(),
                             fc.getOrderPosition()))
                 .collect(Collectors.toSet()),
@@ -67,10 +67,11 @@ public class ProjectMapper {
         null,
         request.getProjectName(),
         request.getVersion(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
         0.0, // Initial total points
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        null, // No deletion date initially
         Set.of(), // Empty functional components initially
         Set.of() // ProjectAppUsers will be set by service
         );
@@ -83,6 +84,8 @@ public class ProjectMapper {
                 fc ->
                     new FunctionalComponent(
                         fc.getId(),
+                        fc.getTitle(),
+                        fc.getDescription(),
                         fc.getClassName(),
                         fc.getComponentType(),
                         fc.getDataElements(),
@@ -91,11 +94,11 @@ public class ProjectMapper {
                         fc.getFunctionalMultiplier(),
                         fc.getOperations(),
                         fc.getDegreeOfCompletion(),
-                        fc.getTitle(),
-                        fc.getDescription(),
                         fc.getPreviousFCId(),
                         fc.getOrderPosition(),
-                        project))
+                        project,
+                        null // No deletion date initially
+                        ))
             .collect(Collectors.toSet());
 
     Set<ProjectAppUser> projectAppUsers =
@@ -118,10 +121,11 @@ public class ProjectMapper {
             project.getId(),
             request.getProjectName(),
             request.getVersion(),
-            project.getCreatedDate(),
-            project.getVersionDate(),
-            LocalDateTime.now(), // new edited date
             project.getTotalPoints(),
+            project.getCreatedAt(),
+            project.getVersionCreatedAt(),
+            LocalDateTime.now(), // new edited date
+            project.getDeletedAt(),
             functionalComponents,
             projectAppUsers);
     return updatedProject;
@@ -133,10 +137,11 @@ public class ProjectMapper {
             null,
             request.getProjectName(),
             request.getVersion(),
-            originalProject.getCreatedDate(), // keep original creation date
+            originalProject.getTotalPoints(),
+            originalProject.getCreatedAt(), // keep original creation date
             LocalDateTime.now(), // new version date
             LocalDateTime.now(), // new edited date
-            originalProject.getTotalPoints(),
+            null, // No deletion date initially
             Set.of(), // FunctionalComponents will be set by service
             Set.of() // ProjectAppUsers will be set by service
             );
