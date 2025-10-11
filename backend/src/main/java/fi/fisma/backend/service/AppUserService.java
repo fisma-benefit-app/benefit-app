@@ -3,6 +3,7 @@ package fi.fisma.backend.service;
 import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.exception.EntityNotFoundException;
+import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
