@@ -1,9 +1,9 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
-
-- [OpenAPI definition v0](#openapi-definition-v0)
+- [Project API vundefined](#project-api-vundefined)
+- [Authentication](#authentication)
 - [Project Management](#project-management)
   - [Get a project by ID](#get-a-project-by-id)
     - [Parameters](#parameters)
@@ -60,15 +60,19 @@
 
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="openapi-definition">OpenAPI definition v0</h1>
+<h1 id="">Project API vundefined</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
 Base URLs:
 
-- <a href="http://localhost:8080">http://localhost:8080</a>
+* <a href="http://localhost:8080">http://localhost:8080</a>
 
-<h1 id="openapi-definition-project-management">Project Management</h1>
+# Authentication
+
+- HTTP Authentication, scheme: bearer 
+
+<h1 id="-project-management">Project Management</h1>
 
 Endpoints for managing projects
 
@@ -82,9 +86,9 @@ Retrieves a specific project if the authenticated user has access to it
 
 <h3 id="get-a-project-by-id-parameters">Parameters</h3>
 
-| Name | In   | Type           | Required | Description                   |
-| ---- | ---- | -------------- | -------- | ----------------------------- |
-| id   | path | integer(int64) | true     | ID of the project to retrieve |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|id|path|integer(int64)|true|ID of the project to retrieve|
 
 > Example responses
 
@@ -92,14 +96,15 @@ Retrieves a specific project if the authenticated user has access to it
 
 <h3 id="get-a-project-by-id-responses">Responses</h3>
 
-| Status | Meaning                                                        | Description                               | Schema                                    |
-| ------ | -------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------- |
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)        | Project found and returned                | [ProjectResponse](#schemaprojectresponse) |
-| 403    | [Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3) | User does not have access to this project | [ProjectResponse](#schemaprojectresponse) |
-| 404    | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4) | Project not found                         | [ProjectResponse](#schemaprojectresponse) |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Project found and returned|[ProjectResponse](#schemaprojectresponse)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|User does not have access to this project|[ProjectResponse](#schemaprojectresponse)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Project not found|[ProjectResponse](#schemaprojectresponse)|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
 ## Update a project
@@ -133,33 +138,35 @@ Updates an existing project if the authenticated user owns it
       "orderPosition": 1
     }
   ],
-  "projectAppUserIds": [0]
+  "projectAppUserIds": [
+    0
+  ]
 }
 ```
 
 <h3 id="update-a-project-parameters">Parameters</h3>
 
-| Name                    | In   | Type                                                              | Required | Description                                          |
-| ----------------------- | ---- | ----------------------------------------------------------------- | -------- | ---------------------------------------------------- |
-| id                      | path | integer(int64)                                                    | true     | ID of the project to update                          |
-| body                    | body | [ProjectRequest](#schemaprojectrequest)                           | true     | none                                                 |
-| » projectName           | body | string                                                            | true     | Name of the project                                  |
-| » version               | body | integer(int32)                                                    | true     | Version of the project                               |
-| » functionalComponents  | body | [[FunctionalComponentRequest](#schemafunctionalcomponentrequest)] | false    | List of functional components in the project         |
-| »» id                   | body | integer(int64)                                                    | false    | Unique identifier                                    |
-| »» className            | body | string                                                            | false    | Name of the class                                    |
-| »» componentType        | body | string                                                            | false    | Type of the functional component                     |
-| »» dataElements         | body | integer(int32)                                                    | false    | Number of data elements                              |
-| »» readingReferences    | body | integer(int32)                                                    | false    | Number of reading references                         |
-| »» writingReferences    | body | integer(int32)                                                    | false    | Number of writing references                         |
-| »» functionalMultiplier | body | integer(int32)                                                    | false    | Multiplier for functional points calculation         |
-| »» operations           | body | integer(int32)                                                    | false    | Number of operations                                 |
-| »» degreeOfCompletion   | body | number(double)                                                    | false    | Completion status (0.0 to 1.0)                       |
-| »» title                | body | string                                                            | false    | Title of the functional component                    |
-| »» description          | body | string                                                            | false    | Detailed description of the functional component     |
-| »» previousFCId         | body | integer(int64)                                                    | false    | ID of the previous functional component for ordering |
-| »» orderPosition        | body | integer(int32)                                                    | true     | Position in the component list                       |
-| » projectAppUserIds     | body | [integer]                                                         | false    | List of user IDs to associate with the project       |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|id|path|integer(int64)|true|ID of the project to update|
+|body|body|[ProjectRequest](#schemaprojectrequest)|true|none|
+|» projectName|body|string|true|Name of the project|
+|» version|body|integer(int32)|true|Version of the project|
+|» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
+|»» id|body|integer(int64)|false|Unique identifier|
+|»» className|body|string|false|Name of the class|
+|»» componentType|body|string|false|Type of the functional component|
+|»» dataElements|body|integer(int32)|false|Number of data elements|
+|»» readingReferences|body|integer(int32)|false|Number of reading references|
+|»» writingReferences|body|integer(int32)|false|Number of writing references|
+|»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
+|»» operations|body|integer(int32)|false|Number of operations|
+|»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
+|»» title|body|string|false|Title of the functional component|
+|»» description|body|string|false|Detailed description of the functional component|
+|»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|»» orderPosition|body|integer(int32)|true|Position in the component list|
+|» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
 
 > Example responses
 
@@ -167,14 +174,15 @@ Updates an existing project if the authenticated user owns it
 
 <h3 id="update-a-project-responses">Responses</h3>
 
-| Status | Meaning                                                        | Description                                          | Schema                                    |
-| ------ | -------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------- |
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)        | Project updated successfully                         | [ProjectResponse](#schemaprojectresponse) |
-| 403    | [Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3) | User does not have permission to update this project | [ProjectResponse](#schemaprojectresponse) |
-| 404    | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4) | Project not found                                    | [ProjectResponse](#schemaprojectresponse) |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Project updated successfully|[ProjectResponse](#schemaprojectresponse)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|User does not have permission to update this project|[ProjectResponse](#schemaprojectresponse)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Project not found|[ProjectResponse](#schemaprojectresponse)|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
 ## Delete a project
@@ -187,20 +195,21 @@ Deletes a project if the authenticated user owns it
 
 <h3 id="delete-a-project-parameters">Parameters</h3>
 
-| Name | In   | Type           | Required | Description                 |
-| ---- | ---- | -------------- | -------- | --------------------------- |
-| id   | path | integer(int64) | true     | ID of the project to delete |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|id|path|integer(int64)|true|ID of the project to delete|
 
 <h3 id="delete-a-project-responses">Responses</h3>
 
-| Status | Meaning                                                         | Description                                          | Schema |
-| ------ | --------------------------------------------------------------- | ---------------------------------------------------- | ------ |
-| 204    | [No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5) | Project deleted successfully                         | None   |
-| 403    | [Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)  | User does not have permission to delete this project | None   |
-| 404    | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)  | Project not found                                    | None   |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|Project deleted successfully|None|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|User does not have permission to delete this project|None|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Project not found|None|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
 ## Get all projects
@@ -217,46 +226,47 @@ Retrieves all projects accessible to the authenticated user
 
 <h3 id="get-all-projects-responses">Responses</h3>
 
-| Status | Meaning                                                 | Description               | Schema |
-| ------ | ------------------------------------------------------- | ------------------------- | ------ |
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | List of projects returned | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|List of projects returned|Inline|
 
 <h3 id="get-all-projects-responseschema">Response Schema</h3>
 
 Status Code **200**
 
-| Name                    | Type                                                                | Required | Restrictions | Description                                          |
-| ----------------------- | ------------------------------------------------------------------- | -------- | ------------ | ---------------------------------------------------- |
-| _anonymous_             | [[ProjectResponse](#schemaprojectresponse)]                         | false    | none         | [Response object containing project details]         |
-| » id                    | integer(int64)                                                      | false    | none         | Unique identifier of the project                     |
-| » projectName           | string                                                              | false    | none         | Name of the project                                  |
-| » version               | integer(int32)                                                      | false    | none         | Version of the project                               |
-| » createdDate           | string(date-time)                                                   | false    | none         | Creation timestamp                                   |
-| » versionDate           | string(date-time)                                                   | false    | none         | Last version update timestamp                        |
-| » editedDate            | string(date-time)                                                   | false    | none         | Last modification timestamp                          |
-| » totalPoints           | number(double)                                                      | false    | none         | Total function points of the project                 |
-| » functionalComponents  | [[FunctionalComponentResponse](#schemafunctionalcomponentresponse)] | false    | none         | Functional components in the project                 |
-| »» id                   | integer(int64)                                                      | false    | none         | Unique identifier                                    |
-| »» className            | string                                                              | false    | none         | Name of the class                                    |
-| »» componentType        | string                                                              | false    | none         | Type of the functional component                     |
-| »» dataElements         | integer(int32)                                                      | false    | none         | Number of data elements                              |
-| »» readingReferences    | integer(int32)                                                      | false    | none         | Number of reading references                         |
-| »» writingReferences    | integer(int32)                                                      | false    | none         | Number of writing references                         |
-| »» functionalMultiplier | integer(int32)                                                      | false    | none         | Multiplier for functional points calculation         |
-| »» operations           | integer(int32)                                                      | false    | none         | Number of operations                                 |
-| »» degreeOfCompletion   | number(double)                                                      | false    | none         | Completion status (0.0 to 1.0)                       |
-| »» title                | string                                                              | false    | none         | Title of the functional component                    |
-| »» description          | string                                                              | false    | none         | Detailed description of the functional component     |
-| »» previousFCId         | integer(int64)                                                      | false    | none         | ID of the previous functional component for ordering |
-| »» orderPosition        | integer(int32)                                                      | false    | none         | Position in the component list                       |
-| » projectAppUsers       | [[ProjectAppUserResponse](#schemaprojectappuserresponse)]           | false    | none         | Users associated with the project                    |
-| »» id                   | integer(int64)                                                      | false    | none         | ID of the project-user relationship                  |
-| »» appUser              | [AppUserSummary](#schemaappusersummary)                             | false    | none         | Summary information about an application user        |
-| »»» id                  | integer(int64)                                                      | false    | none         | Unique identifier of the user                        |
-| »»» username            | string                                                              | false    | none         | Username of the user                                 |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|*anonymous*|[[ProjectResponse](#schemaprojectresponse)]|false|none|[Response object containing project details]|
+|» id|integer(int64)|false|none|Unique identifier of the project|
+|» projectName|string|false|none|Name of the project|
+|» version|integer(int32)|false|none|Version of the project|
+|» createdDate|string(date-time)|false|none|Creation timestamp|
+|» versionDate|string(date-time)|false|none|Last version update timestamp|
+|» editedDate|string(date-time)|false|none|Last modification timestamp|
+|» totalPoints|number(double)|false|none|Total function points of the project|
+|» functionalComponents|[[FunctionalComponentResponse](#schemafunctionalcomponentresponse)]|false|none|Functional components in the project|
+|»» id|integer(int64)|false|none|Unique identifier|
+|»» className|string|false|none|Name of the class|
+|»» componentType|string|false|none|Type of the functional component|
+|»» dataElements|integer(int32)|false|none|Number of data elements|
+|»» readingReferences|integer(int32)|false|none|Number of reading references|
+|»» writingReferences|integer(int32)|false|none|Number of writing references|
+|»» functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
+|»» operations|integer(int32)|false|none|Number of operations|
+|»» degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
+|»» title|string|false|none|Title of the functional component|
+|»» description|string|false|none|Detailed description of the functional component|
+|»» previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
+|»» orderPosition|integer(int32)|false|none|Position in the component list|
+|» projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
+|»» id|integer(int64)|false|none|ID of the project-user relationship|
+|»» appUser|[AppUserSummary](#schemaappusersummary)|false|none|Summary information about an application user|
+|»»» id|integer(int64)|false|none|Unique identifier of the user|
+|»»» username|string|false|none|Username of the user|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
 ## Create a new project
@@ -290,42 +300,45 @@ Creates a new project for the authenticated user
       "orderPosition": 1
     }
   ],
-  "projectAppUserIds": [0]
+  "projectAppUserIds": [
+    0
+  ]
 }
 ```
 
 <h3 id="create-a-new-project-parameters">Parameters</h3>
 
-| Name                    | In   | Type                                                              | Required | Description                                          |
-| ----------------------- | ---- | ----------------------------------------------------------------- | -------- | ---------------------------------------------------- |
-| body                    | body | [ProjectRequest](#schemaprojectrequest)                           | true     | none                                                 |
-| » projectName           | body | string                                                            | true     | Name of the project                                  |
-| » version               | body | integer(int32)                                                    | true     | Version of the project                               |
-| » functionalComponents  | body | [[FunctionalComponentRequest](#schemafunctionalcomponentrequest)] | false    | List of functional components in the project         |
-| »» id                   | body | integer(int64)                                                    | false    | Unique identifier                                    |
-| »» className            | body | string                                                            | false    | Name of the class                                    |
-| »» componentType        | body | string                                                            | false    | Type of the functional component                     |
-| »» dataElements         | body | integer(int32)                                                    | false    | Number of data elements                              |
-| »» readingReferences    | body | integer(int32)                                                    | false    | Number of reading references                         |
-| »» writingReferences    | body | integer(int32)                                                    | false    | Number of writing references                         |
-| »» functionalMultiplier | body | integer(int32)                                                    | false    | Multiplier for functional points calculation         |
-| »» operations           | body | integer(int32)                                                    | false    | Number of operations                                 |
-| »» degreeOfCompletion   | body | number(double)                                                    | false    | Completion status (0.0 to 1.0)                       |
-| »» title                | body | string                                                            | false    | Title of the functional component                    |
-| »» description          | body | string                                                            | false    | Detailed description of the functional component     |
-| »» previousFCId         | body | integer(int64)                                                    | false    | ID of the previous functional component for ordering |
-| »» orderPosition        | body | integer(int32)                                                    | true     | Position in the component list                       |
-| » projectAppUserIds     | body | [integer]                                                         | false    | List of user IDs to associate with the project       |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[ProjectRequest](#schemaprojectrequest)|true|none|
+|» projectName|body|string|true|Name of the project|
+|» version|body|integer(int32)|true|Version of the project|
+|» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
+|»» id|body|integer(int64)|false|Unique identifier|
+|»» className|body|string|false|Name of the class|
+|»» componentType|body|string|false|Type of the functional component|
+|»» dataElements|body|integer(int32)|false|Number of data elements|
+|»» readingReferences|body|integer(int32)|false|Number of reading references|
+|»» writingReferences|body|integer(int32)|false|Number of writing references|
+|»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
+|»» operations|body|integer(int32)|false|Number of operations|
+|»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
+|»» title|body|string|false|Title of the functional component|
+|»» description|body|string|false|Detailed description of the functional component|
+|»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|»» orderPosition|body|integer(int32)|true|Position in the component list|
+|» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
 
 <h3 id="create-a-new-project-responses">Responses</h3>
 
-| Status | Meaning                                                          | Description                  | Schema |
-| ------ | ---------------------------------------------------------------- | ---------------------------- | ------ |
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)     | Project created successfully | None   |
-| 400    | [Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1) | Invalid project data         | None   |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Project created successfully|None|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Invalid project data|None|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
 ## Create a new version of a project
@@ -359,47 +372,50 @@ Creates a new version of an existing project
       "orderPosition": 1
     }
   ],
-  "projectAppUserIds": [0]
+  "projectAppUserIds": [
+    0
+  ]
 }
 ```
 
 <h3 id="create-a-new-version-of-a-project-parameters">Parameters</h3>
 
-| Name                    | In   | Type                                                              | Required | Description                                          |
-| ----------------------- | ---- | ----------------------------------------------------------------- | -------- | ---------------------------------------------------- |
-| id                      | path | integer(int64)                                                    | true     | ID of the project to version                         |
-| body                    | body | [ProjectRequest](#schemaprojectrequest)                           | true     | none                                                 |
-| » projectName           | body | string                                                            | true     | Name of the project                                  |
-| » version               | body | integer(int32)                                                    | true     | Version of the project                               |
-| » functionalComponents  | body | [[FunctionalComponentRequest](#schemafunctionalcomponentrequest)] | false    | List of functional components in the project         |
-| »» id                   | body | integer(int64)                                                    | false    | Unique identifier                                    |
-| »» className            | body | string                                                            | false    | Name of the class                                    |
-| »» componentType        | body | string                                                            | false    | Type of the functional component                     |
-| »» dataElements         | body | integer(int32)                                                    | false    | Number of data elements                              |
-| »» readingReferences    | body | integer(int32)                                                    | false    | Number of reading references                         |
-| »» writingReferences    | body | integer(int32)                                                    | false    | Number of writing references                         |
-| »» functionalMultiplier | body | integer(int32)                                                    | false    | Multiplier for functional points calculation         |
-| »» operations           | body | integer(int32)                                                    | false    | Number of operations                                 |
-| »» degreeOfCompletion   | body | number(double)                                                    | false    | Completion status (0.0 to 1.0)                       |
-| »» title                | body | string                                                            | false    | Title of the functional component                    |
-| »» description          | body | string                                                            | false    | Detailed description of the functional component     |
-| »» previousFCId         | body | integer(int64)                                                    | false    | ID of the previous functional component for ordering |
-| »» orderPosition        | body | integer(int32)                                                    | true     | Position in the component list                       |
-| » projectAppUserIds     | body | [integer]                                                         | false    | List of user IDs to associate with the project       |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|id|path|integer(int64)|true|ID of the project to version|
+|body|body|[ProjectRequest](#schemaprojectrequest)|true|none|
+|» projectName|body|string|true|Name of the project|
+|» version|body|integer(int32)|true|Version of the project|
+|» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
+|»» id|body|integer(int64)|false|Unique identifier|
+|»» className|body|string|false|Name of the class|
+|»» componentType|body|string|false|Type of the functional component|
+|»» dataElements|body|integer(int32)|false|Number of data elements|
+|»» readingReferences|body|integer(int32)|false|Number of reading references|
+|»» writingReferences|body|integer(int32)|false|Number of writing references|
+|»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
+|»» operations|body|integer(int32)|false|Number of operations|
+|»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
+|»» title|body|string|false|Title of the functional component|
+|»» description|body|string|false|Detailed description of the functional component|
+|»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|»» orderPosition|body|integer(int32)|true|Position in the component list|
+|» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
 
 <h3 id="create-a-new-version-of-a-project-responses">Responses</h3>
 
-| Status | Meaning                                                        | Description                          | Schema |
-| ------ | -------------------------------------------------------------- | ------------------------------------ | ------ |
-| 201    | [Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)   | Project version created successfully | None   |
-| 403    | [Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3) | User does not have permission        | None   |
-| 404    | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4) | Original project not found           | None   |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Project version created successfully|None|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|User does not have permission|None|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Original project not found|None|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
-<h1 id="openapi-definition-user-management">User Management</h1>
+<h1 id="-user-management">User Management</h1>
 
 Endpoints for managing user accounts
 
@@ -421,10 +437,10 @@ Allows authenticated users to change their password
 
 <h3 id="change-user-password-parameters">Parameters</h3>
 
-| Name          | In   | Type                                                  | Required | Description |
-| ------------- | ---- | ----------------------------------------------------- | -------- | ----------- |
-| body          | body | [PasswordChangeRequest](#schemapasswordchangerequest) | true     | none        |
-| » newPassword | body | string                                                | true     | none        |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[PasswordChangeRequest](#schemapasswordchangerequest)|true|none|
+|» newPassword|body|string|true|none|
 
 > Example responses
 
@@ -432,14 +448,15 @@ Allows authenticated users to change their password
 
 <h3 id="change-user-password-responses">Responses</h3>
 
-| Status | Meaning                                                          | Description                   | Schema |
-| ------ | ---------------------------------------------------------------- | ----------------------------- | ------ |
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)          | Password changed successfully | string |
-| 400    | [Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1) | Invalid password format       | string |
-| 401    | [Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)  | User not authenticated        | string |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Password changed successfully|string|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Invalid password format|string|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|User not authenticated|string|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
 ## Delete user account
@@ -452,16 +469,17 @@ Permanently deletes the authenticated user's account
 
 <h3 id="delete-user-account-responses">Responses</h3>
 
-| Status | Meaning                                                         | Description                  | Schema |
-| ------ | --------------------------------------------------------------- | ---------------------------- | ------ |
-| 204    | [No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5) | Account deleted successfully | None   |
-| 401    | [Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1) | User not authenticated       | None   |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|Account deleted successfully|None|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|User not authenticated|None|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
-<h1 id="openapi-definition-functional-components">Functional Components</h1>
+<h1 id="-functional-components">Functional Components</h1>
 
 Endpoints for managing functional components within projects
 
@@ -495,23 +513,23 @@ Creates a new functional component in the specified project
 
 <h3 id="create-a-new-functional-component-parameters">Parameters</h3>
 
-| Name                   | In   | Type                                                            | Required | Description                                          |
-| ---------------------- | ---- | --------------------------------------------------------------- | -------- | ---------------------------------------------------- |
-| projectId              | path | integer(int64)                                                  | true     | none                                                 |
-| body                   | body | [FunctionalComponentRequest](#schemafunctionalcomponentrequest) | true     | none                                                 |
-| » id                   | body | integer(int64)                                                  | false    | Unique identifier                                    |
-| » className            | body | string                                                          | false    | Name of the class                                    |
-| » componentType        | body | string                                                          | false    | Type of the functional component                     |
-| » dataElements         | body | integer(int32)                                                  | false    | Number of data elements                              |
-| » readingReferences    | body | integer(int32)                                                  | false    | Number of reading references                         |
-| » writingReferences    | body | integer(int32)                                                  | false    | Number of writing references                         |
-| » functionalMultiplier | body | integer(int32)                                                  | false    | Multiplier for functional points calculation         |
-| » operations           | body | integer(int32)                                                  | false    | Number of operations                                 |
-| » degreeOfCompletion   | body | number(double)                                                  | false    | Completion status (0.0 to 1.0)                       |
-| » title                | body | string                                                          | false    | Title of the functional component                    |
-| » description          | body | string                                                          | false    | Detailed description of the functional component     |
-| » previousFCId         | body | integer(int64)                                                  | false    | ID of the previous functional component for ordering |
-| » orderPosition        | body | integer(int32)                                                  | true     | Position in the component list                       |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|projectId|path|integer(int64)|true|none|
+|body|body|[FunctionalComponentRequest](#schemafunctionalcomponentrequest)|true|none|
+|» id|body|integer(int64)|false|Unique identifier|
+|» className|body|string|false|Name of the class|
+|» componentType|body|string|false|Type of the functional component|
+|» dataElements|body|integer(int32)|false|Number of data elements|
+|» readingReferences|body|integer(int32)|false|Number of reading references|
+|» writingReferences|body|integer(int32)|false|Number of writing references|
+|» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
+|» operations|body|integer(int32)|false|Number of operations|
+|» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
+|» title|body|string|false|Title of the functional component|
+|» description|body|string|false|Detailed description of the functional component|
+|» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|» orderPosition|body|integer(int32)|true|Position in the component list|
 
 > Example responses
 
@@ -519,12 +537,13 @@ Creates a new functional component in the specified project
 
 <h3 id="create-a-new-functional-component-responses">Responses</h3>
 
-| Status | Meaning                                                 | Description | Schema                                    |
-| ------ | ------------------------------------------------------- | ----------- | ----------------------------------------- |
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [ProjectResponse](#schemaprojectresponse) |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[ProjectResponse](#schemaprojectresponse)|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
 ## Delete a functional component
@@ -537,10 +556,10 @@ Deletes a functional component from the specified project
 
 <h3 id="delete-a-functional-component-parameters">Parameters</h3>
 
-| Name        | In   | Type           | Required | Description |
-| ----------- | ---- | -------------- | -------- | ----------- |
-| componentId | path | integer(int64) | true     | none        |
-| projectId   | path | integer(int64) | true     | none        |
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|componentId|path|integer(int64)|true|none|
+|projectId|path|integer(int64)|true|none|
 
 > Example responses
 
@@ -548,15 +567,16 @@ Deletes a functional component from the specified project
 
 <h3 id="delete-a-functional-component-responses">Responses</h3>
 
-| Status | Meaning                                                 | Description | Schema                                    |
-| ------ | ------------------------------------------------------- | ----------- | ----------------------------------------- |
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | OK          | [ProjectResponse](#schemaprojectresponse) |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[ProjectResponse](#schemaprojectresponse)|
 
-<aside class="success">
-This operation does not require authentication
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearerAuth
 </aside>
 
-<h1 id="openapi-definition-token-generation">Token Generation</h1>
+<h1 id="-token-generation">Token Generation</h1>
 
 Endpoint for generating token
 
@@ -574,11 +594,11 @@ Generates a signed JWT for an authenticated user
 
 <h3 id="generate-a-jwt-responses">Responses</h3>
 
-| Status | Meaning                                                                    | Description                  | Schema |
-| ------ | -------------------------------------------------------------------------- | ---------------------------- | ------ |
-| 200    | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)                    | Token generated successfully | Inline |
-| 401    | [Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)            | User not authenticated       | Inline |
-| 500    | [Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1) | Failed to encode the token   | Inline |
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Token generated successfully|Inline|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|User not authenticated|Inline|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Failed to encode the token|Inline|
 
 <h3 id="generate-a-jwt-responseschema">Response Schema</h3>
 
@@ -611,27 +631,28 @@ This operation does not require authentication
   "previousFCId": 123,
   "orderPosition": 1
 }
+
 ```
 
 Request object for creating or updating functional components within a project
 
 ### Properties
 
-| Name                 | Type           | Required | Restrictions | Description                                          |
-| -------------------- | -------------- | -------- | ------------ | ---------------------------------------------------- |
-| id                   | integer(int64) | false    | none         | Unique identifier                                    |
-| className            | string         | false    | none         | Name of the class                                    |
-| componentType        | string         | false    | none         | Type of the functional component                     |
-| dataElements         | integer(int32) | false    | none         | Number of data elements                              |
-| readingReferences    | integer(int32) | false    | none         | Number of reading references                         |
-| writingReferences    | integer(int32) | false    | none         | Number of writing references                         |
-| functionalMultiplier | integer(int32) | false    | none         | Multiplier for functional points calculation         |
-| operations           | integer(int32) | false    | none         | Number of operations                                 |
-| degreeOfCompletion   | number(double) | false    | none         | Completion status (0.0 to 1.0)                       |
-| title                | string         | false    | none         | Title of the functional component                    |
-| description          | string         | false    | none         | Detailed description of the functional component     |
-| previousFCId         | integer(int64) | false    | none         | ID of the previous functional component for ordering |
-| orderPosition        | integer(int32) | true     | none         | Position in the component list                       |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer(int64)|false|none|Unique identifier|
+|className|string|false|none|Name of the class|
+|componentType|string|false|none|Type of the functional component|
+|dataElements|integer(int32)|false|none|Number of data elements|
+|readingReferences|integer(int32)|false|none|Number of reading references|
+|writingReferences|integer(int32)|false|none|Number of writing references|
+|functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
+|operations|integer(int32)|false|none|Number of operations|
+|degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
+|title|string|false|none|Title of the functional component|
+|description|string|false|none|Detailed description of the functional component|
+|previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
+|orderPosition|integer(int32)|true|none|Position in the component list|
 
 <h2 id="tocS_ProjectRequest">ProjectRequest</h2>
 <!-- backwards compatibility -->
@@ -661,20 +682,23 @@ Request object for creating or updating functional components within a project
       "orderPosition": 1
     }
   ],
-  "projectAppUserIds": [0]
+  "projectAppUserIds": [
+    0
+  ]
 }
+
 ```
 
 Request object for creating or updating a project
 
 ### Properties
 
-| Name                 | Type                                                              | Required | Restrictions | Description                                    |
-| -------------------- | ----------------------------------------------------------------- | -------- | ------------ | ---------------------------------------------- |
-| projectName          | string                                                            | true     | none         | Name of the project                            |
-| version              | integer(int32)                                                    | true     | none         | Version of the project                         |
-| functionalComponents | [[FunctionalComponentRequest](#schemafunctionalcomponentrequest)] | false    | none         | List of functional components in the project   |
-| projectAppUserIds    | [integer]                                                         | false    | none         | List of user IDs to associate with the project |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|projectName|string|true|none|Name of the project|
+|version|integer(int32)|true|none|Version of the project|
+|functionalComponents|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|none|List of functional components in the project|
+|projectAppUserIds|[integer]|false|none|List of user IDs to associate with the project|
 
 <h2 id="tocS_AppUserSummary">AppUserSummary</h2>
 <!-- backwards compatibility -->
@@ -688,16 +712,17 @@ Request object for creating or updating a project
   "id": 1,
   "username": "john.doe"
 }
+
 ```
 
 Summary information about an application user
 
 ### Properties
 
-| Name     | Type           | Required | Restrictions | Description                   |
-| -------- | -------------- | -------- | ------------ | ----------------------------- |
-| id       | integer(int64) | false    | none         | Unique identifier of the user |
-| username | string         | false    | none         | Username of the user          |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer(int64)|false|none|Unique identifier of the user|
+|username|string|false|none|Username of the user|
 
 <h2 id="tocS_FunctionalComponentResponse">FunctionalComponentResponse</h2>
 <!-- backwards compatibility -->
@@ -722,27 +747,28 @@ Summary information about an application user
   "previousFCId": 123,
   "orderPosition": 1
 }
+
 ```
 
 Response object containing details on functional components within a project
 
 ### Properties
 
-| Name                 | Type           | Required | Restrictions | Description                                          |
-| -------------------- | -------------- | -------- | ------------ | ---------------------------------------------------- |
-| id                   | integer(int64) | false    | none         | Unique identifier                                    |
-| className            | string         | false    | none         | Name of the class                                    |
-| componentType        | string         | false    | none         | Type of the functional component                     |
-| dataElements         | integer(int32) | false    | none         | Number of data elements                              |
-| readingReferences    | integer(int32) | false    | none         | Number of reading references                         |
-| writingReferences    | integer(int32) | false    | none         | Number of writing references                         |
-| functionalMultiplier | integer(int32) | false    | none         | Multiplier for functional points calculation         |
-| operations           | integer(int32) | false    | none         | Number of operations                                 |
-| degreeOfCompletion   | number(double) | false    | none         | Completion status (0.0 to 1.0)                       |
-| title                | string         | false    | none         | Title of the functional component                    |
-| description          | string         | false    | none         | Detailed description of the functional component     |
-| previousFCId         | integer(int64) | false    | none         | ID of the previous functional component for ordering |
-| orderPosition        | integer(int32) | false    | none         | Position in the component list                       |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer(int64)|false|none|Unique identifier|
+|className|string|false|none|Name of the class|
+|componentType|string|false|none|Type of the functional component|
+|dataElements|integer(int32)|false|none|Number of data elements|
+|readingReferences|integer(int32)|false|none|Number of reading references|
+|writingReferences|integer(int32)|false|none|Number of writing references|
+|functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
+|operations|integer(int32)|false|none|Number of operations|
+|degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
+|title|string|false|none|Title of the functional component|
+|description|string|false|none|Detailed description of the functional component|
+|previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
+|orderPosition|integer(int32)|false|none|Position in the component list|
 
 <h2 id="tocS_ProjectAppUserResponse">ProjectAppUserResponse</h2>
 <!-- backwards compatibility -->
@@ -759,16 +785,17 @@ Response object containing details on functional components within a project
     "username": "john.doe"
   }
 }
+
 ```
 
 Response object containing project-user relationship details
 
 ### Properties
 
-| Name    | Type                                    | Required | Restrictions | Description                         |
-| ------- | --------------------------------------- | -------- | ------------ | ----------------------------------- |
-| id      | integer(int64)                          | false    | none         | ID of the project-user relationship |
-| appUser | [AppUserSummary](#schemaappusersummary) | false    | none         | AppUser details                     |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer(int64)|false|none|ID of the project-user relationship|
+|appUser|[AppUserSummary](#schemaappusersummary)|false|none|AppUser details|
 
 <h2 id="tocS_ProjectResponse">ProjectResponse</h2>
 <!-- backwards compatibility -->
@@ -813,23 +840,24 @@ Response object containing project-user relationship details
     }
   ]
 }
+
 ```
 
 Response object containing project details
 
 ### Properties
 
-| Name                 | Type                                                                | Required | Restrictions | Description                          |
-| -------------------- | ------------------------------------------------------------------- | -------- | ------------ | ------------------------------------ |
-| id                   | integer(int64)                                                      | false    | none         | Unique identifier of the project     |
-| projectName          | string                                                              | false    | none         | Name of the project                  |
-| version              | integer(int32)                                                      | false    | none         | Version of the project               |
-| createdDate          | string(date-time)                                                   | false    | none         | Creation timestamp                   |
-| versionDate          | string(date-time)                                                   | false    | none         | Last version update timestamp        |
-| editedDate           | string(date-time)                                                   | false    | none         | Last modification timestamp          |
-| totalPoints          | number(double)                                                      | false    | none         | Total function points of the project |
-| functionalComponents | [[FunctionalComponentResponse](#schemafunctionalcomponentresponse)] | false    | none         | Functional components in the project |
-| projectAppUsers      | [[ProjectAppUserResponse](#schemaprojectappuserresponse)]           | false    | none         | Users associated with the project    |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer(int64)|false|none|Unique identifier of the project|
+|projectName|string|false|none|Name of the project|
+|version|integer(int32)|false|none|Version of the project|
+|createdDate|string(date-time)|false|none|Creation timestamp|
+|versionDate|string(date-time)|false|none|Last version update timestamp|
+|editedDate|string(date-time)|false|none|Last modification timestamp|
+|totalPoints|number(double)|false|none|Total function points of the project|
+|functionalComponents|[[FunctionalComponentResponse](#schemafunctionalcomponentresponse)]|false|none|Functional components in the project|
+|projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
 
 <h2 id="tocS_PasswordChangeRequest">PasswordChangeRequest</h2>
 <!-- backwards compatibility -->
@@ -842,12 +870,14 @@ Response object containing project details
 {
   "newPassword": "string"
 }
+
 ```
 
 Request object containing details on password change
 
 ### Properties
 
-| Name        | Type   | Required | Restrictions | Description |
-| ----------- | ------ | -------- | ------------ | ----------- |
-| newPassword | string | true     | none         | none        |
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|newPassword|string|true|none|none|
+

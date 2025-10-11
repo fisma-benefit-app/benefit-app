@@ -6,6 +6,7 @@ import fi.fisma.backend.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -20,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/projects")
 @RequiredArgsConstructor
 @Tag(name = "Project Management", description = "Endpoints for managing projects")
+@SecurityRequirement(name = "bearerAuth")
 public class ProjectController {
 
   private final ProjectService projectService;
