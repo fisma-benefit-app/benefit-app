@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Project API vundefined](#project-api-vundefined)
+- [Project API v1.1.0](#project-api-v110)
 - [Authentication](#authentication)
 - [Project Management](#project-management)
   - [Get a project by ID](#get-a-project-by-id)
@@ -32,9 +32,11 @@
 
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="">Project API vundefined</h1>
+<h1 id="project-api">Project API v1.1.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+API for managing software project function point calculations
 
 Base URLs:
 
@@ -44,7 +46,7 @@ Base URLs:
 
 - HTTP Authentication, scheme: bearer 
 
-<h1 id="-project-management">Project Management</h1>
+<h1 id="project-api-project-management">Project Management</h1>
 
 Endpoints for managing projects
 
@@ -96,6 +98,8 @@ Updates an existing project if the authenticated user owns it
   "functionalComponents": [
     {
       "id": 1,
+      "title": "Create User Account",
+      "description": "Handles user account creation process",
       "className": "UserAccount",
       "componentType": "string",
       "dataElements": 5,
@@ -104,8 +108,6 @@ Updates an existing project if the authenticated user owns it
       "functionalMultiplier": 3,
       "operations": 4,
       "degreeOfCompletion": 0.75,
-      "title": "Create User Account",
-      "description": "Handles user account creation process",
       "previousFCId": 123,
       "orderPosition": 1
     }
@@ -126,6 +128,8 @@ Updates an existing project if the authenticated user owns it
 |» version|body|integer(int32)|true|Version of the project|
 |» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
 |»» id|body|integer(int64)|false|Unique identifier|
+|»» title|body|string|false|Title of the functional component|
+|»» description|body|string|false|Detailed description of the functional component|
 |»» className|body|string|false|Name of the class|
 |»» componentType|body|string|false|Type of the functional component|
 |»» dataElements|body|integer(int32)|false|Number of data elements|
@@ -134,8 +138,6 @@ Updates an existing project if the authenticated user owns it
 |»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
 |»» operations|body|integer(int32)|false|Number of operations|
 |»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» title|body|string|false|Title of the functional component|
-|»» description|body|string|false|Detailed description of the functional component|
 |»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
 |» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
@@ -212,12 +214,14 @@ Status Code **200**
 |» id|integer(int64)|false|none|Unique identifier of the project|
 |» projectName|string|false|none|Name of the project|
 |» version|integer(int32)|false|none|Version of the project|
-|» createdDate|string(date-time)|false|none|Creation timestamp|
-|» versionDate|string(date-time)|false|none|Last version update timestamp|
-|» editedDate|string(date-time)|false|none|Last modification timestamp|
 |» totalPoints|number(double)|false|none|Total function points of the project|
+|» createdAt|string(date-time)|false|none|Creation timestamp|
+|» versionCreatedAt|string(date-time)|false|none|Last version update timestamp|
+|» updatedAt|string(date-time)|false|none|Last update timestamp|
 |» functionalComponents|[[FunctionalComponentResponse](#schemafunctionalcomponentresponse)]|false|none|Functional components in the project|
 |»» id|integer(int64)|false|none|Unique identifier|
+|»» title|string|false|none|Title of the functional component|
+|»» description|string|false|none|Detailed description of the functional component|
 |»» className|string|false|none|Name of the class|
 |»» componentType|string|false|none|Type of the functional component|
 |»» dataElements|integer(int32)|false|none|Number of data elements|
@@ -226,8 +230,6 @@ Status Code **200**
 |»» functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
 |»» operations|integer(int32)|false|none|Number of operations|
 |»» degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|»» title|string|false|none|Title of the functional component|
-|»» description|string|false|none|Detailed description of the functional component|
 |»» previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
 |»» orderPosition|integer(int32)|false|none|Position in the component list|
 |» projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
@@ -258,6 +260,8 @@ Creates a new project for the authenticated user
   "functionalComponents": [
     {
       "id": 1,
+      "title": "Create User Account",
+      "description": "Handles user account creation process",
       "className": "UserAccount",
       "componentType": "string",
       "dataElements": 5,
@@ -266,8 +270,6 @@ Creates a new project for the authenticated user
       "functionalMultiplier": 3,
       "operations": 4,
       "degreeOfCompletion": 0.75,
-      "title": "Create User Account",
-      "description": "Handles user account creation process",
       "previousFCId": 123,
       "orderPosition": 1
     }
@@ -287,6 +289,8 @@ Creates a new project for the authenticated user
 |» version|body|integer(int32)|true|Version of the project|
 |» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
 |»» id|body|integer(int64)|false|Unique identifier|
+|»» title|body|string|false|Title of the functional component|
+|»» description|body|string|false|Detailed description of the functional component|
 |»» className|body|string|false|Name of the class|
 |»» componentType|body|string|false|Type of the functional component|
 |»» dataElements|body|integer(int32)|false|Number of data elements|
@@ -295,8 +299,6 @@ Creates a new project for the authenticated user
 |»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
 |»» operations|body|integer(int32)|false|Number of operations|
 |»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» title|body|string|false|Title of the functional component|
-|»» description|body|string|false|Detailed description of the functional component|
 |»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
 |» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
@@ -330,6 +332,8 @@ Creates a new version of an existing project
   "functionalComponents": [
     {
       "id": 1,
+      "title": "Create User Account",
+      "description": "Handles user account creation process",
       "className": "UserAccount",
       "componentType": "string",
       "dataElements": 5,
@@ -338,8 +342,6 @@ Creates a new version of an existing project
       "functionalMultiplier": 3,
       "operations": 4,
       "degreeOfCompletion": 0.75,
-      "title": "Create User Account",
-      "description": "Handles user account creation process",
       "previousFCId": 123,
       "orderPosition": 1
     }
@@ -360,6 +362,8 @@ Creates a new version of an existing project
 |» version|body|integer(int32)|true|Version of the project|
 |» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
 |»» id|body|integer(int64)|false|Unique identifier|
+|»» title|body|string|false|Title of the functional component|
+|»» description|body|string|false|Detailed description of the functional component|
 |»» className|body|string|false|Name of the class|
 |»» componentType|body|string|false|Type of the functional component|
 |»» dataElements|body|integer(int32)|false|Number of data elements|
@@ -368,8 +372,6 @@ Creates a new version of an existing project
 |»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
 |»» operations|body|integer(int32)|false|Number of operations|
 |»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» title|body|string|false|Title of the functional component|
-|»» description|body|string|false|Detailed description of the functional component|
 |»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
 |» projectAppUserIds|body|[integer]|false|List of user IDs to associate with the project|
@@ -387,7 +389,7 @@ To perform this operation, you must be authenticated by means of one of the foll
 bearerAuth
 </aside>
 
-<h1 id="-user-management">User Management</h1>
+<h1 id="project-api-user-management">User Management</h1>
 
 Endpoints for managing user accounts
 
@@ -451,7 +453,7 @@ To perform this operation, you must be authenticated by means of one of the foll
 bearerAuth
 </aside>
 
-<h1 id="-functional-components">Functional Components</h1>
+<h1 id="project-api-functional-components">Functional Components</h1>
 
 Endpoints for managing functional components within projects
 
@@ -468,6 +470,8 @@ Creates a new functional component in the specified project
 ```json
 {
   "id": 1,
+  "title": "Create User Account",
+  "description": "Handles user account creation process",
   "className": "UserAccount",
   "componentType": "string",
   "dataElements": 5,
@@ -476,8 +480,6 @@ Creates a new functional component in the specified project
   "functionalMultiplier": 3,
   "operations": 4,
   "degreeOfCompletion": 0.75,
-  "title": "Create User Account",
-  "description": "Handles user account creation process",
   "previousFCId": 123,
   "orderPosition": 1
 }
@@ -490,6 +492,8 @@ Creates a new functional component in the specified project
 |projectId|path|integer(int64)|true|none|
 |body|body|[FunctionalComponentRequest](#schemafunctionalcomponentrequest)|true|none|
 |» id|body|integer(int64)|false|Unique identifier|
+|» title|body|string|false|Title of the functional component|
+|» description|body|string|false|Detailed description of the functional component|
 |» className|body|string|false|Name of the class|
 |» componentType|body|string|false|Type of the functional component|
 |» dataElements|body|integer(int32)|false|Number of data elements|
@@ -498,8 +502,6 @@ Creates a new functional component in the specified project
 |» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
 |» operations|body|integer(int32)|false|Number of operations|
 |» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|» title|body|string|false|Title of the functional component|
-|» description|body|string|false|Detailed description of the functional component|
 |» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
 |» orderPosition|body|integer(int32)|true|Position in the component list|
 
@@ -548,7 +550,7 @@ To perform this operation, you must be authenticated by means of one of the foll
 bearerAuth
 </aside>
 
-<h1 id="-token-generation">Token Generation</h1>
+<h1 id="project-api-token-generation">Token Generation</h1>
 
 Endpoint for generating token
 
@@ -590,6 +592,8 @@ This operation does not require authentication
 ```json
 {
   "id": 1,
+  "title": "Create User Account",
+  "description": "Handles user account creation process",
   "className": "UserAccount",
   "componentType": "string",
   "dataElements": 5,
@@ -598,8 +602,6 @@ This operation does not require authentication
   "functionalMultiplier": 3,
   "operations": 4,
   "degreeOfCompletion": 0.75,
-  "title": "Create User Account",
-  "description": "Handles user account creation process",
   "previousFCId": 123,
   "orderPosition": 1
 }
@@ -613,6 +615,8 @@ Request object for creating or updating functional components within a project
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |id|integer(int64)|false|none|Unique identifier|
+|title|string|false|none|Title of the functional component|
+|description|string|false|none|Detailed description of the functional component|
 |className|string|false|none|Name of the class|
 |componentType|string|false|none|Type of the functional component|
 |dataElements|integer(int32)|false|none|Number of data elements|
@@ -621,8 +625,6 @@ Request object for creating or updating functional components within a project
 |functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
 |operations|integer(int32)|false|none|Number of operations|
 |degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|title|string|false|none|Title of the functional component|
-|description|string|false|none|Detailed description of the functional component|
 |previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
 |orderPosition|integer(int32)|true|none|Position in the component list|
 
@@ -640,6 +642,8 @@ Request object for creating or updating functional components within a project
   "functionalComponents": [
     {
       "id": 1,
+      "title": "Create User Account",
+      "description": "Handles user account creation process",
       "className": "UserAccount",
       "componentType": "string",
       "dataElements": 5,
@@ -648,8 +652,6 @@ Request object for creating or updating functional components within a project
       "functionalMultiplier": 3,
       "operations": 4,
       "degreeOfCompletion": 0.75,
-      "title": "Create User Account",
-      "description": "Handles user account creation process",
       "previousFCId": 123,
       "orderPosition": 1
     }
@@ -706,6 +708,8 @@ Summary information about an application user
 ```json
 {
   "id": 1,
+  "title": "Create User Account",
+  "description": "string",
   "className": "UserAccount",
   "componentType": "string",
   "dataElements": 5,
@@ -714,8 +718,6 @@ Summary information about an application user
   "functionalMultiplier": 3,
   "operations": 4,
   "degreeOfCompletion": 0.75,
-  "title": "Create User Account",
-  "description": "string",
   "previousFCId": 123,
   "orderPosition": 1
 }
@@ -729,6 +731,8 @@ Response object containing details on functional components within a project
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |id|integer(int64)|false|none|Unique identifier|
+|title|string|false|none|Title of the functional component|
+|description|string|false|none|Detailed description of the functional component|
 |className|string|false|none|Name of the class|
 |componentType|string|false|none|Type of the functional component|
 |dataElements|integer(int32)|false|none|Number of data elements|
@@ -737,8 +741,6 @@ Response object containing details on functional components within a project
 |functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
 |operations|integer(int32)|false|none|Number of operations|
 |degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|title|string|false|none|Title of the functional component|
-|description|string|false|none|Detailed description of the functional component|
 |previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
 |orderPosition|integer(int32)|false|none|Position in the component list|
 
@@ -781,13 +783,15 @@ Response object containing project-user relationship details
   "id": 1,
   "projectName": "User Authentication Service",
   "version": 1,
-  "createdDate": "2025-09-25T10:30:00",
-  "versionDate": "2025-09-25T15:45:00",
-  "editedDate": "2025-09-25T15:45:00",
   "totalPoints": 150.5,
+  "createdAt": "2025-09-25T10:30:00",
+  "versionCreatedAt": "2025-09-25T15:45:00",
+  "updatedAt": "2025-09-25T15:45:00",
   "functionalComponents": [
     {
       "id": 1,
+      "title": "Create User Account",
+      "description": "string",
       "className": "UserAccount",
       "componentType": "string",
       "dataElements": 5,
@@ -796,8 +800,6 @@ Response object containing project-user relationship details
       "functionalMultiplier": 3,
       "operations": 4,
       "degreeOfCompletion": 0.75,
-      "title": "Create User Account",
-      "description": "string",
       "previousFCId": 123,
       "orderPosition": 1
     }
@@ -824,10 +826,10 @@ Response object containing project details
 |id|integer(int64)|false|none|Unique identifier of the project|
 |projectName|string|false|none|Name of the project|
 |version|integer(int32)|false|none|Version of the project|
-|createdDate|string(date-time)|false|none|Creation timestamp|
-|versionDate|string(date-time)|false|none|Last version update timestamp|
-|editedDate|string(date-time)|false|none|Last modification timestamp|
 |totalPoints|number(double)|false|none|Total function points of the project|
+|createdAt|string(date-time)|false|none|Creation timestamp|
+|versionCreatedAt|string(date-time)|false|none|Last version update timestamp|
+|updatedAt|string(date-time)|false|none|Last update timestamp|
 |functionalComponents|[[FunctionalComponentResponse](#schemafunctionalcomponentresponse)]|false|none|Functional components in the project|
 |projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
 
