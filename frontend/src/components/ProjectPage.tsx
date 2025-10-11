@@ -126,10 +126,23 @@ export default function ProjectPage() {
         );
 
         // normalize & sort after fetching
-        const normalized = projectFromDb.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
+        interface NormalizedComponent extends TGenericComponent {
+          orderPosition: number;
+        }
+
+        const normalized: NormalizedComponent[] =
+          projectFromDb.functionalComponents
+            .slice()
+            .sort(
+              (a: TGenericComponent, b: TGenericComponent) =>
+                a.orderPosition - b.orderPosition,
+            )
+            .map(
+              (c: TGenericComponent, idx: number): NormalizedComponent => ({
+                ...c,
+                orderPosition: idx,
+              }),
+            );
 
         setProject({ ...projectFromDb, functionalComponents: normalized });
       } catch (err) {
