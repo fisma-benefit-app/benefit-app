@@ -39,7 +39,7 @@ public class FunctionalComponentController {
   @DeleteMapping("/{componentId}/projects/{projectId}")
   @Operation(
       summary = "Delete a functional component",
-      description = "Deletes a functional component from the specified project")
+      description = "Soft deletes a functional component from the specified project")
   public ResponseEntity<ProjectResponse> deleteFunctionalComponent(
       @PathVariable Long componentId, @PathVariable Long projectId, Authentication authentication) {
     ProjectResponse response =

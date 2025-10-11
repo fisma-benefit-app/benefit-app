@@ -34,7 +34,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -61,12 +60,12 @@ public class SecurityConfig {
             (authorize) ->
                 authorize
                     .requestMatchers(
-                        AntPathRequestMatcher.antMatcher("/actuator/health"),
-                        AntPathRequestMatcher.antMatcher("/v3/api-docs"),
-                        AntPathRequestMatcher.antMatcher("/v3/api-docs.yaml"),
-                        AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
-                        AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
-                        AntPathRequestMatcher.antMatcher("/swagger-ui/**"))
+                        "/actuator/health",
+                        "/v3/api-docs",
+                        "/v3/api-docs.yaml",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -92,10 +91,9 @@ public class SecurityConfig {
 
   @Bean
   public AuthenticationManager authenticationManager() {
-    DaoAuthenticationProvider autProvider = new DaoAuthenticationProvider();
-    autProvider.setPasswordEncoder(passwordEncoder());
-    autProvider.setUserDetailsService(userDetailsService);
-    return new ProviderManager(autProvider);
+    var authProvider = new DaoAuthenticationProvider(userDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder());
+    return new ProviderManager(authProvider);
   }
 
   @Bean
