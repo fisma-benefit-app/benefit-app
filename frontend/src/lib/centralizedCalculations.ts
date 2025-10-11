@@ -143,15 +143,16 @@ export const calculateTotalPossiblePoints = (
 ): number => {
   if (components.length === 0) return 0;
 
-  // Create a cache key based on component IDs and their base properties (excluding degreeOfCompletion)
-  const componentIds = components
-    .map(
-      (c) =>
-        `${c.id}-${c.className}-${c.componentType}-${c.dataElements}-${c.readingReferences}-${c.writingReferences}-${c.operations}`,
-    )
+  // Create a cache key based on component properties using generateCacheKey (excluding degreeOfCompletion)
+  const componentKeys = components
+    .map((c) => {
+      // Clone component with degreeOfCompletion set to null to exclude it from the key
+      const { degreeOfCompletion, ...rest } = c;
+      return generateCacheKey({ ...rest, degreeOfCompletion: null });
+    })
     .sort()
     .join("|");
-  const totalPossibleCacheKey = `total-possible-${componentIds}`;
+  const totalPossibleCacheKey = `total-possible-${componentKeys}`;
 
   if (calculationCache.has(totalPossibleCacheKey)) {
     return calculationCache.get(totalPossibleCacheKey)!;
