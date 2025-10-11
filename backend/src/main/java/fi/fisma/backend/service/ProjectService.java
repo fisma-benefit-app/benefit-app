@@ -49,7 +49,7 @@ public class ProjectService {
    * @return list of ProjectResponse objects
    */
   public List<ProjectResponse> getAllProjects(String username) {
-    return projectRepository.findAllByUsername(username).stream()
+    return projectRepository.findAllByUsernameActive(username).stream()
         .map(projectMapper::toResponse)
         .collect(Collectors.toList());
   }
@@ -81,7 +81,7 @@ public class ProjectService {
   public ProjectResponse createProject(ProjectRequest newProjectRequest, String username) {
     var appUser =
         appUserRepository
-            .findByUsername(username)
+            .findByUsernameActive(username)
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var project = projectMapper.toEntity(newProjectRequest);
@@ -105,7 +105,7 @@ public class ProjectService {
     var originalProject = findProjectForUser(projectId, username);
     var appUser =
         appUserRepository
-            .findByUsername(username)
+            .findByUsernameActive(username)
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
@@ -179,7 +179,7 @@ public class ProjectService {
    */
   public Project findProjectForUser(Long projectId, String username) {
     return projectRepository
-        .findByProjectIdAndUsername(projectId, username)
+        .findByProjectIdAndUsernameActive(projectId, username)
         .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
   }
 }

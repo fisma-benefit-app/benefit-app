@@ -89,7 +89,7 @@ public class AppUserService {
 
     AppUser appUser =
         appUserRepository
-            .findByUsername(authentication.getName())
+            .findByUsernameActive(authentication.getName())
             .orElseThrow(
                 () -> new EntityNotFoundException("User not found: " + authentication.getName()));
 
@@ -105,7 +105,7 @@ public class AppUserService {
 
   /** Helper method to handle projects when deleting a user. */
   private void handleProjectsForUserDeletion(AppUser appUser, LocalDateTime deletionTime) {
-    var userProjects = projectRepository.findAllByUsername(appUser.getUsername());
+    var userProjects = projectRepository.findAllByUsernameActive(appUser.getUsername());
 
     userProjects.forEach(
         project -> {

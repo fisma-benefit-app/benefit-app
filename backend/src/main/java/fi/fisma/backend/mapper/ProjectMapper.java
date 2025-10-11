@@ -109,7 +109,7 @@ public class ProjectMapper {
                         id,
                         project,
                         appUserRepository
-                            .findByProjectAppUserId(id)
+                            .findByProjectAppUserIdActive(id)
                             .orElseThrow(
                                 () ->
                                     new IllegalArgumentException(
