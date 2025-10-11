@@ -4,6 +4,7 @@ import fi.fisma.backend.dto.PasswordChangeRequest;
 import fi.fisma.backend.service.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/appusers")
 @Tag(name = "User Management", description = "Endpoints for managing user accounts")
+@SecurityRequirement(name = "bearerAuth")
 public class AppUserController {
   private final AppUserService appUserService;
 
