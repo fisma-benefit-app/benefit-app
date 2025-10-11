@@ -94,7 +94,7 @@ public class ProjectService {
    * @param versionRequest the request object containing the new version’s data
    * @param username the username of the user creating the new version
    * @return the created ProjectResponse representing the new version
-   * @throws EntityNotFoundException if the original project is not found or does not belong to the
+   * @throws EntityNotFoundException if the original project is not found or does not belong to the user
    * @throws UnauthorizedException if the user is not found
    */
   public ProjectResponse createProjectVersion(
