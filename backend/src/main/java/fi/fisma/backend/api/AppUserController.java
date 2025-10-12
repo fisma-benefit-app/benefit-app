@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +27,9 @@ public class AppUserController {
   @Operation(summary = "Get user by ID", description = "Retrieves a specific user by their ID")
   @ApiResponse(responseCode = "200", description = "User found")
   @ApiResponse(responseCode = "404", description = "User not found")
-  public ResponseEntity<AppUserSummary> getById(@PathVariable Long id) {
-    return ResponseEntity.ok(appUserService.findById(id));
-  }
-
-  @GetMapping
-  @Operation(summary = "Get all users", description = "Retrieves all active users in the system")
-  @ApiResponse(responseCode = "200", description = "List of users retrieved")
-  public ResponseEntity<List<AppUserSummary>> getAll() {
-    return ResponseEntity.ok(appUserService.findAll());
+  public ResponseEntity<AppUserSummary> getById(
+      @PathVariable Long id, Authentication authentication) {
+    return ResponseEntity.ok(appUserService.findById(id, authentication));
   }
 
   @PostMapping
@@ -53,8 +46,10 @@ public class AppUserController {
   @ApiResponse(responseCode = "200", description = "User updated successfully")
   @ApiResponse(responseCode = "404", description = "User not found")
   public ResponseEntity<AppUserSummary> updateAppUser(
-      @PathVariable Long id, @Valid @RequestBody AppUserRequest request) {
-    return ResponseEntity.ok(appUserService.updateAppUser(id, request));
+      @PathVariable Long id,
+      @Valid @RequestBody AppUserRequest request,
+      Authentication authentication) {
+    return ResponseEntity.ok(appUserService.updateAppUser(id, request, authentication));
   }
 
   @DeleteMapping("/{id}")

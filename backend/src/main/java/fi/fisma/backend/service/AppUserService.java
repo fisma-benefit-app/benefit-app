@@ -9,8 +9,6 @@ import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,23 +33,17 @@ public class AppUserService {
    * @throws EntityNotFoundException if user not found
    */
   @Transactional(readOnly = true)
-  public AppUserSummary findById(Long id) {
+  public AppUserSummary findById(Long id, Authentication authentication) {
+    // Only allow users to view their own details
+    var currentUser = getUserFromAuthentication(authentication);
+    if (!currentUser.getId().equals(id)) {
+      throw new UnauthorizedException("Users can only view their own details");
+    }
+
     return appUserRepository
         .findByIdActive(id)
         .map(this::mapToSummary)
-        .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
-  }
-
-  /**
-   * Retrieves all active users in the system.
-   *
-   * @return List of user response DTOs
-   */
-  @Transactional(readOnly = true)
-  public List<AppUserSummary> findAll() {
-    return appUserRepository.findAllActive().stream()
-        .map(this::mapToSummary)
-        .collect(Collectors.toList());
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
   }
 
   /**
@@ -88,7 +80,10 @@ public class AppUserService {
    * @throws IllegalArgumentException if new username already exists
    */
   @Transactional
-  public AppUserSummary updateAppUser(Long id, AppUserRequest request) {
+  public AppUserSummary updateAppUser(
+      Long id, AppUserRequest request, Authentication authentication) {
+    getUserFromAuthentication(authentication);
+
     var user =
         appUserRepository
             .findByIdActive(id)
@@ -161,15 +156,14 @@ public class AppUserService {
   }
 
   private AppUser getUserFromAuthentication(Authentication authentication) {
-    if (authentication == null || !authentication.isAuthenticated()) {
-      throw new UnauthorizedException("User not authenticated");
+    if (authentication == null) {
+      throw new UnauthorizedException("Authentication required");
     }
 
     AppUser appUser =
         appUserRepository
             .findByUsernameActive(authentication.getName())
-            .orElseThrow(
-                () -> new EntityNotFoundException("User not found: " + authentication.getName()));
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
     return appUser;
   }

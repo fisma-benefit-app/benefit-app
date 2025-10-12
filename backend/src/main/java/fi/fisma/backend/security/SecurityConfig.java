@@ -71,8 +71,7 @@ public class SecurityConfig {
                     .anyRequest()
                     .authenticated())
         .cors(Customizer.withDefaults())
-        // .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
-        .csrf(csrf -> csrf.disable())
+        .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
         .httpBasic(Customizer.withDefaults())
         .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
         .sessionManagement(
