@@ -50,6 +50,7 @@ public class FunctionalComponentService {
     // Add new component at the end
     request.setOrderPosition(project.getFunctionalComponents().size());
     var newComponent = functionalComponentMapper.toEntity(request, project);
+    functionalComponentRepository.save(newComponent);
 
     project.getFunctionalComponents().add(newComponent);
     normalizeComponentOrder(project);
