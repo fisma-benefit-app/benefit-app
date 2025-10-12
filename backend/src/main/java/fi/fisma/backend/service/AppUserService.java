@@ -26,7 +26,7 @@ public class AppUserService {
   private final PasswordEncoder passwordEncoder;
 
   /**
-   * Changes password for authenticated user
+   * Changes password for authenticated user.
    *
    * @param newPassword New password to set
    * @param authentication Current user's authentication
@@ -44,7 +44,7 @@ public class AppUserService {
   }
 
   /**
-   * Deletes user account and associated projects
+   * Deletes user account and associated projects.
    *
    * @param authentication Current user's authentication
    * @throws EntityNotFoundException if user not found
@@ -69,7 +69,7 @@ public class AppUserService {
   }
 
   /**
-   * Helper method that gets user summary for authenticated user
+   * Helper method that gets user summary for authenticated user.
    *
    * @param authentication Current user's authentication
    * @return AppUserSummary
