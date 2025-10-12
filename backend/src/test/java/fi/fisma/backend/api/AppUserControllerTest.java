@@ -59,9 +59,9 @@ class AppUserControllerTest {
   void testDeleteAppUser() {
     doNothing().when(appUserService).deleteAppUser(any(Long.class), any(Authentication.class));
 
-    var response = mockMvcTester.delete().uri("/appusers").with(jwtAuth).exchange();
+    var response = mockMvcTester.delete().uri("/appusers/1").with(jwtAuth).exchange();
 
     assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
-    verify(appUserService).deleteAppUser(any(Long.class), any(Authentication.class));
+    verify(appUserService).deleteAppUser(eq(1L), any(Authentication.class));
   }
 }

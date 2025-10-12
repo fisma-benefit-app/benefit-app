@@ -63,7 +63,8 @@ public class AppUserController {
       description = "Permanently deletes the authenticated user's account")
   @ApiResponse(responseCode = "204", description = "Account deleted successfully")
   @ApiResponse(responseCode = "401", description = "User not authenticated")
-  public ResponseEntity<Void> deleteAppUser(@PathVariable Long id, Authentication authentication) {
+  public ResponseEntity<Void> deleteAppUser(
+      @PathVariable("id") Long id, Authentication authentication) {
     appUserService.deleteAppUser(id, authentication);
     return ResponseEntity.noContent().build();
   }
