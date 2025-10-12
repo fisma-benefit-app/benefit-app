@@ -22,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     AppUser appUser =
         this.appUserRepository
-            .findByUsername(username)
+            .findByUsernameActive(username)
             .orElseThrow(
                 () -> new UsernameNotFoundException("username " + username + " is not found"));
     return new AppUserDetails(appUser);

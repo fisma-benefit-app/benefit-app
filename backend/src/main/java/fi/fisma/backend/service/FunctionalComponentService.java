@@ -1,21 +1,31 @@
 package fi.fisma.backend.service;
 
+import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.dto.FunctionalComponentRequest;
 import fi.fisma.backend.dto.ProjectResponse;
+import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.FunctionalComponentMapper;
 import fi.fisma.backend.mapper.ProjectMapper;
+import fi.fisma.backend.repository.FunctionalComponentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 public class FunctionalComponentService {
 
   private final ProjectRepository projectRepository;
+  private final FunctionalComponentRepository functionalComponentRepository;
   private final FunctionalComponentMapper functionalComponentMapper;
   private final ProjectMapper projectMapper;
   private final ProjectService projectService;
@@ -39,9 +49,10 @@ public class FunctionalComponentService {
 
     // Add new component at the end
     request.setOrderPosition(project.getFunctionalComponents().size());
-    project.getFunctionalComponents().add(functionalComponentMapper.toEntity(request, project));
+    var newComponent = functionalComponentMapper.toEntity(request, project);
+    functionalComponentRepository.save(newComponent);
 
-    // Normalize order positions to ensure sequential ordering
+    project.getFunctionalComponents().add(newComponent);
     normalizeComponentOrder(project);
 
     // Save and return updated project
@@ -65,9 +76,22 @@ public class FunctionalComponentService {
       Long componentId, Long projectId, String username) {
 
     var project = projectService.findProjectForUser(projectId, username);
+    var component =
+        functionalComponentRepository
+            .findByIdActive(componentId)
+            .orElseThrow(() -> new EntityNotFoundException("Component not found"));
 
-    // Remove component and normalize order
-    project.getFunctionalComponents().removeIf(fc -> fc.getId().equals(componentId));
+    // Ensure the component belongs to the specified project
+    if (!component.getProject().getId().equals(projectId)) {
+      throw new EntityNotFoundException("Component not found in the specified project");
+    }
+
+    // Soft delete the component
+    LocalDateTime deletionTime = LocalDateTime.now();
+    component.setDeletedAt(deletionTime);
+    functionalComponentRepository.save(component);
+
+    // Filter out deleted components when normalizing order
     normalizeComponentOrder(project);
 
     // Save and return updated project
@@ -82,10 +106,23 @@ public class FunctionalComponentService {
    * @param project Project containing the components to normalize
    */
   private void normalizeComponentOrder(Project project) {
-    var components = project.getFunctionalComponents();
+    // Only consider non-deleted components when normalizing order
+    var activeComponents =
+        project.getFunctionalComponents().stream()
+            .filter(component -> component.getDeletedAt() == null)
+            .sorted(Comparator.comparingInt(FunctionalComponent::getOrderPosition))
+            .collect(Collectors.toList());
+
+    // Update positions only for active components
     int i = 0;
-    for (var component : components) {
+    for (var component : activeComponents) {
       component.setOrderPosition(i++);
     }
+  }
+
+  @Transactional(readOnly = true)
+  public List<FunctionalComponent> getProjectComponents(Long projectId, String username) {
+    projectService.findProjectForUser(projectId, username); // Verify access
+    return functionalComponentRepository.findAllByProjectIdActive(projectId);
   }
 }
