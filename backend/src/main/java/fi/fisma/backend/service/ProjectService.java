@@ -6,10 +6,13 @@ import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.exception.EntityNotFoundException;
+import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.FunctionalComponentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,10 +29,11 @@ public class ProjectService {
 
   private final ProjectRepository projectRepository;
   private final AppUserRepository appUserRepository;
+  private final FunctionalComponentRepository functionalComponentRepository;
   private final ProjectMapper projectMapper;
 
   /**
-   * Retrieves a project by its ID for the specified user and maps it to a response DTO
+   * Retrieves a project by its ID for the specified user and maps it to a response DTO.
    *
    * @param projectId the ID of the project to retrieve
    * @param username the username of the user requesting the project
@@ -41,19 +45,19 @@ public class ProjectService {
   }
 
   /**
-   * Retrieves all projects associated with the specified user and maps them to response DTOs
+   * Retrieves all projects associated with the specified user and maps them to response DTOs.
    *
    * @param username the username of the user whose projects should be retrieved
    * @return list of ProjectResponse objects
    */
   public List<ProjectResponse> getAllProjects(String username) {
-    return projectRepository.findAllByUsername(username).stream()
+    return projectRepository.findAllByUsernameActive(username).stream()
         .map(projectMapper::toResponse)
         .collect(Collectors.toList());
   }
 
   /**
-   * Updates an existing project for the specified user with the provided request data
+   * Updates an existing project for the specified user with the provided request data.
    *
    * @param projectId the ID of the project to update
    * @param projectUpdate the request object containing the updated project data
@@ -69,7 +73,7 @@ public class ProjectService {
   }
 
   /**
-   * Creates a new project associated with the specified user
+   * Creates a new project associated with the specified user.
    *
    * @param newProjectRequest the request object containing the new project’s data
    * @param username the username of the user creating the project
@@ -79,7 +83,7 @@ public class ProjectService {
   public ProjectResponse createProject(ProjectRequest newProjectRequest, String username) {
     var appUser =
         appUserRepository
-            .findByUsername(username)
+            .findByUsernameActive(username)
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var project = projectMapper.toEntity(newProjectRequest);
@@ -88,7 +92,7 @@ public class ProjectService {
   }
 
   /**
-   * Creates a new version of an existing project for the specified user
+   * Creates a new version of an existing project for the specified user.
    *
    * @param projectId the ID of the original project
    * @param versionRequest the request object containing the new version’s data
@@ -98,63 +102,88 @@ public class ProjectService {
    *     user
    * @throws UnauthorizedException if the user is not found
    */
+  @Transactional
   public ProjectResponse createProjectVersion(
       Long projectId, ProjectRequest versionRequest, String username) {
     var originalProject = findProjectForUser(projectId, username);
     var appUser =
         appUserRepository
-            .findByUsername(username)
+            .findByUsernameActive(username)
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
 
+    var savedProject = projectRepository.save(newVersion);
+
     var functionalComponents =
         originalProject.getFunctionalComponents().stream()
             .map(
-                fc ->
-                    new FunctionalComponent(
-                        null,
-                        fc.getTitle(),
-                        fc.getDescription(),
-                        fc.getClassName(),
-                        fc.getComponentType(),
-                        fc.getDataElements(),
-                        fc.getReadingReferences(),
-                        fc.getWritingReferences(),
-                        fc.getFunctionalMultiplier(),
-                        fc.getOperations(),
-                        fc.getDegreeOfCompletion(),
-                        fc.getPreviousFCId(),
-                        fc.getOrderPosition(),
-                        newVersion,
-                        null))
+                fc -> {
+                  var newComponent =
+                      new FunctionalComponent(
+                          null,
+                          fc.getTitle(),
+                          fc.getDescription(),
+                          fc.getClassName(),
+                          fc.getComponentType(),
+                          fc.getDataElements(),
+                          fc.getReadingReferences(),
+                          fc.getWritingReferences(),
+                          fc.getFunctionalMultiplier(),
+                          fc.getOperations(),
+                          fc.getDegreeOfCompletion(),
+                          fc.getId(), // Set previous component's ID
+                          fc.getOrderPosition(),
+                          savedProject,
+                          null);
+                  return functionalComponentRepository.save(newComponent);
+                })
             .collect(Collectors.toSet());
 
     // Associate the project with the copied functional components
-    newVersion.setFunctionalComponents(functionalComponents);
+    savedProject.setFunctionalComponents(functionalComponents);
 
     // Associate the project with the requesting user
-    newVersion.setProjectAppUsers(Set.of(new ProjectAppUser(newVersion, appUser)));
-
-    var savedProject = projectRepository.save(newVersion);
+    savedProject.setProjectAppUsers(Set.of(new ProjectAppUser(savedProject, appUser)));
 
     return projectMapper.toResponse(savedProject);
   }
 
   /**
-   * Deletes a project by its ID for the specified user
+   * Deletes a project by its ID for the specified user.
    *
    * @param projectId the ID of the project to delete
    * @param username the username of the user performing the deletion
    * @throws EntityNotFoundException if the project is not found or does not belong to the user
+   * @throws IllegalStateException if project is already deleted
    */
   public void deleteProject(Long projectId, String username) {
     var project = findProjectForUser(projectId, username);
-    projectRepository.deleteById(project.getId());
+
+    // Check if already deleted
+    if (project.getDeletedAt() != null) {
+      throw new IllegalStateException("Project is already deleted");
+    }
+
+    LocalDateTime deletionTime = LocalDateTime.now();
+
+    // Soft delete components
+    project
+        .getFunctionalComponents()
+        .forEach(
+            component -> {
+              component.setDeletedAt(deletionTime);
+              functionalComponentRepository.save(component);
+            });
+
+    // Soft delete the project
+    project.setDeletedAt(deletionTime);
+    projectRepository.save(project);
   }
 
   /**
-   * Helper method that finds a project by its ID and verifies that it belongs to the specified user
+   * Helper method that finds a project by its ID and verifies that it belongs to the specified
+   * user.
    *
    * @param projectId the ID of the project to find
    * @param username the username of the user who owns the project
@@ -163,7 +192,7 @@ public class ProjectService {
    */
   public Project findProjectForUser(Long projectId, String username) {
     return projectRepository
-        .findByProjectIdAndUsername(projectId, username)
+        .findByProjectIdAndUsernameActive(projectId, username)
         .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
   }
 }

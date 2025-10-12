@@ -4,10 +4,12 @@ import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.exception.EntityNotFoundException;
+import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,101 @@ import org.springframework.validation.annotation.Validated;
 public class AppUserService {
   private final AppUserRepository appUserRepository;
   private final ProjectRepository projectRepository;
+  private final ProjectService projectService;
   private final PasswordEncoder passwordEncoder;
+
+  /**
+   * Changes password for authenticated user
+   *
+   * @return List of user response DTOs
+   */
+  @Transactional(readOnly = true)
+  public List<AppUserSummary> findAll() {
+    return appUserRepository.findAllActive().stream()
+        .map(this::mapToSummary)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Creates a new user account
+   *
+   * @param request User creation request
+   * @return Created user response
+   * @throws IllegalArgumentException if username already exists
+   */
+  @Transactional
+  public AppUserSummary createAppUser(AppUserRequest request) {
+    if (appUserRepository.existsByUsernameActive(request.getUsername())) {
+      throw new IllegalArgumentException("Username already exists: " + request.getUsername());
+    }
+
+    validatePasswordRequirements(request.getPassword());
+
+    var newUser =
+        new AppUser(
+            null, request.getUsername(), passwordEncoder.encode(request.getPassword()), null);
+
+    var savedUser = appUserRepository.save(newUser);
+
+    return mapToSummary(savedUser);
+  }
+
+  /**
+   * Updates an existing user's information
+   *
+   * @param id ID of the user to update
+   * @param request Updated user information
+   * @return Updated user response
+   * @throws EntityNotFoundException if user not found
+   * @throws IllegalArgumentException if new username already exists
+   */
+  @Transactional
+  public AppUserSummary updateAppUser(Long id, AppUserRequest request) {
+    var user =
+        appUserRepository
+            .findByIdActive(id)
+            .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
+
+    // Check if new username is taken by another user
+    if (!user.getUsername().equals(request.getUsername())
+        && appUserRepository.existsByUsernameActive(request.getUsername())) {
+      throw new IllegalArgumentException("Username already exists: " + request.getUsername());
+    }
+
+    validatePasswordRequirements(request.getPassword());
+
+    user.setUsername(request.getUsername());
+    user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+    var updatedUser = appUserRepository.save(user);
+
+    return mapToSummary(updatedUser);
+  }
+
+  /**
+   * Deletes user account and associated projects.
+   *
+   * @param authentication Current user's authentication
+   * @throws EntityNotFoundException if user not found
+   */
+  @Transactional
+  public void deleteAppUser(Authentication authentication) {
+    AppUser appUser = getUserFromAuthentication(authentication);
+
+    // Check if already deleted
+    if (appUser.getDeletedAt() != null) {
+      throw new IllegalStateException("User is already deleted");
+    }
+
+    LocalDateTime deletionTime = LocalDateTime.now();
+
+    // Handle associated projects
+    handleProjectsForUserDeletion(appUser, deletionTime);
+
+    // Soft delete the user
+    appUser.setDeletedAt(deletionTime);
+    appUserRepository.save(appUser);
+  }
 
   /**
    * Retrieves a user by their ID
@@ -41,7 +137,7 @@ public class AppUserService {
   }
 
   /**
-   * Retrieves all active users in the system
+   * Retrieves all active users in the system.
    *
    * @return List of user response DTOs
    */
@@ -118,16 +214,19 @@ public class AppUserService {
   public void deleteAppUser(Authentication authentication) {
     AppUser appUser = getUserFromAuthentication(authentication);
 
-    var userProjects = projectRepository.findAllByUsername(appUser.getUsername());
+    // Check if already deleted
+    if (appUser.getDeletedAt() != null) {
+      throw new IllegalStateException("User is already deleted");
+    }
 
-    userProjects.forEach(
-        project -> {
-          if (project.getProjectAppUsers().size() == 1) {
-            projectRepository.deleteById(project.getId());
-          }
-        });
+    LocalDateTime deletionTime = LocalDateTime.now();
 
-    appUserRepository.deleteById(appUser.getId());
+    // Handle associated projects
+    handleProjectsForUserDeletion(appUser, deletionTime);
+
+    // Soft delete the user
+    appUser.setDeletedAt(deletionTime);
+    appUserRepository.save(appUser);
   }
 
   /**
@@ -149,11 +248,12 @@ public class AppUserService {
   }
 
   /**
-   * Helper method that gets user summary for authenticated user
+   * Helper method that gets user summary for authenticated user.
    *
    * @param authentication Current user's authentication
    * @return AppUserSummary
    * @throws EntityNotFoundException if user not found
+   * @throws IllegalStateException if user is already deleted
    */
   @Transactional(readOnly = true)
   public AppUserSummary getCurrentUser(Authentication authentication) {
@@ -168,7 +268,7 @@ public class AppUserService {
 
     AppUser appUser =
         appUserRepository
-            .findByUsername(authentication.getName())
+            .findByUsernameActive(authentication.getName())
             .orElseThrow(
                 () -> new EntityNotFoundException("User not found: " + authentication.getName()));
 
@@ -184,5 +284,24 @@ public class AppUserService {
 
   private AppUserSummary mapToSummary(AppUser user) {
     return new AppUserSummary(user.getId(), user.getUsername());
+  }
+
+  /** Helper method to handle projects when deleting a user. */
+  private void handleProjectsForUserDeletion(AppUser appUser, LocalDateTime deletionTime) {
+    var userProjects = projectRepository.findAllByUsernameActive(appUser.getUsername());
+
+    userProjects.forEach(
+        project -> {
+          if (project.getProjectAppUsers().size() == 1) {
+            // Soft delete projects where user is the only member
+            projectService.deleteProject(project.getId(), appUser.getUsername());
+          } else {
+            // Remove user from projects with multiple members
+            project
+                .getProjectAppUsers()
+                .removeIf(pau -> pau.getAppUser().getId().equals(appUser.getId()));
+            projectRepository.save(project);
+          }
+        });
   }
 }

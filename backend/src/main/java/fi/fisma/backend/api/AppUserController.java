@@ -80,4 +80,15 @@ public class AppUserController {
     appUserService.changePassword(request.getNewPassword(), authentication);
     return ResponseEntity.ok("Password changed successfully");
   }
+
+  @DeleteMapping
+  @Operation(
+      summary = "Delete user account",
+      description = "Soft deletes the authenticated user's account")
+  @ApiResponse(responseCode = "204", description = "Account deleted successfully")
+  @ApiResponse(responseCode = "401", description = "User not authenticated")
+  public ResponseEntity<Void> deleteAppUser(Authentication authentication) {
+    appUserService.deleteAppUser(authentication);
+    return ResponseEntity.noContent().build();
+  }
 }

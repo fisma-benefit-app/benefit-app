@@ -60,7 +60,7 @@ public class Project {
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
-  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
   private Set<FunctionalComponent> functionalComponents = new HashSet<>();
 
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
