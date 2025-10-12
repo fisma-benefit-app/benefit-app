@@ -11,7 +11,9 @@ import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,8 +85,7 @@ public class FunctionalComponentService {
     component.setDeletedAt(deletionTime);
     functionalComponentRepository.save(component);
 
-    // Remove from project's active components and normalize order
-    project.getFunctionalComponents().removeIf(fc -> fc.getId().equals(componentId));
+    // Filter out deleted components when normalizing order
     normalizeComponentOrder(project);
 
     // Save and return updated project
@@ -99,9 +100,16 @@ public class FunctionalComponentService {
    * @param project Project containing the components to normalize
    */
   private void normalizeComponentOrder(Project project) {
-    var components = project.getFunctionalComponents();
+    // Only consider non-deleted components when normalizing order
+    var activeComponents =
+        project.getFunctionalComponents().stream()
+            .filter(component -> component.getDeletedAt() == null)
+            .sorted(Comparator.comparingInt(FunctionalComponent::getOrderPosition))
+            .collect(Collectors.toList());
+
+    // Update positions only for active components
     int i = 0;
-    for (var component : components) {
+    for (var component : activeComponents) {
       component.setOrderPosition(i++);
     }
   }
