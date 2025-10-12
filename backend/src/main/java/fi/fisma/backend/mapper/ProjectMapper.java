@@ -9,6 +9,7 @@ import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.repository.AppUserRepository;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -37,6 +38,7 @@ public class ProjectMapper {
             project.getUpdatedAt(),
             project.getFunctionalComponents().stream()
                 .map(fc -> functionalComponentMapper.toResponse(fc))
+                .filter(Objects::nonNull) // Filter out deleted components
                 .collect(Collectors.toSet()),
             project.getProjectAppUsers().stream()
                 .map(

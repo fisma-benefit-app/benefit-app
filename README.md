@@ -246,7 +246,7 @@ Open:
      ```
    - Test DB connection:
      ```bash
-     docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+     docker exec -it fisma_db psql -U POSTGRES_USER POSTGRES_DB
      ```
    - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
 4. Start backend:

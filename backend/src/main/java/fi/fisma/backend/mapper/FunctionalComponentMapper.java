@@ -39,6 +39,11 @@ public class FunctionalComponentMapper {
   }
 
   public FunctionalComponentResponse toResponse(FunctionalComponent component) {
+    // Skip deleted components
+    if (component.getDeletedAt() != null) {
+      return null;
+    }
+
     return new FunctionalComponentResponse(
         component.getId(),
         component.getTitle(),

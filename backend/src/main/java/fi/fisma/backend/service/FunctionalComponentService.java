@@ -80,6 +80,11 @@ public class FunctionalComponentService {
             .findByIdActive(componentId)
             .orElseThrow(() -> new EntityNotFoundException("Component not found"));
 
+    // Ensure the component belongs to the specified project
+    if (!component.getProject().getId().equals(projectId)) {
+      throw new EntityNotFoundException("Component not found in the specified project");
+    }
+
     // Soft delete the component
     LocalDateTime deletionTime = LocalDateTime.now();
     component.setDeletedAt(deletionTime);
