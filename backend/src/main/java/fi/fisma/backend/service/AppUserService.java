@@ -82,7 +82,10 @@ public class AppUserService {
   @Transactional
   public AppUserSummary updateAppUser(
       Long id, AppUserRequest request, Authentication authentication) {
-    getUserFromAuthentication(authentication);
+    var currentUser = getUserFromAuthentication(authentication);
+    if (!currentUser.getId().equals(id)) {
+      throw new UnauthorizedException("Users can only edit their own details");
+    }
 
     var user =
         appUserRepository
@@ -156,7 +159,7 @@ public class AppUserService {
   }
 
   private AppUser getUserFromAuthentication(Authentication authentication) {
-    if (authentication == null) {
+    if (authentication == null || !authentication.isAuthenticated()) {
       throw new UnauthorizedException("Authentication required");
     }
 
