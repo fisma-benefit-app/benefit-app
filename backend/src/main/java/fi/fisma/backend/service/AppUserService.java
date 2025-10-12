@@ -4,7 +4,6 @@ import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.exception.EntityNotFoundException;
-import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
@@ -29,100 +28,7 @@ public class AppUserService {
   private final PasswordEncoder passwordEncoder;
 
   /**
-   * Changes password for authenticated user
-   *
-   * @return List of user response DTOs
-   */
-  @Transactional(readOnly = true)
-  public List<AppUserSummary> findAll() {
-    return appUserRepository.findAllActive().stream()
-        .map(this::mapToSummary)
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * Creates a new user account
-   *
-   * @param request User creation request
-   * @return Created user response
-   * @throws IllegalArgumentException if username already exists
-   */
-  @Transactional
-  public AppUserSummary createAppUser(AppUserRequest request) {
-    if (appUserRepository.existsByUsernameActive(request.getUsername())) {
-      throw new IllegalArgumentException("Username already exists: " + request.getUsername());
-    }
-
-    validatePasswordRequirements(request.getPassword());
-
-    var newUser =
-        new AppUser(
-            null, request.getUsername(), passwordEncoder.encode(request.getPassword()), null);
-
-    var savedUser = appUserRepository.save(newUser);
-
-    return mapToSummary(savedUser);
-  }
-
-  /**
-   * Updates an existing user's information
-   *
-   * @param id ID of the user to update
-   * @param request Updated user information
-   * @return Updated user response
-   * @throws EntityNotFoundException if user not found
-   * @throws IllegalArgumentException if new username already exists
-   */
-  @Transactional
-  public AppUserSummary updateAppUser(Long id, AppUserRequest request) {
-    var user =
-        appUserRepository
-            .findByIdActive(id)
-            .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
-
-    // Check if new username is taken by another user
-    if (!user.getUsername().equals(request.getUsername())
-        && appUserRepository.existsByUsernameActive(request.getUsername())) {
-      throw new IllegalArgumentException("Username already exists: " + request.getUsername());
-    }
-
-    validatePasswordRequirements(request.getPassword());
-
-    user.setUsername(request.getUsername());
-    user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-    var updatedUser = appUserRepository.save(user);
-
-    return mapToSummary(updatedUser);
-  }
-
-  /**
-   * Deletes user account and associated projects.
-   *
-   * @param authentication Current user's authentication
-   * @throws EntityNotFoundException if user not found
-   */
-  @Transactional
-  public void deleteAppUser(Authentication authentication) {
-    AppUser appUser = getUserFromAuthentication(authentication);
-
-    // Check if already deleted
-    if (appUser.getDeletedAt() != null) {
-      throw new IllegalStateException("User is already deleted");
-    }
-
-    LocalDateTime deletionTime = LocalDateTime.now();
-
-    // Handle associated projects
-    handleProjectsForUserDeletion(appUser, deletionTime);
-
-    // Soft delete the user
-    appUser.setDeletedAt(deletionTime);
-    appUserRepository.save(appUser);
-  }
-
-  /**
-   * Retrieves a user by their ID
+   * Retrieves a user by their ID.
    *
    * @param id ID of the user to find
    * @return User response DTO
@@ -149,7 +55,7 @@ public class AppUserService {
   }
 
   /**
-   * Creates a new user account
+   * Creates a new user account.
    *
    * @param request User creation request
    * @return Created user response
@@ -157,7 +63,7 @@ public class AppUserService {
    */
   @Transactional
   public AppUserSummary createAppUser(AppUserRequest request) {
-    if (appUserRepository.existsByUsernameActive(request.getUsername())) {
+    if (appUserRepository.findByUsernameActive(request.getUsername()).isPresent()) {
       throw new IllegalArgumentException("Username already exists: " + request.getUsername());
     }
 
@@ -173,7 +79,7 @@ public class AppUserService {
   }
 
   /**
-   * Updates an existing user's information
+   * Updates an existing user's information.
    *
    * @param id ID of the user to update
    * @param request Updated user information
@@ -190,7 +96,7 @@ public class AppUserService {
 
     // Check if new username is taken by another user
     if (!user.getUsername().equals(request.getUsername())
-        && appUserRepository.existsByUsernameActive(request.getUsername())) {
+        && appUserRepository.findByUsernameActive(request.getUsername()).isPresent()) {
       throw new IllegalArgumentException("Username already exists: " + request.getUsername());
     }
 
@@ -205,32 +111,39 @@ public class AppUserService {
   }
 
   /**
-   * Deletes user account and associated projects
+   * Deletes user account and associated projects.
    *
    * @param authentication Current user's authentication
    * @throws EntityNotFoundException if user not found
    */
   @Transactional
-  public void deleteAppUser(Authentication authentication) {
-    AppUser appUser = getUserFromAuthentication(authentication);
+  public void deleteAppUser(Long id, Authentication authentication) {
+    // First get the authenticated user for authorization
+    AppUser authenticatedUser = getUserFromAuthentication(authentication);
 
-    // Check if already deleted
-    if (appUser.getDeletedAt() != null) {
-      throw new IllegalStateException("User is already deleted");
+    // Then get the user to delete
+    AppUser userToDelete =
+        appUserRepository
+            .findByIdActive(id)
+            .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
+
+    // Only allow users to delete their own account
+    if (!authenticatedUser.getId().equals(userToDelete.getId())) {
+      throw new UnauthorizedException("Users can only delete their own account");
     }
 
     LocalDateTime deletionTime = LocalDateTime.now();
 
     // Handle associated projects
-    handleProjectsForUserDeletion(appUser, deletionTime);
+    handleProjectsForUserDeletion(userToDelete, deletionTime);
 
     // Soft delete the user
-    appUser.setDeletedAt(deletionTime);
-    appUserRepository.save(appUser);
+    userToDelete.setDeletedAt(deletionTime);
+    appUserRepository.save(userToDelete);
   }
 
   /**
-   * Changes password for authenticated user
+   * Changes password for authenticated user.
    *
    * @param newPassword New password to set
    * @param authentication Current user's authentication
@@ -245,20 +158,6 @@ public class AppUserService {
 
     appUser.setPassword(passwordEncoder.encode(newPassword));
     appUserRepository.save(appUser);
-  }
-
-  /**
-   * Helper method that gets user summary for authenticated user.
-   *
-   * @param authentication Current user's authentication
-   * @return AppUserSummary
-   * @throws EntityNotFoundException if user not found
-   * @throws IllegalStateException if user is already deleted
-   */
-  @Transactional(readOnly = true)
-  public AppUserSummary getCurrentUser(Authentication authentication) {
-    AppUser user = getUserFromAuthentication(authentication);
-    return new AppUserSummary(user.getId(), user.getUsername());
   }
 
   private AppUser getUserFromAuthentication(Authentication authentication) {
