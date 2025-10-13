@@ -18,7 +18,7 @@ In project root, run this script:
 ```
 
 This script will:
-- Check that you're on the `main` branch with a clean working directory (i.e. no edited, added or deleted files that are not commited or stashed)
+- Check that you're on the `main` branch with a clean working directory (i.e. no edited, added or deleted files that are not committed or stashed)
 - Pull the latest changes from remote `main` branch
 - Create a new local branch named `chore/update-version-to-X.Y.Z`
 - Update version numbers in `build.gradle` (backend) and `package.json` + `package-lock.json` (frontend)
