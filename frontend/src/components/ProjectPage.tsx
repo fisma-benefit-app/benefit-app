@@ -353,6 +353,15 @@ export default function ProjectPage() {
                 {collapseAll ? translation.expandAll : translation.collapseAll}
               </button>
             </div>
+            {isLatest ? (
+              <div className="text-center font-medium mt-1">
+                {translation.currentlyEditingVersion} {project?.version}
+              </div>
+            ) : (
+              <div className="text-center font-medium mt-1 text-red-600">
+                {translation.cannotEditSavedVersion} {project?.version}
+              </div>
+            )}
             <div className="flex flex-row gap-2 w-full">
               <button
                 className={`w-full ${

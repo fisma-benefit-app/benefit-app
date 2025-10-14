@@ -124,7 +124,7 @@ export const translations = {
       saveProject: "Save",
       newFunctionalComponent: "New Functional Component",
       noProject: "No project information to show!",
-      saveProjectAsVersion: "Save version ",
+      saveProjectAsVersion: "Save as version ",
       saveVersionWarningBeginning:
         "Are you sure you want to save the project as version",
       saveVersionWarningEnd: "Older versions cannot be modified.",
@@ -132,6 +132,8 @@ export const translations = {
       selectProjectVersion: "Select Project Version",
       version: "Version",
       nameOfProject: "Project name",
+      currentlyEditingVersion: "Currently editing version",
+      cannotEditSavedVersion: "Cannot edit saved version",
       expandAll: "Expand all",
       collapseAll: "Collapse all",
       noFunctionalComponents:
@@ -280,6 +282,8 @@ export const translations = {
       selectProjectVersion: "Valitse Projektiversio",
       version: "Versio",
       nameOfProject: "Projektin nimi",
+      currentlyEditingVersion: "Muokataan versiota",
+      cannotEditSavedVersion: "Ei voi muokata tallennettua versiota",
       expandAll: "Laajenna kaikki",
       collapseAll: "Pienennä kaikki",
       noFunctionalComponents:
