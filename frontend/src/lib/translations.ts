@@ -124,14 +124,15 @@ export const translations = {
       saveProject: "Save",
       newFunctionalComponent: "New Functional Component",
       noProject: "No project information to show!",
-      saveProjectAsVersion: "Save version ",
-      saveVersionWarningBeginning:
-        "Are you sure you want to save the project as version",
-      saveVersionWarningEnd: "Older versions cannot be modified.",
+      archiveProjectAsVersion: "Archive as version ",
+      archiveVersionWarningBeginning:
+        "Are you sure you want to archive the project as version",
+      archiveVersionWarningEnd: "Archived versions cannot be modified.",
       projectSaved: "Project saved!",
       selectProjectVersion: "Select Project Version",
       version: "Version",
       nameOfProject: "Project name",
+      cannotEditOrSaveArchivedVersion: "Cannot edit or save archived version",
       expandAll: "Expand all",
       collapseAll: "Collapse all",
       noFunctionalComponents:
@@ -272,14 +273,16 @@ export const translations = {
       saveProject: "Tallenna",
       newFunctionalComponent: "Uusi funktionaalinen komponentti",
       noProject: "Ei näytettäviä projektitietoja!",
-      saveProjectAsVersion: "Tallenna versiona ",
-      saveVersionWarningBeginning:
-        "Oletko varma, että haluat tallentaa projektin versiona",
-      saveVersionWarningEnd: "Vanhoja versioita ei voi enää muokata.",
+      archiveProjectAsVersion: "Arkistoi versiona ",
+      archiveVersionWarningBeginning:
+        "Oletko varma, että haluat arkistoida projektin versiona",
+      archiveVersionWarningEnd: "Arkistoituja versioita ei voi enää muokata.",
       projectSaved: "Projekti tallennettu!",
-      selectProjectVersion: "Valitse Projektiversio",
+      selectProjectVersion: "Valitse projektiversio",
       version: "Versio",
       nameOfProject: "Projektin nimi",
+      cannotEditOrSaveArchivedVersion:
+        "Arkistoitua versiota ei voi muokata tai tallentaa",
       expandAll: "Laajenna kaikki",
       collapseAll: "Pienennä kaikki",
       noFunctionalComponents:

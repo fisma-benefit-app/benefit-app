@@ -353,39 +353,54 @@ export default function ProjectPage() {
                 {collapseAll ? translation.expandAll : translation.collapseAll}
               </button>
             </div>
-            <div className="flex flex-row gap-2 w-full">
-              <button
-                className={`w-full ${
-                  isLatest || !loadingProject
-                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                    : "bg-fisma-gray"
-                } text-white text-xs py-3 px-4`}
-                onClick={saveProject}
-                disabled={!isLatest || loadingProject}
-              >
-                {translation.saveProject}
-              </button>
-              <button
-                className={`w-full ${
-                  isLatest || !loadingProject
-                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                    : "bg-fisma-gray"
-                } text-white text-xs py-3 px-4`}
-                onClick={() => setConfirmModalOpen(true)}
-                disabled={!isLatest || loadingProject}
-              >
-                {translation.saveProjectAsVersion} {project?.version}
-              </button>
-            </div>
+            {isLatest ? (
+              <div className="flex flex-row gap-2 w-full">
+                <button
+                  className={`w-full ${
+                    !loadingProject
+                      ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                      : "bg-fisma-gray"
+                  } text-white text-xs py-3 px-4`}
+                  onClick={saveProject}
+                  disabled={loadingProject}
+                >
+                  {translation.saveProject}
+                </button>
+                <button
+                  className={`w-full ${
+                    !loadingProject
+                      ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                      : "bg-fisma-gray"
+                  } text-white text-xs py-3 px-4`}
+                  onClick={() => setConfirmModalOpen(true)}
+                  disabled={loadingProject}
+                >
+                  {translation.archiveProjectAsVersion} {project?.version}
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-row gap-2 w-full">
+                <button
+                  className="w-full bg-fisma-red text-white text-xs py-3 px-4 cursor-not-allowed"
+                  disabled
+                >
+                  {translation.cannotEditOrSaveArchivedVersion}
+                </button>
+              </div>
+            )}
+            <label
+              htmlFor="version-select"
+              className="text-sm font-medium mt-2"
+            >
+              {translation.selectProjectVersion}
+            </label>
             <select
-              className="border-2 border-gray-400 px-4 py-4 cursor-pointer my-2"
+              id="version-select"
+              className="border-2 border-gray-400 px-4 py-4 cursor-pointer mb-2"
               onChange={handleVersionSelect}
-              defaultValue=""
+              value={project?.id || ""}
               disabled={loadingProject}
             >
-              <option value="" disabled>
-                {translation.selectProjectVersion}
-              </option>
               {allProjectVersions.map((project) => (
                 <option key={project.id} value={project.id}>
                   {translation.version} {project.version}
@@ -459,7 +474,7 @@ export default function ProjectPage() {
       </div>
 
       <ConfirmModal
-        message={`${translation.saveVersionWarningBeginning} ${project?.version}? ${translation.saveVersionWarningEnd}`}
+        message={`${translation.archiveVersionWarningBeginning} ${project?.version}? ${translation.archiveVersionWarningEnd}`}
         open={isConfirmModalOpen}
         setOpen={setConfirmModalOpen}
         onConfirm={() => saveProjectVersion()}
