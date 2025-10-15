@@ -246,7 +246,7 @@ export default function FunctionalClassComponent({
                   onChange={handleComponentChange}
                   className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
                   disabled={!isLatest}
-                />{" "}
+                />
                 <select
                   id="degreeOfCompletionOptions"
                   value={getClosestCompletionOption(
