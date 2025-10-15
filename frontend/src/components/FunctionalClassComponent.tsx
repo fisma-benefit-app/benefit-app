@@ -10,6 +10,7 @@ import { classNameOptions } from "../lib/fc-constants.ts";
 import {
   getComponentTypeOptions,
   getInputFields,
+  getClosestCompletionOption,
 } from "../lib/fc-service-functions.ts";
 import {
   calculateBasePoints,
@@ -67,6 +68,14 @@ export default function FunctionalClassComponent({
   const fullPoints = calculateBasePoints(component);
   const pointsByDegreeOfCompletion = calculateComponentPoints(component);
 
+  const degreeOfCompletionOptions = new Map([
+    ["0.1", translation.degreeOfCompletion.specified],
+    ["0.3", translation.degreeOfCompletion.planned],
+    ["0.7", translation.degreeOfCompletion.implemented],
+    ["0.9", translation.degreeOfCompletion.tested],
+    ["1", translation.degreeOfCompletion.readyForUse],
+  ]);
+
   const handleClassNameChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select classname only from predefined options
     const newClassName = e.target.value as ClassName;
@@ -110,7 +119,10 @@ export default function FunctionalClassComponent({
   };
 
   const handleComponentChange = (
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
+    e:
+      | ChangeEvent<HTMLInputElement>
+      | ChangeEvent<HTMLTextAreaElement>
+      | ChangeEvent<HTMLSelectElement>,
   ) => {
     let updatedComponent;
     let value = e.target.value;
@@ -119,35 +131,42 @@ export default function FunctionalClassComponent({
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["title", "description"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
+    } else if (
+      e.target.id === "degreeOfCompletion" ||
+      e.target.id === "degreeOfCompletionOptions"
+    ) {
+      const num = parseFloat(value);
+
+      //This is the simplest solution for fixing values that aren't numbers,
+      //including values that have commas such as 0,95.
+
+      //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
+      //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
+      //for increment - decrement input field of defreeOfCompletion.
+      if (isNaN(num)) {
+        value = "0";
+        console.log("Please do not type commas for percentage.");
+      } else {
+        if (num < 0) value = "0";
+        if (num > 1) value = "1";
+      }
+
+      updatedComponent = {
+        ...component,
+        degreeOfCompletion: parseFloat(value),
+      };
     } else {
-      if (e.target.id === "degreeOfCompletion") {
-        const num = parseFloat(value);
-
-        //This is the simplest solution for fixing values that aren't numbers,
-        //including values that have commas such as 0,95.
-
-        //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
-        //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
-        //for increment - decrement input field of defreeOfCompletion.
-        if (isNaN(num)) {
-          value = "0";
-          console.log("Please do not type commas for percentage.");
-        } else {
-          if (num < 0) value = "0";
-          if (num > 1) value = "1";
-        }
-      } else if (e.target.id !== "title" && e.target.id !== "description") {
-        const num = parseFloat(value);
-        // correct any number greater than 99999 and less than 0
-        if (num > 99999) {
-          value = "99999";
-        } else if (num < 0) {
-          value = "0";
-        }
+      const num = parseFloat(value);
+      // correct any number greater than 99999 and less than 0
+      if (num > 99999) {
+        value = "99999";
+      } else if (num < 0) {
+        value = "0";
       }
 
       updatedComponent = { ...component, [e.target.id]: value };
     }
+
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
         functionalComponent.id === component.id
@@ -216,17 +235,36 @@ export default function FunctionalClassComponent({
               <label className="font-bold text-fisma-blue">
                 {translation.degreeOfCompletionPlaceholder}:
               </label>
-              <input
-                id="degreeOfCompletion"
-                type="number"
-                min={0.01}
-                max={1}
-                step={0.01}
-                value={component.degreeOfCompletion || ""}
-                onChange={handleComponentChange}
-                className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
-                disabled={!isLatest}
-              />
+              <div className="flex flex-row gap-4">
+                <input
+                  id="degreeOfCompletion"
+                  type="number"
+                  min={0.01}
+                  max={1}
+                  step={0.01}
+                  value={component.degreeOfCompletion || ""}
+                  onChange={handleComponentChange}
+                  className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                  disabled={!isLatest}
+                />{" "}
+                <select
+                  id="degreeOfCompletionOptions"
+                  value={getClosestCompletionOption(
+                    component.degreeOfCompletion || 0,
+                  )}
+                  onChange={handleComponentChange}
+                  className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                  disabled={!isLatest}
+                >
+                  {Array.from(degreeOfCompletionOptions.entries()).map(
+                    ([key, value]) => (
+                      <option key={key} value={key}>
+                        {key} - {value}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
               <p className="text-xs text-gray-900">
                 {translation.degreeOfCompletionDescription}
               </p>
