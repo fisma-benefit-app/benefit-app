@@ -152,8 +152,8 @@ export const translations = {
       saveSuccessful: "Project saved successfully",
       error: "Error",
       saveFailed: "Save failed",
-      loading: "Loading..."
-    }
+      loading: "Loading...",
+    },
   },
   fi: {
     header: {
@@ -309,7 +309,7 @@ export const translations = {
       saveSuccessful: "Projekti tallennettu onnistuneesti",
       error: "Virhe",
       saveFailed: "Tallennus epäonnistui",
-      loading: "Ladataan..."
-    }
+      loading: "Ladataan...",
+    },
   },
 };

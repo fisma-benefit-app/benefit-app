@@ -14,7 +14,7 @@ function NotificationToast({
     message,
     type, 
     isVisible,
-    onClose
+    onClose,
 }: {
     title: string;
     message: string;
@@ -33,28 +33,10 @@ function NotificationToast({
 
     if (!isVisible) return null;
 
-    const getTypeLabel = () => {
-        switch (type) {
-            case "success":
-                return "Success";
-            case "error":
-                return "Error";
-            case "loading":
-                return "Loading";
-            default:
-                return "Info";
-        }
-    };
-
     return (
         <div className="fixed top-32 right-5 z-50 max-w-sm w-full bg-white border border-gray-300 p-4 rounded-lg shadow-lg transition-all duration-300 transform">
             <div className="flex items-start">
                 <div className="flex-1">
-                    <div className="flex items-center mb-1">
-                        <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
-                            {getTypeLabel()}
-                        </span>
-                    </div>
                     <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
                     <p className="text-sm mt-1 text-gray-700">{message}</p>
                 </div>

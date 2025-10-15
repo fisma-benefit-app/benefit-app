@@ -53,7 +53,7 @@ export default function FunctionalClassComponent({
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
-  }
+  };
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
@@ -92,8 +92,6 @@ export default function FunctionalClassComponent({
       debouncedSaveProject();
     }
   };
-    
-  
 
   const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select component type only from predefined options
@@ -117,8 +115,6 @@ export default function FunctionalClassComponent({
       debouncedSaveProject();
     }
   };
-    
-  
 
   const handleComponentChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
@@ -175,8 +171,6 @@ export default function FunctionalClassComponent({
       debouncedSaveProject();
     }
   };
-    
-  
 
   return (
     <>
