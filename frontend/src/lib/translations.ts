@@ -124,7 +124,7 @@ export const translations = {
       saveProject: "Save",
       newFunctionalComponent: "New Functional Component",
       noProject: "No project information to show!",
-      archiveProjectAsVersion: "Archive as version ",
+      archiveProjectAsVersion: "Archive as version",
       archiveVersionWarningBeginning:
         "Are you sure you want to archive the project as version",
       archiveVersionWarningEnd: "Archived versions cannot be modified.",
@@ -273,7 +273,7 @@ export const translations = {
       saveProject: "Tallenna",
       newFunctionalComponent: "Uusi funktionaalinen komponentti",
       noProject: "Ei näytettäviä projektitietoja!",
-      archiveProjectAsVersion: "Arkistoi versiona ",
+      archiveProjectAsVersion: "Arkistoi versiona",
       archiveVersionWarningBeginning:
         "Oletko varma, että haluat arkistoida projektin versiona",
       archiveVersionWarningEnd: "Arkistoituja versioita ei voi enää muokata.",
