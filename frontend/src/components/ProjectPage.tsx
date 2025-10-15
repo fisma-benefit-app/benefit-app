@@ -380,12 +380,12 @@ export default function ProjectPage() {
               </div>
             ) : (
               <div className="flex flex-row gap-2 w-full">
-                <button
-                  className="w-full bg-fisma-red text-white text-xs py-3 px-4 cursor-not-allowed"
-                  disabled
+                <div
+                  role="status"
+                  className="text-center w-full bg-fisma-red text-white text-xs py-3 px-4"
                 >
                   {translation.cannotEditOrSaveArchivedVersion}
-                </button>
+                </div>
               </div>
             )}
             <label
