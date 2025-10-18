@@ -235,7 +235,7 @@ export default function FunctionalClassComponent({
               <label className="font-bold text-fisma-blue">
                 {translation.degreeOfCompletionPlaceholder}:
               </label>
-              <div className="flex flex-row gap-4">
+              <div className="flex flex-wrap gap-4">
                 <input
                   id="degreeOfCompletion"
                   type="number"
@@ -244,7 +244,7 @@ export default function FunctionalClassComponent({
                   step={0.01}
                   value={component.degreeOfCompletion || ""}
                   onChange={handleComponentChange}
-                  className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                  className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
                   disabled={!isLatest}
                 />
                 <select
@@ -253,7 +253,7 @@ export default function FunctionalClassComponent({
                     component.degreeOfCompletion || 0,
                   )}
                   onChange={handleComponentChange}
-                  className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                  className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
                   disabled={!isLatest}
                 >
                   {Array.from(degreeOfCompletionOptions.entries()).map(
