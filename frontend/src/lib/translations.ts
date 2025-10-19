@@ -119,6 +119,13 @@ export const translations = {
       degreeOfCompletionDescription:
         "Enter a value between 0 and 1 (e.g. 0.75 = 75% complete)",
       confirmDeleteMessage: "Are you sure you want to delete component",
+      degreeOfCompletion: {
+        specified: "Specified",
+        planned: "Planned",
+        implemented: "Implemented",
+        tested: "Tested",
+        readyForUse: "Ready for use",
+      },
     },
     projectPage: {
       saveProject: "Save",
@@ -268,6 +275,13 @@ export const translations = {
       degreeOfCompletionDescription:
         "Syötä arvo väliltä 0 ja 1 (esim. 0.75 = 75% valmis)",
       confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin",
+      degreeOfCompletion: {
+        specified: "Määritelty",
+        planned: "Suunniteltu",
+        implemented: "Toteutettu",
+        tested: "Testattu",
+        readyForUse: "Käyttöönottovalmis",
+      },
     },
     projectPage: {
       saveProject: "Tallenna",
