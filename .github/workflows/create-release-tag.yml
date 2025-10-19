@@ -1,0 +1,54 @@
+name: Create release tag
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+    
+permissions:
+  contents: write 
+
+jobs:
+  create-tag:
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'chore/update-version-to-')
+    name: Create a tag
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Extract version number from branch name
+      id: extract_version_number
+      run: |
+        BRANCH_NAME="${{ github.head_ref }}"
+        VERSION=${BRANCH_NAME#chore/update-version-to-}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Check that version number follows semver
+      run: |
+        VERSION="${{ steps.extract_version_number.outputs.version }}"
+        if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo -e "\nError: Invalid version number $VERSION"
+          echo "Tag creation failed."
+          exit 1
+        fi
+    
+    - name: Check if tag exists in remote
+      run: |
+        VERSION="${{ steps.extract_version_number.outputs.version }}"
+        if git ls-remote --tags origin | grep -q "refs/tags/v$VERSION$"; then
+          echo -e "\nError: Tag v$VERSION already exists on remote"
+          echo "Tag creation failed."
+          exit 1
+        fi
+      
+    - name: Create and push a new tag
+      run: |
+        VERSION="${{ steps.extract_version_number.outputs.version }}"
+        
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        git tag -a "v$VERSION" -m "Release version v$VERSION. See Releases section for more details."
+        git push origin "v$VERSION"
