@@ -452,97 +452,98 @@ export default function ProjectPage() {
 
   return (
     <>
-    <NotificationComponent />
-    <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
-      {/* SUMMARY (on top for small screens, on right for large) */}
-      <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-32 mb-10 xl:mb-0 xl:order-2">
-        <div className="flex flex-col gap-2">
+      <NotificationComponent />
+      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
+        {/* SUMMARY (on top for small screens, on right for large) */}
+        <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-32 mb-10 xl:mb-0 xl:order-2">
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center w-full">
-              <div className="flex-grow-0 flex flex-col max-w-[calc(100%-140px)]">
-                <div className="text-left font-medium">
-                  {translation.nameOfProject}:
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center w-full">
+                <div className="flex-grow-0 flex flex-col max-w-[calc(100%-140px)]">
+                  <div className="text-left font-medium">
+                    {translation.nameOfProject}:
+                  </div>
+                  <div className="text-left break-words">
+                    {project?.projectName}
+                  </div>
                 </div>
-                <div className="text-left break-words">
-                  {project?.projectName}
-                </div>
+                <button
+                  className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
+                  onClick={() => {
+                    setCollapseAll((prev) => !prev);
+                  }}
+                >
+                  {collapseAll
+                    ? translation.expandAll
+                    : translation.collapseAll}
+                </button>
               </div>
-              <button
-                className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
-                onClick={() => {
-                  setCollapseAll((prev) => !prev);
-                  
-                }}
+              {isLatest ? (
+                <div className="flex flex-row gap-2 w-full">
+                  <button
+                    className={`w-full ${
+                      !loadingProject
+                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                        : "bg-fisma-gray"
+                    } text-white text-xs py-3 px-4`}
+                    onClick={saveProject}
+                    disabled={loadingProject}
+                  >
+                    {translation.saveProject}
+                  </button>
+                  <button
+                    className={`w-full ${
+                      !loadingProject
+                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                        : "bg-fisma-gray"
+                    } text-white text-xs py-3 px-4`}
+                    onClick={() => setConfirmModalOpen(true)}
+                    disabled={loadingProject}
+                  >
+                    {translation.archiveProjectAsVersion} {project?.version}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-row gap-2 w-full">
+                  <div
+                    role="status"
+                    className="text-center w-full bg-fisma-red text-white text-xs py-3 px-4"
+                  >
+                    {translation.cannotEditOrSaveArchivedVersion}
+                  </div>
+                </div>
+              )}
+              <label
+                htmlFor="version-select"
+                className="text-sm font-medium mt-2"
               >
-                {collapseAll ? translation.expandAll : translation.collapseAll}
+                {translation.selectProjectVersion}
+              </label>
+              <select
+                id="version-select"
+                className="border-2 border-gray-400 px-4 py-4 cursor-pointer mb-2"
+                onChange={handleVersionSelect}
+                value={project?.id || ""}
+                disabled={loadingProject}
+              >
+                {allProjectVersions.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {translation.version} {project.version}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleCreateFunctionalComponent}
+                className={`${
+                  isLatest || !loadingProject
+                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                    : "bg-fisma-gray"
+                } text-white py-3 px-4`}
+                disabled={!isLatest || loadingProject}
+              >
+                {translation.newFunctionalComponent}
               </button>
             </div>
-            {isLatest ? (
-              <div className="flex flex-row gap-2 w-full">
-                <button
-                  className={`w-full ${
-                    !loadingProject
-                      ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                      : "bg-fisma-gray"
-                  } text-white text-xs py-3 px-4`}
-                  onClick={saveProject}
-                  disabled={loadingProject}
-                >
-                  {translation.saveProject}
-                </button>
-                <button
-                  className={`w-full ${
-                    !loadingProject
-                      ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                      : "bg-fisma-gray"
-                  } text-white text-xs py-3 px-4`}
-                  onClick={() => setConfirmModalOpen(true)}
-                  disabled={loadingProject}
-                >
-                  {translation.archiveProjectAsVersion} {project?.version}
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-row gap-2 w-full">
-                <div
-                  role="status"
-                  className="text-center w-full bg-fisma-red text-white text-xs py-3 px-4"
-                >
-                  {translation.cannotEditOrSaveArchivedVersion}
-                </div>
-              </div>
-            )}
-            <label
-              htmlFor="version-select"
-              className="text-sm font-medium mt-2"
-            >
-              {translation.selectProjectVersion}
-            </label>
-            <select
-              id="version-select"
-              className="border-2 border-gray-400 px-4 py-4 cursor-pointer mb-2"
-              onChange={handleVersionSelect}
-              value={project?.id || ""}
-              disabled={loadingProject}
-            >
-              {allProjectVersions.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {translation.version} {project.version}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={handleCreateFunctionalComponent}
-              className={`${
-                isLatest || !loadingProject
-                  ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                  : "bg-fisma-gray"
-              } text-white py-3 px-4`}
-              disabled={!isLatest || loadingProject}
-            >
-              {translation.newFunctionalComponent}
-            </button>
-          </div>
 
             {Array.isArray(project?.functionalComponents) &&
               project.functionalComponents.length > 0 && (
@@ -596,13 +597,13 @@ export default function ProjectPage() {
           )}
         </div>
 
-      <ConfirmModal
-        message={`${translation.archiveVersionWarningBeginning} ${project?.version}? ${translation.archiveVersionWarningEnd}`}
-        open={isConfirmModalOpen}
-        setOpen={setConfirmModalOpen}
-        onConfirm={() => saveProjectVersion()}
-      />
-    </div>
+        <ConfirmModal
+          message={`${translation.archiveVersionWarningBeginning} ${project?.version}? ${translation.archiveVersionWarningEnd}`}
+          open={isConfirmModalOpen}
+          setOpen={setConfirmModalOpen}
+          onConfirm={() => saveProjectVersion()}
+        />
+      </div>
     </>
   );
 }
