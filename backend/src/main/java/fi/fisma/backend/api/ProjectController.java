@@ -102,7 +102,7 @@ public class ProjectController {
   @DeleteMapping("/{id}")
   @Operation(
       summary = "Delete a project",
-      description = "Deletes a project if the authenticated user owns it")
+      description = "Soft deletes a project if the authenticated user owns it")
   @ApiResponse(responseCode = "204", description = "Project deleted successfully")
   @ApiResponse(responseCode = "404", description = "Project not found")
   @ApiResponse(
