@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Project API
   description: API documentation for the benefit application
-  version: 1.0.0
+  version: 1.1.0
 servers:
 - url: http://localhost:8080
   description: Generated server url
