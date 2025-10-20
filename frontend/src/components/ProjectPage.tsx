@@ -356,7 +356,7 @@ export default function ProjectPage() {
         const editedProject = {
           ...project,
           functionalComponents: normalized,
-          editedDate: CreateCurrentDate(),
+          updatedAt: CreateCurrentDate(),
         };
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
