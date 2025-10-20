@@ -162,7 +162,7 @@ export default function ProjectPage() {
       const editedProject = {
         ...project,
         FunctionalClassComponent: normalized,
-        editedDate: CreateCurrentDate(),
+        updatedAt: CreateCurrentDate(),
       };
       await updateProject(sessionToken, editedProject);
 
