@@ -85,7 +85,7 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
   };
 
   const NotificationContainer = () => (
-    <div className="fixed top-18 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3">
+    <div className="fixed top-0 left-1/2 -translate-x-1/2 z-9999 flex flex-col items-center gap-3">
       {notifications.map((n) => (
         <NotificationToast
           key={n.id}
