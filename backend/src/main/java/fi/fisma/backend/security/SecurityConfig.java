@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -34,7 +35,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -61,11 +61,12 @@ public class SecurityConfig {
             (authorize) ->
                 authorize
                     .requestMatchers(
-                        AntPathRequestMatcher.antMatcher("/v3/api-docs"),
-                        AntPathRequestMatcher.antMatcher("/v3/api-docs.yaml"),
-                        AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
-                        AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
-                        AntPathRequestMatcher.antMatcher("/swagger-ui/**"))
+                        "/actuator/health",
+                        "/v3/api-docs",
+                        "/v3/api-docs.yaml",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -91,10 +92,9 @@ public class SecurityConfig {
 
   @Bean
   public AuthenticationManager authenticationManager() {
-    DaoAuthenticationProvider autProvider = new DaoAuthenticationProvider();
-    autProvider.setPasswordEncoder(passwordEncoder());
-    autProvider.setUserDetailsService(userDetailsService);
-    return new ProviderManager(autProvider);
+    var authProvider = new DaoAuthenticationProvider(userDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder());
+    return new ProviderManager(authProvider);
   }
 
   @Bean
@@ -115,7 +115,12 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(
         List.of("https://fisma-benefit-app.github.io", "http://localhost:5173"));
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+    configuration.setAllowedMethods(
+        Arrays.asList(
+            HttpMethod.GET.name(),
+            HttpMethod.POST.name(),
+            HttpMethod.PUT.name(),
+            HttpMethod.DELETE.name()));
     configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
     configuration.setExposedHeaders(List.of("Location")); // TODO: This cause problems. Fix it!
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

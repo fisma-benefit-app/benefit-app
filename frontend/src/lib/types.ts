@@ -1,15 +1,33 @@
 import { ReactNode } from "react";
 
+// Props types
 export type ContextProviderProps = {
   children: ReactNode;
 };
 
-export type projectAppUser = {
-  appUserId: number;
+// DTOs
+export type ProjectRequest = {
+  projectName: string;
+  version: number;
+  functionalComponents: FunctionalComponentRequest[];
+  projectAppUserIds: number[];
 };
 
-//TODO: the following 2 types are up for change but backend expects this type of data when changing functional components of a project
-export type TGenericComponentNoId = {
+export type ProjectResponse = {
+  id: number;
+  projectName: string;
+  version: number;
+  createdAt: string;
+  versionCreatedAt: string;
+  updatedAt: string;
+  totalPoints: number;
+  functionalComponents: FunctionalComponentResponse[];
+  projectAppUsers: ProjectAppUserResponse[];
+};
+
+export type FunctionalComponentRequest = {
+  title: string | null;
+  description: string | null;
   className: ClassName;
   componentType: ComponentType | null;
   dataElements: number | null;
@@ -18,8 +36,41 @@ export type TGenericComponentNoId = {
   functionalMultiplier: number | null;
   operations: number | null;
   degreeOfCompletion: number | null;
+  previousFCId: number | null;
+  orderPosition: number;
+};
+
+export type FunctionalComponentResponse = FunctionalComponentRequest & {
+  id: number;
+};
+
+export type ProjectAppUserResponse = {
+  id: number;
+  appUser: AppUserSummary;
+};
+
+export type AppUserSummary = {
+  id: number;
+  username: string;
+};
+
+// Remove if needed
+export type ProjectAppUser = {
+  id: number;
+  appUserId: number;
+};
+
+export type TGenericComponentNoId = {
   title: string | null;
   description: string | null;
+  className: ClassName;
+  componentType: ComponentType | null;
+  dataElements: number | null;
+  readingReferences: number | null;
+  writingReferences: number | null;
+  functionalMultiplier: number | null;
+  operations: number | null;
+  degreeOfCompletion: number | null;
   previousFCId: number | null;
   orderPosition: number;
 };
@@ -28,28 +79,30 @@ export type ProjectWithUpdate = {
   id: number;
   projectName: string;
   version: number;
-  createdDate: string;
-  versionDate: string;
-  editedDate: string;
+  createdAt: string;
+  versionCreatedAt: string;
+  updatedAt: string;
   totalPoints: number;
   functionalComponents: (TGenericComponent | TGenericComponentNoId)[];
-  appUsers: projectAppUser[];
+  appUsers: ProjectAppUser[];
 };
 
 export type Project = {
   id: number;
   projectName: string;
   version: number;
-  createdDate: string;
-  versionDate: string;
-  editedDate: string;
+  createdAt: string;
+  versionCreatedAt: string;
+  updatedAt: string;
   totalPoints: number;
   functionalComponents: TGenericComponent[];
-  appUsers: projectAppUser[];
+  projectAppUsers: ProjectAppUser[];
 };
 
 export type TGenericComponent = {
   id: number;
+  title: string | null;
+  description: string | null;
   className: ClassName;
   componentType: ComponentType | null;
   dataElements: number | null;
@@ -58,12 +111,11 @@ export type TGenericComponent = {
   functionalMultiplier: number | null;
   operations: number | null;
   degreeOfCompletion: number | null;
-  title: string | null;
-  description: string | null;
   previousFCId: number | null;
   orderPosition: number;
 };
 
+// Enums and constants
 export type ClassName =
   | "Interactive end-user navigation and query service"
   | "Interactive end-user input service"

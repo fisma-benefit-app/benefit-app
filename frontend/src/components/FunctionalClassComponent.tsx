@@ -4,19 +4,24 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import {
-  getCalculateFuntion,
   getComponentTypeOptions,
   getInputFields,
+  getClosestCompletionOption,
 } from "../lib/fc-service-functions.ts";
+import {
+  calculateBasePoints,
+  calculateComponentPoints,
+} from "../lib/centralizedCalculations.ts";
 import {
   CalculationParameter,
   ClassName,
   ComponentType,
   Project,
+  ProjectResponse,
   TGenericComponent,
 } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
@@ -26,10 +31,14 @@ type FunctionalClassComponentProps = {
   deleteFunctionalComponent: (componentId: number) => Promise<void>;
   project: Project;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  setProjectResponse: React.Dispatch<
+    React.SetStateAction<ProjectResponse | null>
+  >;
   isLatest: boolean;
-  forceCollapsed: boolean;
-  collapseVersion: number;
+  collapsed: boolean;
+  onCollapseChange: (componentId: number, collapsed: boolean) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
+  debouncedSaveProject: () => void;
 };
 
 export default function FunctionalClassComponent({
@@ -38,16 +47,14 @@ export default function FunctionalClassComponent({
   project,
   setProject,
   isLatest,
-  forceCollapsed,
-  collapseVersion,
+  collapsed,
+  onCollapseChange,
+  debouncedSaveProject,
   dragHandleProps,
 }: FunctionalClassComponentProps) {
-  const [collapsed, setCollapsed] = useState(forceCollapsed);
-
-  // Sync collapsed state with forceCollapsed prop
-  useEffect(() => {
-    setCollapsed(forceCollapsed);
-  }, [forceCollapsed, collapseVersion]);
+  const toggleCollapse = () => {
+    onCollapseChange(component.id, !collapsed);
+  };
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
@@ -56,14 +63,17 @@ export default function FunctionalClassComponent({
   const componentTypeOptions = getComponentTypeOptions(component.className);
   const inputFields = getInputFields(component.className);
 
-  //todo: does the user need to explicitly select component type for points to be calculated?
-  const calculateFunction = getCalculateFuntion(
-    component.className && component.componentType ? component.className : "",
-  );
+  // Calculate functional points using centralized calculations
+  const fullPoints = calculateBasePoints(component);
+  const pointsByDegreeOfCompletion = calculateComponentPoints(component);
 
-  const fullPoints = calculateFunction ? calculateFunction(component) : 0;
-  const pointsByDegreeOfCompletion =
-    (component.degreeOfCompletion || 0) * fullPoints;
+  const degreeOfCompletionOptions = new Map([
+    ["0.1", translation.degreeOfCompletion.specified],
+    ["0.3", translation.degreeOfCompletion.planned],
+    ["0.7", translation.degreeOfCompletion.implemented],
+    ["0.9", translation.degreeOfCompletion.tested],
+    ["1", translation.degreeOfCompletion.readyForUse],
+  ]);
 
   const handleClassNameChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select classname only from predefined options
@@ -86,6 +96,10 @@ export default function FunctionalClassComponent({
       functionalComponents: updatedComponents,
     };
     setProject(updatedProject);
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
   };
 
   const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -105,10 +119,17 @@ export default function FunctionalClassComponent({
       functionalComponents: updatedComponents,
     };
     setProject(updatedProject);
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
   };
 
   const handleComponentChange = (
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
+    e:
+      | ChangeEvent<HTMLInputElement>
+      | ChangeEvent<HTMLTextAreaElement>
+      | ChangeEvent<HTMLSelectElement>,
   ) => {
     let updatedComponent;
     let value = e.target.value;
@@ -117,35 +138,42 @@ export default function FunctionalClassComponent({
     //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["title", "description"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
+    } else if (
+      e.target.id === "degreeOfCompletion" ||
+      e.target.id === "degreeOfCompletionOptions"
+    ) {
+      const num = parseFloat(value);
+
+      //This is the simplest solution for fixing values that aren't numbers,
+      //including values that have commas such as 0,95.
+
+      //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
+      //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
+      //for increment - decrement input field of defreeOfCompletion.
+      if (isNaN(num)) {
+        value = "0";
+        console.log("Please do not type commas for percentage.");
+      } else {
+        if (num < 0) value = "0";
+        if (num > 1) value = "1";
+      }
+
+      updatedComponent = {
+        ...component,
+        degreeOfCompletion: parseFloat(value),
+      };
     } else {
-      if (e.target.id === "degreeOfCompletion") {
-        const num = parseFloat(value);
-
-        //This is the simplest solution for fixing values that aren't numbers,
-        //including values that have commas such as 0,95.
-
-        //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
-        //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
-        //for increment - decrement input field of defreeOfCompletion.
-        if (isNaN(num)) {
-          value = "0";
-          console.log("Please do not type commas for percentage.");
-        } else {
-          if (num < 0) value = "0";
-          if (num > 1) value = "1";
-        }
-      } else if (e.target.id !== "title" && e.target.id !== "description") {
-        const num = parseFloat(value);
-        // correct any number greater than 99999 and less than 0
-        if (num > 99999) {
-          value = "99999";
-        } else if (num < 0) {
-          value = "0";
-        }
+      const num = parseFloat(value);
+      // correct any number greater than 99999 and less than 0
+      if (num > 99999) {
+        value = "99999";
+      } else if (num < 0) {
+        value = "0";
       }
 
       updatedComponent = { ...component, [e.target.id]: value };
     }
+
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
         functionalComponent.id === component.id
@@ -157,15 +185,19 @@ export default function FunctionalClassComponent({
       functionalComponents: updatedComponents,
     };
     setProject(updatedProject);
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
   };
 
   return (
     <>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 my-5 w-full p-4 rounded-lg"
+        className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 w-full p-4 rounded-lg"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           {/* Drag handle */}
           <div
             {...dragHandleProps}
@@ -189,7 +221,7 @@ export default function FunctionalClassComponent({
               {/* Collapse button */}
               <button
                 type="button"
-                onClick={() => setCollapsed((prev) => !prev)}
+                onClick={toggleCollapse}
                 className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
               >
                 <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
@@ -214,17 +246,36 @@ export default function FunctionalClassComponent({
               <label className="font-bold text-fisma-blue">
                 {translation.degreeOfCompletionPlaceholder}:
               </label>
-              <input
-                id="degreeOfCompletion"
-                type="number"
-                min={0.01}
-                max={1}
-                step={0.01}
-                value={component.degreeOfCompletion || ""}
-                onChange={handleComponentChange}
-                className="border-2 border-fisma-dark-gray bg-white min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
-                disabled={!isLatest}
-              />
+              <div className="flex flex-wrap gap-4">
+                <input
+                  id="degreeOfCompletion"
+                  type="number"
+                  min={0.01}
+                  max={1}
+                  step={0.01}
+                  value={component.degreeOfCompletion || ""}
+                  onChange={handleComponentChange}
+                  className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                  disabled={!isLatest}
+                />
+                <select
+                  id="degreeOfCompletionOptions"
+                  value={getClosestCompletionOption(
+                    component.degreeOfCompletion || 0,
+                  )}
+                  onChange={handleComponentChange}
+                  className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                  disabled={!isLatest}
+                >
+                  {Array.from(degreeOfCompletionOptions.entries()).map(
+                    ([key, value]) => (
+                      <option key={key} value={key}>
+                        {key} - {value}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
               <p className="text-xs text-gray-900">
                 {translation.degreeOfCompletionDescription}
               </p>

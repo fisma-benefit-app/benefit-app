@@ -20,10 +20,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    AppUser appUser = this.appUserRepository.findByUsername(username);
-    if (appUser == null) {
-      throw new UsernameNotFoundException("username " + username + " is not found");
-    }
+    AppUser appUser =
+        this.appUserRepository
+            .findByUsernameActive(username)
+            .orElseThrow(
+                () -> new UsernameNotFoundException("username " + username + " is not found"));
     return new AppUserDetails(appUser);
   }
 
@@ -33,7 +34,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Collections.unmodifiableList(AuthorityUtils.createAuthorityList("ROLE_USER"));
 
     AppUserDetails(AppUser appUser) {
-      super(appUser.getId(), appUser.getUsername(), appUser.getPassword());
+      super(appUser.getId(), appUser.getUsername(), appUser.getPassword(), appUser.getDeletedAt());
     }
 
     @Override

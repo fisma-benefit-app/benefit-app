@@ -157,7 +157,7 @@ This project is built with:
 
 <details>
 <summary><b>Click here to view the database diagram</b></summary>
-<img src="./documents/img/images_for_guides/database_diagram.png" />
+<img src="./documents/img/images_for_guides/database_diagram.png" height="508" width="1290"/>
 </details><br>
 
 More information on how to access the database can found in the [database guide](/documents/guides/database.md).
@@ -246,7 +246,7 @@ Open:
      ```
    - Test DB connection:
      ```bash
-     docker exec -it benefit-app-postgres-1 psql -U POSTGRES_USER POSTGRES_DB
+     docker exec -it fisma_db psql -U POSTGRES_USER POSTGRES_DB
      ```
    - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
 4. Start backend:

@@ -3,29 +3,52 @@ package fi.fisma.backend.repository;
 import fi.fisma.backend.domain.Project;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.jdbc.repository.query.Query;
-import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ProjectRepository extends ListCrudRepository<Project, Long> {
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+  @Query("SELECT p FROM Project p WHERE p.id = :id AND p.deletedAt IS NULL")
+  Optional<Project> findByIdActive(@Param("id") Long id);
+
   @Query(
-      """
-            SELECT p.*
-            FROM project p
-            JOIN project_app_user pau ON p.id = pau.project_id
-            JOIN app_user u ON pau.app_user_id = u.id
-            WHERE p.id = :projectId AND u.username = :username
-            """)
-  Optional<Project> findByProjectIdAndUsername(
+      value =
+          """
+        SELECT p.*
+        FROM projects p
+        WHERE p.deleted_at IS NULL
+        """,
+      nativeQuery = true)
+  List<Project> findAllActive();
+
+  @Query(
+      value =
+          """
+        SELECT p.*
+        FROM projects p
+        JOIN projects_app_users pau ON p.id = pau.project_id
+        JOIN app_users u ON pau.app_user_id = u.id
+        WHERE p.id = :projectId
+        AND u.username = :username
+        AND p.deleted_at IS NULL
+        AND u.deleted_at IS NULL
+        """,
+      nativeQuery = true)
+  Optional<Project> findByProjectIdAndUsernameActive(
       @Param("projectId") Long projectId, @Param("username") String username);
 
   @Query(
-      """
-            SELECT p.*
-            FROM project p
-            JOIN project_app_user pau ON p.id = pau.project_id
-            JOIN app_user u ON pau.app_user_id = u.id
-            WHERE u.username = :username
-            """)
-  List<Project> findAllByUsername(@Param("username") String username);
+      value =
+          """
+        SELECT p.*
+        FROM projects p
+        JOIN projects_app_users pau ON p.id = pau.project_id
+        JOIN app_users u ON pau.app_user_id = u.id
+        WHERE u.username = :username
+        AND p.deleted_at IS NULL
+        AND u.deleted_at IS NULL
+        ORDER BY p.version DESC
+        """,
+      nativeQuery = true)
+  List<Project> findAllByUsernameActive(@Param("username") String username);
 }
