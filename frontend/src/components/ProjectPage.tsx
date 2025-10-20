@@ -31,7 +31,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import Alert from "./Alert.tsx";
+import { useAlert } from "../context/AlertProvider.tsx";
 
 function SortableFunctionalComponent({
   component,
@@ -141,7 +141,7 @@ export default function ProjectPage() {
       .slice() // copy first so we don’t mutate state
       .sort((a, b) => a.orderPosition - b.orderPosition) || [];
   // Alert functionality
-  const { showNotification, NotificationComponent } = Alert();
+  const { showNotification, updateNotification } = useAlert();
 
   // Flag for tracking manual saves
   const isManuallySaved = useRef(false);
@@ -151,7 +151,12 @@ export default function ProjectPage() {
     if (!project || isManuallySaved.current) {
       return;
     }
-    showNotification(alertTranslation.save, alertTranslation.saving, "loading");
+    showNotification(
+      alertTranslation.save,
+      alertTranslation.saving,
+      "loading",
+      "auto-save",
+    );
 
     try {
       // normalize before saving
@@ -162,11 +167,12 @@ export default function ProjectPage() {
       const editedProject = {
         ...project,
         FunctionalClassComponent: normalized,
-        editedDate: CreateCurrentDate(),
+        updatedAt: CreateCurrentDate(),
       };
       await updateProject(sessionToken, editedProject);
 
-      showNotification(
+      updateNotification(
+        "auto-save",
         alertTranslation.success,
         alertTranslation.saveSuccessful,
         "success",
@@ -176,7 +182,8 @@ export default function ProjectPage() {
         logout();
       }
 
-      showNotification(
+      updateNotification(
+        "auto-save",
         alertTranslation.error,
         alertTranslation.saveFailed,
         "error",
@@ -342,6 +349,7 @@ export default function ProjectPage() {
         alertTranslation.save,
         alertTranslation.saving,
         "loading",
+        "manual-save",
       );
       try {
         // normalize before saving
@@ -353,11 +361,12 @@ export default function ProjectPage() {
         const editedProject = {
           ...project,
           functionalComponents: normalized,
-          editedDate: CreateCurrentDate(),
+          updatedAt: CreateCurrentDate(),
         };
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
-        showNotification(
+        updateNotification(
+          "manual-save",
           alertTranslation.success,
           alertTranslation.saveSuccessful,
           "success",
@@ -366,7 +375,8 @@ export default function ProjectPage() {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
         }
-        showNotification(
+        updateNotification(
+          "manual-save",
           alertTranslation.error,
           alertTranslation.saveFailed,
           "error",
@@ -452,7 +462,6 @@ export default function ProjectPage() {
 
   return (
     <>
-      <NotificationComponent />
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
         {/* SUMMARY (on top for small screens, on right for large) */}
         <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-32 mb-10 xl:mb-0 xl:order-2">
