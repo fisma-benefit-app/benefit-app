@@ -59,7 +59,7 @@ function NotificationToast({
 
   return (
     <div
-      className={`fixed top-18 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 transform rounded-lg border p-4 shadow-lg transition-all duration-300 ${typeStyles[type]}`}
+      className={`fixed top-20 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 transform rounded-lg border p-4 shadow-lg transition-all duration-300 ${typeStyles[type]}`}
     >
       <div className="flex items-start gap-3">
         <div className="mt-0.5">{typeIcons[type]}</div>
