@@ -31,7 +31,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import Alert from "./Alert.tsx";
+import useAlert from "./Alert.tsx";
 
 function SortableFunctionalComponent({
   component,
@@ -141,7 +141,7 @@ export default function ProjectPage() {
       .slice() // copy first so we don’t mutate state
       .sort((a, b) => a.orderPosition - b.orderPosition) || [];
   // Alert functionality
-  const { showNotification, NotificationComponent } = Alert();
+  const { showNotification, NotificationComponent } = useAlert();
 
   // Flag for tracking manual saves
   const isManuallySaved = useRef(false);

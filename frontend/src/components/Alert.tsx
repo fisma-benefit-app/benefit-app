@@ -1,4 +1,12 @@
 import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCircleCheck,
+  faCircleInfo,
+  faTriangleExclamation,
+  faSpinner,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 
 type NotificationType = "success" | "error" | "loading" | "info";
 
@@ -23,7 +31,7 @@ function NotificationToast({
   onClose: () => void;
 }) {
   useEffect(() => {
-    if (isVisible && type !== "loading") {
+    if (isVisible && type !== "loading" && type !== "error") {
       const timer = setTimeout(() => {
         onClose();
       }, 5000);
@@ -33,19 +41,47 @@ function NotificationToast({
 
   if (!isVisible) return null;
 
+  const typeStyles: Record<NotificationType, string> = {
+    success: "bg-green-100 border-green-500 text-green-900",
+    error: "bg-red-100 border-red-500 text-red-900",
+    loading: "bg-yellow-100 border-yellow-500 text-yellow-900",
+    info: "bg-blue-100 border-blue-500 text-blue-900",
+  };
+
+  const typeIcons: Record<NotificationType, JSX.Element> = {
+    success: <FontAwesomeIcon icon={faCircleCheck} className="text-green-600 text-lg" />,
+    error: <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-600 text-lg" />,
+    loading: (
+      <FontAwesomeIcon icon={faSpinner} className="text-yellow-600 text-lg animate-spin" />
+    ),
+    info: <FontAwesomeIcon icon={faCircleInfo} className="text-blue-600 text-lg" />,
+  };
+
   return (
-    <div className="fixed top-32 right-5 z-50 max-w-sm w-full bg-white border border-gray-300 p-4 rounded-lg shadow-lg transition-all duration-300 transform">
-      <div className="flex items-start">
+    <div
+      className={`fixed top-18 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 transform rounded-lg border p-4 shadow-lg transition-all duration-300 ${typeStyles[type]}`}
+    >
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5">{typeIcons[type]}</div>
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm mt-1 text-gray-700">{message}</p>
+          <h3 className="text-sm font-semibold">{title}</h3>
+          <p className="mt-1 text-sm">{message}</p>
         </div>
+        {type === "error" && (
+          <button
+            onClick={onClose}
+            className="ml-3 text-red-700 hover:text-red-900 transition"
+            aria-label="Close"
+          >
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
-export default function Alert() {
+export default function useAlert() {
   const [notification, setNotification] = useState<NotificationState>({
     title: "",
     message: "",
