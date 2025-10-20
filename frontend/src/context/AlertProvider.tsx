@@ -87,7 +87,11 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
   const NotificationContainer = () => (
     <div className="fixed top-18 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3">
       {notifications.map((n) => (
-        <NotificationToast key={n.id} {...n} onClose={() => hideNotification(n.id)} />
+        <NotificationToast
+          key={n.id}
+          {...n}
+          onClose={() => hideNotification(n.id)}
+        />
       ))}
     </div>
   );
@@ -137,10 +141,27 @@ function NotificationToast({
   };
 
   const typeIcons: Record<NotificationType, JSX.Element> = {
-    success: <FontAwesomeIcon icon={faCircleCheck} className="text-green-600 text-lg" />,
-    error: <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-600 text-lg" />,
-    loading: <FontAwesomeIcon icon={faSpinner} className="text-yellow-600 text-lg animate-spin" />,
-    info: <FontAwesomeIcon icon={faCircleInfo} className="text-blue-600 text-lg" />,
+    success: (
+      <FontAwesomeIcon
+        icon={faCircleCheck}
+        className="text-green-600 text-lg"
+      />
+    ),
+    error: (
+      <FontAwesomeIcon
+        icon={faTriangleExclamation}
+        className="text-red-600 text-lg"
+      />
+    ),
+    loading: (
+      <FontAwesomeIcon
+        icon={faSpinner}
+        className="text-yellow-600 text-lg animate-spin"
+      />
+    ),
+    info: (
+      <FontAwesomeIcon icon={faCircleInfo} className="text-blue-600 text-lg" />
+    ),
   };
 
   return (

@@ -151,7 +151,12 @@ export default function ProjectPage() {
     if (!project || isManuallySaved.current) {
       return;
     }
-    showNotification(alertTranslation.save, alertTranslation.saving, "loading", "auto-save");
+    showNotification(
+      alertTranslation.save,
+      alertTranslation.saving,
+      "loading",
+      "auto-save",
+    );
 
     try {
       // normalize before saving
