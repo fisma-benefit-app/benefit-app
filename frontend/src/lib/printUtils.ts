@@ -4,20 +4,41 @@ import {
   calculateTotalPoints,
   calculateTotalPossiblePoints,
   calculateBasePoints,
+  calculateComponentsWithPoints,
 } from "./centralizedCalculations.ts";
 
 export const convertToCSV = (
   rows: Record<string, unknown>[],
+  translations: Record<string, string>,
   delimiter = ";",
 ) => {
   if (!rows.length) return "";
 
-  const headers = Object.keys(rows[0]);
-  const headerRow = headers.join(delimiter);
+  const headers = Object.keys(rows[0]).filter(
+    (key) =>
+      ![
+        // Exclusion list for CSV export
+        "orderPosition",
+        "previousFCId",
+        "functionalMultiplier",
+      ].includes(key),
+  );
+
+  const headerRow = headers.map((h) => translations[h] || h).join(delimiter);
 
   const encodeCell = (v: unknown) => {
     if (v == null) return "";
-    const s = String(v).replace(/"/g, '""');
+    let s = String(v).replace(/"/g, '""');
+
+    // Change decimal delimiters so excel doesn't turn them into dates
+    // TODO: This might need to be adjusted for different locales
+    if (
+      typeof v === "number" ||
+      (!isNaN(Number(v)) && v.toString().trim() !== "")
+    ) {
+      s = s.replace(".", ",");
+    }
+
     return s.includes(delimiter) || /["\r\n]/.test(s) ? `"${s}"` : s;
   };
 
@@ -67,9 +88,22 @@ export const encodeComponentForCSV = (
   };
 };
 
-export const downloadProjectComponentsCsv = async (project: Project) => {
+export const downloadProjectComponentsCsv = async (
+  project: Project,
+  translations: Record<string, string>,
+) => {
+  const projectWithPoints = {
+    ...project,
+    functionalComponents: calculateComponentsWithPoints(
+      project.functionalComponents,
+    ),
+  };
+
   const csvData = convertToCSV(
-    project.functionalComponents.map((c) => encodeComponentForCSV(c, ";")),
+    projectWithPoints.functionalComponents.map((c) =>
+      encodeComponentForCSV(c, ";"),
+    ),
+    translations,
     ";",
   );
   downloadCSV(csvData, `${project.projectName}.csv`);

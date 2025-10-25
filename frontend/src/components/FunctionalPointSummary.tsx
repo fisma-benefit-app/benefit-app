@@ -4,7 +4,6 @@ import {
   calculateTotalPoints,
   calculateTotalPossiblePoints,
   getGroupedComponents,
-  calculateComponentsWithPoints,
 } from "../lib/centralizedCalculations";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
@@ -46,6 +45,10 @@ export const FunctionalPointSummary = ({
       translation.functionalClassComponent.classNameOptions,
       translation.functionalClassComponent.componentTypeOptions,
     );
+  };
+
+  const handleExportCSV = () => {
+    downloadProjectComponentsCsv(project, translation.csvHeaders);
   };
 
   return (
@@ -156,14 +159,7 @@ export const FunctionalPointSummary = ({
 
       <div className="flex flex-row gap-2 mt-3 justify-center">
         <button
-          onClick={() =>
-            downloadProjectComponentsCsv({
-              ...project,
-              functionalComponents: calculateComponentsWithPoints(
-                project.functionalComponents,
-              ),
-            })
-          }
+          onClick={handleExportCSV}
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
         >
           CSV <FontAwesomeIcon icon={faDownload} />
