@@ -63,6 +63,7 @@ export const encodeComponentForCSV = (
     ...component,
     title: escapeCsv(component.title),
     description: escapeCsv(component.description),
+    totalPossiblePoints: calculateBasePoints(component).toFixed(2),
   };
 };
 
