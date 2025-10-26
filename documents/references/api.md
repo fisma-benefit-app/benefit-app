@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Project API v1.1.0](#project-api-v110)
+- [Project API v1.0.0](#project-api-v100)
 - [Authentication](#authentication)
 - [Project Management](#project-management)
   - [Get a project by ID](#get-a-project-by-id)
@@ -32,11 +32,11 @@
 
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="project-api">Project API v1.1.0</h1>
+<h1 id="project-api">Project API v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
-API for managing software project function point calculations
+API documentation for the benefit application
 
 Base URLs:
 
