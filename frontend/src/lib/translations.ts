@@ -153,6 +153,15 @@ export const translations = {
       csv: "Export CSV",
       pdf: "Export PDF",
     },
+    alert: {
+      save: "Save",
+      saving: "Saving...",
+      success: "Success",
+      saveSuccessful: "Project saved successfully",
+      error: "Error",
+      saveFailed: "Save failed",
+      loading: "Loading...",
+    },
   },
   fi: {
     header: {
@@ -309,6 +318,15 @@ export const translations = {
       functionalPointText: "TP",
       csv: "Luo CSV",
       pdf: "Luo PDF",
+    },
+    alert: {
+      save: "Tallennus",
+      saving: "Tallennetaan...",
+      success: "Tallennus onnistui",
+      saveSuccessful: "Projekti tallennettu onnistuneesti",
+      error: "Virhe",
+      saveFailed: "Tallennus epäonnistui",
+      loading: "Ladataan...",
     },
   },
 };

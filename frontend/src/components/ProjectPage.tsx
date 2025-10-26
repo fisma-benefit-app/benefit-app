@@ -31,6 +31,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useAlert } from "../context/AlertProvider.tsx";
 
 function SortableFunctionalComponent({
   component,
@@ -39,8 +40,9 @@ function SortableFunctionalComponent({
   setProjectResponse,
   deleteFunctionalComponent,
   isLatest,
-  forceCollapsed,
-  collapseVersion,
+  collapsed,
+  onCollapseChange,
+  debouncedSaveProject,
 }: {
   component: TGenericComponent;
   project: Project;
@@ -50,8 +52,9 @@ function SortableFunctionalComponent({
   >;
   deleteFunctionalComponent: (id: number) => Promise<void>;
   isLatest: boolean;
-  forceCollapsed: boolean;
-  collapseVersion: number;
+  collapsed: boolean;
+  onCollapseChange: (componentId: number, collapsed: boolean) => void;
+  debouncedSaveProject: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: component.id });
@@ -69,8 +72,9 @@ function SortableFunctionalComponent({
         component={component}
         deleteFunctionalComponent={deleteFunctionalComponent}
         isLatest={isLatest}
-        forceCollapsed={forceCollapsed}
-        collapseVersion={collapseVersion}
+        collapsed={collapsed}
+        onCollapseChange={onCollapseChange}
+        debouncedSaveProject={debouncedSaveProject}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
     </div>
@@ -79,14 +83,34 @@ function SortableFunctionalComponent({
 
 //TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
 //maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
+
+// Debounce hook for auto-saving projects
+function useDebounce<T extends (...args: unknown[]) => void>(
+  func: T,
+  delay: number,
+) {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function debouncedFunction(...args: Parameters<T>) {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => func(...args), delay);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  return debouncedFunction;
+}
+
 export default function ProjectPage() {
   const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
   const [collapseAll, setCollapseAll] = useState<boolean>(true);
-  const [collapseVersion, setCollapseVersion] = useState<number>(0);
-
   const [project, setProject] = useState<Project | null>(null);
   const [projectResponse, setProjectResponse] =
     useState<ProjectResponse | null>(null);
@@ -99,6 +123,7 @@ export default function ProjectPage() {
   >(null);
 
   const translation = useTranslations().projectPage;
+  const alertTranslation = useTranslations().alert;
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -115,6 +140,81 @@ export default function ProjectPage() {
     project?.functionalComponents
       .slice() // copy first so we don’t mutate state
       .sort((a, b) => a.orderPosition - b.orderPosition) || [];
+  // Alert functionality
+  const { showNotification, updateNotification } = useAlert();
+
+  // Flag for tracking manual saves
+  const isManuallySaved = useRef(false);
+
+  // Debounced auto-save function
+  const debouncedSaveProject = useDebounce(async () => {
+    if (!project || isManuallySaved.current) {
+      return;
+    }
+    showNotification(
+      alertTranslation.save,
+      alertTranslation.saving,
+      "loading",
+      "auto-save",
+    );
+
+    try {
+      // normalize before saving
+      const normalized = project.functionalComponents
+        .slice()
+        .sort((a, b) => a.orderPosition - b.orderPosition)
+        .map((c, idx) => ({ ...c, orderPosition: idx }));
+      const editedProject = {
+        ...project,
+        FunctionalClassComponent: normalized,
+        updatedAt: CreateCurrentDate(),
+      };
+      await updateProject(sessionToken, editedProject);
+
+      updateNotification(
+        "auto-save",
+        alertTranslation.success,
+        alertTranslation.saveSuccessful,
+        "success",
+      );
+    } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized") {
+        logout();
+      }
+
+      updateNotification(
+        "auto-save",
+        alertTranslation.error,
+        alertTranslation.saveFailed,
+        "error",
+      );
+
+      console.error(err);
+    }
+  }, 5000); // Auto-save every 5 seconds
+
+  // Collapse state management for preventing components collapsing during auto-save
+  const [componentCollapseStates, setComponentCollapseStates] = useState<
+    Map<number, boolean>
+  >(new Map());
+
+  const updateComponentCollapseState = (
+    componentId: number,
+    collapsed: boolean,
+  ) => {
+    setComponentCollapseStates((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(componentId, collapsed);
+      return newMap;
+    });
+  };
+
+  const getComponentCollapseState = (componentId: number): boolean => {
+    if (componentCollapseStates.has(componentId)) {
+      return componentCollapseStates.get(componentId)!;
+    }
+    return collapseAll ? componentId !== lastAddedComponentId : false;
+  };
 
   useEffect(() => {
     const getProject = async () => {
@@ -163,6 +263,7 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken, logout]);
 
   const handleCreateFunctionalComponent = async () => {
+    isManuallySaved.current = true;
     setLoadingProject(true);
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
@@ -209,11 +310,15 @@ export default function ProjectPage() {
         console.error(err);
       } finally {
         setLoadingProject(false);
+        setTimeout(() => {
+          isManuallySaved.current = false;
+        }, 2000);
       }
     }
   };
 
   const handleDeleteFunctionalComponent = async (componentId: number) => {
+    isManuallySaved.current = true;
     setLoadingProject(true);
     if (project) {
       try {
@@ -230,13 +335,22 @@ export default function ProjectPage() {
         console.error(err);
       } finally {
         setLoadingProject(false);
+        setTimeout(() => {
+          isManuallySaved.current = false;
+        }, 2000);
       }
     }
   };
 
   const saveProject = async () => {
-    setLoadingProject(true);
+    isManuallySaved.current = true;
     if (project) {
+      showNotification(
+        alertTranslation.save,
+        alertTranslation.saving,
+        "loading",
+        "manual-save",
+      );
       try {
         // normalize before saving
         const normalized = project.functionalComponents
@@ -247,18 +361,34 @@ export default function ProjectPage() {
         const editedProject = {
           ...project,
           functionalComponents: normalized,
-          editedDate: CreateCurrentDate(),
+          updatedAt: CreateCurrentDate(),
         };
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
+        updateNotification(
+          "manual-save",
+          alertTranslation.success,
+          alertTranslation.saveSuccessful,
+          "success",
+        );
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           logout();
         }
+        updateNotification(
+          "manual-save",
+          alertTranslation.error,
+          alertTranslation.saveFailed,
+          "error",
+        );
         console.error(err);
       } finally {
-        setLoadingProject(false);
+        setTimeout(() => {
+          isManuallySaved.current = false;
+        }, 5000);
       }
+    } else {
+      isManuallySaved.current = false;
     }
   };
 
@@ -290,7 +420,7 @@ export default function ProjectPage() {
 
   const saveProjectVersion = async () => {
     if (project) {
-      setLoadingProject(true);
+      isManuallySaved.current = true;
       try {
         await saveProject(); //TODO: Automatic saving instead? (Could use useQuery or similar)
         const idOfNewProjectVersion = await createNewProjectVersion(
@@ -306,7 +436,9 @@ export default function ProjectPage() {
         }
         console.error("Error creating new project version:", err);
       } finally {
-        setLoadingProject(false);
+        setTimeout(() => {
+          isManuallySaved.current = false;
+        }, 5000);
       }
     }
   };
@@ -329,156 +461,158 @@ export default function ProjectPage() {
   if (loadingProject) return <LoadingSpinner />;
 
   return (
-    <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
-      {/* SUMMARY (on top for small screens, on right for large) */}
-      <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-32 mb-10 xl:mb-0 xl:order-2">
-        <div className="flex flex-col gap-2">
+    <>
+      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
+        {/* SUMMARY (on top for small screens, on right for large) */}
+        <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-32 mb-10 xl:mb-0 xl:order-2">
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center w-full">
-              <div className="flex-grow-0 flex flex-col max-w-[calc(100%-140px)]">
-                <div className="text-left font-medium">
-                  {translation.nameOfProject}:
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center w-full">
+                <div className="flex-grow-0 flex flex-col max-w-[calc(100%-140px)]">
+                  <div className="text-left font-medium">
+                    {translation.nameOfProject}:
+                  </div>
+                  <div className="text-left break-words">
+                    {project?.projectName}
+                  </div>
                 </div>
-                <div className="text-left break-words">
-                  {project?.projectName}
-                </div>
+                <button
+                  className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
+                  onClick={() => {
+                    setCollapseAll((prev) => !prev);
+                  }}
+                >
+                  {collapseAll
+                    ? translation.expandAll
+                    : translation.collapseAll}
+                </button>
               </div>
-              <button
-                className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
-                onClick={() => {
-                  setCollapseAll((prev) => !prev);
-                  setCollapseVersion((prev) => prev + 1);
-                }}
+              {isLatest ? (
+                <div className="flex flex-row gap-2 w-full">
+                  <button
+                    className={`w-full ${
+                      !loadingProject
+                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                        : "bg-fisma-gray"
+                    } text-white text-xs py-3 px-4`}
+                    onClick={saveProject}
+                    disabled={loadingProject}
+                  >
+                    {translation.saveProject}
+                  </button>
+                  <button
+                    className={`w-full ${
+                      !loadingProject
+                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                        : "bg-fisma-gray"
+                    } text-white text-xs py-3 px-4`}
+                    onClick={() => setConfirmModalOpen(true)}
+                    disabled={loadingProject}
+                  >
+                    {translation.archiveProjectAsVersion} {project?.version}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-row gap-2 w-full">
+                  <div
+                    role="status"
+                    className="text-center w-full bg-fisma-red text-white text-xs py-3 px-4"
+                  >
+                    {translation.cannotEditOrSaveArchivedVersion}
+                  </div>
+                </div>
+              )}
+              <label
+                htmlFor="version-select"
+                className="text-sm font-medium mt-2"
               >
-                {collapseAll ? translation.expandAll : translation.collapseAll}
+                {translation.selectProjectVersion}
+              </label>
+              <select
+                id="version-select"
+                className="border-2 border-gray-400 px-4 py-4 cursor-pointer mb-2"
+                onChange={handleVersionSelect}
+                value={project?.id || ""}
+                disabled={loadingProject}
+              >
+                {allProjectVersions.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {translation.version} {project.version}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleCreateFunctionalComponent}
+                className={`${
+                  isLatest || !loadingProject
+                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                    : "bg-fisma-gray"
+                } text-white py-3 px-4`}
+                disabled={!isLatest || loadingProject}
+              >
+                {translation.newFunctionalComponent}
               </button>
             </div>
-            {isLatest ? (
-              <div className="flex flex-row gap-2 w-full">
-                <button
-                  className={`w-full ${
-                    !loadingProject
-                      ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                      : "bg-fisma-gray"
-                  } text-white text-xs py-3 px-4`}
-                  onClick={saveProject}
-                  disabled={loadingProject}
-                >
-                  {translation.saveProject}
-                </button>
-                <button
-                  className={`w-full ${
-                    !loadingProject
-                      ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                      : "bg-fisma-gray"
-                  } text-white text-xs py-3 px-4`}
-                  onClick={() => setConfirmModalOpen(true)}
-                  disabled={loadingProject}
-                >
-                  {translation.archiveProjectAsVersion} {project?.version}
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-row gap-2 w-full">
-                <div
-                  role="status"
-                  className="text-center w-full bg-fisma-red text-white text-xs py-3 px-4"
-                >
-                  {translation.cannotEditOrSaveArchivedVersion}
-                </div>
-              </div>
-            )}
-            <label
-              htmlFor="version-select"
-              className="text-sm font-medium mt-2"
-            >
-              {translation.selectProjectVersion}
-            </label>
-            <select
-              id="version-select"
-              className="border-2 border-gray-400 px-4 py-4 cursor-pointer mb-2"
-              onChange={handleVersionSelect}
-              value={project?.id || ""}
-              disabled={loadingProject}
-            >
-              {allProjectVersions.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {translation.version} {project.version}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={handleCreateFunctionalComponent}
-              className={`${
-                isLatest || !loadingProject
-                  ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                  : "bg-fisma-gray"
-              } text-white py-3 px-4`}
-              disabled={!isLatest || loadingProject}
-            >
-              {translation.newFunctionalComponent}
-            </button>
-          </div>
 
-          {Array.isArray(project?.functionalComponents) &&
-            project.functionalComponents.length > 0 && (
-              <FunctionalPointSummary project={project} />
-            )}
-        </div>
-      </div>
-
-      {/* FUNCTIONAL COMPONENTS (below on mobile, left on large screens) */}
-      <div className="flex-1 xl:pr-5 xl:order-1">
-        {project ? (
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={sortedComponents.map((c) => c.id)}
-              strategy={rectSortingStrategy}
-            >
-              <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-                {sortedComponents?.map((component) => (
-                  <SortableFunctionalComponent
-                    key={component.id}
-                    component={component}
-                    project={project}
-                    setProject={setProject}
-                    setProjectResponse={setProjectResponse}
-                    deleteFunctionalComponent={handleDeleteFunctionalComponent}
-                    isLatest={isLatest}
-                    forceCollapsed={
-                      collapseAll
-                        ? component.id !== lastAddedComponentId
-                        : false
-                    }
-                    collapseVersion={collapseVersion}
-                  />
-                ))}
-              </div>
-
-              {sortedComponents.length === 0 && (
-                <p className="text-gray-500 p-4">
-                  {translation.noFunctionalComponents}
-                </p>
+            {Array.isArray(project?.functionalComponents) &&
+              project.functionalComponents.length > 0 && (
+                <FunctionalPointSummary project={project} />
               )}
-              <div ref={bottomRef} />
-            </SortableContext>
-          </DndContext>
-        ) : error ? (
-          <p>{error}</p>
-        ) : (
-          <p></p>
-        )}
-      </div>
+          </div>
+        </div>
 
-      <ConfirmModal
-        message={`${translation.archiveVersionWarningBeginning} ${project?.version}? ${translation.archiveVersionWarningEnd}`}
-        open={isConfirmModalOpen}
-        setOpen={setConfirmModalOpen}
-        onConfirm={() => saveProjectVersion()}
-      />
-    </div>
+        {/* FUNCTIONAL COMPONENTS (below on mobile, left on large screens) */}
+        <div className="flex-1 xl:pr-5 xl:order-1">
+          {project ? (
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={sortedComponents.map((c) => c.id)}
+                strategy={rectSortingStrategy}
+              >
+                <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+                  {sortedComponents?.map((component) => (
+                    <SortableFunctionalComponent
+                      key={component.id}
+                      component={component}
+                      project={project}
+                      setProject={setProject}
+                      setProjectResponse={setProjectResponse}
+                      deleteFunctionalComponent={
+                        handleDeleteFunctionalComponent
+                      }
+                      isLatest={isLatest}
+                      collapsed={getComponentCollapseState(component.id)}
+                      onCollapseChange={updateComponentCollapseState}
+                      debouncedSaveProject={debouncedSaveProject}
+                    />
+                  ))}
+                </div>
+
+                {sortedComponents.length === 0 && (
+                  <p className="text-gray-500 p-4">
+                    {translation.noFunctionalComponents}
+                  </p>
+                )}
+                <div ref={bottomRef} />
+              </SortableContext>
+            </DndContext>
+          ) : error ? (
+            <p>{error}</p>
+          ) : (
+            <p></p>
+          )}
+        </div>
+
+        <ConfirmModal
+          message={`${translation.archiveVersionWarningBeginning} ${project?.version}? ${translation.archiveVersionWarningEnd}`}
+          open={isConfirmModalOpen}
+          setOpen={setConfirmModalOpen}
+          onConfirm={() => saveProjectVersion()}
+        />
+      </div>
+    </>
   );
 }

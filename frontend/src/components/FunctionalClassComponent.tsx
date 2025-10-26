@@ -4,7 +4,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import {
@@ -35,9 +35,10 @@ type FunctionalClassComponentProps = {
     React.SetStateAction<ProjectResponse | null>
   >;
   isLatest: boolean;
-  forceCollapsed: boolean;
-  collapseVersion: number;
+  collapsed: boolean;
+  onCollapseChange: (componentId: number, collapsed: boolean) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
+  debouncedSaveProject: () => void;
 };
 
 export default function FunctionalClassComponent({
@@ -46,16 +47,14 @@ export default function FunctionalClassComponent({
   project,
   setProject,
   isLatest,
-  forceCollapsed,
-  collapseVersion,
+  collapsed,
+  onCollapseChange,
+  debouncedSaveProject,
   dragHandleProps,
 }: FunctionalClassComponentProps) {
-  const [collapsed, setCollapsed] = useState(forceCollapsed);
-
-  // Sync collapsed state with forceCollapsed prop
-  useEffect(() => {
-    setCollapsed(forceCollapsed);
-  }, [forceCollapsed, collapseVersion]);
+  const toggleCollapse = () => {
+    onCollapseChange(component.id, !collapsed);
+  };
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
@@ -97,6 +96,10 @@ export default function FunctionalClassComponent({
       functionalComponents: updatedComponents,
     };
     setProject(updatedProject);
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
   };
 
   const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -116,6 +119,10 @@ export default function FunctionalClassComponent({
       functionalComponents: updatedComponents,
     };
     setProject(updatedProject);
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
   };
 
   const handleComponentChange = (
@@ -178,6 +185,10 @@ export default function FunctionalClassComponent({
       functionalComponents: updatedComponents,
     };
     setProject(updatedProject);
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
   };
 
   return (
@@ -210,7 +221,7 @@ export default function FunctionalClassComponent({
               {/* Collapse button */}
               <button
                 type="button"
-                onClick={() => setCollapsed((prev) => !prev)}
+                onClick={toggleCollapse}
                 className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
               >
                 <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
