@@ -1,73 +1,72 @@
 openapi: 3.1.0
 info:
   title: Project API
-  version: "1.1.0"
-  description: API for managing software project function point calculations
+  description: API documentation for the benefit application
+  version: 1.1.0
 servers:
-  - url: http://localhost:8080
-    description: Generated server url
+- url: http://localhost:8080
+  description: Generated server url
 tags:
-  - name: Project Management
-    description: Endpoints for managing projects
-  - name: User Management
-    description: Endpoints for managing user accounts
-  - name: Functional Components
-    description: Endpoints for managing functional components within projects
-  - name: Token Generation
-    description: Endpoint for generating token
+- name: Project Management
+  description: Endpoints for managing projects
+- name: User Management
+  description: Endpoints for managing user accounts
+- name: Functional Components
+  description: Endpoints for managing functional components within projects
+- name: Token Generation
+  description: Endpoint for generating token
 paths:
   /projects/{id}:
     get:
       tags:
-        - Project Management
+      - Project Management
       summary: Get a project by ID
-      description:
-        Retrieves a specific project if the authenticated user has access
+      description: Retrieves a specific project if the authenticated user has access
         to it
       operationId: getProject
       parameters:
-        - name: id
-          in: path
-          description: ID of the project to retrieve
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        description: ID of the project to retrieve
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "200":
           description: Project found and returned
           content:
-            "*/*":
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Project not found
           content:
-            "*/*":
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "403":
           description: User does not have access to this project
           content:
-            "*/*":
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - Project Management
+      - Project Management
       summary: Update a project
       description: Updates an existing project if the authenticated user owns it
       operationId: updateProject
       parameters:
-        - name: id
-          in: path
-          description: ID of the project to update
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        description: ID of the project to update
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -78,37 +77,37 @@ paths:
         "200":
           description: Project updated successfully
           content:
-            "*/*":
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Project not found
           content:
-            "*/*":
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "403":
           description: User does not have permission to update this project
           content:
-            "*/*":
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - Project Management
+      - Project Management
       summary: Delete a project
       description: Deletes a project if the authenticated user owns it
       operationId: deleteProject
       parameters:
-        - name: id
-          in: path
-          description: ID of the project to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        description: ID of the project to delete
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "204":
           description: Project deleted successfully
@@ -117,11 +116,11 @@ paths:
         "403":
           description: User does not have permission to delete this project
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /appusers/password:
     put:
       tags:
-        - User Management
+      - User Management
       summary: Change user password
       description: Allows authenticated users to change their password
       operationId: changePassword
@@ -135,27 +134,27 @@ paths:
         "200":
           description: Password changed successfully
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: string
         "400":
           description: Invalid password format
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: string
         "401":
           description: User not authenticated
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: string
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /token:
     post:
       tags:
-        - Token Generation
+      - Token Generation
       summary: Generate a JWT
       description: Generates a signed JWT for an authenticated user
       operationId: getToken
@@ -163,25 +162,25 @@ paths:
         "200":
           description: Token generated successfully
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: object
         "401":
           description: User not authenticated
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: object
         "500":
           description: Failed to encode the token
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: object
   /projects:
     get:
       tags:
-        - Project Management
+      - Project Management
       summary: Get all projects
       description: Retrieves all projects accessible to the authenticated user
       operationId: getAllProjects
@@ -189,16 +188,16 @@ paths:
         "200":
           description: List of projects returned
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/ProjectResponse"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - Project Management
+      - Project Management
       summary: Create a new project
       description: Creates a new project for the authenticated user
       operationId: createProject
@@ -214,22 +213,22 @@ paths:
         "400":
           description: Invalid project data
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /projects/{id}/versions:
     post:
       tags:
-        - Project Management
+      - Project Management
       summary: Create a new version of a project
       description: Creates a new version of an existing project
       operationId: createProjectVersion
       parameters:
-        - name: id
-          in: path
-          description: ID of the project to version
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        description: ID of the project to version
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -244,21 +243,21 @@ paths:
         "403":
           description: User does not have permission
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /functional-components/projects/{projectId}:
     post:
       tags:
-        - Functional Components
+      - Functional Components
       summary: Create a new functional component
       description: Creates a new functional component in the specified project
       operationId: createFunctionalComponent
       parameters:
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -269,44 +268,44 @@ paths:
         "200":
           description: OK
           content:
-            "*/*":
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /functional-components/{componentId}/projects/{projectId}:
     delete:
       tags:
-        - Functional Components
+      - Functional Components
       summary: Delete a functional component
       description: Deletes a functional component from the specified project
       operationId: deleteFunctionalComponent
       parameters:
-        - name: componentId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: componentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "200":
           description: OK
           content:
-            "*/*":
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /appusers:
     delete:
       tags:
-        - User Management
+      - User Management
       summary: Delete user account
       description: Permanently deletes the authenticated user's account
       operationId: deleteAppUser
@@ -316,13 +315,12 @@ paths:
         "401":
           description: User not authenticated
       security:
-        - bearerAuth: []
+      - bearerAuth: []
 components:
   schemas:
     FunctionalComponentRequest:
       type: object
-      description:
-        Request object for creating or updating functional components within
+      description: Request object for creating or updating functional components within
         a project
       properties:
         id:
@@ -400,7 +398,7 @@ components:
           example: 1
           minimum: 0
       required:
-        - orderPosition
+      - orderPosition
     ProjectRequest:
       type: object
       description: Request object for creating or updating a project
@@ -430,8 +428,8 @@ components:
             format: int64
           uniqueItems: true
       required:
-        - projectName
-        - version
+      - projectName
+      - version
     AppUserSummary:
       type: object
       description: Summary information about an application user
@@ -448,8 +446,7 @@ components:
           maxLength: 50
     FunctionalComponentResponse:
       type: object
-      description:
-        Response object containing details on functional components within
+      description: Response object containing details on functional components within
         a project
       properties:
         id:
@@ -590,7 +587,7 @@ components:
           maxLength: 64
           minLength: 0
       required:
-        - newPassword
+      - newPassword
   securitySchemes:
     bearerAuth:
       type: http
