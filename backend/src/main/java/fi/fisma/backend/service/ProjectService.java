@@ -1,6 +1,5 @@
 package fi.fisma.backend.service;
 
-import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.ProjectRequest;
@@ -8,6 +7,7 @@ import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
+import fi.fisma.backend.mapper.FunctionalComponentMapper;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
@@ -29,6 +29,7 @@ public class ProjectService {
 
   private final ProjectRepository projectRepository;
   private final AppUserRepository appUserRepository;
+  private final FunctionalComponentMapper functionalComponentMapper;
   private final FunctionalComponentRepository functionalComponentRepository;
   private final ProjectMapper projectMapper;
 
@@ -111,40 +112,16 @@ public class ProjectService {
             .findByUsernameActive(username)
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
+    // Create new version with all associations
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
-
     var savedProject = projectRepository.save(newVersion);
 
-    var functionalComponents =
-        originalProject.getFunctionalComponents().stream()
-            .map(
-                fc -> {
-                  var newComponent =
-                      new FunctionalComponent(
-                          null,
-                          fc.getTitle(),
-                          fc.getDescription(),
-                          fc.getClassName(),
-                          fc.getComponentType(),
-                          fc.getDataElements(),
-                          fc.getReadingReferences(),
-                          fc.getWritingReferences(),
-                          fc.getFunctionalMultiplier(),
-                          fc.getOperations(),
-                          fc.getDegreeOfCompletion(),
-                          fc.getId(), // Set previous component's ID
-                          fc.getOrderPosition(),
-                          savedProject,
-                          null);
-                  return functionalComponentRepository.save(newComponent);
-                })
-            .collect(Collectors.toSet());
+    // Set up components
+    var components = functionalComponentMapper.updateEntityFromRequest(newVersion, versionRequest);
+    newVersion.setFunctionalComponents(components);
 
-    // Associate the project with the copied functional components
-    savedProject.setFunctionalComponents(functionalComponents);
-
-    // Associate the project with the requesting user
-    savedProject.setProjectAppUsers(Set.of(new ProjectAppUser(savedProject, appUser)));
+    // Set up user association
+    newVersion.setProjectAppUsers(Set.of(new ProjectAppUser(newVersion, appUser)));
 
     return projectMapper.toResponse(savedProject);
   }

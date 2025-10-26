@@ -5,7 +5,6 @@ import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.dto.FunctionalComponentRequest;
 import fi.fisma.backend.dto.FunctionalComponentResponse;
 import fi.fisma.backend.dto.ProjectRequest;
-import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,18 +63,34 @@ public class FunctionalComponentMapper {
     return request.getFunctionalComponents().stream()
         .map(
             fc -> {
-              if (fc.getId() != null) {
-                return updateExistingComponent(fc);
-              }
-              return createNewComponent(fc, project);
+              // For versioning, always create new component with link to previous component
+              var newComponent =
+                  new FunctionalComponent(
+                      null, // New ID for version
+                      fc.getTitle(),
+                      fc.getDescription(),
+                      fc.getClassName(),
+                      fc.getComponentType(),
+                      fc.getDataElements(),
+                      fc.getReadingReferences(),
+                      fc.getWritingReferences(),
+                      fc.getFunctionalMultiplier(),
+                      fc.getOperations(),
+                      fc.getDegreeOfCompletion(),
+                      fc.getId(), // Link to previous component
+                      fc.getOrderPosition(),
+                      project,
+                      null // Not deleted
+                      );
+
+              return newComponent;
             })
         .collect(Collectors.toSet());
   }
-
+  /*
   private FunctionalComponent updateExistingComponent(FunctionalComponentRequest fc) {
     return functionalComponentRepository
         .findByIdActive(fc.getId())
-        .filter(existing -> existing.getDeletedAt() == null)
         .map(
             existing -> {
               updateComponentFields(existing, fc);
@@ -103,4 +118,6 @@ public class FunctionalComponentMapper {
     existing.setPreviousFCId(fc.getPreviousFCId());
     existing.setOrderPosition(fc.getOrderPosition());
   }
+
+  */
 }
