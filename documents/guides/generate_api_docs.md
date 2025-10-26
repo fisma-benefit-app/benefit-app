@@ -5,18 +5,43 @@
 - Your Spring Boot project is running (see [Getting Started](../../README.md#getting-started))
 - Node.js installed on your system
 
-## Step 1: Download the OpenAPI Spec
+## Generate api.md using script
+
+- From the `documents/references/` folder, make `generate_api_docs.sh` executable:
+
+```bash
+cd ./documents/references
+chmod +x generate_api_docs.sh
+```
+
+- Run the script:
+
+```bash
+./generate_api_docs.sh
+```
+
+- This
+  - Checks if backend is running and Node.js is installed
+  - Creates a `references` directory if it doesn't exist
+  - Downloads `api-docs.yaml`
+  - Installs Widdershins and Doctoc
+  - Creates markdown documentation using Widdershins
+  - Creates table of contents using Doctoc
+
+## Generate api.md manually
+
+### Step 1: Download the OpenAPI Spec
 
 1. Open your browser at http://localhost:8080/v3/api-docs.yaml
 2. Save the file as `documents/references/api-docs.yaml` (overwrite it if it already exists)
 
-## Step 2: Install Widdershins and Doctoc (one-time)
+### Step 2: Install Widdershins and Doctoc (one-time)
 
 ```bash
 npm install -g widdershins doctoc
 ```
 
-## Step 3: Generate Markdown Docs
+### Step 3: Generate Markdown Docs
 
 From the `documents/references/` folder, run:
 
@@ -30,7 +55,7 @@ This creates `documents/references/api.md` with:
 - [x] Expanded request/response bodies
 - [x] No code samples or header
 
-## Step 4: Add or Update the Table of Contents
+### Step 4: Add or Update the Table of Contents
 
 From the `documents/references/` folder, run:
 
