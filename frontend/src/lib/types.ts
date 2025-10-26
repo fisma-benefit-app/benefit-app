@@ -113,6 +113,7 @@ export type TGenericComponent = {
   degreeOfCompletion: number | null;
   previousFCId: number | null;
   orderPosition: number;
+  deletedAt?: string | null;
 };
 
 // Enums and constants

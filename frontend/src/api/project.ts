@@ -133,21 +133,23 @@ const createNewProjectVersion = async (
   const projectRequest: ProjectRequest = {
     projectName: previousProject.projectName,
     version: previousProject.version + 1,
-    functionalComponents: previousProject.functionalComponents.map((fc) => ({
-      // adapt to FunctionalComponentRequest DTO
-      className: fc.className,
-      componentType: fc.componentType,
-      dataElements: fc.dataElements,
-      readingReferences: fc.readingReferences,
-      writingReferences: fc.writingReferences,
-      functionalMultiplier: fc.functionalMultiplier,
-      operations: fc.operations,
-      degreeOfCompletion: fc.degreeOfCompletion,
-      title: fc.title,
-      description: fc.description,
-      previousFCId: fc.id,
-      orderPosition: fc.orderPosition,
-    })),
+    functionalComponents: previousProject.functionalComponents
+      .filter((fc) => !fc.deletedAt)
+      .map((fc) => ({
+        // adapt to FunctionalComponentRequest DTO
+        className: fc.className,
+        componentType: fc.componentType,
+        dataElements: fc.dataElements,
+        readingReferences: fc.readingReferences,
+        writingReferences: fc.writingReferences,
+        functionalMultiplier: fc.functionalMultiplier,
+        operations: fc.operations,
+        degreeOfCompletion: fc.degreeOfCompletion,
+        title: fc.title,
+        description: fc.description,
+        previousFCId: fc.id,
+        orderPosition: fc.orderPosition,
+      })),
     projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
 

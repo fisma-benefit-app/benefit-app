@@ -75,12 +75,14 @@ public class FunctionalComponentMapper {
   private FunctionalComponent updateExistingComponent(FunctionalComponentRequest fc) {
     return functionalComponentRepository
         .findByIdActive(fc.getId())
+        .filter(existing -> existing.getDeletedAt() == null)
         .map(
             existing -> {
               updateComponentFields(existing, fc);
               return existing;
             })
-        .orElseThrow(() -> new EntityNotFoundException("Component not found: " + fc.getId()));
+        .orElseThrow(
+            () -> new EntityNotFoundException("Active component not found: " + fc.getId()));
   }
 
   private FunctionalComponent createNewComponent(FunctionalComponentRequest fc, Project project) {
