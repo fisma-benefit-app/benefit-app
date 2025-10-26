@@ -49,6 +49,7 @@ export const translations = {
       functionalPoints: "Functional Points",
       completionPercentage: "Completion Percentage",
       totalFunctionalPoints: "Total Functional Points",
+      totalPossiblePoints: "100% Functional Points",
     },
     printUtils: {
       projectReport: "Project Report",
@@ -228,6 +229,7 @@ export const translations = {
       functionalPoints: "Toimintopisteet",
       completionPercentage: "Valmistumisprosentti",
       totalFunctionalPoints: "Toimintopisteet Yhteensä",
+      totalPossiblePoints: "100% Toimintopisteet",
     },
     printUtils: {
       projectReport: "Projektiraportti",
