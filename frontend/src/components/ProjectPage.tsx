@@ -263,7 +263,6 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken, logout]);
 
   const handleCreateFunctionalComponent = async () => {
-
     // START Jessen purkkaratkaisu ongelmaan, jossa uusi komponentti poistaa tallentamattomat muutokset vanhoihin komponentteihin
 
     await saveProject();
