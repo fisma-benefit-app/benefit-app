@@ -263,7 +263,14 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken, logout]);
 
   const handleCreateFunctionalComponent = async () => {
-    isManuallySaved.current = true;
+
+    // START Jessen purkkaratkaisu ongelmaan, jossa uusi komponentti poistaa tallentamattomat muutokset vanhoihin komponentteihin
+
+    await saveProject();
+
+    // END Jessen purkkaratkaisu ongelmaan, jossa uusi komponentti poistaa tallentamattomat muutokset vanhoihin komponentteihin
+
+    isManuallySaved.current = true; // TODO: Selvitä miksi tämä määritetään, vaikka mitään ei tallenneta?
     setLoadingProject(true);
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
