@@ -4,47 +4,107 @@ import {
   calculateTotalPoints,
   calculateTotalPossiblePoints,
   calculateBasePoints,
+  calculateComponentsWithPoints,
 } from "./centralizedCalculations.ts";
 
-export const convertToCSV = <T extends Record<string, unknown>>(data: T[]) => {
-  if (data.length === 0) return "";
+export const convertToCSV = (
+  rows: Record<string, unknown>[],
+  translations: Record<string, string>,
+  delimiter = ";",
+) => {
+  if (!rows.length) return "";
 
-  const header = Object.keys(data[0]).join(", ");
-  const rows = data.map((item) => Object.values(item).join(", "));
+  const headers = Object.keys(rows[0]).filter(
+    (key) =>
+      ![
+        // Exclusion list for CSV export
+        "orderPosition",
+        "previousFCId",
+        "functionalMultiplier",
+      ].includes(key),
+  );
 
-  return [header, ...rows].join("\n");
+  const headerRow = headers.map((h) => translations[h] || h).join(delimiter);
+
+  const encodeCell = (v: unknown) => {
+    if (v == null) return "";
+    let s = String(v).replace(/"/g, '""');
+
+    // Change decimal delimiters so excel doesn't turn them into dates
+    // TODO: This might need to be adjusted for different locales
+    if (
+      typeof v === "number" ||
+      (!isNaN(Number(v)) && v.toString().trim() !== "")
+    ) {
+      s = s.replace(".", ",");
+    }
+
+    return s.includes(delimiter) || /["\r\n]/.test(s) ? `"${s}"` : s;
+  };
+
+  const data = rows.map((r) =>
+    headers.map((h) => encodeCell(r[h])).join(delimiter),
+  );
+
+  return [headerRow, ...data].join("\r\n");
 };
 
-export const encodeComponentForCSV = (component: TGenericComponent) => ({
-  ...component,
-  // CSV can't handle commas inside cells without quotation marks, so let's wrap all comments with ""
-  title: component.title ? `"${component.title.replace(/[",]/g, "")}"` : null,
-  description: component.description
-    ? `"${component.description.replace(/[",]/g, "")}"`
-    : null,
-});
-
-export const downloadCSV = (csvData: string, filename: string = "data.csv") => {
-  // Add UTF-8 BOM to ensure proper encoding of Finnish characters (ä, ö, etc.)
+export const downloadCSV = (csvData: string, filename = "data.csv") => {
   const BOM = "\uFEFF";
   const csvWithBOM = BOM + csvData;
 
-  const blob = new Blob([csvWithBOM], {
-    type: "text/csv;charset=utf-8;",
-  });
+  const blob = new Blob([csvWithBOM], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = filename;
+  a.download = filename.endsWith(".csv") ? filename : `${filename}.csv`;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  a.remove();
   URL.revokeObjectURL(url);
 };
 
-export const downloadProjectComponentsCsv = async (project: Project) => {
+export const encodeComponentForCSV = (
+  component: TGenericComponent,
+  delimiter: string = ";",
+) => {
+  const escapeCsv = (value?: string | null) => {
+    if (value == null) return "";
+
+    // Escape quotes by doubling them
+    const escaped = value.replace(/"/g, '""');
+
+    // If the value contains quotes, delimiter, or newlines, wrap in quotes
+    const needsQuotes =
+      escaped.includes('"') || value.includes(delimiter) || /\r|\n/.test(value);
+    return needsQuotes ? `"${escaped}"` : escaped;
+  };
+
+  return {
+    ...component,
+    title: escapeCsv(component.title),
+    description: escapeCsv(component.description),
+    totalPossiblePoints: calculateBasePoints(component).toFixed(2),
+  };
+};
+
+export const downloadProjectComponentsCsv = async (
+  project: Project,
+  translations: Record<string, string>,
+) => {
+  const projectWithPoints = {
+    ...project,
+    functionalComponents: calculateComponentsWithPoints(
+      project.functionalComponents,
+    ),
+  };
+
   const csvData = convertToCSV(
-    project.functionalComponents.map(encodeComponentForCSV),
+    projectWithPoints.functionalComponents.map((c) =>
+      encodeComponentForCSV(c, ";"),
+    ),
+    translations,
+    ";",
   );
   downloadCSV(csvData, `${project.projectName}.csv`);
 };
