@@ -32,4 +32,14 @@ public record FunctionalComponentResponse(
     @Schema(description = "ID of the previous functional component for ordering", example = "123")
         Long previousFCId,
     @Schema(description = "Position in the component list", example = "1", minimum = "0")
-        Integer orderPosition) {}
+        Integer orderPosition,
+    @Schema(
+            description =
+                "Whether the functional component is part of multi-layer architecture (MLA)",
+            example = "true")
+        Boolean isMLA,
+    @Schema(
+            description =
+                "ID of the parent functional component, if part of multi-layer architecture (MLA)",
+            example = "12")
+        Long parentFCId) {}

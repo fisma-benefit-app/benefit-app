@@ -285,6 +285,8 @@ export default function ProjectPage() {
         description: null,
         previousFCId: null,
         orderPosition: project.functionalComponents.length,
+        isMLA: false,
+        parentFCId: null,
       };
 
       try {
