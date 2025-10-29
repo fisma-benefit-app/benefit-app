@@ -34,6 +34,8 @@ public class FunctionalComponentMapper {
         request.getDegreeOfCompletion(),
         request.getPreviousFCId(),
         request.getOrderPosition(),
+        request.getIsMLA(),
+        request.getParentFCId(),
         project,
         null);
   }
@@ -57,7 +59,9 @@ public class FunctionalComponentMapper {
         component.getOperations(),
         component.getDegreeOfCompletion(),
         component.getPreviousFCId(),
-        component.getOrderPosition());
+        component.getOrderPosition(),
+        component.getIsMLA(),
+        component.getParentFCId());
   }
 
   public Set<FunctionalComponent> updateEntityFromRequest(Project project, ProjectRequest request) {
@@ -100,5 +104,7 @@ public class FunctionalComponentMapper {
     existing.setDegreeOfCompletion(fc.getDegreeOfCompletion());
     existing.setPreviousFCId(fc.getPreviousFCId());
     existing.setOrderPosition(fc.getOrderPosition());
+    existing.setIsMLA(fc.getIsMLA());
+    existing.setParentFCId(fc.getParentFCId());
   }
 }

@@ -134,6 +134,8 @@ public class ProjectService {
                           fc.getDegreeOfCompletion(),
                           fc.getId(), // Set previous component's ID
                           fc.getOrderPosition(),
+                          fc.getIsMLA(),
+                          fc.getParentFCId(),
                           savedProject,
                           null);
                   return functionalComponentRepository.save(newComponent);
