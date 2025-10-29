@@ -115,7 +115,7 @@ export default function FunctionalClassComponent({
         isMultiLayerArchitectureComponent({
           ...component,
           componentType: newOptionType,
-        }) && component.isMLA,
+        }) && component.isMLA, // isMLA is preserved only if both the new component type is eligible AND it was previously true.
     };
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
@@ -384,7 +384,9 @@ export default function FunctionalClassComponent({
                   type="checkbox"
                   className="w-4 h-4"
                   checked={component.isMLA}
-                  disabled={!isMultiLayerArchitectureComponent(component)}
+                  disabled={
+                    !isMultiLayerArchitectureComponent(component) || !isLatest
+                  }
                   onChange={handleMLAChange}
                 />
                 {!isMultiLayerArchitectureComponent(component) && (

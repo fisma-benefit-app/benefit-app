@@ -2,6 +2,9 @@ import {
   calculateFunctions,
   componentTypeOptions,
   componentClassFields,
+  mlaInputAndStorageClassNames,
+  mlaNavigationAndQueryClassName,
+  mlaNavigationAndQueryComponentTypes,
 } from "./fc-constants.ts";
 import { ClassName, TGenericComponent } from "./types.ts";
 
@@ -38,17 +41,11 @@ export const isMultiLayerArchitectureComponent = (
   component: TGenericComponent,
 ) => {
   if (
-    ["Interactive end-user input service", "Data storage service"].includes(
-      component.className,
-    ) ||
-    (component.className ===
-      "Interactive end-user navigation and query service" &&
-      [
-        "browsing lists",
-        "data inquiries",
-        "generation indicators",
-        "log-in log-out functions",
-      ].includes(component.componentType || ""))
+    mlaInputAndStorageClassNames.includes(component.className) ||
+    (component.className === mlaNavigationAndQueryClassName &&
+      mlaNavigationAndQueryComponentTypes.includes(
+        component.componentType || "",
+      ))
   ) {
     return true;
   }
