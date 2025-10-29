@@ -11,6 +11,7 @@ import {
   getComponentTypeOptions,
   getInputFields,
   getClosestCompletionOption,
+  isMultiLayerArchitectureComponent,
 } from "../lib/fc-service-functions.ts";
 import {
   calculateBasePoints,
@@ -83,6 +84,7 @@ export default function FunctionalClassComponent({
       ...component,
       className: newClassName,
       componentType: null,
+      isMLA: false,
     };
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
@@ -106,7 +108,15 @@ export default function FunctionalClassComponent({
     //user can select component type only from predefined options
     const newOptionType = e.target.value as ComponentType;
 
-    const updatedComponent = { ...component, componentType: newOptionType };
+    const updatedComponent = {
+      ...component,
+      componentType: newOptionType,
+      isMLA:
+        isMultiLayerArchitectureComponent({
+          ...component,
+          componentType: newOptionType,
+        }) && component.isMLA,
+    };
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
         functionalComponent.id === component.id
@@ -180,6 +190,27 @@ export default function FunctionalClassComponent({
           ? updatedComponent
           : functionalComponent,
     );
+    const updatedProject = {
+      ...project,
+      functionalComponents: updatedComponents,
+    };
+    setProject(updatedProject);
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
+  };
+
+  const handleMLAChange = () => {
+    const updatedComponent = { ...component, isMLA: !component.isMLA };
+
+    const updatedComponents = project.functionalComponents.map(
+      (functionalComponent) =>
+        functionalComponent.id === component.id
+          ? updatedComponent
+          : functionalComponent,
+    );
+
     const updatedProject = {
       ...project,
       functionalComponents: updatedComponents,
@@ -339,6 +370,30 @@ export default function FunctionalClassComponent({
                   </select>
                 </div>
               )}
+            </div>
+
+            <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md">
+              <label className="font-bold text-fisma-blue">
+                {
+                  translation.isThisFunctionalComponentAPartOfMultiLayerArchitecture
+                }
+              </label>
+              <div>
+                <input
+                  id="mlaCheckBox"
+                  type="checkbox"
+                  className="w-4 h-4"
+                  checked={component.isMLA}
+                  disabled={!isMultiLayerArchitectureComponent(component)}
+                  onChange={handleMLAChange}
+                />
+                {!isMultiLayerArchitectureComponent(component) && (
+                  <label className="text-gray-400">
+                    {" "}
+                    {translation.notAvailableForThisFunctionalComponentType}
+                  </label>
+                )}
+              </div>
             </div>
 
             {/* Parameters Section */}

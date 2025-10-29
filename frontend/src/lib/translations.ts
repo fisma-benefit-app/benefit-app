@@ -142,6 +142,10 @@ export const translations = {
         tested: "Tested",
         readyForUse: "Ready for use",
       },
+      isThisFunctionalComponentAPartOfMultiLayerArchitecture:
+        "Is this functional component a part of multi-layered architecture?",
+      notAvailableForThisFunctionalComponentType:
+        "Not available for this functional component type",
     },
     projectPage: {
       saveProject: "Save",
@@ -323,6 +327,10 @@ export const translations = {
         tested: "Testattu",
         readyForUse: "Käyttöönottovalmis",
       },
+      isThisFunctionalComponentAPartOfMultiLayerArchitecture:
+        "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
+      notAvailableForThisFunctionalComponentType:
+        "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
     },
     projectPage: {
       saveProject: "Tallenna",

@@ -3,7 +3,7 @@ import {
   componentTypeOptions,
   componentClassFields,
 } from "./fc-constants.ts";
-import { ClassName } from "./types.ts";
+import { ClassName, TGenericComponent } from "./types.ts";
 
 export const getComponentTypeOptions = (className: ClassName) => {
   const options = componentTypeOptions.find(
@@ -32,4 +32,25 @@ export const getClosestCompletionOption = (degree: number): string => {
   if (degree >= 0.7 && degree <= 0.89) return "0.7"; // 0.7-0.89 → implemented
   if (degree >= 0.9 && degree <= 0.99) return "0.9"; // 0.9-0.99 → tested
   return "1"; // 1.0 → ready for use
+};
+
+export const isMultiLayerArchitectureComponent = (
+  component: TGenericComponent,
+) => {
+  if (
+    ["Interactive end-user input service", "Data storage service"].includes(
+      component.className,
+    ) ||
+    (component.className ===
+      "Interactive end-user navigation and query service" &&
+      [
+        "browsing lists",
+        "data inquiries",
+        "generation indicators",
+        "log-in log-out functions",
+      ].includes(component.componentType || ""))
+  ) {
+    return true;
+  }
+  return false;
 };
