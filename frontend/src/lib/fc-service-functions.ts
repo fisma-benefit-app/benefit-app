@@ -40,14 +40,11 @@ export const getClosestCompletionOption = (degree: number): string => {
 export const isMultiLayerArchitectureComponent = (
   component: TGenericComponent,
 ) => {
-  if (
+  return (
     mlaInputAndStorageClassNames.includes(component.className) ||
-    (component.className === mlaNavigationAndQueryClassName &&
+    (mlaNavigationAndQueryClassName === component.className &&
       mlaNavigationAndQueryComponentTypes.includes(
         component.componentType || "",
       ))
-  ) {
-    return true;
-  }
-  return false;
+  );
 };
