@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS functional_components
     degree_of_completion    DECIMAL,
     previous_fc_id          BIGINT,
     order_position          BIGINT NOT NULL DEFAULT 0,
+    is_mla                  BOOLEAN NOT NULL DEFAULT FALSE,
+    parent_fc_id            BIGINT REFERENCES functional_components (id),
     project_id              BIGINT NOT NULL REFERENCES projects (id),
     deleted_at              TIMESTAMP(0)
 );
