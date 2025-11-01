@@ -80,6 +80,13 @@ public class FunctionalComponent {
   @Column(name = "order_position")
   private Integer orderPosition = 0;
 
+  @NotNull(message = "Multi-layer architecture (MLA) status must be specified")
+  @Column(name = "is_mla")
+  private Boolean isMLA = false;
+
+  @Column(name = "parent_fc_id")
+  private Long parentFCId;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id")
   private Project project;
@@ -100,6 +107,8 @@ public class FunctionalComponent {
       Double degreeOfCompletion,
       Long previousFCId,
       Integer orderPosition,
+      Boolean isMLA,
+      Long parentFCId,
       Project project,
       LocalDateTime deletedAt) {
     this.title = title;
@@ -114,6 +123,8 @@ public class FunctionalComponent {
     this.degreeOfCompletion = degreeOfCompletion;
     this.previousFCId = previousFCId;
     this.orderPosition = orderPosition;
+    this.isMLA = isMLA;
+    this.parentFCId = parentFCId;
     this.project = project;
     this.deletedAt = deletedAt;
   }

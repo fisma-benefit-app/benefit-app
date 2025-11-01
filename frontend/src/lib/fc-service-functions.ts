@@ -2,8 +2,11 @@ import {
   calculateFunctions,
   componentTypeOptions,
   componentClassFields,
+  mlaInputAndStorageClassNames,
+  mlaNavigationAndQueryClassName,
+  mlaNavigationAndQueryComponentTypes,
 } from "./fc-constants.ts";
-import { ClassName } from "./types.ts";
+import { ClassName, TGenericComponent } from "./types.ts";
 
 export const getComponentTypeOptions = (className: ClassName) => {
   const options = componentTypeOptions.find(
@@ -32,4 +35,16 @@ export const getClosestCompletionOption = (degree: number): string => {
   if (degree >= 0.7 && degree <= 0.89) return "0.7"; // 0.7-0.89 → implemented
   if (degree >= 0.9 && degree <= 0.99) return "0.9"; // 0.9-0.99 → tested
   return "1"; // 1.0 → ready for use
+};
+
+export const isMultiLayerArchitectureComponent = (
+  component: TGenericComponent,
+) => {
+  return (
+    mlaInputAndStorageClassNames.includes(component.className) ||
+    (mlaNavigationAndQueryClassName === component.className &&
+      mlaNavigationAndQueryComponentTypes.includes(
+        component.componentType || "",
+      ))
+  );
 };

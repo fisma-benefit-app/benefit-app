@@ -38,6 +38,8 @@ export type FunctionalComponentRequest = {
   degreeOfCompletion: number | null;
   previousFCId: number | null;
   orderPosition: number;
+  isMLA: boolean;
+  parentFCId: number | null;
 };
 
 export type FunctionalComponentResponse = FunctionalComponentRequest & {
@@ -73,6 +75,8 @@ export type TGenericComponentNoId = {
   degreeOfCompletion: number | null;
   previousFCId: number | null;
   orderPosition: number;
+  isMLA: boolean;
+  parentFCId: number | null;
 };
 
 export type ProjectWithUpdate = {
@@ -113,7 +117,8 @@ export type TGenericComponent = {
   degreeOfCompletion: number | null;
   previousFCId: number | null;
   orderPosition: number;
-  deletedAt?: string | null;
+  isMLA: boolean;
+  parentFCId: number | null;
 };
 
 // Enums and constants

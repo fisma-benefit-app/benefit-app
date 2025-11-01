@@ -27,6 +27,8 @@ public class FunctionalComponentMapper {
         request.getDegreeOfCompletion(),
         request.getPreviousFCId(),
         request.getOrderPosition(),
+        request.getIsMLA(),
+        request.getParentFCId(),
         project,
         null);
   }
@@ -50,7 +52,9 @@ public class FunctionalComponentMapper {
         component.getOperations(),
         component.getDegreeOfCompletion(),
         component.getPreviousFCId(),
-        component.getOrderPosition());
+        component.getOrderPosition(),
+        component.getIsMLA(),
+        component.getParentFCId());
   }
 
   public Set<FunctionalComponent> updateEntityFromRequest(Project project, ProjectRequest request) {
@@ -80,5 +84,37 @@ public class FunctionalComponentMapper {
               return newComponent;
             })
         .collect(Collectors.toSet());
+  }
+
+  private FunctionalComponent updateExistingComponent(FunctionalComponentRequest fc) {
+    return functionalComponentRepository
+        .findByIdActive(fc.getId())
+        .map(
+            existing -> {
+              updateComponentFields(existing, fc);
+              return existing;
+            })
+        .orElseThrow(() -> new EntityNotFoundException("Component not found: " + fc.getId()));
+  }
+
+  private FunctionalComponent createNewComponent(FunctionalComponentRequest fc, Project project) {
+    return toEntity(fc, project);
+  }
+
+  private void updateComponentFields(FunctionalComponent existing, FunctionalComponentRequest fc) {
+    existing.setTitle(fc.getTitle());
+    existing.setDescription(fc.getDescription());
+    existing.setClassName(fc.getClassName());
+    existing.setComponentType(fc.getComponentType());
+    existing.setDataElements(fc.getDataElements());
+    existing.setReadingReferences(fc.getReadingReferences());
+    existing.setWritingReferences(fc.getWritingReferences());
+    existing.setFunctionalMultiplier(fc.getFunctionalMultiplier());
+    existing.setOperations(fc.getOperations());
+    existing.setDegreeOfCompletion(fc.getDegreeOfCompletion());
+    existing.setPreviousFCId(fc.getPreviousFCId());
+    existing.setOrderPosition(fc.getOrderPosition());
+    existing.setIsMLA(fc.getIsMLA());
+    existing.setParentFCId(fc.getParentFCId());
   }
 }

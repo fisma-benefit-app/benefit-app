@@ -116,9 +116,32 @@ public class ProjectService {
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
     var savedProject = projectRepository.save(newVersion);
 
-    // Set up components
-    var components = functionalComponentMapper.updateEntityFromRequest(newVersion, versionRequest);
-    newVersion.setFunctionalComponents(components);
+    var functionalComponents =
+        originalProject.getFunctionalComponents().stream()
+            .map(
+                fc -> {
+                  var newComponent =
+                      new FunctionalComponent(
+                          null,
+                          fc.getTitle(),
+                          fc.getDescription(),
+                          fc.getClassName(),
+                          fc.getComponentType(),
+                          fc.getDataElements(),
+                          fc.getReadingReferences(),
+                          fc.getWritingReferences(),
+                          fc.getFunctionalMultiplier(),
+                          fc.getOperations(),
+                          fc.getDegreeOfCompletion(),
+                          fc.getId(), // Set previous component's ID
+                          fc.getOrderPosition(),
+                          fc.getIsMLA(),
+                          fc.getParentFCId(),
+                          savedProject,
+                          null);
+                  return functionalComponentRepository.save(newComponent);
+                })
+            .collect(Collectors.toSet());
 
     // Set up user association
     newVersion.setProjectAppUsers(Set.of(new ProjectAppUser(newVersion, appUser)));
