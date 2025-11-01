@@ -78,7 +78,7 @@ const createProject = async (
     projectName: nameForProject,
     version: 1, // first version
     functionalComponents: [], // start empty
-    appUserIds: [], // start with no users
+    projectAppUserIds: [], // start with no users
   };
 
   const response = await fetch(fetchURL, {

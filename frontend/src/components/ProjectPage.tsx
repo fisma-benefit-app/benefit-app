@@ -145,10 +145,19 @@ export default function ProjectPage() {
 
   // Flag for tracking manual saves
   const isManuallySaved = useRef(false);
+  
+  // Ref to always have the latest project state
+  const projectRef = useRef<Project | null>(null);
+  
+  // Update the ref whenever project changes
+  useEffect(() => {
+    projectRef.current = project;
+  }, [project]);
 
   // Debounced auto-save function
   const debouncedSaveProject = useDebounce(async () => {
-    if (!project || isManuallySaved.current) {
+    const currentProject = projectRef.current;
+    if (!currentProject || isManuallySaved.current) {
       return;
     }
     showNotification(
@@ -160,13 +169,13 @@ export default function ProjectPage() {
 
     try {
       // normalize before saving
-      const normalized = project.functionalComponents
+      const normalized = currentProject.functionalComponents
         .slice()
         .sort((a, b) => a.orderPosition - b.orderPosition)
         .map((c, idx) => ({ ...c, orderPosition: idx }));
       const editedProject = {
-        ...project,
-        FunctionalClassComponent: normalized,
+        ...currentProject,
+        functionalComponents: normalized,
         updatedAt: CreateCurrentDate(),
       };
       await updateProject(sessionToken, editedProject);

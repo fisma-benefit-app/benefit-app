@@ -40,7 +40,7 @@ export default function ProjectsProvider({
   const sortedProjects =
     projects?.sort(
       (a: Project, b: Project) =>
-        new Date(b.editedDate).getTime() - new Date(a.editedDate).getTime(),
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     ) || [];
 
   const handleDelete = async (projectId: number) => {
