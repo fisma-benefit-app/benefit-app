@@ -5,12 +5,19 @@ import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.dto.FunctionalComponentRequest;
 import fi.fisma.backend.dto.FunctionalComponentResponse;
 import fi.fisma.backend.dto.ProjectRequest;
+import fi.fisma.backend.exception.EntityNotFoundException;
+import fi.fisma.backend.repository.FunctionalComponentRepository;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FunctionalComponentMapper {
+  private final FunctionalComponentRepository functionalComponentRepository;
+
+  public FunctionalComponentMapper(FunctionalComponentRepository functionalComponentRepository) {
+    this.functionalComponentRepository = functionalComponentRepository;
+  }
 
   public FunctionalComponent toEntity(FunctionalComponentRequest request, Project project) {
     return new FunctionalComponent(
@@ -77,6 +84,8 @@ public class FunctionalComponentMapper {
                       fc.getDegreeOfCompletion(),
                       fc.getId(), // Link to previous component
                       fc.getOrderPosition(),
+                      null,
+                      null,
                       project,
                       null // Not deleted
                       );
