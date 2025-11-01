@@ -145,10 +145,10 @@ export default function ProjectPage() {
 
   // Flag for tracking manual saves
   const isManuallySaved = useRef(false);
-  
+
   // Ref to always have the latest project state
   const projectRef = useRef<Project | null>(null);
-  
+
   // Update the ref whenever project changes
   useEffect(() => {
     projectRef.current = project;
