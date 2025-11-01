@@ -473,6 +473,9 @@ export default function ProjectPage() {
 
   useEffect(() => {
     setLastAddedComponentId(null);
+    // Clear individual collapse states when collapseAll is toggled
+    // so that all components follow the global collapse state
+    setComponentCollapseStates(new Map());
   }, [collapseAll]);
 
   if (loadingProject) return <LoadingSpinner />;
