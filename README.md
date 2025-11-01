@@ -57,9 +57,6 @@
         <a href="#quality-assurance-and-security">Quality Assurance and Security</a>
     </li>
     <li>
-        <a href="#logging">Logging</a>
-    </li>
-    <li>
         <a href="#roadmap">Roadmap</a>
     </li>
     <li>
