@@ -20,7 +20,7 @@ spring:
   # Set it to never when the database is initialized and working.
   sql:
     init:
-      mode: always
+      mode: ${DATABASE_INIT_MODE:never}
 
 jwt:
   private.key: classpath:./jwt-keys/app.key
