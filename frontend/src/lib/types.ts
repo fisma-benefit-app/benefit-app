@@ -59,7 +59,7 @@ export type AppUserSummary = {
 // Remove if needed
 export type ProjectAppUser = {
   id: number;
-  appUserId: number;
+  appUserId?: number; // wtf is this?
 };
 
 export type TGenericComponentNoId = {
