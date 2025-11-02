@@ -467,12 +467,26 @@ The project's requirement specification can be found [here](https://docs.google.
 If you have a suggestion to improve this project:
 
 1. Fork the project
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
+2. Set up the development environment ([see Getting Started](#getting-started))
+3. Create your feature branch and set up remotes
+
+   ```bash
+   # Clone your fork
+   git clone https://github.com/your-username/benefit-app.git
+   cd benefit-app
+
+   # Add upstream remote
+   git remote add upstream https://github.com/fisma-benefit-app/benefit-app.git
+
+   # Create feature branch
+   git checkout -b feature/amazing-feature
+   ```
+
+4. Make your changes
    - Follow our coding standards
    - Add tests if applicable
    - Update documentation as needed
-4. Run formatting and tests
+5. Run formatting and tests
 
    ```bash
    # Frontend
@@ -485,11 +499,16 @@ If you have a suggestion to improve this project:
    ./gradlew test
    ```
 
-5. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-6. Push to the branch (`git push origin feature/AmazingFeature`)
-7. Open a pull request
+6. Sync with upstream before committing
+   ```bash
+   git fetch upstream
+   git rebase upstream/main
+   ```
+7. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+8. Push to the branch (`git push origin feature/AmazingFeature`)
+9. Open a pull request
 
-Any contributions you make are **greatly appreciated**. Thanks again!
+Any contributions you make are greatly appreciated. Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
