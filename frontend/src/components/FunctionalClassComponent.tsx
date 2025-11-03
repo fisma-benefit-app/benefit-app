@@ -294,13 +294,13 @@ export default function FunctionalClassComponent({
                   value={
                     component.degreeOfCompletion
                       ? getClosestCompletionOption(component.degreeOfCompletion)
-                      : 0
+                      : ""
                   }
                   onChange={handleComponentChange}
                   className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
                   disabled={!isLatest}
                 >
-                  <option disabled value={0}>
+                  <option disabled value="">
                     {translation.selectDegreeOfCompletion}
                   </option>
                   {Array.from(degreeOfCompletionOptions.entries()).map(
