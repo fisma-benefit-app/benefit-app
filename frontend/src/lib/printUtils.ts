@@ -21,6 +21,8 @@ export const convertToCSV = (
         "orderPosition",
         "previousFCId",
         "functionalMultiplier",
+        "isMLA",
+        "parentFCId",
       ].includes(key),
   );
 
@@ -67,6 +69,8 @@ export const downloadCSV = (csvData: string, filename = "data.csv") => {
 export const encodeComponentForCSV = (
   component: TGenericComponent,
   delimiter: string = ";",
+  classNameTranslations: Record<string, string> = {},
+  componentTypeTranslations: Record<string, string> = {},
 ) => {
   const escapeCsv = (value?: string | null) => {
     if (value == null) return "";
@@ -84,6 +88,17 @@ export const encodeComponentForCSV = (
     ...component,
     title: escapeCsv(component.title),
     description: escapeCsv(component.description),
+    className: escapeCsv(
+      component.className
+        ? classNameTranslations[component.className] || component.className
+        : "",
+    ),
+    componentType: escapeCsv(
+      component.componentType
+        ? componentTypeTranslations[component.componentType] ||
+            component.componentType
+        : "",
+    ),
     totalPossiblePoints: calculateBasePoints(component).toFixed(2),
   };
 };
@@ -113,6 +128,8 @@ export const encodeSummaryRowForCSV = (
 export const downloadProjectComponentsCsv = async (
   project: Project,
   translations: Record<string, string>,
+  classNameTranslations: Record<string, string>,
+  componentTypeTranslations: Record<string, string>,
 ) => {
   const projectWithPoints = {
     ...project,
@@ -129,7 +146,12 @@ export const downloadProjectComponentsCsv = async (
 
   const componentsAndProjectTotals = [
     ...projectWithPoints.functionalComponents.map((c) =>
-      encodeComponentForCSV(c, ";"),
+      encodeComponentForCSV(
+        c,
+        ";",
+        classNameTranslations,
+        componentTypeTranslations,
+      ),
     ),
     encodeSummaryRowForCSV(functionalPoints, totalPoints),
   ];
