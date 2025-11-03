@@ -88,6 +88,29 @@ export const encodeComponentForCSV = (
   };
 };
 
+// The following function returns an object with empty string properties to ensure
+// the summary row aligns with the CSV header structure. This explicit mapping avoids
+// errors from missing fields and maintains consistency with the exported CSV format.
+export const encodeSummaryRowForCSV = (
+  functionalPoints?: number,
+  totalPoints?: number,
+) => {
+  return {
+    id: "",
+    title: "",
+    description: "",
+    className: "",
+    componentType: "",
+    dataElements: "",
+    readingReferences: "",
+    writingReferences: "",
+    operations: "",
+    degreeOfCompletion: "",
+    functionalPoints: functionalPoints?.toFixed(2),
+    totalPossiblePoints: totalPoints?.toFixed(2),
+  };
+};
+
 export const downloadProjectComponentsCsv = async (
   project: Project,
   translations: Record<string, string>,
@@ -99,13 +122,20 @@ export const downloadProjectComponentsCsv = async (
     ),
   };
 
-  const csvData = convertToCSV(
-    projectWithPoints.functionalComponents.map((c) =>
+  const functionalPoints = calculateTotalPoints(project.functionalComponents);
+
+  const totalPoints = calculateTotalPossiblePoints(
+    project.functionalComponents,
+  );
+
+  const componentsAndProjectTotals = [
+    ...projectWithPoints.functionalComponents.map((c) =>
       encodeComponentForCSV(c, ";"),
     ),
-    translations,
-    ";",
-  );
+    encodeSummaryRowForCSV(functionalPoints, totalPoints),
+  ];
+
+  const csvData = convertToCSV(componentsAndProjectTotals, translations, ";");
   downloadCSV(csvData, `${project.projectName}.csv`);
 };
 
