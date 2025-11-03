@@ -88,27 +88,39 @@ export const encodeComponentForCSV = (
   };
 };
 
-// The following function returns an object with empty string properties to ensure
-// the summary row aligns with the CSV header structure. This explicit mapping avoids
-// errors from missing fields and maintains consistency with the exported CSV format.
+// WARNING: The following constant array of keys must be kept in sync with the TGenericComponent type definition.
+// If you add or remove fields from TGenericComponent, update this array accordingly.
+const TGenericComponentKeys: (keyof TGenericComponent)[] = [
+  "id",
+  "title",
+  "description",
+  "className",
+  "componentType",
+  "dataElements",
+  "readingReferences",
+  "writingReferences",
+  "operations",
+  "degreeOfCompletion",
+  "isMLA",
+  "parentFCId",
+  // "functionalPoints", // handled separately
+  // "totalPossiblePoints", // handled separately
+];
+
 export const encodeSummaryRowForCSV = (
   functionalPoints?: number,
   totalPoints?: number,
 ) => {
-  return {
-    id: "",
-    title: "",
-    description: "",
-    className: "",
-    componentType: "",
-    dataElements: "",
-    readingReferences: "",
-    writingReferences: "",
-    operations: "",
-    degreeOfCompletion: "",
-    functionalPoints: functionalPoints?.toFixed(2),
-    totalPossiblePoints: totalPoints?.toFixed(2),
-  };
+  // Dynamically generate empty fields for all TGenericComponent keys except summary fields
+  const summaryRow: Record<string, string | undefined> = {};
+
+  TGenericComponentKeys.forEach((key) => {
+    summaryRow[key] = "";
+  });
+  summaryRow["functionalPoints"] = functionalPoints?.toFixed(2);
+  summaryRow["totalPossiblePoints"] = totalPoints?.toFixed(2);
+
+  return summaryRow;
 };
 
 export const downloadProjectComponentsCsv = async (
