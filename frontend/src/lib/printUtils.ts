@@ -88,8 +88,6 @@ export const encodeComponentForCSV = (
   };
 };
 
-// WARNING: The following constant array of keys must be kept in sync with the TGenericComponent type definition.
-// If you add or remove fields from TGenericComponent, update this array accordingly.
 const TGenericComponentKeys: (keyof TGenericComponent)[] = Object.keys(
   {} as TGenericComponent,
 ).filter(
