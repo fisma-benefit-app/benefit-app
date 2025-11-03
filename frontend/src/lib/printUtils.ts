@@ -166,6 +166,24 @@ export const createPdf = (
           th, td { border: 1px solid #000; padding: 5px; text-align: left; }
           th { background-color: #f2f2f2; }
           .total-row { font-weight: bold; background-color: #ddd; }
+          @media print {
+            thead {
+              display: table-header-group;
+            }
+            tfoot {
+              display: table-row-group;
+            }
+            tr {
+              page-break-inside: avoid;
+            }
+            .project-info {
+              page-break-after: avoid;
+            }
+            .total-row {
+              break-inside: avoid;
+              page-break-before: avoid;
+            }
+          }
         </style>
       </head>
       <body>
@@ -178,6 +196,7 @@ export const createPdf = (
           <p><strong>${printUtilsTranslation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.updatedAt), dateLocalizer(oldProject.updatedAt))}</p>
         </div>
         <table>
+        <thead>
           <tr>
             <th>${printUtilsTranslation.title}</th>
             <th>${printUtilsTranslation.description}</th>
@@ -191,6 +210,8 @@ export const createPdf = (
             <th>${printUtilsTranslation.functionalPoints}</th>
             <th>${printUtilsTranslation.totalPossiblePoints}</th>
           </tr>
+        </thead>
+        <tbody>
           ${project.functionalComponents
             .map((comp) => {
               // This returns an error "Type null cannot be used as an index type.", but it works for now
@@ -245,11 +266,14 @@ export const createPdf = (
             `;
             })
             .join("")}
+        </tbody>
+        <tfoot>
           <tr class="total-row">
             <td colspan="9"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
             <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
             <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
           </tr>
+        </tfoot>
         </table>
       </body>
     </html>
