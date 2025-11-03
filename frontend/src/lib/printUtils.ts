@@ -90,22 +90,11 @@ export const encodeComponentForCSV = (
 
 // WARNING: The following constant array of keys must be kept in sync with the TGenericComponent type definition.
 // If you add or remove fields from TGenericComponent, update this array accordingly.
-const TGenericComponentKeys: (keyof TGenericComponent)[] = [
-  "id",
-  "title",
-  "description",
-  "className",
-  "componentType",
-  "dataElements",
-  "readingReferences",
-  "writingReferences",
-  "operations",
-  "degreeOfCompletion",
-  "isMLA",
-  "parentFCId",
-  // "functionalPoints", // handled separately
-  // "totalPossiblePoints", // handled separately
-];
+const TGenericComponentKeys: (keyof TGenericComponent)[] = Object.keys(
+  {} as TGenericComponent,
+).filter(
+  (k) => !["functionalPoints", "totalPossiblePoints"].includes(k),
+) as (keyof TGenericComponent)[];
 
 export const encodeSummaryRowForCSV = (
   functionalPoints?: number,
