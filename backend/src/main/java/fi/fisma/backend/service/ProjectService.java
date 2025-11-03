@@ -136,6 +136,9 @@ public class ProjectService {
                           fc.getOrderPosition(),
                           fc.getIsMLA(),
                           fc.getParentFCId(),
+                          fc.getSubComponentType(),
+                          fc.getIsReadonly(),
+                          fc.getSubComponents(),
                           savedProject,
                           null);
                   return functionalComponentRepository.save(newComponent);

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import java.util.List;
 
 @Data // Make request-type DTO mutable
 @Schema(
@@ -83,4 +84,20 @@ public class FunctionalComponentRequest {
       description = "ID of the parent functional component, if part of multi-layer architecture",
       example = "12")
   private Long parentFCId;
+
+  @Schema(
+    description = "List of sub-components if part of multi-layer architecture",
+    example = "[...]")
+  private List<FunctionalComponentRequest> subComponents;
+    
+  @Schema(
+    description = "Type of sub-component in multi-layer architecture",
+    example = "presentation",
+    allowableValues = {"presentation", "businessLogic", "dataAccess", "integration"})
+  private String subComponentType;
+
+  @Schema(
+    description = "Indicates if component is readonly",
+    example = "true")
+  private Boolean isReadonly;
 }

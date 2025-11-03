@@ -2,6 +2,8 @@ import {
   faCaretDown,
   faCaretUp,
   faTrash,
+  faLayerGroup,
+  faGripVertical
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState } from "react";
@@ -26,6 +28,7 @@ import {
   TGenericComponent,
 } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
+import SubComponentsModal from "./SubComponentsModal.tsx";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -40,6 +43,7 @@ type FunctionalClassComponentProps = {
   onCollapseChange: (componentId: number, collapsed: boolean) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
   debouncedSaveProject: () => void;
+  onMLAToggle: (componentId: number, newValue: boolean) => void;
 };
 
 export default function FunctionalClassComponent({
@@ -52,10 +56,15 @@ export default function FunctionalClassComponent({
   onCollapseChange,
   debouncedSaveProject,
   dragHandleProps,
+  onMLAToggle,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
   };
+
+  const [isSubComponentsModalOpen, setSubComponentsModalOpen] = useState(false);
+
+  const [showSubComponents, setShowSubComponents] = useState(true);
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
@@ -86,6 +95,7 @@ export default function FunctionalClassComponent({
       componentType: null,
       isMLA: false,
     };
+
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
         functionalComponent.id === component.id
@@ -141,7 +151,7 @@ export default function FunctionalClassComponent({
       | ChangeEvent<HTMLTextAreaElement>
       | ChangeEvent<HTMLSelectElement>,
   ) => {
-    let updatedComponent;
+    let updatedComponent: TGenericComponent;
     let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
@@ -184,6 +194,29 @@ export default function FunctionalClassComponent({
       updatedComponent = { ...component, [e.target.id]: value };
     }
 
+    // If MLA component, update changes to sub-components in real time
+    if (updatedComponent.isMLA && updatedComponent.subComponents) {
+      updatedComponent = {
+        ...updatedComponent,
+        subComponents: updatedComponent.subComponents.map((subComp) => ({
+          ...subComp,
+          title: `${updatedComponent.title} - ${subComp.subComponentType}`,
+          description: updatedComponent.description,
+          className: updatedComponent.className,
+          dataElements: updatedComponent.dataElements,
+          readingReferences: updatedComponent.readingReferences,
+          writingReferences: updatedComponent.writingReferences,
+          functionalMultiplier: updatedComponent.functionalMultiplier,
+          operations: updatedComponent.operations,
+          degreeOfCompletion: updatedComponent.degreeOfCompletion,
+          parentComponentId: subComp.parentComponentId,
+          subComponentType: subComp.subComponentType,
+          isReadonly: true,
+        })),
+      };
+    }
+
+
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
         functionalComponent.id === component.id
@@ -202,24 +235,7 @@ export default function FunctionalClassComponent({
   };
 
   const handleMLAChange = () => {
-    const updatedComponent = { ...component, isMLA: !component.isMLA };
-
-    const updatedComponents = project.functionalComponents.map(
-      (functionalComponent) =>
-        functionalComponent.id === component.id
-          ? updatedComponent
-          : functionalComponent,
-    );
-
-    const updatedProject = {
-      ...project,
-      functionalComponents: updatedComponents,
-    };
-    setProject(updatedProject);
-
-    if (isLatest) {
-      debouncedSaveProject();
-    }
+   onMLAToggle(component.id, !component.isMLA);
   };
 
   return (
@@ -432,6 +448,62 @@ export default function FunctionalClassComponent({
           </span>
         </div>
       </form>
+
+      {component.isMLA && (
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={() => setShowSubComponents(!showSubComponents)}
+            className="text-sm text-fisma-blue hover:underline flex items-center gap-2 mb-2"
+          >
+            <FontAwesomeIcon icon={showSubComponents ? faCaretUp : faCaretDown} />
+            {showSubComponents ? translation.hideSubComponents : translation.showSubComponents}
+            {component.subComponents && component.subComponents.length > 0 && (
+              <span> ({component.subComponents.length})</span>
+            )} 
+          </button>
+          
+          {showSubComponents && component.subComponents && component.subComponents.length > 0 && (
+            <div className="space-y-3 ml-4 border-l-4 border-fisma-blue pl-4">
+              {component.subComponents.map((subComp) => (
+                <div key={subComp.id} className="relative">
+                  <div className="opacity-75 pointer-events-none">
+                    <FunctionalClassComponent
+                      component={subComp}
+                      deleteFunctionalComponent={async () => {}}
+                      project={{ functionalComponents: [] } as unknown as Project}
+                      setProject={() => {}}
+                      setProjectResponse={() => {}}
+                      isLatest={false}
+                      collapsed={false}
+                      onCollapseChange={() => {}}
+                      debouncedSaveProject={() => {}}
+                      onMLAToggle={() => {}}
+                      dragHandleProps={{}}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Message if MLA is enabled but no subcomponents loaded */}
+          {showSubComponents && (!component.subComponents || component.subComponents.length === 0) && (
+            <div className="ml-4 pl-4 border-l-4 border-fisma-blue text-sm text-gray-600 italic py-2">
+              No sub-components found.
+            </div>
+          )}
+        </div>
+      )}
+
+      {component.isMLA && component.subComponents && (
+        <SubComponentsModal
+          open={isSubComponentsModalOpen}
+          setOpen={setSubComponentsModalOpen}
+          subComponents={component.subComponents}
+          parentTitle={component.title || 'Untitled component'}
+        />
+      )}
 
       <ConfirmModal
         message={

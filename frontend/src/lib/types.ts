@@ -40,6 +40,9 @@ export type FunctionalComponentRequest = {
   orderPosition: number;
   isMLA: boolean;
   parentFCId: number | null;
+  subComponentType: string | null;
+  isReadonly: boolean;
+  subComponents: FunctionalComponentRequest[];
 };
 
 export type FunctionalComponentResponse = FunctionalComponentRequest & {
@@ -103,6 +106,13 @@ export type Project = {
   projectAppUsers: ProjectAppUser[];
 };
 
+export type MLAsubComponent = TGenericComponent & {
+  parentComponentId: number;
+  subComponentType: 'presentation' | 'businessLogic' | 'dataAccess' | 'integration';
+  isReadonly: true;
+  subComponents: never;
+}
+
 export type TGenericComponent = {
   id: number;
   title: string | null;
@@ -119,6 +129,7 @@ export type TGenericComponent = {
   orderPosition: number;
   isMLA: boolean;
   parentFCId: number | null;
+  subComponents?: MLAsubComponent[];
 };
 
 // Enums and constants

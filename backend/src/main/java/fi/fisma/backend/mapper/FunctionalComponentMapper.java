@@ -7,6 +7,8 @@ import fi.fisma.backend.dto.FunctionalComponentResponse;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,6 @@ public class FunctionalComponentMapper {
 
   public FunctionalComponent toEntity(FunctionalComponentRequest request, Project project) {
     return new FunctionalComponent(
-        null,
         request.getTitle(),
         request.getDescription(),
         request.getClassName(),
@@ -36,6 +37,9 @@ public class FunctionalComponentMapper {
         request.getOrderPosition(),
         request.getIsMLA(),
         request.getParentFCId(),
+        request.getSubComponentType(),
+        request.getIsReadonly(),
+        null,
         project,
         null);
   }
@@ -45,6 +49,14 @@ public class FunctionalComponentMapper {
     if (component.getDeletedAt() != null) {
       return null;
     }
+
+    List<FunctionalComponentResponse> subComponentResponses = null;
+  if (component.getSubComponents() != null && !component.getSubComponents().isEmpty()) {
+    subComponentResponses = component.getSubComponents().stream()
+        .map(this::toResponse)
+        .filter(resp -> resp != null)  // Filter out deleted components
+        .collect(Collectors.toList());
+  }
 
     return new FunctionalComponentResponse(
         component.getId(),
@@ -61,7 +73,10 @@ public class FunctionalComponentMapper {
         component.getPreviousFCId(),
         component.getOrderPosition(),
         component.getIsMLA(),
-        component.getParentFCId());
+        component.getParentFCId(),
+        component.getSubComponentType(),
+        component.getIsReadonly(),
+        subComponentResponses);
   }
 
   public Set<FunctionalComponent> updateEntityFromRequest(Project project, ProjectRequest request) {
@@ -106,5 +121,23 @@ public class FunctionalComponentMapper {
     existing.setOrderPosition(fc.getOrderPosition());
     existing.setIsMLA(fc.getIsMLA());
     existing.setParentFCId(fc.getParentFCId());
+    existing.setSubComponentType(fc.getSubComponentType());
+    existing.setIsReadonly(fc.getIsReadonly());
+    if (fc.getSubComponents() != null && !fc.getSubComponents().isEmpty()) {
+    // Clear existing sub-components
+    existing.getSubComponents().clear();
+    // Add new sub-components
+    for (FunctionalComponentRequest subReq : fc.getSubComponents()) {
+      FunctionalComponent subComp = toEntity(subReq, existing.getProject());
+      existing.getSubComponents().add(subComp);
+    }
+  }
+  }
+
+  private List<FunctionalComponent> mapSubComponents(List<FunctionalComponentRequest> subComponentRequests) {
+    if (subComponentRequests == null || subComponentRequests.isEmpty()) {
+      return new ArrayList<>();
+    }
+    return new ArrayList<>();
   }
 }
