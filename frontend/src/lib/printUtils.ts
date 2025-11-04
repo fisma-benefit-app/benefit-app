@@ -88,6 +88,28 @@ export const encodeComponentForCSV = (
   };
 };
 
+const TGenericComponentKeys: (keyof TGenericComponent)[] = Object.keys(
+  {} as TGenericComponent,
+).filter(
+  (k) => !["functionalPoints", "totalPossiblePoints"].includes(k),
+) as (keyof TGenericComponent)[];
+
+export const encodeSummaryRowForCSV = (
+  functionalPoints?: number,
+  totalPoints?: number,
+) => {
+  // Dynamically generate empty fields for all TGenericComponent keys except summary fields
+  const summaryRow: Record<string, string | undefined> = {};
+
+  TGenericComponentKeys.forEach((key) => {
+    summaryRow[key] = "";
+  });
+  summaryRow["functionalPoints"] = functionalPoints?.toFixed(2);
+  summaryRow["totalPossiblePoints"] = totalPoints?.toFixed(2);
+
+  return summaryRow;
+};
+
 export const downloadProjectComponentsCsv = async (
   project: Project,
   translations: Record<string, string>,
@@ -99,13 +121,20 @@ export const downloadProjectComponentsCsv = async (
     ),
   };
 
-  const csvData = convertToCSV(
-    projectWithPoints.functionalComponents.map((c) =>
+  const functionalPoints = calculateTotalPoints(project.functionalComponents);
+
+  const totalPoints = calculateTotalPossiblePoints(
+    project.functionalComponents,
+  );
+
+  const componentsAndProjectTotals = [
+    ...projectWithPoints.functionalComponents.map((c) =>
       encodeComponentForCSV(c, ";"),
     ),
-    translations,
-    ";",
-  );
+    encodeSummaryRowForCSV(functionalPoints, totalPoints),
+  ];
+
+  const csvData = convertToCSV(componentsAndProjectTotals, translations, ";");
   downloadCSV(csvData, `${project.projectName}.csv`);
 };
 
