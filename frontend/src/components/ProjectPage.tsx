@@ -189,9 +189,18 @@ export default function ProjectPage() {
   // Flag for tracking manual saves
   const isManuallySaved = useRef(false);
 
+  // Ref to always have the latest project state
+  const projectRef = useRef<Project | null>(null);
+
+  // Update the ref whenever project changes
+  useEffect(() => {
+    projectRef.current = project;
+  }, [project]);
+
   // Debounced auto-save function
   const debouncedSaveProject = useDebounce(async () => {
-    if (!project || isManuallySaved.current) {
+    const currentProject = projectRef.current;
+    if (!currentProject || isManuallySaved.current) {
       return;
     }
 
@@ -203,25 +212,25 @@ export default function ProjectPage() {
     );
 
     try {
-      // Update sub-components if MLA is enabled
-      const componentsWithUpdatedSubs = project.functionalComponents.map((comp) => {
-        if (comp.isMLA && comp.subComponents) {
-          return {
-            ...comp,
-            subComponents: updateSubComponents(comp, comp.subComponents),
-          };
-        }
-        return comp;
-      });
       
       // normalize before saving
-      const normalized = componentsWithUpdatedSubs
+      const normalized = currentProject.functionalComponents
         .slice()
+        .map((comp) => {
+          // Update sub-components if MLA is enabled
+          if (comp.isMLA && comp.subComponents) {
+            return {
+              ...comp,
+              subComponents: updateSubComponents(comp, comp.subComponents),
+            };
+          }
+          return comp;
+        })
         .sort((a, b) => a.orderPosition - b.orderPosition)
         .map((c, idx) => ({ ...c, orderPosition: idx }));
       const editedProject = {
-        ...project,
-        FunctionalClassComponent: normalized,
+        ...currentProject,
+        functionalComponents: normalized,
         updatedAt: CreateCurrentDate(),
       };
       
@@ -527,6 +536,9 @@ export default function ProjectPage() {
 
   useEffect(() => {
     setLastAddedComponentId(null);
+    // Clear individual collapse states when collapseAll is toggled
+    // so that all components follow the global collapse state
+    setComponentCollapseStates(new Map());
   }, [collapseAll]);
 
   if (loadingProject) return <LoadingSpinner />;

@@ -117,6 +117,7 @@ public class ProjectService {
 
     var functionalComponents =
         originalProject.getFunctionalComponents().stream()
+            .filter(fc -> fc.getDeletedAt() == null) // Only copy active components
             .map(
                 fc -> {
                   var newComponent =
