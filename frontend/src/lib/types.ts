@@ -20,7 +20,6 @@ export type ProjectResponse = {
   createdAt: string;
   versionCreatedAt: string;
   updatedAt: string;
-  totalPoints: number;
   functionalComponents: FunctionalComponentResponse[];
   projectAppUsers: ProjectAppUserResponse[];
 };
@@ -86,7 +85,6 @@ export type ProjectWithUpdate = {
   createdAt: string;
   versionCreatedAt: string;
   updatedAt: string;
-  totalPoints: number;
   functionalComponents: (TGenericComponent | TGenericComponentNoId)[];
   appUsers: ProjectAppUser[];
 };
@@ -98,7 +96,6 @@ export type Project = {
   createdAt: string;
   versionCreatedAt: string;
   updatedAt: string;
-  totalPoints: number;
   functionalComponents: TGenericComponent[];
   projectAppUsers: ProjectAppUser[];
 };

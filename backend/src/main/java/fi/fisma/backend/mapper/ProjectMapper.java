@@ -32,7 +32,6 @@ public class ProjectMapper {
             project.getId(),
             project.getProjectName(),
             project.getVersion(),
-            project.getTotalPoints(),
             project.getCreatedAt(),
             project.getVersionCreatedAt(),
             project.getUpdatedAt(),
@@ -56,7 +55,6 @@ public class ProjectMapper {
         null,
         request.getProjectName(),
         request.getVersion(),
-        0.0, // Initial total points
         LocalDateTime.now(),
         LocalDateTime.now(),
         LocalDateTime.now(),
@@ -90,7 +88,6 @@ public class ProjectMapper {
             project.getId(),
             request.getProjectName(),
             request.getVersion(),
-            project.getTotalPoints(),
             project.getCreatedAt(),
             project.getVersionCreatedAt(),
             LocalDateTime.now(), // new edited date
@@ -106,7 +103,6 @@ public class ProjectMapper {
             null,
             request.getProjectName(),
             request.getVersion(),
-            originalProject.getTotalPoints(),
             originalProject.getCreatedAt(), // keep original creation date
             LocalDateTime.now(), // new version date
             LocalDateTime.now(), // new edited date
