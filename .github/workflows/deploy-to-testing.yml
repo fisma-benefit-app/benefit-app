@@ -1,0 +1,42 @@
+name: Deploy main branch to Testing ENV
+
+on:
+  pull_request:
+    types: [closed]
+    branch: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-backend-to-testing:
+    name: Deploy BE to Heroku testing env
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Echo Heroku automatic deployment
+        run: echo "Backend is deployed automatically in Heroku"
+    
+  deploy-frontend-to-testing:
+    - name: Deploy FE to GitHub Pages testing env
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run FE deployment to testing
+        run: |
+          cd frontend
+          npm run deploy:testing
