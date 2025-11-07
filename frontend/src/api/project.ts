@@ -149,15 +149,20 @@ const createNewProjectVersion = async (
       orderPosition: fc.orderPosition,
       isMLA: fc.isMLA,
       parentFCId: fc.parentFCId,
+      subComponents: fc.subComponents,
     })),
     projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
+
+  console.log("Request payload for new project version creation:", projectRequest);
 
   const response = await fetch(fetchURL, {
     method: "POST",
     headers,
     body: JSON.stringify(projectRequest),
   });
+
+  console.log("Response received for new project version creation.", response);
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -201,36 +206,69 @@ const updateProject = async (
     "Content-Type": "application/json",
   };
 
+  // Recursive function to map components including subComponents
+  const mapComponentToRequest = (fc: TGenericComponent): FunctionalComponentRequest => ({
+    id: fc.id,
+    title: fc.title,
+    description: fc.description,
+    className: fc.className,
+    componentType: fc.componentType,
+    dataElements: fc.dataElements,
+    readingReferences: fc.readingReferences,
+    writingReferences: fc.writingReferences,
+    functionalMultiplier: fc.functionalMultiplier,
+    operations: fc.operations,
+    degreeOfCompletion: fc.degreeOfCompletion,
+    previousFCId: fc.previousFCId,
+    orderPosition: fc.orderPosition,
+    isMLA: fc.isMLA,
+    parentFCId: fc.parentFCId,
+    subComponentType: null,
+    isReadonly: false,
+    subComponents: fc.subComponents 
+      ? fc.subComponents.map(subComp => ({
+          id: subComp.id,
+          title: subComp.title,
+          description: subComp.description,
+          className: subComp.className,
+          componentType: subComp.componentType,
+          dataElements: subComp.dataElements,
+          readingReferences: subComp.readingReferences,
+          writingReferences: subComp.writingReferences,
+          functionalMultiplier: subComp.functionalMultiplier,
+          operations: subComp.operations,
+          degreeOfCompletion: subComp.degreeOfCompletion,
+          previousFCId: subComp.previousFCId,
+          orderPosition: subComp.orderPosition,
+          isMLA: false,
+          parentFCId: subComp.parentFCId,
+          subComponentType: subComp.subComponentType,
+          isReadonly: true,
+          subComponents: [], // Sub-components don't have nested sub-components
+        }))
+      : [],
+  });
+
   // Map Project -> ProjectRequest
   const projectRequest: ProjectRequest = {
     projectName: project.projectName,
     version: project.version,
-    functionalComponents: project.functionalComponents.map((fc) => ({
-      // adapt to FunctionalComponentRequest DTO
-      id: fc.id,
-      className: fc.className,
-      componentType: fc.componentType,
-      dataElements: fc.dataElements,
-      readingReferences: fc.readingReferences,
-      writingReferences: fc.writingReferences,
-      functionalMultiplier: fc.functionalMultiplier,
-      operations: fc.operations,
-      degreeOfCompletion: fc.degreeOfCompletion,
-      title: fc.title,
-      description: fc.description,
-      previousFCId: fc.previousFCId,
-      orderPosition: fc.orderPosition,
-      isMLA: fc.isMLA,
-      parentFCId: fc.parentFCId,
-    })),
+    functionalComponents: project.functionalComponents.map(mapComponentToRequest),
     projectAppUserIds: project.projectAppUsers.map((pau) => pau.id),
   };
+
+  console.log("Request payload for project update:", projectRequest);
+  console.log("🔍 Components with subComponents:", 
+    projectRequest.functionalComponents.filter(c => c.isMLA && c.subComponents.length > 0)
+  );
 
   const response = await fetch(fetchURL, {
     method: "PUT",
     headers,
     body: JSON.stringify(projectRequest),
   });
+
+  console.log("Response received for project update.", response);
 
   if (!response.ok) {
     if (response.status === 401) {

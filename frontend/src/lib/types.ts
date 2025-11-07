@@ -26,6 +26,7 @@ export type ProjectResponse = {
 };
 
 export type FunctionalComponentRequest = {
+  id?: number; // Optional for creation, required for updates
   title: string | null;
   description: string | null;
   className: ClassName;
@@ -44,7 +45,6 @@ export type FunctionalComponentRequest = {
   isReadonly: boolean;
   subComponents: FunctionalComponentRequest[];
 };
-
 export type FunctionalComponentResponse = FunctionalComponentRequest & {
   id: number;
 };
