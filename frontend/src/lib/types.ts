@@ -68,7 +68,7 @@ export type ProjectAppUser = {
 export type TGenericComponentNoId = {
   title: string | null;
   description: string | null;
-  className: ClassName;
+  className: ClassName | null;
   componentType: ComponentType | null;
   dataElements: number | null;
   readingReferences: number | null;

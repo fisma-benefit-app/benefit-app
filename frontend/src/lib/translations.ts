@@ -132,6 +132,7 @@ export const translations = {
       classNamePlaceholder: "Select Classname",
       componentTypePlaceholder: "Select Component Type",
       degreeOfCompletionPlaceholder: "Degree of Completion",
+      selectDegreeOfCompletion: "Select Degree of Completion",
       degreeOfCompletionDescription:
         "Enter a value between 0 and 1 (e.g. 0.75 = 75% complete)",
       confirmDeleteMessage: "Are you sure you want to delete component",
@@ -319,6 +320,7 @@ export const translations = {
       classNamePlaceholder: "Valitse toimintoluokka",
       componentTypePlaceholder: "Valitse toimintotyyppi",
       degreeOfCompletionPlaceholder: "Valmistumisaste",
+      selectDegreeOfCompletion: "Valitse valmistumisaste",
       degreeOfCompletionDescription:
         "Syötä arvo väliltä 0 ja 1 (esim. 0.75 = 75% valmis)",
       confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin",

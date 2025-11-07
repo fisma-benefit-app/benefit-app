@@ -88,6 +88,28 @@ export const encodeComponentForCSV = (
   };
 };
 
+const TGenericComponentKeys: (keyof TGenericComponent)[] = Object.keys(
+  {} as TGenericComponent,
+).filter(
+  (k) => !["functionalPoints", "totalPossiblePoints"].includes(k),
+) as (keyof TGenericComponent)[];
+
+export const encodeSummaryRowForCSV = (
+  functionalPoints?: number,
+  totalPoints?: number,
+) => {
+  // Dynamically generate empty fields for all TGenericComponent keys except summary fields
+  const summaryRow: Record<string, string | undefined> = {};
+
+  TGenericComponentKeys.forEach((key) => {
+    summaryRow[key] = "";
+  });
+  summaryRow["functionalPoints"] = functionalPoints?.toFixed(2);
+  summaryRow["totalPossiblePoints"] = totalPoints?.toFixed(2);
+
+  return summaryRow;
+};
+
 export const downloadProjectComponentsCsv = async (
   project: Project,
   translations: Record<string, string>,
@@ -99,13 +121,20 @@ export const downloadProjectComponentsCsv = async (
     ),
   };
 
-  const csvData = convertToCSV(
-    projectWithPoints.functionalComponents.map((c) =>
+  const functionalPoints = calculateTotalPoints(project.functionalComponents);
+
+  const totalPoints = calculateTotalPossiblePoints(
+    project.functionalComponents,
+  );
+
+  const componentsAndProjectTotals = [
+    ...projectWithPoints.functionalComponents.map((c) =>
       encodeComponentForCSV(c, ";"),
     ),
-    translations,
-    ";",
-  );
+    encodeSummaryRowForCSV(functionalPoints, totalPoints),
+  ];
+
+  const csvData = convertToCSV(componentsAndProjectTotals, translations, ";");
   downloadCSV(csvData, `${project.projectName}.csv`);
 };
 
@@ -166,6 +195,24 @@ export const createPdf = (
           th, td { border: 1px solid #000; padding: 5px; text-align: left; }
           th { background-color: #f2f2f2; }
           .total-row { font-weight: bold; background-color: #ddd; }
+          @media print {
+            thead {
+              display: table-header-group;
+            }
+            tfoot {
+              display: table-row-group;
+            }
+            tr {
+              page-break-inside: avoid;
+            }
+            .project-info {
+              page-break-after: avoid;
+            }
+            .total-row {
+              break-inside: avoid;
+              page-break-before: avoid;
+            }
+          }
         </style>
       </head>
       <body>
@@ -178,78 +225,84 @@ export const createPdf = (
           <p><strong>${printUtilsTranslation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.updatedAt), dateLocalizer(oldProject.updatedAt))}</p>
         </div>
         <table>
-          <tr>
-            <th>${printUtilsTranslation.title}</th>
-            <th>${printUtilsTranslation.description}</th>
-            <th>${printUtilsTranslation.className}</th>
-            <th>${printUtilsTranslation.componentType}</th>
-            <th>${printUtilsTranslation.dataElements}</th>
-            <th>${printUtilsTranslation.readingReferences}</th>
-            <th>${printUtilsTranslation.writingReferences}</th>
-            <th>${printUtilsTranslation.operations}</th>
-            <th>${printUtilsTranslation.degreeOfCompletion}</th>
-            <th>${printUtilsTranslation.functionalPoints}</th>
-            <th>${printUtilsTranslation.totalPossiblePoints}</th>
-          </tr>
-          ${project.functionalComponents
-            .map((comp) => {
-              // This returns an error "Type null cannot be used as an index type.", but it works for now
-
-              let prevComp: TGenericComponent | null = null;
-
-              if (comp.previousFCId) {
-                prevComp = previousComponentsMap[comp.previousFCId];
-              }
-
-              return `
+          <thead>
             <tr>
-              <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
-              <td>${valueComparer(comp.description, prevComp?.description || null)}</td>
-              <td>${valueComparer(
-                classNameTranslation[comp.className] || comp.className,
-                prevComp?.className
-                  ? classNameTranslation[prevComp?.className] ||
-                      prevComp.className
-                  : null,
-              )}</td>
-              <td>${valueComparer(
-                comp.componentType
-                  ? componentTypeTranslation[comp.componentType] ||
-                      comp.componentType
-                  : null,
-                prevComp?.componentType
-                  ? componentTypeTranslation[prevComp.componentType] ||
-                      prevComp.componentType
-                  : null,
-              )}</td>
-              <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
-              <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
-              <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
-              <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
-              <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
-              <td>${valueComparer(
-                calculateComponentPointsWithMultiplier(
-                  comp || null,
-                  comp.degreeOfCompletion,
-                ).toFixed(2),
-                calculateComponentPointsWithMultiplier(
-                  prevComp || null,
-                  prevComp?.degreeOfCompletion || null,
-                ).toFixed(2),
-              )}</td>
-              <td>${valueComparer(
-                calculateBasePoints(comp).toFixed(2),
-                prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
-              )}</td>
+              <th>${printUtilsTranslation.title}</th>
+              <th>${printUtilsTranslation.description}</th>
+              <th>${printUtilsTranslation.className}</th>
+              <th>${printUtilsTranslation.componentType}</th>
+              <th>${printUtilsTranslation.dataElements}</th>
+              <th>${printUtilsTranslation.readingReferences}</th>
+              <th>${printUtilsTranslation.writingReferences}</th>
+              <th>${printUtilsTranslation.operations}</th>
+              <th>${printUtilsTranslation.degreeOfCompletion}</th>
+              <th>${printUtilsTranslation.functionalPoints}</th>
+              <th>${printUtilsTranslation.totalPossiblePoints}</th>
             </tr>
-            `;
-            })
-            .join("")}
-          <tr class="total-row">
-            <td colspan="9"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
-            <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
-            <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
-          </tr>
+          </thead>
+          <tbody>
+            ${project.functionalComponents
+              .map((comp) => {
+                // This returns an error "Type null cannot be used as an index type.", but it works for now
+
+                let prevComp: TGenericComponent | null = null;
+
+                if (comp.previousFCId) {
+                  prevComp = previousComponentsMap[comp.previousFCId];
+                }
+
+                return `
+              <tr>
+                <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
+                <td>${valueComparer(comp.description, prevComp?.description || null)}</td>
+                <td>${valueComparer(
+                  classNameTranslation[comp.className] || comp.className,
+                  prevComp?.className
+                    ? classNameTranslation[prevComp?.className] ||
+                        prevComp.className
+                    : null,
+                )}</td>
+                <td>${valueComparer(
+                  comp.componentType
+                    ? componentTypeTranslation[comp.componentType] ||
+                        comp.componentType
+                    : null,
+                  prevComp?.componentType
+                    ? componentTypeTranslation[prevComp.componentType] ||
+                        prevComp.componentType
+                    : null,
+                )}</td>
+                <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
+                <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
+                <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
+                <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
+                <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
+                <td>${valueComparer(
+                  calculateComponentPointsWithMultiplier(
+                    comp || null,
+                    comp.degreeOfCompletion,
+                  ).toFixed(2),
+                  calculateComponentPointsWithMultiplier(
+                    prevComp || null,
+                    prevComp?.degreeOfCompletion || null,
+                  ).toFixed(2),
+                )}</td>
+                <td>${valueComparer(
+                  calculateBasePoints(comp).toFixed(2),
+                  prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
+                )}</td>
+              </tr>
+              `;
+              })
+              .join("")}
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="9"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
+              <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+              <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+            </tr>
+          </tfoot>
         </table>
       </body>
     </html>

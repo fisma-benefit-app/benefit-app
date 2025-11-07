@@ -338,7 +338,7 @@ export default function ProjectPage() {
     setLoadingProject(true);
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
-        className: "Interactive end-user navigation and query service",
+        className: null,
         componentType: null,
         dataElements: null,
         readingReferences: null,
