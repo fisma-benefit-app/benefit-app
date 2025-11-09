@@ -2,28 +2,28 @@ import { MLAsubComponent, Project } from "../lib/types";
 import FunctionalClassComponent from "./FunctionalClassComponent";
 
 type SubComponentsModalProps = {
-    open: boolean;
-    setOpen: (open: boolean) => void;
-    subComponents: MLAsubComponent[];
-    parentTitle: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  subComponents: MLAsubComponent[];
+  parentTitle: string;
 };
 
 export default function SubComponentsModal({
-    open,
-    setOpen,
-    subComponents,
-    parentTitle,
+  open,
+  setOpen,
+  subComponents,
+  parentTitle,
 }: SubComponentsModalProps) {
-    if (!open) return null;
+  if (!open) return null;
 
-    const subComponentLabels = {
-        presentation: "Presentation Layer",
-        businessLogic: "Business Logic Layer",
-        dataAccess: "Data Access Layer",
-        integration: "Integration Layer",
-    };
+  const subComponentLabels = {
+    presentation: "Presentation Layer",
+    businessLogic: "Business Logic Layer",
+    dataAccess: "Data Access Layer",
+    integration: "Integration Layer",
+  };
 
-    return (
+  return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
@@ -43,7 +43,10 @@ export default function SubComponentsModal({
         <div className="overflow-y-auto p-6 flex-1">
           <div className="space-y-6">
             {subComponents.map((subComp) => (
-              <div key={subComp.id} className="border-2 border-fisma-blue rounded-lg p-4">
+              <div
+                key={subComp.id}
+                className="border-2 border-fisma-blue rounded-lg p-4"
+              >
                 <h3 className="text-lg font-bold text-fisma-blue mb-4">
                   {subComponentLabels[subComp.subComponentType]}
                 </h3>

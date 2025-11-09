@@ -3,7 +3,7 @@ import {
   faCaretUp,
   faTrash,
   faLayerGroup,
-  faGripVertical
+  faGripVertical,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState } from "react";
@@ -216,7 +216,6 @@ export default function FunctionalClassComponent({
       };
     }
 
-
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
         functionalComponent.id === component.id
@@ -235,7 +234,7 @@ export default function FunctionalClassComponent({
   };
 
   const handleMLAChange = () => {
-   onMLAToggle(component.id, !component.isMLA);
+    onMLAToggle(component.id, !component.isMLA);
   };
 
   return (
@@ -461,43 +460,53 @@ export default function FunctionalClassComponent({
             onClick={() => setShowSubComponents(!showSubComponents)}
             className="text-sm text-fisma-blue hover:underline flex items-center gap-2 mb-2"
           >
-            <FontAwesomeIcon icon={showSubComponents ? faCaretUp : faCaretDown} />
-            {showSubComponents ? translation.hideSubComponents : translation.showSubComponents}
+            <FontAwesomeIcon
+              icon={showSubComponents ? faCaretUp : faCaretDown}
+            />
+            {showSubComponents
+              ? translation.hideSubComponents
+              : translation.showSubComponents}
             {component.subComponents && component.subComponents.length > 0 && (
               <span> ({component.subComponents.length})</span>
-            )} 
+            )}
           </button>
-          
-          {showSubComponents && component.subComponents && component.subComponents.length > 0 && (
-            <div className="space-y-3 ml-4 border-l-4 border-fisma-blue pl-4">
-              {component.subComponents.map((subComp) => (
-                <div key={subComp.id} className="relative">
-                  <div className="opacity-75 pointer-events-none">
-                    <FunctionalClassComponent
-                      component={subComp}
-                      deleteFunctionalComponent={async () => {}}
-                      project={{ functionalComponents: [] } as unknown as Project}
-                      setProject={() => {}}
-                      setProjectResponse={() => {}}
-                      isLatest={false}
-                      collapsed={false}
-                      onCollapseChange={() => {}}
-                      debouncedSaveProject={() => {}}
-                      onMLAToggle={() => {}}
-                      dragHandleProps={{}}
-                    />
+
+          {showSubComponents &&
+            component.subComponents &&
+            component.subComponents.length > 0 && (
+              <div className="space-y-3 ml-4 border-l-4 border-fisma-blue pl-4">
+                {component.subComponents.map((subComp) => (
+                  <div key={subComp.id} className="relative">
+                    <div className="opacity-75 pointer-events-none">
+                      <FunctionalClassComponent
+                        component={subComp}
+                        deleteFunctionalComponent={async () => {}}
+                        project={
+                          { functionalComponents: [] } as unknown as Project
+                        }
+                        setProject={() => {}}
+                        setProjectResponse={() => {}}
+                        isLatest={false}
+                        collapsed={false}
+                        onCollapseChange={() => {}}
+                        debouncedSaveProject={() => {}}
+                        onMLAToggle={() => {}}
+                        dragHandleProps={{}}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
 
           {/* Message if MLA is enabled but no subcomponents loaded */}
-          {showSubComponents && (!component.subComponents || component.subComponents.length === 0) && (
-            <div className="ml-4 pl-4 border-l-4 border-fisma-blue text-sm text-gray-600 italic py-2">
-              No sub-components found.
-            </div>
-          )}
+          {showSubComponents &&
+            (!component.subComponents ||
+              component.subComponents.length === 0) && (
+              <div className="ml-4 pl-4 border-l-4 border-fisma-blue text-sm text-gray-600 italic py-2">
+                No sub-components found.
+              </div>
+            )}
         </div>
       )}
 
@@ -506,7 +515,7 @@ export default function FunctionalClassComponent({
           open={isSubComponentsModalOpen}
           setOpen={setSubComponentsModalOpen}
           subComponents={component.subComponents}
-          parentTitle={component.title || 'Untitled component'}
+          parentTitle={component.title || "Untitled component"}
         />
       )}
 

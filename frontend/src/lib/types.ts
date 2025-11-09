@@ -105,10 +105,14 @@ export type Project = {
 
 export type MLAsubComponent = TGenericComponent & {
   parentComponentId: number;
-  subComponentType: 'presentation' | 'businessLogic' | 'dataAccess' | 'integration';
+  subComponentType:
+    | "presentation"
+    | "businessLogic"
+    | "dataAccess"
+    | "integration";
   isReadonly: true;
   subComponents: never;
-}
+};
 
 export type TGenericComponent = {
   id: number;

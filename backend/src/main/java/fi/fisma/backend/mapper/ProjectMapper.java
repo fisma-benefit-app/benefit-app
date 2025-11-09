@@ -26,7 +26,6 @@ public class ProjectMapper {
     this.functionalComponentMapper = functionalComponentMapper;
   }
 
-  // TODO: JESSE HERE: Project Response - Make sure to filter out sub FunctionalComponents
   public ProjectResponse toResponse(Project project) {
     var response =
         new ProjectResponse(
@@ -37,6 +36,7 @@ public class ProjectMapper {
             project.getVersionCreatedAt(),
             project.getUpdatedAt(),
             project.getFunctionalComponents().stream()
+                .filter(fc -> fc.getParentFCId() == null) // Only include top-level components
                 .map(fc -> functionalComponentMapper.toResponse(fc))
                 .filter(Objects::nonNull) // Filter out deleted components
                 .collect(Collectors.toSet()),

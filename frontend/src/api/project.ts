@@ -154,7 +154,10 @@ const createNewProjectVersion = async (
     projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
 
-  console.log("Request payload for new project version creation:", projectRequest);
+  console.log(
+    "Request payload for new project version creation:",
+    projectRequest,
+  );
 
   const response = await fetch(fetchURL, {
     method: "POST",
@@ -207,7 +210,9 @@ const updateProject = async (
   };
 
   // Recursive function to map components including subComponents
-  const mapComponentToRequest = (fc: TGenericComponent): FunctionalComponentRequest => ({
+  const mapComponentToRequest = (
+    fc: TGenericComponent,
+  ): FunctionalComponentRequest => ({
     id: fc.id,
     title: fc.title,
     description: fc.description,
@@ -225,8 +230,8 @@ const updateProject = async (
     parentFCId: fc.parentFCId,
     subComponentType: null,
     isReadonly: false,
-    subComponents: fc.subComponents 
-      ? fc.subComponents.map(subComp => ({
+    subComponents: fc.subComponents
+      ? fc.subComponents.map((subComp) => ({
           id: subComp.id,
           title: subComp.title,
           description: subComp.description,
@@ -253,13 +258,18 @@ const updateProject = async (
   const projectRequest: ProjectRequest = {
     projectName: project.projectName,
     version: project.version,
-    functionalComponents: project.functionalComponents.map(mapComponentToRequest),
+    functionalComponents: project.functionalComponents.map(
+      mapComponentToRequest,
+    ),
     projectAppUserIds: project.projectAppUsers.map((pau) => pau.id),
   };
 
   console.log("Request payload for project update:", projectRequest);
-  console.log("🔍 Components with subComponents:", 
-    projectRequest.functionalComponents.filter(c => c.isMLA && c.subComponents.length > 0)
+  console.log(
+    "🔍 Components with subComponents:",
+    projectRequest.functionalComponents.filter(
+      (c) => c.isMLA && c.subComponents.length > 0,
+    ),
   );
 
   const response = await fetch(fetchURL, {

@@ -32,7 +32,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useAlert } from "../context/AlertProvider.tsx";
-import { createSubComponents, updateSubComponents } from "../lib/fc-service-functions.ts";
+import {
+  createSubComponents,
+  updateSubComponents,
+} from "../lib/fc-service-functions.ts";
 
 function SortableFunctionalComponent({
   component,
@@ -151,8 +154,7 @@ export default function ProjectPage() {
             isMLA: true,
             subComponents: createSubComponents(comp),
           };
-        }
-        else if (!newMLAValue) {
+        } else if (!newMLAValue) {
           return {
             ...comp,
             isMLA: false,
@@ -175,8 +177,6 @@ export default function ProjectPage() {
       debouncedSaveProject();
     }
   };
-
-  
 
   // sort functional components by order (ascending)
   const sortedComponents =
@@ -212,7 +212,6 @@ export default function ProjectPage() {
     );
 
     try {
-      
       // normalize before saving
       const normalized = currentProject.functionalComponents
         .slice()
@@ -233,7 +232,7 @@ export default function ProjectPage() {
         functionalComponents: normalized,
         updatedAt: CreateCurrentDate(),
       };
-      
+
       await updateProject(sessionToken, editedProject);
 
       updateNotification(
@@ -436,12 +435,19 @@ export default function ProjectPage() {
           functionalComponents: normalized,
           updatedAt: CreateCurrentDate(),
         };
-        console.log('🔍 MANUAL-SAVE: editedProject keys:', Object.keys(editedProject));
-        console.log('🔍 MANUAL-SAVE: Has sub-components?', 
-          editedProject.functionalComponents.some(c => c.isMLA && c.subComponents)
+        console.log(
+          "🔍 MANUAL-SAVE: editedProject keys:",
+          Object.keys(editedProject),
         );
-        console.log('🔍 MANUAL-SAVE: MLA components:', 
-          editedProject.functionalComponents.filter(c => c.isMLA)
+        console.log(
+          "🔍 MANUAL-SAVE: Has sub-components?",
+          editedProject.functionalComponents.some(
+            (c) => c.isMLA && c.subComponents,
+          ),
+        );
+        console.log(
+          "🔍 MANUAL-SAVE: MLA components:",
+          editedProject.functionalComponents.filter((c) => c.isMLA),
         );
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);

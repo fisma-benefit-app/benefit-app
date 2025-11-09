@@ -147,7 +147,7 @@ export const translations = {
         "Is this functional component a part of multi-layered architecture?",
       notAvailableForThisFunctionalComponentType:
         "Not available for this functional component type",
-      showSubComponents: "Show sub-components",  // ✅ KEEP - Used in button
+      showSubComponents: "Show sub-components", // ✅ KEEP - Used in button
       hideSubComponents: "Hide sub-components",
     },
     projectPage: {
@@ -335,7 +335,7 @@ export const translations = {
         "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
       notAvailableForThisFunctionalComponentType:
         "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
-      showSubComponents: "Näytä alakomponentit",  // ✅ KEEP - Used in button
+      showSubComponents: "Näytä alakomponentit", // ✅ KEEP - Used in button
       hideSubComponents: "Piilota alakomponentit",
     },
     projectPage: {
