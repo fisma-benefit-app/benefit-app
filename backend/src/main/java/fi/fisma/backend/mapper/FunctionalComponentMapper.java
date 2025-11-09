@@ -22,54 +22,56 @@ public class FunctionalComponentMapper {
   }
 
   public FunctionalComponent toEntity(FunctionalComponentRequest request, Project project) {
-    FunctionalComponent component = new FunctionalComponent(
-        request.getTitle(),
-        request.getDescription(),
-        request.getClassName(),
-        request.getComponentType(),
-        request.getDataElements(),
-        request.getReadingReferences(),
-        request.getWritingReferences(),
-        request.getFunctionalMultiplier(),
-        request.getOperations(),
-        request.getDegreeOfCompletion(),
-        request.getPreviousFCId(),
-        request.getOrderPosition(),
-        request.getIsMLA(),
-        request.getParentFCId(),
-        request.getSubComponentType(),
-        request.getIsReadonly(),
-        new ArrayList<>(), // Initialize empty list for subComponents
-        project,
-        null);
-    
+    FunctionalComponent component =
+        new FunctionalComponent(
+            request.getTitle(),
+            request.getDescription(),
+            request.getClassName(),
+            request.getComponentType(),
+            request.getDataElements(),
+            request.getReadingReferences(),
+            request.getWritingReferences(),
+            request.getFunctionalMultiplier(),
+            request.getOperations(),
+            request.getDegreeOfCompletion(),
+            request.getPreviousFCId(),
+            request.getOrderPosition(),
+            request.getIsMLA(),
+            request.getParentFCId(),
+            request.getSubComponentType(),
+            request.getIsReadonly(),
+            new ArrayList<>(), // Initialize empty list for subComponents
+            project,
+            null);
+
     // Handle subComponents if present
     if (request.getSubComponents() != null && !request.getSubComponents().isEmpty()) {
       for (FunctionalComponentRequest subReq : request.getSubComponents()) {
-        FunctionalComponent subComp = new FunctionalComponent(
-            subReq.getTitle(),
-            subReq.getDescription(),
-            subReq.getClassName(),
-            subReq.getComponentType(),
-            subReq.getDataElements(),
-            subReq.getReadingReferences(),
-            subReq.getWritingReferences(),
-            subReq.getFunctionalMultiplier(),
-            subReq.getOperations(),
-            subReq.getDegreeOfCompletion(),
-            subReq.getPreviousFCId(),
-            subReq.getOrderPosition(),
-            false, // Sub-components are never MLA themselves
-            null, // parentFCId will be set after parent is saved
-            subReq.getSubComponentType(),
-            true, // Sub-components are readonly
-            null, // Sub-components don't have their own sub-components
-            project,
-            null);
+        FunctionalComponent subComp =
+            new FunctionalComponent(
+                subReq.getTitle(),
+                subReq.getDescription(),
+                subReq.getClassName(),
+                subReq.getComponentType(),
+                subReq.getDataElements(),
+                subReq.getReadingReferences(),
+                subReq.getWritingReferences(),
+                subReq.getFunctionalMultiplier(),
+                subReq.getOperations(),
+                subReq.getDegreeOfCompletion(),
+                subReq.getPreviousFCId(),
+                subReq.getOrderPosition(),
+                false, // Sub-components are never MLA themselves
+                null, // parentFCId will be set after parent is saved
+                subReq.getSubComponentType(),
+                true, // Sub-components are readonly
+                null, // Sub-components don't have their own sub-components
+                project,
+                null);
         component.getSubComponents().add(subComp);
       }
     }
-    
+
     return component;
   }
 
@@ -80,12 +82,13 @@ public class FunctionalComponentMapper {
     }
 
     List<FunctionalComponentResponse> subComponentResponses = null;
-  if (component.getSubComponents() != null && !component.getSubComponents().isEmpty()) {
-    subComponentResponses = component.getSubComponents().stream()
-        .map(this::toResponse)
-        .filter(resp -> resp != null)  // Filter out deleted components
-        .collect(Collectors.toList());
-  }
+    if (component.getSubComponents() != null && !component.getSubComponents().isEmpty()) {
+      subComponentResponses =
+          component.getSubComponents().stream()
+              .map(this::toResponse)
+              .filter(resp -> resp != null) // Filter out deleted components
+              .collect(Collectors.toList());
+    }
 
     return new FunctionalComponentResponse(
         component.getId(),
@@ -157,26 +160,27 @@ public class FunctionalComponentMapper {
     existing.setParentFCId(fc.getParentFCId());
     existing.setSubComponentType(fc.getSubComponentType());
     existing.setIsReadonly(fc.getIsReadonly());
-    
+
     // Handle subComponents
     if (fc.getSubComponents() != null && !fc.getSubComponents().isEmpty()) {
       // Mark existing subComponents for removal by clearing the list
       // Orphan removal will handle deletion
       existing.getSubComponents().clear();
-      
+
       // Save parent first to ensure it has an ID
       functionalComponentRepository.save(existing);
-      
+
       // Process each sub-component from the request
       for (FunctionalComponentRequest subReq : fc.getSubComponents()) {
         FunctionalComponent subComp;
-        
+
         if (subReq.getId() != null) {
           // Try to find and update existing sub-component
-          subComp = functionalComponentRepository
-              .findByIdActive(subReq.getId())
-              .orElseGet(() -> createSubComponent(subReq, existing));
-          
+          subComp =
+              functionalComponentRepository
+                  .findByIdActive(subReq.getId())
+                  .orElseGet(() -> createSubComponent(subReq, existing));
+
           if (subComp.getId() != null) {
             updateSubComponentFields(subComp, subReq, existing);
           }
@@ -184,7 +188,7 @@ public class FunctionalComponentMapper {
           // Create new sub-component
           subComp = createSubComponent(subReq, existing);
         }
-        
+
         // Add to parent's subComponents list
         existing.getSubComponents().add(subComp);
       }
@@ -193,37 +197,35 @@ public class FunctionalComponentMapper {
       existing.getSubComponents().clear();
     }
   }
-  
+
   private FunctionalComponent createSubComponent(
-      FunctionalComponentRequest subReq, 
-      FunctionalComponent parent) {
-    FunctionalComponent subComp = new FunctionalComponent(
-        subReq.getTitle(),
-        subReq.getDescription(),
-        subReq.getClassName(),
-        subReq.getComponentType(),
-        subReq.getDataElements(),
-        subReq.getReadingReferences(),
-        subReq.getWritingReferences(),
-        subReq.getFunctionalMultiplier(),
-        subReq.getOperations(),
-        subReq.getDegreeOfCompletion(),
-        subReq.getPreviousFCId(),
-        subReq.getOrderPosition(),
-        false, // Sub-components are never MLA themselves
-        parent.getId(), // Set parent ID
-        subReq.getSubComponentType(),
-        true, // Sub-components are readonly
-        null, // Sub-components don't have their own sub-components
-        parent.getProject(),
-        null);
+      FunctionalComponentRequest subReq, FunctionalComponent parent) {
+    FunctionalComponent subComp =
+        new FunctionalComponent(
+            subReq.getTitle(),
+            subReq.getDescription(),
+            subReq.getClassName(),
+            subReq.getComponentType(),
+            subReq.getDataElements(),
+            subReq.getReadingReferences(),
+            subReq.getWritingReferences(),
+            subReq.getFunctionalMultiplier(),
+            subReq.getOperations(),
+            subReq.getDegreeOfCompletion(),
+            subReq.getPreviousFCId(),
+            subReq.getOrderPosition(),
+            false, // Sub-components are never MLA themselves
+            parent.getId(), // Set parent ID
+            subReq.getSubComponentType(),
+            true, // Sub-components are readonly
+            null, // Sub-components don't have their own sub-components
+            parent.getProject(),
+            null);
     return subComp;
   }
-  
+
   private void updateSubComponentFields(
-      FunctionalComponent subComp, 
-      FunctionalComponentRequest subReq,
-      FunctionalComponent parent) {
+      FunctionalComponent subComp, FunctionalComponentRequest subReq, FunctionalComponent parent) {
     subComp.setTitle(subReq.getTitle());
     subComp.setDescription(subReq.getDescription());
     subComp.setClassName(subReq.getClassName());
