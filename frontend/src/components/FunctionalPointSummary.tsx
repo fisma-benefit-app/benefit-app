@@ -48,7 +48,12 @@ export const FunctionalPointSummary = ({
   };
 
   const handleExportCSV = () => {
-    downloadProjectComponentsCsv(project, translation.csvHeaders);
+    downloadProjectComponentsCsv(
+      project,
+      translation.csvHeaders,
+      translation.functionalClassComponent.classNameOptions,
+      translation.functionalClassComponent.componentTypeOptions,
+    );
   };
 
   return (

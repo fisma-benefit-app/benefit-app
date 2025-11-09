@@ -1,13 +1,13 @@
 <a id="readme-top"></a>
 
+<!-- BANNER SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Last commit][commit-shield]][commit-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
-<!--
-[![Build][build-shield]][build-url]
--->
+<!-- TITLE -->
 
 <br />
 <div align="center">
@@ -27,6 +27,8 @@
     <a href="#getting-started"><strong>Installation and development »</strong></a>
   </p>
 </div>
+
+<!-- TABLE OF CONTENTS -->
 
 <br>
 <details>
@@ -122,6 +124,17 @@ Logging in the Benefit app covers both runtime and build/test events:
   - Runtime logs: browser DevTools console.
 
 Logs are written to the terminal during local development and can be streamed in production with the Heroku CLI. For full details, see the [logging guide](/documents/guides/logging.md).
+
+### Cache
+
+Benefit uses several caches to improve performance and speed up builds:
+
+- **Vite cache**: Speeds up frontend development by pre-bundling dependencies.
+- **Heroku build cache**: Persists backend build artifacts between deploys for faster CI/CD.
+- **Gradle cache**: Can be enabled for backend build optimization (disabled by default).
+- **App-specific memoization cache**: The frontend caches functional point calculations in [`centralizedCalculations.ts`](frontend/src/lib/centralizedCalculations.ts) using component-specific keys. This ensures recalculation only happens when component data changes. You can monitor or clear this cache using `getCacheSize()` and `clearCalculationCache()`.
+
+For details and cache clearing instructions, see the [Caching Guide](/documents/guides/caching.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -534,11 +547,6 @@ Project Link: [https://github.com/fisma-benefit-app/benefit-app](https://github.
 
 [contributors-shield]: https://img.shields.io/github/contributors/fisma-benefit-app/benefit-app.svg?style=for-the-badge
 [contributors-url]: https://github.com/fisma-benefit-app/benefit-app/graphs/contributors
-
-<!--[build-shield]: https://img.shields.io/github/actions/workflow/status/fisma-benefit-app/benefit-app/pages-build-deployment.yml?branch=main
-[build-url]: https://github.com/fisma-benefit-app/benefit-app/actions/workflows/pages/pages-build-deployment.yml
--->
-
 [commit-shield]: https://img.shields.io/github/last-commit/fisma-benefit-app/benefit-app.svg?style=for-the-badge
 [commit-url]: https://github.com/fisma-benefit-app/benefit-app/commits/main/
 [issues-shield]: https://img.shields.io/github/issues/fisma-benefit-app/benefit-app.svg?style=for-the-badge
