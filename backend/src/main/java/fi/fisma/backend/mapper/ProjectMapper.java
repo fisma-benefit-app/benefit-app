@@ -26,6 +26,7 @@ public class ProjectMapper {
     this.functionalComponentMapper = functionalComponentMapper;
   }
 
+  // TODO: JESSE HERE: Project Response - Make sure to filter out sub FunctionalComponents
   public ProjectResponse toResponse(Project project) {
     var response =
         new ProjectResponse(
