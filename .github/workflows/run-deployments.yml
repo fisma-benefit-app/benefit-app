@@ -65,7 +65,7 @@ jobs:
 
     - name: Deploy FE to GitHub Pages production environment
       env:
-        VITE_SERVER_URL: ${{ secrets.HEROKU_PRODUCTION_URL }}
+        VITE_API_URL: ${{ secrets.HEROKU_PRODUCTION_URL }}
         VITE_BASE_PATH: /benefit-app/
       run: |
         cd frontend
@@ -143,7 +143,7 @@ jobs:
     # so we deploy FE testing again after production deployment
     - name: Deploy FE to GitHub Pages testing environment
       env:
-        VITE_SERVER_URL: ${{ secrets.HEROKU_TESTING_URL }}
+        VITE_API_URL: ${{ secrets.HEROKU_TESTING_URL }}
         VITE_BASE_PATH: /benefit-app/testing/
       run: |
         echo "FE deployment to production resets testing environment, so we deploy FE testing again after production deployment"
@@ -210,7 +210,7 @@ jobs:
 
     - name: Deploy FE to GitHub Pages testing environment
       env:
-        VITE_SERVER_URL: ${{ secrets.HEROKU_TESTING_URL }}
+        VITE_API_URL: ${{ secrets.HEROKU_TESTING_URL }}
         VITE_BASE_PATH: /benefit-app/testing/
       run: |
         cd frontend
