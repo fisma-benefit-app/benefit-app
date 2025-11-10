@@ -78,7 +78,7 @@ const createProject = async (
     projectName: nameForProject,
     version: 1, // first version
     functionalComponents: [], // start empty
-    appUserIds: [], // start with no users
+    projectAppUserIds: [], // start with no users
   };
 
   const response = await fetch(fetchURL, {
@@ -147,6 +147,8 @@ const createNewProjectVersion = async (
       description: fc.description,
       previousFCId: fc.id,
       orderPosition: fc.orderPosition,
+      isMLA: fc.isMLA,
+      parentFCId: fc.parentFCId,
     })),
     projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
@@ -218,6 +220,8 @@ const updateProject = async (
       description: fc.description,
       previousFCId: fc.previousFCId,
       orderPosition: fc.orderPosition,
+      isMLA: fc.isMLA,
+      parentFCId: fc.parentFCId,
     })),
     projectAppUserIds: project.projectAppUsers.map((pau) => pau.id),
   };

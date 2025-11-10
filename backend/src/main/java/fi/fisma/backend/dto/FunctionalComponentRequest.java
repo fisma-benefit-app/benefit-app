@@ -71,4 +71,16 @@ public class FunctionalComponentRequest {
   @Min(value = 0, message = "Order position must be non-negative")
   @Schema(description = "Position in the component list", example = "1", minimum = "0")
   private Integer orderPosition;
+
+  @NotNull(message = "Multi-layer architecture (MLA) status must be specified")
+  @Schema(
+      description =
+          "Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.",
+      example = "true")
+  private Boolean isMLA;
+
+  @Schema(
+      description = "ID of the parent functional component, if part of multi-layer architecture",
+      example = "12")
+  private Long parentFCId;
 }

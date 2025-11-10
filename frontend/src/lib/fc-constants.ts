@@ -143,3 +143,18 @@ export const calculateFunctions = [
     calculateFunction: calculateAlgorithmicOrManipulationService,
   },
 ];
+
+export const mlaInputAndStorageClassNames = [
+  "Interactive end-user input service",
+  "Data storage service",
+];
+
+export const mlaNavigationAndQueryClassName =
+  "Interactive end-user navigation and query service";
+
+export const mlaNavigationAndQueryComponentTypes = [
+  "browsing lists",
+  "data inquiries",
+  "generation indicators",
+  "log-in log-out functions",
+];

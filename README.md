@@ -1,13 +1,13 @@
 <a id="readme-top"></a>
 
+<!-- BANNER SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Last commit][commit-shield]][commit-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
-<!--
-[![Build][build-shield]][build-url]
--->
+<!-- TITLE -->
 
 <br />
 <div align="center">
@@ -24,9 +24,11 @@
     All in one repository for the Benefit application developed in collaboration
     <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
     <br />
-    <a href="#getting-started"><strong>Get Started »</strong></a>
+    <a href="#getting-started"><strong>Installation and development »</strong></a>
   </p>
 </div>
+
+<!-- TABLE OF CONTENTS -->
 
 <br>
 <details>
@@ -36,14 +38,14 @@
         <a href="#about-the-project">About the Project</a>
     </li>
     <li>
+        <a href="#deployment">Deployment</a>
+    </li>
+    <li>
+        <a href="#fisma-11-method-overview">FiSMA Method Overview</a>
+    </li>
+    <li>
         <a href="#built-with">Built With</a>
-    </li>
-    <li>
-        <a href="#architecture">Architecture</a>
-    </li>
-    <li>
-        <a href="#api">API</a>
-    </li>     
+    </li>   
     <li>
         <a href="#getting-started">Getting Started</a>
     </li>
@@ -57,10 +59,10 @@
         <a href="#quality-assurance-and-security">Quality Assurance and Security</a>
     </li>
     <li>
-        <a href="#logging">Logging</a>
+        <a href="#roadmap">Roadmap</a>
     </li>
     <li>
-        <a href="#roadmap">Roadmap</a>
+        <a href="#contributing">Contributing</a>
     </li>
     <li>
         <a href="#license">License</a>
@@ -75,7 +77,7 @@
 
 ## About the Project
 
-The Benefit application has been developed in collaboration with FiSMA ry and Haaga-Helia University of Applied Sciences. It's designed for function point analysis, primarily supporting Scope Managers in performing calculations, reporting, and archiving. The main functionality of the app follows standard ISO/IEC 29881.
+The Benefit application has been developed in collaboration with FiSMA ry and Haaga-Helia University of Applied Sciences. It's designed for function point analysis (see [method overview](#fisma-11-method-overview)), primarily supporting Scope Managers in performing calculations, reporting, and archiving. The main functionality of the app follows standard ISO/IEC 29881.
 
 ### What is Function Point Analysis?
 
@@ -83,7 +85,62 @@ Function point analysis is used to measure the functional size of software. This
 
 There are several function point analysis methods, but in this project, the term specifically refers to the FiSMA 1.1 method.
 
-### FiSMA 1.1 Method Overview
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- DEPLOYMENT -->
+
+## Deployment
+
+You can check Benefit out yourself at https://fisma-benefit-app.github.io/benefit-app/#/login. The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [deployment guide](/documents/guides/deployment_guide.md).
+
+### Architecture
+
+<details>
+<summary><b>Click here to view the software architecture</b></summary>
+<img src="./documents/img/images_for_guides/architecture.jpg" height="500" />
+</details>
+
+<details>
+<summary><b>Click here to view the database diagram</b></summary>
+<img src="./documents/img/images_for_guides/database_diagram.png" height="508" width="1290"/>
+</details><br>
+
+More information on how to access the database can found in the [database guide](/documents/guides/database.md).
+
+### API
+
+Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/how_to_generate_api_docs.md).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Logging
+
+Logging in the Benefit app covers both runtime and build/test events:
+
+- **Backend**: Spring Boot’s default logging plus Spring Security logs (configurable in `application.yaml`).
+  - Tests: Gradle test results with detailed exceptions and stack traces (configured in `build.gradle`).
+- **Frontend**:
+  - Build logs: terminal (local) or GitHub Actions (Heroku).
+  - Runtime logs: browser DevTools console.
+
+Logs are written to the terminal during local development and can be streamed in production with the Heroku CLI. For full details, see the [logging guide](/documents/guides/logging.md).
+
+### Cache
+
+Benefit uses several caches to improve performance and speed up builds:
+
+- **Vite cache**: Speeds up frontend development by pre-bundling dependencies.
+- **Heroku build cache**: Persists backend build artifacts between deploys for faster CI/CD.
+- **Gradle cache**: Can be enabled for backend build optimization (disabled by default).
+- **App-specific memoization cache**: The frontend caches functional point calculations in [`centralizedCalculations.ts`](frontend/src/lib/centralizedCalculations.ts) using component-specific keys. This ensures recalculation only happens when component data changes. You can monitor or clear this cache using `getCacheSize()` and `clearCalculationCache()`.
+
+For details and cache clearing instructions, see the [Caching Guide](/documents/guides/caching.md).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- FISMA 1.1 METHOD OVERVIEW -->
+
+## FiSMA 1.1 Method Overview
 
 In FiSMA 1.1, each user-relevant function is classified into a function category and function type, and entered as a row in a table. Each function is assigned:
 
@@ -113,10 +170,6 @@ These are excluded because they do not directly provide new functionality to the
 
 The [northernSCOPE™](https://www.fisma.fi/wp-content/uploads/2022/01/northernscope-brochure-v152.pdf) concept is a framework developed and provided by FiSMA to support the application of function point analysis in software projects.
 
-### Deployment
-
-The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [deployment guide](/documents/guides/deployment.md).
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- BUILT WITH -->
@@ -143,32 +196,6 @@ This project is built with:
 [![GitHub][github-shield]][github-url]
 [![GitHub Actions][github-actions-shield]][github-actions-url]
 [![Visual Studio Code][vs-code-shield]][vs-code-url]
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- ARCHITECTURE -->
-
-## Architecture
-
-<details>
-<summary><b>Click here to view the software architecture</b></summary>
-<img src="./documents/img/images_for_guides/architecture.jpg" height="500" />
-</details>
-
-<details>
-<summary><b>Click here to view the database diagram</b></summary>
-<img src="./documents/img/images_for_guides/database_diagram.png" height="508" width="1290"/>
-</details><br>
-
-More information on how to access the database can found in the [database guide](/documents/guides/database.md).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- API -->
-
-## API
-
-Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/how_to_generate_api_docs.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -325,8 +352,6 @@ This command tells Git to look for the `pre-commit` hook from the `.githooks` fo
 
 ## Usage
 
-You can check Benefit out yourself at https://fisma-benefit-app.github.io/benefit-app/#/login.
-
 ### Login
 
 - Login with username and password.
@@ -373,13 +398,13 @@ Benefit application's CI/CD pipeline includes a branching strategy and automated
 
 ### Branching Strategy
 
-Benefit application's branching strategy is currently following these guidelines:
+Developing the Benefit application is done using trunk-based development. Benefit application's branching strategy is currently following these guidelines:
 
-- `main` branch: production branch, containing finalized and refactored code
-- `sprint/X` branch: branch that includes all changes, added features, bugfixes etc. made during a certain sprint (`X`)
-- `issue/#X` brances: branches what contain changes covered in a single issue (`#X`)
+- `main` branch: production and testing branch
 
-The `main` branch is sacred and pushes to it are prohibited. Changes described in issues are developed in individual `issue/X` branches which are merged to `sprint/X` branch through pull requests. And at the end of a sprint, the `sprint/X` branch is merged to the `main` branch, provided it passes all the checks and tests. For full explanation of the branching strategy, see [branching strategy](./documents/guides/branching_strategy.md).
+All commits are merged to `main` via pull requests. These PRs go through automatic testing and when they are merged, they trigger automatic deployment to testing environment. See [deployment](#deployment) for more information.
+
+For full explanation of the branching strategy, see [branching strategy](./documents/guides/branching_strategy.md).
 
 ### Code Quality and Collaboration
 
@@ -396,6 +421,8 @@ The Benefit application's GitHub repository features a GitHub Actions workflow w
 
 - formatting checks for frontend (Prettier) and backend (Spotless / Google Java Format)
 - backend unit tests
+
+Our automated deployments also utilize GitHub Actions workflows to deploy any merges to `main` to testing environment. See [deployment](#deployment) for more information.
 
 ### Code Quality and Collaboration
 
@@ -428,22 +455,6 @@ or, if you want to run a specific test class:
 
 Basic authentication is used. After successful authentication, a JWT is generated and returned. A more detailed authentication guide can be found [here](documents/guides/authentication.md). Authenticated users are authorized with the role ROLE_USER.
 
-<!-- LOGGING -->
-
-## Logging
-
-Logging in the Benefit app covers both runtime and build/test events:
-
-- **Backend**: Spring Boot’s default logging plus Spring Security logs (configurable in `application.yaml`).
-  - Tests: Gradle test results with detailed exceptions and stack traces (configured in `build.gradle`).
-- **Frontend**:
-  - Build logs: terminal (local) or GitHub Actions (Heroku).
-  - Runtime logs: browser DevTools console.
-
-Logs are written to the terminal during local development and can be streamed in production with the Heroku CLI. For full details, see the [logging guide](/documents/guides/logging.md).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 <!-- ROADMAP -->
 
 ## Roadmap
@@ -463,6 +474,58 @@ Logs are written to the terminal during local development and can be streamed in
 The project's requirement specification can be found [here](https://docs.google.com/document/d/1FXYXPMAwyoZNdxBxYVOIQPrcBr01fXAB4nvHD-Diy7w/edit?tab=t.0#heading=h.6dj02y3xjnh0). See the [open issues](https://github.com/fisma-benefit-app/benefit-app/issues) for a full list of proposed features and known issues.
 
   <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
+
+## Contributing
+
+If you have a suggestion to improve this project:
+
+1. Fork the project
+2. Set up the development environment ([see Getting Started](#getting-started))
+3. Create your feature branch and set up remotes
+
+   ```bash
+   # Clone your fork
+   git clone https://github.com/your-username/benefit-app.git
+   cd benefit-app
+
+   # Add upstream remote
+   git remote add upstream https://github.com/fisma-benefit-app/benefit-app.git
+
+   # Create feature branch
+   git checkout -b feature/amazing-feature
+   ```
+
+4. Make your changes
+   - Follow our coding standards
+   - Add tests if applicable
+   - Update documentation as needed
+5. Run formatting and tests
+
+   ```bash
+   # Frontend
+   cd frontend
+   npx prettier . --write
+
+   # Backend
+   cd backend
+   ./gradlew spotlessApply
+   ./gradlew test
+   ```
+
+6. Sync with upstream before committing
+   ```bash
+   git fetch upstream
+   git rebase upstream/main
+   ```
+7. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+8. Push to the branch (`git push origin feature/AmazingFeature`)
+9. Open a pull request
+
+Any contributions you make are greatly appreciated. Thanks again!
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
 
@@ -486,11 +549,6 @@ Project Link: [https://github.com/fisma-benefit-app/benefit-app](https://github.
 
 [contributors-shield]: https://img.shields.io/github/contributors/fisma-benefit-app/benefit-app.svg?style=for-the-badge
 [contributors-url]: https://github.com/fisma-benefit-app/benefit-app/graphs/contributors
-
-<!--[build-shield]: https://img.shields.io/github/actions/workflow/status/fisma-benefit-app/benefit-app/pages-build-deployment.yml?branch=main
-[build-url]: https://github.com/fisma-benefit-app/benefit-app/actions/workflows/pages/pages-build-deployment.yml
--->
-
 [commit-shield]: https://img.shields.io/github/last-commit/fisma-benefit-app/benefit-app.svg?style=for-the-badge
 [commit-url]: https://github.com/fisma-benefit-app/benefit-app/commits/main/
 [issues-shield]: https://img.shields.io/github/issues/fisma-benefit-app/benefit-app.svg?style=for-the-badge

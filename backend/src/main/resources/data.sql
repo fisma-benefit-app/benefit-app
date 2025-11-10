@@ -13,10 +13,10 @@ VALUES  (1, 'user', '$2a$12$HKOdaTyz4177IDXr5bhtZuack9SYFe02sZOHP2/8cwAa91ShbKIi
         (7, 'heikki', '$2a$12$wnFui8206hSPWd9r6mf9pOuWbZBQKDO92TBFrJEYFvf/p.Rw3O.ju', NULL),
         (8, 'altti', '$2a$12$WLze.ZRabl4SXqG.K6KXD.0hzbeAAZ.M1ZRx3jmGlhSevIiBoMQNS', NULL);
 
-INSERT INTO projects (id, project_name, version, total_points, created_at, version_created_at, updated_at, deleted_at)
-VALUES  (1, 'project-x', 1, 120.20, '2025-01-28T17:23:19', '2025-01-28T17:23:19', '2025-01-28T17:23:19', NULL),
-        (2, 'test-project', 1, 200.34, '2025-02-19T18:28:33', '2025-02-19T18:28:33','2025-01-28T17:23:19', NULL),
-        (3, 'users another project', 1, 32.00, '2025-01-29T19:19:22', '2025-01-29T19:19:22', '2025-01-28T17:23:19', NULL);
+INSERT INTO projects (id, project_name, version, created_at, version_created_at, updated_at, deleted_at)
+VALUES  (1, 'project-x', 1, '2025-01-28T17:23:19', '2025-01-28T17:23:19', '2025-01-28T17:23:19', NULL),
+        (2, 'test-project', 1, '2025-02-19T18:28:33', '2025-02-19T18:28:33','2025-01-28T17:23:19', NULL),
+        (3, 'users another project', 1, '2025-01-29T19:19:22', '2025-01-29T19:19:22', '2025-01-28T17:23:19', NULL);
 
 INSERT INTO functional_components (
     id,
@@ -32,12 +32,14 @@ INSERT INTO functional_components (
     degree_of_completion,
     previous_fc_id,
     order_position,
+    is_mla,
+    parent_fc_id,
     project_id,
     deleted_at
 )
-VALUES  (1, 'Hakijan syöte', 'Kenttä hakijan syötteelle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.12, NULL, 1, 1, NULL),
-        (2, 'Lukumäärän valintapainike', 'Valintapainike lukumäärälle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.34, 1, 2, 2, NULL),
-        (3, 'Lähetä-painike', 'Painikkeella käyttäjä lähettää tiedot', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.5, 2, 3, 1, NULL);
+VALUES  (1, 'Hakijan syöte', 'Kenttä hakijan syötteelle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.12, NULL, 1, FALSE, NULL, 1, NULL),
+        (2, 'Lukumäärän valintapainike', 'Valintapainike lukumäärälle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.34, 1, 2, FALSE, NULL, 2, NULL),
+        (3, 'Lähetä-painike', 'Painikkeella käyttäjä lähettää tiedot', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.5, 2, 3, FALSE, NULL, 1, NULL);
 
 INSERT INTO projects_app_users (id, project_id, app_user_id)
 VALUES  (1, 1, 1),

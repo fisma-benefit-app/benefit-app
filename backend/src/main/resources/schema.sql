@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS projects
     id                  BIGSERIAL PRIMARY KEY,
     project_name        VARCHAR(255) NOT NULL,
     version             BIGINT NOT NULL,
-    total_points        DECIMAL NOT NULL,
     created_at          TIMESTAMP(0) NOT NULL,
     version_created_at  TIMESTAMP(0) NOT NULL,
     updated_at          TIMESTAMP(0),
@@ -35,6 +34,8 @@ CREATE TABLE IF NOT EXISTS functional_components
     degree_of_completion    DECIMAL,
     previous_fc_id          BIGINT,
     order_position          BIGINT NOT NULL DEFAULT 0,
+    is_mla                  BOOLEAN NOT NULL DEFAULT FALSE,
+    parent_fc_id            BIGINT,
     project_id              BIGINT NOT NULL REFERENCES projects (id),
     deleted_at              TIMESTAMP(0)
 );

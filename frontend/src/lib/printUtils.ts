@@ -4,48 +4,159 @@ import {
   calculateTotalPoints,
   calculateTotalPossiblePoints,
   calculateBasePoints,
+  calculateComponentsWithPoints,
 } from "./centralizedCalculations.ts";
 
-export const convertToCSV = <T extends Record<string, unknown>>(data: T[]) => {
-  if (data.length === 0) return "";
+export const convertToCSV = (
+  rows: Record<string, unknown>[],
+  translations: Record<string, string>,
+  delimiter = ";",
+) => {
+  if (!rows.length) return "";
 
-  const header = Object.keys(data[0]).join(", ");
-  const rows = data.map((item) => Object.values(item).join(", "));
+  const headers = Object.keys(rows[0]).filter(
+    (key) =>
+      ![
+        // Exclusion list for CSV export
+        "orderPosition",
+        "previousFCId",
+        "functionalMultiplier",
+        "isMLA",
+        "parentFCId",
+      ].includes(key),
+  );
 
-  return [header, ...rows].join("\n");
+  const headerRow = headers.map((h) => translations[h] || h).join(delimiter);
+
+  const encodeCell = (v: unknown) => {
+    if (v == null) return "";
+    let s = String(v).replace(/"/g, '""');
+
+    // Change decimal delimiters so excel doesn't turn them into dates
+    // TODO: This might need to be adjusted for different locales
+    if (
+      typeof v === "number" ||
+      (!isNaN(Number(v)) && v.toString().trim() !== "")
+    ) {
+      s = s.replace(".", ",");
+    }
+
+    return s.includes(delimiter) || /["\r\n]/.test(s) ? `"${s}"` : s;
+  };
+
+  const data = rows.map((r) =>
+    headers.map((h) => encodeCell(r[h])).join(delimiter),
+  );
+
+  return [headerRow, ...data].join("\r\n");
 };
 
-export const encodeComponentForCSV = (component: TGenericComponent) => ({
-  ...component,
-  // CSV can't handle commas inside cells without quotation marks, so let's wrap all comments with ""
-  title: component.title ? `"${component.title.replace(/[",]/g, "")}"` : null,
-  description: component.description
-    ? `"${component.description.replace(/[",]/g, "")}"`
-    : null,
-});
-
-export const downloadCSV = (csvData: string, filename: string = "data.csv") => {
-  // Add UTF-8 BOM to ensure proper encoding of Finnish characters (ä, ö, etc.)
+export const downloadCSV = (csvData: string, filename = "data.csv") => {
   const BOM = "\uFEFF";
   const csvWithBOM = BOM + csvData;
 
-  const blob = new Blob([csvWithBOM], {
-    type: "text/csv;charset=utf-8;",
-  });
+  const blob = new Blob([csvWithBOM], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = filename;
+  a.download = filename.endsWith(".csv") ? filename : `${filename}.csv`;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  a.remove();
   URL.revokeObjectURL(url);
 };
 
-export const downloadProjectComponentsCsv = async (project: Project) => {
-  const csvData = convertToCSV(
-    project.functionalComponents.map(encodeComponentForCSV),
+export const encodeComponentForCSV = (
+  component: TGenericComponent,
+  delimiter: string = ";",
+  classNameTranslations: Record<string, string> = {},
+  componentTypeTranslations: Record<string, string> = {},
+) => {
+  const escapeCsv = (value?: string | null) => {
+    if (value == null) return "";
+
+    // Escape quotes by doubling them
+    const escaped = value.replace(/"/g, '""');
+
+    // If the value contains quotes, delimiter, or newlines, wrap in quotes
+    const needsQuotes =
+      escaped.includes('"') || value.includes(delimiter) || /\r|\n/.test(value);
+    return needsQuotes ? `"${escaped}"` : escaped;
+  };
+
+  return {
+    ...component,
+    title: escapeCsv(component.title),
+    description: escapeCsv(component.description),
+    className: escapeCsv(
+      component.className
+        ? classNameTranslations[component.className] || component.className
+        : "",
+    ),
+    componentType: escapeCsv(
+      component.componentType
+        ? componentTypeTranslations[component.componentType] ||
+            component.componentType
+        : "",
+    ),
+    totalPossiblePoints: calculateBasePoints(component).toFixed(2),
+  };
+};
+
+const TGenericComponentKeys: (keyof TGenericComponent)[] = Object.keys(
+  {} as TGenericComponent,
+).filter(
+  (k) => !["functionalPoints", "totalPossiblePoints"].includes(k),
+) as (keyof TGenericComponent)[];
+
+export const encodeSummaryRowForCSV = (
+  functionalPoints?: number,
+  totalPoints?: number,
+) => {
+  // Dynamically generate empty fields for all TGenericComponent keys except summary fields
+  const summaryRow: Record<string, string | undefined> = {};
+
+  TGenericComponentKeys.forEach((key) => {
+    summaryRow[key] = "";
+  });
+  summaryRow["functionalPoints"] = functionalPoints?.toFixed(2);
+  summaryRow["totalPossiblePoints"] = totalPoints?.toFixed(2);
+
+  return summaryRow;
+};
+
+export const downloadProjectComponentsCsv = async (
+  project: Project,
+  translations: Record<string, string>,
+  classNameTranslations: Record<string, string>,
+  componentTypeTranslations: Record<string, string>,
+) => {
+  const projectWithPoints = {
+    ...project,
+    functionalComponents: calculateComponentsWithPoints(
+      project.functionalComponents,
+    ),
+  };
+
+  const functionalPoints = calculateTotalPoints(project.functionalComponents);
+
+  const totalPoints = calculateTotalPossiblePoints(
+    project.functionalComponents,
   );
+
+  const componentsAndProjectTotals = [
+    ...projectWithPoints.functionalComponents.map((c) =>
+      encodeComponentForCSV(
+        c,
+        ";",
+        classNameTranslations,
+        componentTypeTranslations,
+      ),
+    ),
+    encodeSummaryRowForCSV(functionalPoints, totalPoints),
+  ];
+
+  const csvData = convertToCSV(componentsAndProjectTotals, translations, ";");
   downloadCSV(csvData, `${project.projectName}.csv`);
 };
 
@@ -106,6 +217,24 @@ export const createPdf = (
           th, td { border: 1px solid #000; padding: 5px; text-align: left; }
           th { background-color: #f2f2f2; }
           .total-row { font-weight: bold; background-color: #ddd; }
+          @media print {
+            thead {
+              display: table-header-group;
+            }
+            tfoot {
+              display: table-row-group;
+            }
+            tr {
+              page-break-inside: avoid;
+            }
+            .project-info {
+              page-break-after: avoid;
+            }
+            .total-row {
+              break-inside: avoid;
+              page-break-before: avoid;
+            }
+          }
         </style>
       </head>
       <body>
@@ -118,78 +247,84 @@ export const createPdf = (
           <p><strong>${printUtilsTranslation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.updatedAt), dateLocalizer(oldProject.updatedAt))}</p>
         </div>
         <table>
-          <tr>
-            <th>${printUtilsTranslation.title}</th>
-            <th>${printUtilsTranslation.description}</th>
-            <th>${printUtilsTranslation.className}</th>
-            <th>${printUtilsTranslation.componentType}</th>
-            <th>${printUtilsTranslation.dataElements}</th>
-            <th>${printUtilsTranslation.readingReferences}</th>
-            <th>${printUtilsTranslation.writingReferences}</th>
-            <th>${printUtilsTranslation.operations}</th>
-            <th>${printUtilsTranslation.degreeOfCompletion}</th>
-            <th>${printUtilsTranslation.functionalPoints}</th>
-            <th>${printUtilsTranslation.totalPossiblePoints}</th>
-          </tr>
-          ${project.functionalComponents
-            .map((comp) => {
-              // This returns an error "Type null cannot be used as an index type.", but it works for now
-
-              let prevComp: TGenericComponent | null = null;
-
-              if (comp.previousFCId) {
-                prevComp = previousComponentsMap[comp.previousFCId];
-              }
-
-              return `
+          <thead>
             <tr>
-              <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
-              <td>${valueComparer(comp.description, prevComp?.description || null)}</td>
-              <td>${valueComparer(
-                classNameTranslation[comp.className] || comp.className,
-                prevComp?.className
-                  ? classNameTranslation[prevComp?.className] ||
-                      prevComp.className
-                  : null,
-              )}</td>
-              <td>${valueComparer(
-                comp.componentType
-                  ? componentTypeTranslation[comp.componentType] ||
-                      comp.componentType
-                  : null,
-                prevComp?.componentType
-                  ? componentTypeTranslation[prevComp.componentType] ||
-                      prevComp.componentType
-                  : null,
-              )}</td>
-              <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
-              <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
-              <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
-              <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
-              <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
-              <td>${valueComparer(
-                calculateComponentPointsWithMultiplier(
-                  comp || null,
-                  comp.degreeOfCompletion,
-                ).toFixed(2),
-                calculateComponentPointsWithMultiplier(
-                  prevComp || null,
-                  prevComp?.degreeOfCompletion || null,
-                ).toFixed(2),
-              )}</td>
-              <td>${valueComparer(
-                calculateBasePoints(comp).toFixed(2),
-                prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
-              )}</td>
+              <th>${printUtilsTranslation.title}</th>
+              <th>${printUtilsTranslation.description}</th>
+              <th>${printUtilsTranslation.className}</th>
+              <th>${printUtilsTranslation.componentType}</th>
+              <th>${printUtilsTranslation.dataElements}</th>
+              <th>${printUtilsTranslation.readingReferences}</th>
+              <th>${printUtilsTranslation.writingReferences}</th>
+              <th>${printUtilsTranslation.operations}</th>
+              <th>${printUtilsTranslation.degreeOfCompletion}</th>
+              <th>${printUtilsTranslation.functionalPoints}</th>
+              <th>${printUtilsTranslation.totalPossiblePoints}</th>
             </tr>
-            `;
-            })
-            .join("")}
-          <tr class="total-row">
-            <td colspan="9"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
-            <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
-            <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
-          </tr>
+          </thead>
+          <tbody>
+            ${project.functionalComponents
+              .map((comp) => {
+                // This returns an error "Type null cannot be used as an index type.", but it works for now
+
+                let prevComp: TGenericComponent | null = null;
+
+                if (comp.previousFCId) {
+                  prevComp = previousComponentsMap[comp.previousFCId];
+                }
+
+                return `
+              <tr>
+                <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
+                <td>${valueComparer(comp.description, prevComp?.description || null)}</td>
+                <td>${valueComparer(
+                  classNameTranslation[comp.className] || comp.className,
+                  prevComp?.className
+                    ? classNameTranslation[prevComp?.className] ||
+                        prevComp.className
+                    : null,
+                )}</td>
+                <td>${valueComparer(
+                  comp.componentType
+                    ? componentTypeTranslation[comp.componentType] ||
+                        comp.componentType
+                    : null,
+                  prevComp?.componentType
+                    ? componentTypeTranslation[prevComp.componentType] ||
+                        prevComp.componentType
+                    : null,
+                )}</td>
+                <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
+                <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
+                <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
+                <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
+                <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
+                <td>${valueComparer(
+                  calculateComponentPointsWithMultiplier(
+                    comp || null,
+                    comp.degreeOfCompletion,
+                  ).toFixed(2),
+                  calculateComponentPointsWithMultiplier(
+                    prevComp || null,
+                    prevComp?.degreeOfCompletion || null,
+                  ).toFixed(2),
+                )}</td>
+                <td>${valueComparer(
+                  calculateBasePoints(comp).toFixed(2),
+                  prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
+                )}</td>
+              </tr>
+              `;
+              })
+              .join("")}
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="9"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
+              <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+              <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+            </tr>
+          </tfoot>
         </table>
       </body>
     </html>

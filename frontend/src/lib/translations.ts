@@ -35,6 +35,22 @@ export const translations = {
       versionCreatedAt: "Version Created at",
       noProjectsCouldBeFound: "No projects could be found.",
     },
+    csvHeaders: {
+      title: "Title",
+      description: "Description/Comments",
+      className: "Class Name",
+      componentType: "Component Type",
+      dataElements: "Data Elements",
+      readingReferences: "Reading References",
+      writingReferences: "Writing References",
+      functionalMultiplier: "Functional Multiplier",
+      operations: "Operations",
+      degreeOfCompletion: "Degree Of Completion",
+      functionalPoints: "Functional Points",
+      completionPercentage: "Completion Percentage",
+      totalFunctionalPoints: "Total Functional Points",
+      totalPossiblePoints: "100% Functional Points",
+    },
     printUtils: {
       projectReport: "Project Report",
       projectId: "Project ID",
@@ -116,6 +132,7 @@ export const translations = {
       classNamePlaceholder: "Select Classname",
       componentTypePlaceholder: "Select Component Type",
       degreeOfCompletionPlaceholder: "Degree of Completion",
+      selectDegreeOfCompletion: "Select Degree of Completion",
       degreeOfCompletionDescription:
         "Enter a value between 0 and 1 (e.g. 0.75 = 75% complete)",
       confirmDeleteMessage: "Are you sure you want to delete component",
@@ -126,6 +143,10 @@ export const translations = {
         tested: "Tested",
         readyForUse: "Ready for use",
       },
+      isThisFunctionalComponentAPartOfMultiLayerArchitecture:
+        "Is this functional component a part of multi-layered architecture?",
+      notAvailableForThisFunctionalComponentType:
+        "Not available for this functional component type",
     },
     projectPage: {
       saveProject: "Save",
@@ -198,6 +219,22 @@ export const translations = {
       modifiedAt: "Muokattu",
       versionCreatedAt: "Versio luotu",
       noProjectsCouldBeFound: "Projekteja ei löytynyt.",
+    },
+    csvHeaders: {
+      title: "Otsikko",
+      description: "Kuvaus/Kommentit",
+      className: "Toimintoluokka",
+      componentType: "Toimintotyyppi",
+      dataElements: "Tietoelementit",
+      readingReferences: "Lukuviittaukset",
+      writingReferences: "Kirjoitusviittaukset",
+      functionalMultiplier: "Toimintokerroin",
+      operations: "Operaatiot",
+      degreeOfCompletion: "Valmistumisaste",
+      functionalPoints: "Toimintopisteet",
+      completionPercentage: "Valmistumisprosentti",
+      totalFunctionalPoints: "Toimintopisteet Yhteensä",
+      totalPossiblePoints: "100% Toimintopisteet",
     },
     printUtils: {
       projectReport: "Projektiraportti",
@@ -281,6 +318,7 @@ export const translations = {
       classNamePlaceholder: "Valitse toimintoluokka",
       componentTypePlaceholder: "Valitse toimintotyyppi",
       degreeOfCompletionPlaceholder: "Valmistumisaste",
+      selectDegreeOfCompletion: "Valitse valmistumisaste",
       degreeOfCompletionDescription:
         "Syötä arvo väliltä 0 ja 1 (esim. 0.75 = 75% valmis)",
       confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin",
@@ -291,6 +329,10 @@ export const translations = {
         tested: "Testattu",
         readyForUse: "Käyttöönottovalmis",
       },
+      isThisFunctionalComponentAPartOfMultiLayerArchitecture:
+        "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
+      notAvailableForThisFunctionalComponentType:
+        "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
     },
     projectPage: {
       saveProject: "Tallenna",

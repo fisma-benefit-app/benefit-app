@@ -11,8 +11,6 @@ public record ProjectResponse(
     @Schema(description = "Name of the project", example = "User Authentication Service")
         String projectName,
     @Schema(description = "Version of the project", example = "1") int version,
-    @Schema(description = "Total function points of the project", example = "150.5")
-        double totalPoints,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         @Schema(description = "Creation timestamp", example = "2025-09-25T10:30:00")
         LocalDateTime createdAt,

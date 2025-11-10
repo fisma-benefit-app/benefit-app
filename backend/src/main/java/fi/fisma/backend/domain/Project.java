@@ -41,11 +41,6 @@ public class Project {
   @Column(name = "version")
   private int version;
 
-  @NotNull(message = "Total points are required")
-  @PositiveOrZero(message = "Total points cannot be negative")
-  @Column(name = "total_points")
-  private double totalPoints = 0.0;
-
   @NotNull(message = "Creation date is required")
   @Column(name = "created_at")
   private LocalDateTime createdAt;

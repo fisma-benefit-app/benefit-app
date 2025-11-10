@@ -20,7 +20,6 @@ export type ProjectResponse = {
   createdAt: string;
   versionCreatedAt: string;
   updatedAt: string;
-  totalPoints: number;
   functionalComponents: FunctionalComponentResponse[];
   projectAppUsers: ProjectAppUserResponse[];
 };
@@ -38,6 +37,8 @@ export type FunctionalComponentRequest = {
   degreeOfCompletion: number | null;
   previousFCId: number | null;
   orderPosition: number;
+  isMLA: boolean;
+  parentFCId: number | null;
 };
 
 export type FunctionalComponentResponse = FunctionalComponentRequest & {
@@ -57,13 +58,13 @@ export type AppUserSummary = {
 // Remove if needed
 export type ProjectAppUser = {
   id: number;
-  appUserId: number;
+  appUserId?: number; // wtf is this?
 };
 
 export type TGenericComponentNoId = {
   title: string | null;
   description: string | null;
-  className: ClassName;
+  className: ClassName | null;
   componentType: ComponentType | null;
   dataElements: number | null;
   readingReferences: number | null;
@@ -73,6 +74,8 @@ export type TGenericComponentNoId = {
   degreeOfCompletion: number | null;
   previousFCId: number | null;
   orderPosition: number;
+  isMLA: boolean;
+  parentFCId: number | null;
 };
 
 export type ProjectWithUpdate = {
@@ -82,7 +85,6 @@ export type ProjectWithUpdate = {
   createdAt: string;
   versionCreatedAt: string;
   updatedAt: string;
-  totalPoints: number;
   functionalComponents: (TGenericComponent | TGenericComponentNoId)[];
   appUsers: ProjectAppUser[];
 };
@@ -94,7 +96,6 @@ export type Project = {
   createdAt: string;
   versionCreatedAt: string;
   updatedAt: string;
-  totalPoints: number;
   functionalComponents: TGenericComponent[];
   projectAppUsers: ProjectAppUser[];
 };
@@ -113,6 +114,8 @@ export type TGenericComponent = {
   degreeOfCompletion: number | null;
   previousFCId: number | null;
   orderPosition: number;
+  isMLA: boolean;
+  parentFCId: number | null;
 };
 
 // Enums and constants
