@@ -16,11 +16,13 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:myuser}
     password: ${SPRING_DATASOURCE_PASSWORD:secret}
 
-  # Set this to always when you want to initialize the database using the schema.sql and data.sql files.
-  # Set it to never when the database is initialized and working.
+  # Database intialization mode (aways, never) and data locations are set in Heroku config vars
+  # This ensures we can dynamically control database seeding in different environments
+  # Default values are set for local development
   sql:
     init:
-      mode: ${DATABASE_INIT_MODE:always}
+      mode: ${DATABASE_INIT_MODE:always} # always set for dev environment
+      data-locations: classpath:${DATABASE_SEED_FILE:database-seed-dev.sql}
 
 jwt:
   private.key: classpath:./jwt-keys/app.key
