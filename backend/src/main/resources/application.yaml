@@ -16,7 +16,7 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:myuser}
     password: ${SPRING_DATASOURCE_PASSWORD:secret}
 
-  # Database intialization mode (aways, never) and data locations are set in Heroku config vars
+  # Database initialization mode (always, never) and data locations are set in Heroku config vars
   # This ensures we can dynamically control database seeding in different environments
   # Default values are set for local development
   sql:
