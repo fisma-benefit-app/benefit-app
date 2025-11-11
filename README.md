@@ -398,13 +398,13 @@ Benefit application's CI/CD pipeline includes a branching strategy and automated
 
 ### Branching Strategy
 
-Benefit application's branching strategy is currently following these guidelines:
+Developing the Benefit application is done using trunk-based development. Benefit application's branching strategy is currently following these guidelines:
 
-- `main` branch: production branch, containing finalized and refactored code
-- `sprint/X` branch: branch that includes all changes, added features, bugfixes etc. made during a certain sprint (`X`)
-- `issue/#X` brances: branches what contain changes covered in a single issue (`#X`)
+- `main` branch: production and testing branch
 
-The `main` branch is sacred and pushes to it are prohibited. Changes described in issues are developed in individual `issue/X` branches which are merged to `sprint/X` branch through pull requests. And at the end of a sprint, the `sprint/X` branch is merged to the `main` branch, provided it passes all the checks and tests. For full explanation of the branching strategy, see [branching strategy](./documents/guides/branching_strategy.md).
+All commits are merged to `main` via pull requests. These PRs go through automatic testing and when they are merged, they trigger automatic deployment to testing environment. See [deployment](#deployment) for more information.
+
+For full explanation of the branching strategy, see [branching strategy](./documents/guides/branching_strategy.md).
 
 ### Code Quality and Collaboration
 
@@ -421,6 +421,8 @@ The Benefit application's GitHub repository features a GitHub Actions workflow w
 
 - formatting checks for frontend (Prettier) and backend (Spotless / Google Java Format)
 - backend unit tests
+
+Our automated deployments also utilize GitHub Actions workflows to deploy any merges to `main` to testing environment. See [deployment](#deployment) for more information.
 
 ### Code Quality and Collaboration
 

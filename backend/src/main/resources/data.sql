@@ -4,14 +4,14 @@ DELETE FROM  app_users;
 DELETE FROM  projects;
 
 INSERT INTO app_users (id, username, password, deleted_at)
-VALUES  (1, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue', NULL),
-        (2, 'user2', '$2a$12$4JuHucPwX0CfxAeRD87I/OMrD8SndXaptn3Yp2MJeOiLklIbJ3XjW', NULL),
-        (3, 'user3', '$2a$12$tJY5QjbeRPU4HN0hGV48HOu2tIV9dMVCqyqJxNOtjsuNQCbNkUeza', NULL),
-        (4, 'user4', '$2a$12$RTbuJ9r1PLJxd.anzqEzGuxNMlnRe0DylL0v6fgrzNzCTEVDzz1ci', NULL),
-        (5, 'user5', '$2a$12$kHh09CQz9p0RLGMXnBkyS.fueTfRcOqI9Q2MvI8eyNcDjiC7a5Ada', NULL),
-        (6, 'jukka', '$2a$12$HalfqF43RCkPeRRJ7EkQMOjWcjDqLZ4udbTC6DYZRR7C6P0kRpoCm', NULL),
-        (7, 'heikki', '$2a$12$VvPmVx1yxpPVHAEerqvO1.Pmsp96pxLlsw622r9Zun5r0X9NIuNhy', NULL),
-        (8, 'altti', '$2a$12$UVmCG.ySaTe6rWo4X5G2yOFpMuu.Mo89GbmmxJzJOUHpnKUAcXfJ.', NULL);
+VALUES  (1, 'user', '$2a$12$HKOdaTyz4177IDXr5bhtZuack9SYFe02sZOHP2/8cwAa91ShbKIiO', NULL),
+        (2, 'user2', '$2a$12$Vc5WSe5mXF45EvtrFcUPmu5FRVlj7b4Cd5b68a4TgqG2SqDbTmADK', NULL),
+        (3, 'user3', '$2a$12$nKdrHeXT4qYT3OBTJOYJG.ADDH/F/XAcmbxpFajn6cHfNPX8enF6u', NULL),
+        (4, 'user4', '$2a$12$Mz17lunXaRgsTlz0eDDq3uSCcmVr2RlY0hLn/l.SX6XCwMpHVsFZS', NULL),
+        (5, 'user5', '$2a$12$.u1O5CWnUc1vklHEQxMmv.jtowTSbjteESiH1c0YR3rMTAXMkjRoa', NULL),
+        (6, 'jukka', '$2a$12$1sHTuiKwcCI6okpyq0mMe.FZGrTf1nFaukc/G1jDJ5iZIyPyqb7Mm', NULL),
+        (7, 'heikki', '$2a$12$wnFui8206hSPWd9r6mf9pOuWbZBQKDO92TBFrJEYFvf/p.Rw3O.ju', NULL),
+        (8, 'altti', '$2a$12$WLze.ZRabl4SXqG.K6KXD.0hzbeAAZ.M1ZRx3jmGlhSevIiBoMQNS', NULL);
 
 INSERT INTO projects (id, project_name, version, created_at, version_created_at, updated_at, deleted_at)
 VALUES  (1, 'project-x', 1, '2025-01-28T17:23:19', '2025-01-28T17:23:19', '2025-01-28T17:23:19', NULL),
