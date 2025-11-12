@@ -69,7 +69,7 @@ You’ll be prompted for the password.
 
 ### Update database manually
 
-If you need to update the database manually (i.e. change password ot add new user), follow these steps:
+If you need to update the database manually (i.e. change password or add new user), follow these steps:
 
 1. Access the database via your preferred method (Heroku CLI, psql, DBeaver, or pgAdmin).
 2. Run this SQL statement
