@@ -135,6 +135,8 @@ export const translations = {
       selectDegreeOfCompletion: "Select Degree of Completion",
       degreeOfCompletionDescription:
         "Enter a value between 0 and 1 (e.g. 0.75 = 75% complete)",
+      editDegreeOfCompletion: "Edit",
+      hideDegreeOfCompletion: "Hide",
       confirmDeleteMessage: "Are you sure you want to delete component",
       degreeOfCompletion: {
         specified: "Specified",
@@ -321,6 +323,8 @@ export const translations = {
       selectDegreeOfCompletion: "Valitse valmistumisaste",
       degreeOfCompletionDescription:
         "Syötä arvo väliltä 0 ja 1 (esim. 0.75 = 75% valmis)",
+      editDegreeOfCompletion: "Muokkaa",
+      hideDegreeOfCompletion: "Piilota",
       confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin",
       degreeOfCompletion: {
         specified: "Määritelty",
