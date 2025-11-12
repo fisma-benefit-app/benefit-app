@@ -68,6 +68,8 @@ export default function FunctionalClassComponent({
   const fullPoints = calculateBasePoints(component);
   const pointsByDegreeOfCompletion = calculateComponentPoints(component);
 
+  const [showDegreeOfCompletion, setShowDegreeOfCompletion] = useState(false);
+
   const degreeOfCompletionOptions = new Map([
     ["0.1", translation.degreeOfCompletion.specified],
     ["0.3", translation.degreeOfCompletion.planned],
@@ -160,8 +162,8 @@ export default function FunctionalClassComponent({
       //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
       //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
       //for increment - decrement input field of defreeOfCompletion.
-      if (isNaN(num)) {
-        value = "0";
+      if (isNaN(num) || value === "") {
+        value = "1";
         console.log("Please do not type commas for percentage.");
       } else {
         if (num < 0) value = "0";
@@ -274,47 +276,63 @@ export default function FunctionalClassComponent({
           <>
             {/* Degree of Completion Section */}
             <div className="flex flex-col gap-2 bg-fisma-light-gray border-2 border-fisma-gray p-3 rounded-md">
-              <label className="font-bold text-fisma-blue">
-                {translation.degreeOfCompletionPlaceholder}:
-              </label>
-              <div className="flex flex-wrap gap-4">
-                <input
-                  id="degreeOfCompletion"
-                  type="number"
-                  min={0.01}
-                  max={1}
-                  step={0.01}
-                  value={component.degreeOfCompletion || ""}
-                  onChange={handleComponentChange}
-                  className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
-                  disabled={!isLatest}
-                />
-                <select
-                  id="degreeOfCompletionOptions"
-                  value={
-                    component.degreeOfCompletion
-                      ? getClosestCompletionOption(component.degreeOfCompletion)
-                      : ""
-                  }
-                  onChange={handleComponentChange}
-                  className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
-                  disabled={!isLatest}
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-fisma-blue">
+                  {translation.degreeOfCompletionPlaceholder}: {component.degreeOfCompletion || 1}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowDegreeOfCompletion(!showDegreeOfCompletion)}
+                  className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 text-sm font-medium rounded"
                 >
-                  <option disabled value="">
-                    {translation.selectDegreeOfCompletion}
-                  </option>
-                  {Array.from(degreeOfCompletionOptions.entries()).map(
-                    ([key, value]) => (
-                      <option key={key} value={key}>
-                        {key} - {value}
-                      </option>
-                    ),
-                  )}
-                </select>
+                  {showDegreeOfCompletion ? "Hide" : "Edit"}
+                </button>
               </div>
-              <p className="text-xs text-gray-900">
-                {translation.degreeOfCompletionDescription}
-              </p>
+              
+              {showDegreeOfCompletion && (
+                <>
+                  <div className="flex flex-wrap gap-4">
+                    <input
+                      id="degreeOfCompletion"
+                      type="number"
+                      min={0.01}
+                      max={1}
+                      step={0.01}
+                      value={component.degreeOfCompletion || ""}
+                      onChange={handleComponentChange}
+                      className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                      disabled={!isLatest}
+                      placeholder="1.0" 
+                    />
+                    <select
+                      id="degreeOfCompletionOptions"
+                      value={
+                        component.degreeOfCompletion
+                        ? getClosestCompletionOption(component.degreeOfCompletion)
+                        : "1"
+                    }
+                    onChange={handleComponentChange}
+                    className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                    disabled={!isLatest}
+                  >
+                    <option disabled value="">
+                      {translation.selectDegreeOfCompletion}
+                    </option>
+                    {Array.from(degreeOfCompletionOptions.entries()).map(
+                      ([key, value]) => (
+                        <option key={key} value={key}>
+                          {key} - {value}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </div>
+                <p className="text-xs text-gray-900">
+                  {translation.degreeOfCompletionDescription}
+                </p>
+              </>
+            )}
+              
             </div>
 
             {/* Description / Comment Section */}
