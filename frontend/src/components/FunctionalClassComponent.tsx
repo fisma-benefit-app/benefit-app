@@ -288,10 +288,9 @@ export default function FunctionalClassComponent({
                   }
                   className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 text-sm font-medium rounded"
                 >
-                  {showDegreeOfCompletion 
+                  {showDegreeOfCompletion
                     ? translation.hideDegreeOfCompletion
-                    : translation.editDegreeOfCompletion
-                  }
+                    : translation.editDegreeOfCompletion}
                 </button>
               </div>
 
