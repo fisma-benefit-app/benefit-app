@@ -33,7 +33,7 @@ Both production (`fisma-benefit-app`) and testing (`fisma-benefit-app-testing`) 
 - `DATABASE_SEED_FILE`: the file from which the database reseeds
     - `database-seed-production.sql` for reseeding production database
     - `database-seed-testing.sql` for reseeding testing database
-    - The main difference in different seeding files are the user credentials used to log in to different environments
+    - The main difference in different seeding files is the user credentials used to log in to different environments
 
 Note that changing config variables in Heroku restarts the dyno.
 
@@ -78,7 +78,7 @@ UPDATE [table name]
 SET [column name] = [value]
 WHERE [column name] = [value];
 ```
-For example to update a user's called `user` password:
+For example to update a user called `user`'s password:
 ```
 UPDATE app_users
 SET password = '$2a$12$csFVT0JamCwPg18duSENPu.6HxtqeDNfXLI3mPXb2tRClCR/VjduK'
