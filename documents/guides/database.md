@@ -37,6 +37,8 @@ Both production (`fisma-benefit-app`) and testing (`fisma-benefit-app-testing`) 
 
 Note that changing config variables in Heroku restarts the dyno.
 
+The contents of the database can also be reseeded manually. You can run the contents of each seeding file in the database directly, resulting in reseeding. See accessing database via different methods below.
+
 ### Access via Heroku CLI
 
 ```sh
@@ -64,6 +66,28 @@ You’ll be prompted for the password.
 - 2. Go to Database → New Connection → PostgreSQL.
 - 3. Enter the values from Heroku (host, port, database, username, password).
 - 4. Click Finish. The database schema and tables will appear in the left-hand panel.
+
+### Update database manually
+
+If you need to update the database manually (i.e. change password ot add new user), follow these steps:
+
+1. Access the database via your preferred method (Heroku CLI, psql, DBeaver, or pgAdmin).
+2. Run this SQL statement
+```sql
+UPDATE [table name]
+SET [column name] = [value]
+WHERE [column name] = [value];
+```
+For example to update a user's called `user` password:
+```
+UPDATE app_users
+SET password = '$2a$12$csFVT0JamCwPg18duSENPu.6HxtqeDNfXLI3mPXb2tRClCR/VjduK'
+WHERE username = 'user';
+```
+
+If you update passwords like this, **ALWAYS** run passwords through an encryptor like this: https://bcrypt-generator.com/.
+
+**NEVER EVER** store plain text passwords in the database.
 
 ## 3. Connection URL Format
 
