@@ -10,9 +10,9 @@ permissions:
 
 jobs:
   create-tag:
-    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'chore/update-version-to-')
     name: Create a tag
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'chore/update-version-to-')
 
     steps:
     - name: Checkout code
