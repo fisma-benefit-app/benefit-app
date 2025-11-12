@@ -3,7 +3,7 @@ DELETE FROM  functional_components;
 DELETE FROM  app_users;
 DELETE FROM  projects;
 
-INSERT INTO app_users(id, username, password, deleted_at)
+INSERT INTO app_users (id, username, password, deleted_at)
 VALUES  (1, 'user', '$2a$12$sB624Bv4kZ5yv6sWp8a28OfMIzUctymvXc1tqDd81lXl65lH3JlEa', NULL),
         (2, 'user2', '$2a$12$cDPmgp6oULhgNq7IVlPW7.wyhcRrdOMjzwTyTzfOby2vGBMY8Up3S', NULL),
         (3, 'user3', '$2a$12$dZh5J5oPpIBr2uJIerlnXO1R0eqORWewEBXfSdOXyago4zqIu45Za', NULL),

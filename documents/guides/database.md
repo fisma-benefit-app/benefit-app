@@ -79,7 +79,7 @@ SET [column name] = [value]
 WHERE [column name] = [value];
 ```
 For example to update a user called `user`'s password:
-```
+```sql
 UPDATE app_users
 SET password = '$2a$12$csFVT0JamCwPg18duSENPu.6HxtqeDNfXLI3mPXb2tRClCR/VjduK'
 WHERE username = 'user';
