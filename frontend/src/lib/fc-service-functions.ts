@@ -73,7 +73,7 @@ export const createSubComponents = (
     previousFCId: null,
     orderPosition: parentComponent.orderPosition,
     isMLA: false,
-    id: -( (parentComponent.id ?? 0) * 1000 + index + 1 ), // Always use negative temporary ID to avoid collision,
+    id: -((parentComponent.id ?? 0) * 1000 + index + 1), // Always use negative temporary ID to avoid collision,
     parentFCId: parentComponent.id,
     subComponentType: type,
     isReadonly: true as const,

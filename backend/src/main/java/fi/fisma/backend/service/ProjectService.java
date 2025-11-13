@@ -145,9 +145,12 @@ public class ProjectService {
                           null, // Temporarily set parent fc to null
                           fc.getSubComponentType(),
                           fc.getIsReadonly(),
-                          null, // Subcomponents are intentionally not copied when creating a new project version.
-                                // This is by design: subcomponents are either not used in this context, or are handled separately.
-                                // If subcomponent copying is required in the future, update this logic to clone subcomponents as well.
+                          null, // Subcomponents are intentionally not copied when creating a new
+                          // project version.
+                          // This is by design: subcomponents are either not used in this context,
+                          // or are handled separately.
+                          // If subcomponent copying is required in the future, update this logic to
+                          // clone subcomponents as well.
                           savedProject,
                           null);
                   var savedComponent = functionalComponentRepository.save(newComponent);
