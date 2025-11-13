@@ -117,12 +117,6 @@ const createNewProjectVersion = async (
   if (!sessionToken)
     throw new Error("User needs to be logged in to create a project!");
 
-  console.log(`Previous project id: ${previousProject.id}`);
-  console.log(
-    `Functional components: ${previousProject.functionalComponents.length}`,
-  );
-  console.log(`App users: ${previousProject.projectAppUsers?.length}`);
-
   const fetchURL = `${API_URL}/projects/${previousProject.id}/versions`;
   const headers = {
     Authorization: sessionToken,
@@ -154,18 +148,11 @@ const createNewProjectVersion = async (
     projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
 
-  console.log(
-    "Request payload for new project version creation:",
-    projectRequest,
-  );
-
   const response = await fetch(fetchURL, {
     method: "POST",
     headers,
     body: JSON.stringify(projectRequest),
   });
-
-  console.log("Response received for new project version creation.", response);
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -264,21 +251,11 @@ const updateProject = async (
     projectAppUserIds: project.projectAppUsers.map((pau) => pau.id),
   };
 
-  console.log("Request payload for project update:", projectRequest);
-  console.log(
-    "🔍 Components with subComponents:",
-    projectRequest.functionalComponents.filter(
-      (c) => c.isMLA && c.subComponents.length > 0,
-    ),
-  );
-
   const response = await fetch(fetchURL, {
     method: "PUT",
     headers,
     body: JSON.stringify(projectRequest),
   });
-
-  console.log("Response received for project update.", response);
 
   if (!response.ok) {
     if (response.status === 401) {

@@ -435,20 +435,7 @@ export default function ProjectPage() {
           functionalComponents: normalized,
           updatedAt: CreateCurrentDate(),
         };
-        console.log(
-          "🔍 MANUAL-SAVE: editedProject keys:",
-          Object.keys(editedProject),
-        );
-        console.log(
-          "🔍 MANUAL-SAVE: Has sub-components?",
-          editedProject.functionalComponents.some(
-            (c) => c.isMLA && c.subComponents,
-          ),
-        );
-        console.log(
-          "🔍 MANUAL-SAVE: MLA components:",
-          editedProject.functionalComponents.filter((c) => c.isMLA),
-        );
+
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
         updateNotification(
