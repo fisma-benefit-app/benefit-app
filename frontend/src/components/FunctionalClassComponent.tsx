@@ -209,7 +209,7 @@ export default function FunctionalClassComponent({
           functionalMultiplier: updatedComponent.functionalMultiplier,
           operations: updatedComponent.operations,
           degreeOfCompletion: updatedComponent.degreeOfCompletion,
-          parentComponentId: subComp.parentComponentId,
+          parentFCId: subComp.parentFCId,
           subComponentType: subComp.subComponentType,
           isReadonly: true,
         })),

@@ -74,7 +74,6 @@ export const createSubComponents = (
     orderPosition: parentComponent.orderPosition,
     isMLA: false,
     id: parentComponent.id ? parentComponent.id * 1000 + index : -(index + 1), // Temporary negative ID if no parent ID
-    parentComponentId: parentComponent.id,
     parentFCId: parentComponent.id,
     subComponentType: type,
     isReadonly: true as const,
@@ -101,7 +100,6 @@ export const updateSubComponents = (
     previousFCId: null,
     orderPosition: parentComponent.orderPosition,
     isMLA: false,
-    parentComponentId: subComp.parentComponentId,
     parentFCId: subComp.parentFCId,
     subComponentType: subComp.subComponentType,
     isReadonly: true as const,
