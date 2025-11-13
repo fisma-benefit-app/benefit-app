@@ -96,6 +96,7 @@ public class FunctionalComponentRequest {
       allowableValues = {"presentation", "businessLogic", "dataAccess", "integration"})
   private String subComponentType;
 
+  @NotNull(message = "Readonly status must be specified")
   @Schema(description = "Indicates if component is readonly", example = "true")
-  private Boolean isReadonly;
+  private Boolean isReadonly = false;
 }

@@ -60,7 +60,7 @@ export const createSubComponents = (
   ];
 
   return subComponentTypes.map((type, index) => ({
-    title: `${parentComponent.title} - ${type}`,
+    title: `${parentComponent.title || "Untitled"} - ${type}`,
     description: parentComponent.description,
     className: parentComponent.className,
     componentType: parentComponent.componentType,
@@ -73,7 +73,7 @@ export const createSubComponents = (
     previousFCId: null,
     orderPosition: parentComponent.orderPosition,
     isMLA: false,
-    id: parentComponent.id ? parentComponent.id * 1000 + index : -(index + 1), // Temporary negative ID if no parent ID
+    id: -( (parentComponent.id ?? 0) * 1000 + index + 1 ), // Always use negative temporary ID to avoid collision,
     parentFCId: parentComponent.id,
     subComponentType: type,
     isReadonly: true as const,

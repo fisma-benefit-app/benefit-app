@@ -3,6 +3,8 @@ import {
   ProjectRequest,
   ProjectResponse,
   TGenericComponentNoId,
+  FunctionalComponentRequest,
+  TGenericComponent,
 } from "../lib/types";
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -143,7 +145,9 @@ const createNewProjectVersion = async (
       orderPosition: fc.orderPosition,
       isMLA: fc.isMLA,
       parentFCId: fc.parentFCId,
-      subComponents: fc.subComponents,
+      subComponentType: null,
+      isReadonly: false,
+      subComponents: fc.subComponents || [],
     })),
     projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
