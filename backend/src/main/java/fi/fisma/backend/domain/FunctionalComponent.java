@@ -126,7 +126,7 @@ public class FunctionalComponent {
       Long parentFCId,
       String subComponentType,
       Boolean isReadonly,
-      List<FunctionalComponent> subComponents,
+      List<FunctionalComponent> subComponents, // TODO: Do we need this?
       Project project,
       LocalDateTime deletedAt) {
     this.title = title;

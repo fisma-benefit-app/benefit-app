@@ -136,10 +136,10 @@ public class ProjectService {
                           fc.getId(), // Set previous component's ID
                           fc.getOrderPosition(),
                           fc.getIsMLA(),
-                          fc.getParentFCId(),
+                          fc.getParentFCId(), // TODO: Must be updated if parent is also copied
                           fc.getSubComponentType(),
                           fc.getIsReadonly(),
-                          fc.getSubComponents(),
+                          null, // fc.getSubComponents() fails - not needed anyway
                           savedProject,
                           null);
                   return functionalComponentRepository.save(newComponent);
