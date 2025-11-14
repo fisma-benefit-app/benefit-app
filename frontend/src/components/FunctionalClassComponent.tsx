@@ -504,7 +504,7 @@ export default function FunctionalClassComponent({
             (!component.subComponents ||
               component.subComponents.length === 0) && (
               <div className="ml-4 pl-4 border-l-4 border-fisma-blue text-sm text-gray-600 italic py-2">
-                No sub-components found.
+                {translation.noSubComponents}
               </div>
             )}
         </div>
