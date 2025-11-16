@@ -218,6 +218,9 @@ export const createPdf = (
           th { background-color: #f2f2f2; }
           .total-row { font-weight: bold; background-color: #ddd; }
           @media print {
+            @page {
+              margin: 5mm 5mm 5mm 0mm; /* top right bottom left */
+            }
             thead {
               display: table-header-group;
             }
@@ -250,7 +253,6 @@ export const createPdf = (
           <thead>
             <tr>
               <th>${printUtilsTranslation.title}</th>
-              <th>${printUtilsTranslation.description}</th>
               <th>${printUtilsTranslation.className}</th>
               <th>${printUtilsTranslation.componentType}</th>
               <th>${printUtilsTranslation.dataElements}</th>
@@ -276,7 +278,6 @@ export const createPdf = (
                 return `
               <tr>
                 <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
-                <td>${valueComparer(comp.description, prevComp?.description || null)}</td>
                 <td>${valueComparer(
                   classNameTranslation[comp.className] || comp.className,
                   prevComp?.className
@@ -320,7 +321,7 @@ export const createPdf = (
           </tbody>
           <tfoot>
             <tr class="total-row">
-              <td colspan="9"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
+              <td colspan="8"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
               <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
               <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
             </tr>
