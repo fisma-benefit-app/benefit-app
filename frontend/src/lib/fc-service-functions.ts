@@ -6,7 +6,7 @@ import {
   mlaNavigationAndQueryClassName,
   mlaNavigationAndQueryComponentTypes,
 } from "./fc-constants.ts";
-import { ClassName, TGenericComponent } from "./types.ts";
+import { ClassName, MLAsubComponent, TGenericComponent } from "./types.ts";
 
 export const getComponentTypeOptions = (className: ClassName) => {
   const options = componentTypeOptions.find(
@@ -47,4 +47,62 @@ export const isMultiLayerArchitectureComponent = (
         component.componentType || "",
       ))
   );
+};
+
+export const createSubComponents = (
+  parentComponent: TGenericComponent,
+): MLAsubComponent[] => {
+  const subComponentTypes: MLAsubComponent["subComponentType"][] = [
+    "presentation",
+    "businessLogic",
+    "dataAccess",
+    "integration",
+  ];
+
+  return subComponentTypes.map((type, index) => ({
+    title: `${parentComponent.title || "Untitled"} - ${type}`,
+    description: parentComponent.description,
+    className: parentComponent.className,
+    componentType: parentComponent.componentType,
+    dataElements: parentComponent.dataElements,
+    readingReferences: parentComponent.readingReferences,
+    writingReferences: parentComponent.writingReferences,
+    functionalMultiplier: parentComponent.functionalMultiplier,
+    operations: parentComponent.operations,
+    degreeOfCompletion: parentComponent.degreeOfCompletion,
+    previousFCId: null,
+    orderPosition: parentComponent.orderPosition,
+    isMLA: false,
+    id: -((parentComponent.id ?? 0) * 1000 + index + 1), // Always use negative temporary ID to avoid collision,
+    parentFCId: parentComponent.id,
+    subComponentType: type,
+    isReadonly: true as const,
+    subComponents: undefined as never,
+  }));
+};
+
+export const updateSubComponents = (
+  parentComponent: TGenericComponent,
+  existingSubComponents: MLAsubComponent[],
+): MLAsubComponent[] => {
+  return existingSubComponents.map((subComp) => ({
+    id: subComp.id,
+    title: `${parentComponent.title} - ${subComp.subComponentType}`,
+    description: parentComponent.description,
+    className: parentComponent.className,
+    componentType: parentComponent.componentType,
+    dataElements: parentComponent.dataElements,
+    readingReferences: parentComponent.readingReferences,
+    writingReferences: parentComponent.writingReferences,
+    functionalMultiplier: parentComponent.functionalMultiplier,
+    operations: parentComponent.operations,
+    degreeOfCompletion: parentComponent.degreeOfCompletion,
+    previousFCId: null,
+    orderPosition: parentComponent.orderPosition,
+    isMLA: false,
+    parentFCId: subComp.parentFCId,
+    subComponentType: subComp.subComponentType,
+    isReadonly: true as const,
+    subComponents: undefined as never,
+  }));
 };

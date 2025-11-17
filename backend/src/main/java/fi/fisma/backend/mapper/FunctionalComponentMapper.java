@@ -7,6 +7,8 @@ import fi.fisma.backend.dto.FunctionalComponentResponse;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -20,30 +22,72 @@ public class FunctionalComponentMapper {
   }
 
   public FunctionalComponent toEntity(FunctionalComponentRequest request, Project project) {
-    return new FunctionalComponent(
-        null,
-        request.getTitle(),
-        request.getDescription(),
-        request.getClassName(),
-        request.getComponentType(),
-        request.getDataElements(),
-        request.getReadingReferences(),
-        request.getWritingReferences(),
-        request.getFunctionalMultiplier(),
-        request.getOperations(),
-        request.getDegreeOfCompletion(),
-        request.getPreviousFCId(),
-        request.getOrderPosition(),
-        request.getIsMLA(),
-        request.getParentFCId(),
-        project,
-        null);
+    FunctionalComponent component =
+        new FunctionalComponent(
+            request.getTitle(),
+            request.getDescription(),
+            request.getClassName(),
+            request.getComponentType(),
+            request.getDataElements(),
+            request.getReadingReferences(),
+            request.getWritingReferences(),
+            request.getFunctionalMultiplier(),
+            request.getOperations(),
+            request.getDegreeOfCompletion(),
+            request.getPreviousFCId(),
+            request.getOrderPosition(),
+            request.getIsMLA(),
+            request.getParentFCId(),
+            request.getSubComponentType(),
+            request.getIsReadonly(),
+            new ArrayList<>(), // Initialize empty list for subComponents
+            project,
+            null);
+
+    // Handle subComponents if present
+    if (request.getSubComponents() != null && !request.getSubComponents().isEmpty()) {
+      for (FunctionalComponentRequest subReq : request.getSubComponents()) {
+        FunctionalComponent subComp =
+            new FunctionalComponent(
+                subReq.getTitle(),
+                subReq.getDescription(),
+                subReq.getClassName(),
+                subReq.getComponentType(),
+                subReq.getDataElements(),
+                subReq.getReadingReferences(),
+                subReq.getWritingReferences(),
+                subReq.getFunctionalMultiplier(),
+                subReq.getOperations(),
+                subReq.getDegreeOfCompletion(),
+                subReq.getPreviousFCId(),
+                subReq.getOrderPosition(),
+                false, // Sub-components are never MLA themselves
+                null, // parentFCId will be set after parent is saved
+                subReq.getSubComponentType(),
+                true, // Sub-components are readonly
+                null, // Sub-components don't have their own sub-components
+                project,
+                null);
+        component.getSubComponents().add(subComp);
+      }
+    }
+
+    return component;
   }
 
   public FunctionalComponentResponse toResponse(FunctionalComponent component) {
     // Skip deleted components
     if (component.getDeletedAt() != null) {
       return null;
+    }
+
+    List<FunctionalComponentResponse> subComponentResponses = null;
+    if (component.getSubComponents() != null && !component.getSubComponents().isEmpty()) {
+      subComponentResponses =
+          component.getSubComponents().stream()
+              .map(this::toResponse)
+              .filter(resp -> resp != null) // Filter out deleted components
+              .collect(Collectors.toList());
     }
 
     return new FunctionalComponentResponse(
@@ -61,18 +105,26 @@ public class FunctionalComponentMapper {
         component.getPreviousFCId(),
         component.getOrderPosition(),
         component.getIsMLA(),
-        component.getParentFCId());
+        component.getParentFCId(),
+        component.getSubComponentType(),
+        component.getIsReadonly(),
+        subComponentResponses);
   }
 
   public Set<FunctionalComponent> updateEntityFromRequest(Project project, ProjectRequest request) {
     return request.getFunctionalComponents().stream()
         .map(
             fc -> {
-              if (fc.getId() != null) {
-                return updateExistingComponent(fc);
+              // Only process parent-level components (not subComponents)
+              if (fc.getParentFCId() == null) {
+                if (fc.getId() != null) {
+                  return updateExistingComponent(fc);
+                }
+                return createNewComponent(fc, project);
               }
-              return createNewComponent(fc, project);
+              return null; // Skip subComponents as they're handled by their parents
             })
+        .filter(component -> component != null)
         .collect(Collectors.toSet());
   }
 
@@ -106,5 +158,89 @@ public class FunctionalComponentMapper {
     existing.setOrderPosition(fc.getOrderPosition());
     existing.setIsMLA(fc.getIsMLA());
     existing.setParentFCId(fc.getParentFCId());
+    existing.setSubComponentType(fc.getSubComponentType());
+    existing.setIsReadonly(fc.getIsReadonly());
+
+    // Handle subComponents
+    if (fc.getSubComponents() != null && !fc.getSubComponents().isEmpty()) {
+      // Mark existing subComponents for removal by clearing the list
+      // Orphan removal will handle deletion
+      existing.getSubComponents().clear();
+
+      // Save parent first to ensure it has an ID
+      functionalComponentRepository.save(existing);
+
+      // Process each sub-component from the request
+      for (FunctionalComponentRequest subReq : fc.getSubComponents()) {
+        FunctionalComponent subComp;
+
+        if (subReq.getId() != null) {
+          // Try to find and update existing sub-component
+          subComp =
+              functionalComponentRepository
+                  .findByIdActive(subReq.getId())
+                  .orElseGet(() -> createSubComponent(subReq, existing));
+
+          if (subComp.getId() != null) {
+            updateSubComponentFields(subComp, subReq, existing);
+          }
+        } else {
+          // Create new sub-component
+          subComp = createSubComponent(subReq, existing);
+        }
+
+        // Add to parent's subComponents list
+        existing.getSubComponents().add(subComp);
+      }
+    } else if (existing.getSubComponents() != null && !existing.getSubComponents().isEmpty()) {
+      // If no subComponents in request but parent had some, clear them
+      existing.getSubComponents().clear();
+    }
+  }
+
+  private FunctionalComponent createSubComponent(
+      FunctionalComponentRequest subReq, FunctionalComponent parent) {
+    FunctionalComponent subComp =
+        new FunctionalComponent(
+            subReq.getTitle(),
+            subReq.getDescription(),
+            subReq.getClassName(),
+            subReq.getComponentType(),
+            subReq.getDataElements(),
+            subReq.getReadingReferences(),
+            subReq.getWritingReferences(),
+            subReq.getFunctionalMultiplier(),
+            subReq.getOperations(),
+            subReq.getDegreeOfCompletion(),
+            subReq.getPreviousFCId(),
+            subReq.getOrderPosition(),
+            false, // Sub-components are never MLA themselves
+            parent.getId(), // Set parent ID
+            subReq.getSubComponentType(),
+            true, // Sub-components are readonly
+            null, // Sub-components don't have their own sub-components
+            parent.getProject(),
+            null);
+    return subComp;
+  }
+
+  private void updateSubComponentFields(
+      FunctionalComponent subComp, FunctionalComponentRequest subReq, FunctionalComponent parent) {
+    subComp.setTitle(subReq.getTitle());
+    subComp.setDescription(subReq.getDescription());
+    subComp.setClassName(subReq.getClassName());
+    subComp.setComponentType(subReq.getComponentType());
+    subComp.setDataElements(subReq.getDataElements());
+    subComp.setReadingReferences(subReq.getReadingReferences());
+    subComp.setWritingReferences(subReq.getWritingReferences());
+    subComp.setFunctionalMultiplier(subReq.getFunctionalMultiplier());
+    subComp.setOperations(subReq.getOperations());
+    subComp.setDegreeOfCompletion(subReq.getDegreeOfCompletion());
+    subComp.setPreviousFCId(subReq.getPreviousFCId());
+    subComp.setOrderPosition(subReq.getOrderPosition());
+    subComp.setParentFCId(parent.getId());
+    subComp.setSubComponentType(subReq.getSubComponentType());
+    subComp.setIsReadonly(true);
+    subComp.setIsMLA(false);
   }
 }
