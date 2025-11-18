@@ -124,20 +124,6 @@ export default function LoginForm() {
           </button>
         </div>
 
-        {/* TODO: Remember me and forgot password?  */}
-        {/* <div className="flex justify-between items-center mb-4 text-white">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="mr-2 cursor-pointer accent-fisma-dark-blue rounded"
-              />
-              {translation.rememberMe}
-            </label>
-            <a href="#" className="text-white text-sm hover:underline">{translation.forgotPassword}</a>
-          </div> */}
-
         <button
           type="submit"
           className="w-full min-h-[42px] p-2 text-white bg-fisma-dark-blue hover:brightness-70 flex justify-center items-center cursor-pointer"

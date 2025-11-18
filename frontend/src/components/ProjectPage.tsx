@@ -88,9 +88,6 @@ function SortableFunctionalComponent({
   );
 }
 
-//TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
-//maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
-
 // Debounce hook for auto-saving projects
 function useDebounce<T extends (...args: unknown[]) => void>(
   func: T,
@@ -327,14 +324,11 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken, logout]);
 
   const handleCreateFunctionalComponent = async () => {
-    // START Jessen purkkaratkaisu ongelmaan, jossa uusi komponentti poistaa tallentamattomat muutokset vanhoihin komponentteihin
-
     await saveProject();
 
-    // END Jessen purkkaratkaisu ongelmaan, jossa uusi komponentti poistaa tallentamattomat muutokset vanhoihin komponentteihin
-
-    isManuallySaved.current = true; // TODO: Selvitä miksi tämä määritetään, vaikka mitään ei tallenneta?
+    isManuallySaved.current = true;
     setLoadingProject(true);
+
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
         className: null,
@@ -495,7 +489,7 @@ export default function ProjectPage() {
     if (project) {
       isManuallySaved.current = true;
       try {
-        await saveProject(); //TODO: Automatic saving instead? (Could use useQuery or similar)
+        await saveProject();
         const idOfNewProjectVersion = await createNewProjectVersion(
           sessionToken,
           project,

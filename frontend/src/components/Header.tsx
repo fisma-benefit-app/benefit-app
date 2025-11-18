@@ -22,7 +22,6 @@ const Header = () => {
     localStorage.setItem("languagePreference", language === "fi" ? "en" : "fi");
   };
 
-  //TODO: Save before redirecting or logging out?
   return (
     <>
       <header className="fixed top-0 w-full bg-fisma-blue text-white flex z-999">
