@@ -28,19 +28,9 @@ jwt:
   private.key: classpath:./jwt-keys/app.key
   public.key: classpath:./jwt-keys/app.pub
 
-# TODO: Use this for production!
-#logging:
-#  level:
-#    org.springframework.security: info
-logging:
-  level:
-    org.springframework.security: info
-    org.springframework.security.web: debug
-    org.springframework.security.oauth2: debug
-
-# Debugging
+# Debug Configuration
 api:
-  debug: ${API_DEBUG:never}
+  debug: ${API_DEBUG:never} # Use this inside code to toggle debug features if needed
 
 server:
   error:
@@ -48,6 +38,12 @@ server:
     include-stacktrace: ${API_DEBUG:never}
     include-exception: false
     include-binding-errors: ${API_DEBUG:never}
+
+logging:
+  level:
+    org.springframework.security: ${API_DEBUG_LEVEL:info}
+    org.springframework.security.web: ${API_DEBUG_LEVEL:info}
+    org.springframework.security.oauth2: ${API_DEBUG_LEVEL:info}
 
 management:
   endpoints:

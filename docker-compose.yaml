@@ -26,6 +26,7 @@ services:
     working_dir: /workspace
     environment:
       API_DEBUG: "always"
+      API_DEBUG_LEVEL: "debug"
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DOCKER_COMPOSE_FILE: /workspace/compose.yaml
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
