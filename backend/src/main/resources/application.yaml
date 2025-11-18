@@ -38,6 +38,17 @@ logging:
     org.springframework.security.web: debug
     org.springframework.security.oauth2: debug
 
+# Debugging
+api:
+  debug: ${API_DEBUG:never}
+
+server:
+  error:
+    include-message: ${API_DEBUG:never}
+    include-stacktrace: ${API_DEBUG:never}
+    include-exception: false
+    include-binding-errors: ${API_DEBUG:never}
+
 management:
   endpoints:
     web:

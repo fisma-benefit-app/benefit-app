@@ -25,6 +25,7 @@ services:
     container_name: fisma_backend
     working_dir: /workspace
     environment:
+      API_DEBUG: "always"
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DOCKER_COMPOSE_FILE: /workspace/compose.yaml
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
