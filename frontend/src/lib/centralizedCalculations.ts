@@ -33,7 +33,7 @@ const generateCacheKey = (component: TGenericComponent): string => {
  * Uses memoization for performance optimization
  */
 export const calculateBasePoints = (component: TGenericComponent): number => {
-  if (!component.className || !component.componentType) {
+  if (!component.className) {
     return 0;
   }
 
@@ -231,11 +231,22 @@ export const getGroupedComponents = (components: TGenericComponent[]) => {
       );
 
       return {
-        type: componentType,
+        type: componentType || null,
         count: componentsOfType.length,
         points: calculateTotalPoints(componentsOfType),
       };
     });
+
+    const componentsWithoutType = componentsInClass.filter(
+      (component) => !component.componentType,
+    );
+    if (componentsWithoutType.length > 0) {
+      typesInClass.push({
+        type: null,
+        count: componentsWithoutType.length,
+        points: calculateTotalPoints(componentsWithoutType),
+      });
+    }
 
     return { className, components: typesInClass };
   });
@@ -283,7 +294,14 @@ export const batchCalculateComponentPoints = (
 export const hasValidCalculationParams = (
   component: TGenericComponent,
 ): boolean => {
-  return !!(component.className && component.componentType);
+  /**
+   * Special case: "Interactive end-user navigation and query service" does not require componentType validation
+   * because its calculation logic is determined solely by className, as per business requirements.
+   */
+  return component.className ===
+    "Interactive end-user navigation and query service"
+    ? !!component.className
+    : !!(component.className && component.componentType);
 };
 
 /**

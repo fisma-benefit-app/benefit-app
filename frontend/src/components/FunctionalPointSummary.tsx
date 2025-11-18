@@ -95,10 +95,14 @@ export const FunctionalPointSummary = ({
                   // Calculate possible points for this specific component type
                   const componentsOfThisType = componentsInThisClass.filter(
                     (component) =>
-                      component.componentType === groupedTypes.type,
+                      groupedTypes.type === null
+                        ? !component.componentType
+                        : component.componentType === groupedTypes.type,
                   );
                   const possiblePointsForType =
                     calculateTotalPossiblePoints(componentsOfThisType);
+
+                  if (!groupedTypes.type) return null;
 
                   return (
                     <div key={idx}>
