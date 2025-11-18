@@ -92,6 +92,9 @@ export const FunctionalPointSummary = ({
                 </b>
                 <br />
                 {group.components.map((groupedTypes, idx) => {
+                  // Early return if no component types present
+                  if (!groupedTypes.type) return null;
+
                   // Calculate possible points for this specific component type
                   const componentsOfThisType = componentsInThisClass.filter(
                     (component) =>
@@ -101,8 +104,6 @@ export const FunctionalPointSummary = ({
                   );
                   const possiblePointsForType =
                     calculateTotalPossiblePoints(componentsOfThisType);
-
-                  if (!groupedTypes.type) return null;
 
                   return (
                     <div key={idx}>

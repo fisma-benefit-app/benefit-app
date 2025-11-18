@@ -295,13 +295,12 @@ export const hasValidCalculationParams = (
   component: TGenericComponent,
 ): boolean => {
   /**
-   * Special case: "Interactive end-user navigation and query service" does not require componentType validation
-   * because its calculation logic is determined solely by className, as per business requirements.
+   * Only "Interactive end-user input service" requires componentType for calculation.
+   * All other classes only require className.
    */
-  return component.className ===
-    "Interactive end-user navigation and query service"
-    ? !!component.className
-    : !!(component.className && component.componentType);
+  return component.className === "Interactive end-user input service"
+    ? !!(component.className && component.componentType)
+    : !!component.className;
 };
 
 /**
