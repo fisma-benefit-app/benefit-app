@@ -289,7 +289,7 @@ export default function ProjectPage() {
         writingReferences: null,
         functionalMultiplier: null,
         operations: null,
-        degreeOfCompletion: null,
+        degreeOfCompletion: 1,
         title: null,
         description: null,
         previousFCId: null,
