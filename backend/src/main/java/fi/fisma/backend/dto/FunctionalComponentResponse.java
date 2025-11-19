@@ -1,6 +1,7 @@
 package fi.fisma.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 
 @Schema(
     description = "Response object containing details on functional components within a project")
@@ -42,4 +43,14 @@ public record FunctionalComponentResponse(
             description =
                 "ID of the parent functional component, if part of multi-layer architecture (MLA)",
             example = "12")
-        Long parentFCId) {}
+        Long parentFCId,
+    @Schema(
+            description = "Type of sub-component in multi-layer architecture",
+            example = "presentation")
+        String subComponentType,
+    @Schema(
+            description = "Indicates if this component is readonly (for sub-components)",
+            example = "true")
+        Boolean isReadonly,
+    @Schema(description = "List of sub-components for multi-layer architecture")
+        List<FunctionalComponentResponse> subComponents) {}

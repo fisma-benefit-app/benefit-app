@@ -67,7 +67,7 @@ export const translations = {
       operations: "Operations",
       degreeOfCompletion: "Degree Of Completion",
       functionalPoints: "Functional Points",
-      totalPossiblePoints: "Total Possible Points",
+      totalPossiblePoints: "Functional Points 100%",
       completionPercentage: "Completion Percentage",
       title: "Title",
       description: "Description",
@@ -147,6 +147,9 @@ export const translations = {
         "Is this functional component a part of multi-layered architecture?",
       notAvailableForThisFunctionalComponentType:
         "Not available for this functional component type",
+      showSubComponents: "Show sub-components", // ✅ KEEP - Used in button
+      hideSubComponents: "Hide sub-components",
+      noSubComponents: "No sub-components found",
     },
     projectPage: {
       saveProject: "Save",
@@ -244,7 +247,7 @@ export const translations = {
       versionCreatedDate: "Versio Luotu",
       lastEditedDate: "Muokattu",
       className: "Toimintoluokka",
-      componentType: "Toiminto-\ntyyppi",
+      componentType: "Toimintotyyppi",
       dataElements: "Tieto-\nelementit",
       readingReferences: "Luku-\nviittaukset",
       writingReferences: "Kirjoitus-\nviittaukset",
@@ -252,7 +255,7 @@ export const translations = {
       operations: "Operaatiot",
       degreeOfCompletion: "Valmistumis-\naste",
       functionalPoints: "Toiminto-\npisteet",
-      totalPossiblePoints: "Mahdollinen Yhteensä",
+      totalPossiblePoints: "Toiminto-\npisteet 100%",
       completionPercentage: "Valmistumisprosentti",
       title: "Otsikko",
       description: "Kuvaus/Kommentit",
@@ -333,6 +336,9 @@ export const translations = {
         "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
       notAvailableForThisFunctionalComponentType:
         "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
+      showSubComponents: "Näytä alakomponentit", // ✅ KEEP - Used in button
+      hideSubComponents: "Piilota alakomponentit",
+      noSubComponents: "Alakomponentteja ei löytynyt",
     },
     projectPage: {
       saveProject: "Tallenna",

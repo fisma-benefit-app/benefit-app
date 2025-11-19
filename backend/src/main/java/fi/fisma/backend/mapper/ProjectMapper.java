@@ -36,6 +36,7 @@ public class ProjectMapper {
             project.getVersionCreatedAt(),
             project.getUpdatedAt(),
             project.getFunctionalComponents().stream()
+                .filter(fc -> fc.getParentFCId() == null) // Only include top-level components
                 .map(fc -> functionalComponentMapper.toResponse(fc))
                 .filter(Objects::nonNull) // Filter out deleted components
                 .collect(Collectors.toSet()),
