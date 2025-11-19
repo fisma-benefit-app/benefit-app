@@ -21,7 +21,6 @@ const fetchJWT = async (username: string, password: string) => {
     throw new Error("No Authorization token received from server.");
   }
 
-  console.log("Token received: ", token);
   return token;
 };
 
