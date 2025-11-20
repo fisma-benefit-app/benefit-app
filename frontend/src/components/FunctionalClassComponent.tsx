@@ -92,7 +92,10 @@ export default function FunctionalClassComponent({
     const updatedComponent = {
       ...component,
       className: newClassName,
-      componentType: null,
+      componentType:
+        newClassName !== "Interactive end-user input service"
+          ? null
+          : ("1-functional" as ComponentType), // automatically assigned component type value for Interactive end-user input services
       isMLA: false,
     };
 
@@ -354,9 +357,7 @@ export default function FunctionalClassComponent({
                 className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
                 disabled={!isLatest}
               >
-                <option disabled value="">
-                  {translation.classNamePlaceholder}
-                </option>
+                <option value="">{translation.classNamePlaceholder}</option>
                 {classNameOptions.map((className) => (
                   <option key={className} value={className}>
                     {translation.classNameOptions[className]}
@@ -373,9 +374,12 @@ export default function FunctionalClassComponent({
                     className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
                     disabled={!isLatest}
                   >
-                    <option disabled value="">
-                      {translation.componentTypePlaceholder}
-                    </option>
+                    {component.className !==
+                      "Interactive end-user input service" && (
+                      <option value="">
+                        {translation.componentTypePlaceholder}
+                      </option>
+                    )}
                     {componentTypeOptions.map((option) => (
                       <option key={option} value={option}>
                         {translation.componentTypeOptions[option]}
