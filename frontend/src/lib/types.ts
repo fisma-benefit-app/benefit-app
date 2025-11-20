@@ -104,11 +104,7 @@ export type Project = {
 };
 
 export type MLAsubComponent = TGenericComponent & {
-  subComponentType:
-    | "presentation"
-    | "businessLogic"
-    | "dataAccess"
-    | "integration";
+  subComponentType: "B-UI" | "UI-B" | "B-D" | "D-B";
   isReadonly: true;
   subComponents: never;
 };

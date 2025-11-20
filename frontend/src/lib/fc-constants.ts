@@ -7,7 +7,7 @@ import {
   calculateInteractiveEndUserNavigationAndQueryService,
   calculateAlgorithmicOrManipulationService,
 } from "./calculations.ts";
-import { ClassName, ComponentType } from "./types.ts";
+import { ClassName, ComponentType, MLAsubComponent } from "./types.ts";
 
 export const componentClassFields = [
   {
@@ -158,3 +158,102 @@ export const mlaNavigationAndQueryComponentTypes = [
   "generation indicators",
   "log-in log-out functions",
 ];
+
+/*
+ * Factory function to create MLAsubComponents with only the necessary overrides
+ * null values are later read from the parent component
+ */
+const createMLASubComponent = (
+  overrides: Partial<MLAsubComponent> & {
+    className:
+      | "Interface service to other applications"
+      | "Interface service from other applications";
+    componentType:
+      | "messages to other applications"
+      | "messages from other applications";
+    subComponentType: "B-UI" | "UI-B" | "B-D" | "D-B";
+    readingReferences: number | null;
+    writingReferences: number | null;
+  },
+): MLAsubComponent => ({
+  id: 0,
+  title: null,
+  description: null,
+  dataElements: null,
+  functionalMultiplier: null,
+  operations: null,
+  degreeOfCompletion: null,
+  previousFCId: null,
+  orderPosition: 0,
+  isMLA: false,
+  parentFCId: null,
+  isReadonly: true as const,
+  subComponents: undefined as never,
+  ...overrides,
+});
+
+// Interactive Service Components (interactive end-user navigation and query service and Interactive end-user input service)
+export const interactiveServiceSendingUIB = createMLASubComponent({
+  className: "Interface service to other applications",
+  componentType: "messages to other applications",
+  subComponentType: "UI-B",
+  readingReferences: 1,
+  writingReferences: null,
+});
+
+export const interactiveServiceReceivingUIB = createMLASubComponent({
+  className: "Interface service from other applications",
+  componentType: "messages from other applications",
+  subComponentType: "UI-B",
+  readingReferences: 1,
+  writingReferences: 1,
+});
+
+export const interactiveServiceSendingBUI = createMLASubComponent({
+  className: "Interface service to other applications",
+  componentType: "messages to other applications",
+  subComponentType: "B-UI",
+  readingReferences: null, // this value is calculated from parent component's references
+  writingReferences: null,
+});
+
+export const interactiveServiceReceivingBUI = createMLASubComponent({
+  className: "Interface service from other applications",
+  componentType: "messages from other applications",
+  subComponentType: "B-UI",
+  readingReferences: 1,
+  writingReferences: null, // this value is calculated from parent component's references
+});
+
+// Data Storage Service Components
+export const dataStorageServiceSendingBD = createMLASubComponent({
+  className: "Interface service to other applications",
+  componentType: "messages to other applications",
+  subComponentType: "B-D",
+  readingReferences: 2,
+  writingReferences: null,
+});
+
+export const dataStorageServiceReceivingBD = createMLASubComponent({
+  className: "Interface service from other applications",
+  componentType: "messages from other applications",
+  subComponentType: "B-D",
+  readingReferences: 1,
+  writingReferences: 1,
+});
+
+export const dataStorageServiceSendingDB = createMLASubComponent({
+  className: "Interface service to other applications",
+  componentType: "messages to other applications",
+  subComponentType: "D-B",
+  readingReferences: 1,
+  writingReferences: null,
+});
+
+export const dataStorageServiceReceivingDB = createMLASubComponent({
+  className: "Interface service from other applications",
+  componentType: "messages from other applications",
+  subComponentType: "D-B",
+  readingReferences: null,
+  writingReferences: 1,
+});
