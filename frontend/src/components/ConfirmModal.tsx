@@ -18,7 +18,6 @@ export default function ConfirmModal({
   if (!open) return null;
 
   return (
-    //TODO: Adjust message sizing
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[4px] z-999">
       <div className="bg-fisma-blue p-4 shadow-2xl lg w-96">
         <h2 className="text-white text-2xl font-medium text-center overflow-hidden overflow-ellipsis bg-fisma-dark-blue mb-4 -mx-4 -mt-4 px-4 py-4">

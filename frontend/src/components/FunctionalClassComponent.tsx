@@ -158,7 +158,7 @@ export default function FunctionalClassComponent({
     let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
-    //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
+    //if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["title", "description"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
     } else if (
@@ -167,12 +167,6 @@ export default function FunctionalClassComponent({
     ) {
       const num = parseFloat(value);
 
-      //This is the simplest solution for fixing values that aren't numbers,
-      //including values that have commas such as 0,95.
-
-      //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
-      //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
-      //for increment - decrement input field of defreeOfCompletion.
       if (isNaN(num)) {
         value = "0";
         console.log("Please do not type commas for percentage.");
