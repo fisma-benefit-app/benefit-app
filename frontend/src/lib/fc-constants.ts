@@ -7,7 +7,12 @@ import {
   calculateInteractiveEndUserNavigationAndQueryService,
   calculateAlgorithmicOrManipulationService,
 } from "./calculations.ts";
-import { ClassName, ComponentType, MLAsubComponent } from "./types.ts";
+import {
+  ClassName,
+  ComponentType,
+  MLAsubComponent,
+  TGenericComponent,
+} from "./types.ts";
 
 export const componentClassFields = [
   {
@@ -257,3 +262,45 @@ export const dataStorageServiceReceivingDB = createMLASubComponent({
   readingReferences: null,
   writingReferences: 1,
 });
+
+/**
+ * This map lists functional component's parameters (ie. reading or writing references) that are not used in calculations
+ * Parameters not used in calculations are reset to null
+ * Parameters that are not reset cause errors in subcomponent references calculations for certain component classes
+ */
+export const componentParameterResetMap: Record<
+  ClassName,
+  (keyof TGenericComponent)[]
+> = {
+  "Interactive end-user navigation and query service": [
+    "writingReferences",
+    "operations",
+    "functionalMultiplier",
+  ],
+  "Interactive end-user input service": ["operations"],
+  "Non-interactive end-user output service": [
+    "writingReferences",
+    "operations",
+    "functionalMultiplier",
+  ],
+  "Interface service to other applications": [
+    "writingReferences",
+    "operations",
+    "functionalMultiplier",
+  ],
+  "Interface service from other applications": [
+    "operations",
+    "functionalMultiplier",
+  ],
+  "Data storage service": [
+    "readingReferences",
+    "writingReferences",
+    "operations",
+    "functionalMultiplier",
+  ],
+  "Algorithmic or manipulation service": [
+    "readingReferences",
+    "writingReferences",
+    "functionalMultiplier",
+  ],
+};

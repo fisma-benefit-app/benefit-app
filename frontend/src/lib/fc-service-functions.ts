@@ -13,7 +13,9 @@ import {
   dataStorageServiceReceivingBD,
   dataStorageServiceSendingDB,
   dataStorageServiceReceivingDB,
+  componentParameterResetMap,
 } from "./fc-constants.ts";
+import { calculateReferencesSum } from "./centralizedCalculations.ts";
 import { ClassName, MLAsubComponent, TGenericComponent } from "./types.ts";
 
 export const getComponentTypeOptions = (className: ClassName) => {
@@ -57,6 +59,22 @@ export const isMultiLayerArchitectureComponent = (
   );
 };
 
+// This resets a functional component's parameters if parameters are not used in component's calculations
+export const resetFunctionalComponentParameters = (
+  component: TGenericComponent,
+): TGenericComponent => {
+  const parametersToReset = componentParameterResetMap[component.className];
+  if (parametersToReset) {
+    return {
+      ...component,
+      ...Object.fromEntries(
+        parametersToReset.map((parameter) => [parameter, null]),
+      ),
+    };
+  }
+  return component;
+};
+
 export const createSubComponents = (
   parentComponent: TGenericComponent,
 ): MLAsubComponent[] => {
@@ -82,16 +100,12 @@ export const createSubComponents = (
         {
           // for this type of subcomponent, reading references are calculated from parent component's references
           ...interactiveServiceSendingBUI,
-          readingReferences:
-            Number(parentComponent.readingReferences ?? 0) +
-            Number(parentComponent.writingReferences ?? 0),
+          readingReferences: calculateReferencesSum(parentComponent),
         },
         {
           // for this type of subcomponent, writing references are calculated from parent component's references
           ...interactiveServiceReceivingBUI,
-          writingReferences:
-            Number(parentComponent.readingReferences ?? 0) +
-            Number(parentComponent.writingReferences ?? 0),
+          writingReferences: calculateReferencesSum(parentComponent),
         },
       ];
     }
@@ -149,6 +163,10 @@ export const updateSubComponents = (
   }));
 };
 
+/*
+ * According to the business requirements, reading references in some subcomponents are a calculated sum of the parent component's reading and writing references
+ * This function recalculates the subcomponent's reading references value when parent component's reading or writing references values change
+ */
 export const recalculateReadingReferences = (
   parentComponent: TGenericComponent,
   subComp: MLAsubComponent,
@@ -161,15 +179,16 @@ export const recalculateReadingReferences = (
     subComp.className === "Interface service to other applications" &&
     subComp.subComponentType === "B-UI"
   ) {
-    return (
-      Number(parentComponent.readingReferences ?? 0) +
-      Number(parentComponent.writingReferences ?? 0)
-    );
+    return calculateReferencesSum(parentComponent);
   }
 
   return subComp.readingReferences;
 };
 
+/*
+ * According to the business requirements, writing references in some subcomponents are a calculated sum of the parent component's reading and writing references.
+ * This function recalculates the subcomponent's writing references value when parent component's reading or writing references values change
+ */
 export const recalculateWritingReferences = (
   parentComponent: TGenericComponent,
   subComp: MLAsubComponent,
@@ -182,10 +201,7 @@ export const recalculateWritingReferences = (
     subComp.className === "Interface service from other applications" &&
     subComp.subComponentType === "B-UI"
   ) {
-    return (
-      Number(parentComponent.readingReferences ?? 0) +
-      Number(parentComponent.writingReferences ?? 0)
-    );
+    return calculateReferencesSum(parentComponent);
   }
 
   return subComp.writingReferences;

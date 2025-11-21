@@ -16,6 +16,7 @@ import {
   isMultiLayerArchitectureComponent,
   recalculateReadingReferences,
   recalculateWritingReferences,
+  resetFunctionalComponentParameters,
 } from "../lib/fc-service-functions.ts";
 import {
   calculateBasePoints,
@@ -91,7 +92,7 @@ export default function FunctionalClassComponent({
     //user can select classname only from predefined options
     const newClassName = e.target.value as ClassName;
 
-    const updatedComponent = {
+    const updatedComponent = resetFunctionalComponentParameters({
       ...component,
       className: newClassName,
       componentType:
@@ -100,7 +101,7 @@ export default function FunctionalClassComponent({
           : ("1-functional" as ComponentType), // automatically assigned component type value for Interactive end-user input services
       isMLA: false,
       subComponents: undefined, // clears possible subcomponents when a new functional component class is selected
-    };
+    });
 
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
