@@ -92,7 +92,10 @@ export default function FunctionalClassComponent({
     const updatedComponent = {
       ...component,
       className: newClassName,
-      componentType: null,
+      componentType:
+        newClassName !== "Interactive end-user input service"
+          ? null
+          : ("1-functional" as ComponentType), // automatically assigned component type value for Interactive end-user input services
       isMLA: false,
     };
 
@@ -155,7 +158,7 @@ export default function FunctionalClassComponent({
     let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
-    //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
+    //if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["title", "description"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
     } else if (
@@ -164,12 +167,6 @@ export default function FunctionalClassComponent({
     ) {
       const num = parseFloat(value);
 
-      //This is the simplest solution for fixing values that aren't numbers,
-      //including values that have commas such as 0,95.
-
-      //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
-      //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
-      //for increment - decrement input field of defreeOfCompletion.
       if (isNaN(num)) {
         value = "0";
         console.log("Please do not type commas for percentage.");
@@ -360,9 +357,7 @@ export default function FunctionalClassComponent({
                 className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
                 disabled={!isLatest}
               >
-                <option disabled value="">
-                  {translation.classNamePlaceholder}
-                </option>
+                <option value="">{translation.classNamePlaceholder}</option>
                 {classNameOptions.map((className) => (
                   <option key={className} value={className}>
                     {translation.classNameOptions[className]}
@@ -379,9 +374,12 @@ export default function FunctionalClassComponent({
                     className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
                     disabled={!isLatest}
                   >
-                    <option disabled value="">
-                      {translation.componentTypePlaceholder}
-                    </option>
+                    {component.className !==
+                      "Interactive end-user input service" && (
+                      <option value="">
+                        {translation.componentTypePlaceholder}
+                      </option>
+                    )}
                     {componentTypeOptions.map((option) => (
                       <option key={option} value={option}>
                         {translation.componentTypeOptions[option]}

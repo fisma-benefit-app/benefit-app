@@ -170,6 +170,7 @@ export const translations = {
         "No components to show. Add some components using the button above on the right.",
     },
     functionalPointSummary: {
+      noSelectedComponentType: "no selected component type",
       total: "Total",
       totalPossible: "Total Possible",
       completionPercentage: "Completion Percentage",
@@ -360,6 +361,7 @@ export const translations = {
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
     },
     functionalPointSummary: {
+      noSelectedComponentType: "ei valittua toimintotyyppiä",
       total: "Yhteensä",
       totalPossible: "Mahdollinen Yhteensä",
       completionPercentage: "Valmistumisprosentti",
