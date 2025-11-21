@@ -201,7 +201,7 @@ export default function FunctionalClassComponent({
         ...updatedComponent,
         subComponents: updatedComponent.subComponents.map((subComp) => ({
           ...subComp,
-          title: `${updatedComponent.title}-${subComp.subComponentType}`,
+          title: `${updatedComponent.title || "Untitled"}-${subComp.subComponentType}`,
           description: updatedComponent.description,
           dataElements: updatedComponent.dataElements,
           // references are recalculated, as they are a combined sum of parent references under certain circumstances

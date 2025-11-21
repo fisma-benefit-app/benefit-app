@@ -143,7 +143,7 @@ export const updateSubComponents = (
 ): MLAsubComponent[] => {
   return existingSubComponents.map((subComp) => ({
     id: subComp.id,
-    title: `${parentComponent.title}-${subComp.subComponentType}`,
+    title: `${parentComponent.title || "Untitled"}-${subComp.subComponentType}`,
     description: parentComponent.description,
     className: subComp.className,
     componentType: subComp.componentType,
