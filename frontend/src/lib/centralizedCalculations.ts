@@ -101,6 +101,17 @@ export const calculatePointsByLayer = (
   for (const component of components) {
     const componentPoints = calculateComponentPoints(component); // Calculate main component points
 
+    // If component is one of these classes, assign points directly to business layer
+    if (
+      component.className === "Non-interactive end-user output service" ||
+      component.className === "Interface service to other applications" ||
+      component.className === "Interface service from other applications" ||
+      component.className === "Algorithmic or manipulation service"
+    ) {
+      totalPoints.business += componentPoints;
+      break;
+    }
+
     if (component.subComponents && component.subComponents.length > 0) {
       for (const subComponent of component.subComponents) {
         const subType = subComponent.subComponentType?.toLowerCase() || "";
@@ -110,22 +121,14 @@ export const calculatePointsByLayer = (
           subComponent as TGenericComponent,
         );
 
-        // Calculate total points by layer with exceptions for certain classNames
-        if (
-          component.className === "Non-interactive end-user output service" ||
-          component.className === "Interface service to other applications" ||
-          component.className === "Interface service from other applications" ||
-          component.className === "Algorithmic or manipulation service"
-        ) {
-          totalPoints.business += componentPoints;
-          break; // Assign to first matching layer found
-        } else if (subType.includes("b-")) {
+        // Calculate total points by layer
+        if (subType.startsWith("b-")) {
           totalPoints.business += subComponentPoints;
-          break;
-        } else if (subType.includes("ui-")) {
+          break; // Assign to first matching layer found
+        } else if (subType.startsWith("ui-")) {
           totalPoints.userInterface += componentPoints + subComponentPoints;
           break;
-        } else if (subType.includes("d-")) {
+        } else if (subType.startsWith("d-")) {
           totalPoints.database += componentPoints + subComponentPoints;
           break;
         }
