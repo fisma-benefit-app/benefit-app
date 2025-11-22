@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Project API
   description: API documentation for the benefit application
-  version: 1.1.0
+  version: 1.0.1
 servers:
 - url: http://localhost:8080
   description: Generated server url
@@ -92,13 +92,19 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
+        "500":
+          description: Internal server error - update operation failed
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
       security:
       - bearerAuth: []
     delete:
       tags:
       - Project Management
       summary: Delete a project
-      description: Deletes a project if the authenticated user owns it
+      description: Soft deletes a project if the authenticated user owns it
       operationId: deleteProject
       parameters:
       - name: id
@@ -115,6 +121,99 @@ paths:
           description: Project not found
         "403":
           description: User does not have permission to delete this project
+      security:
+      - bearerAuth: []
+  /appusers/{id}:
+    get:
+      tags:
+      - User Management
+      summary: Get user by ID
+      description: Retrieves a specific user by their ID
+      operationId: getById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: User found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
+        "404":
+          description: User not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - User Management
+      summary: Update user
+      description: Updates an existing user's information
+      operationId: updateAppUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppUserRequest"
+        required: true
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
+        "404":
+          description: User not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
+        "500":
+          description: Failed to update user due to database constraint violation
+            or internal error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - User Management
+      summary: Delete user account
+      description: Permanently deletes the authenticated user's account
+      operationId: deleteAppUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Account deleted successfully
+        "401":
+          description: User not authenticated
+        "500":
+          description: Failed to delete user due to database integrity constraints
+            or cascading deletion errors
       security:
       - bearerAuth: []
   /appusers/password:
@@ -145,6 +244,13 @@ paths:
                 type: string
         "401":
           description: User not authenticated
+          content:
+            '*/*':
+              schema:
+                type: string
+        "500":
+          description: Password encryption failure or database error during password
+            update
           content:
             '*/*':
               schema:
@@ -193,6 +299,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ProjectResponse"
+        "500":
+          description: Internal server error - database connection issues
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectResponse"
       security:
       - bearerAuth: []
     post:
@@ -212,6 +326,8 @@ paths:
           description: Project created successfully
         "400":
           description: Invalid project data
+        "503":
+          description: Service unavailable - system resources exhausted
       security:
       - bearerAuth: []
   /projects/{id}/versions:
@@ -242,6 +358,8 @@ paths:
           description: Original project not found
         "403":
           description: User does not have permission
+        "507":
+          description: Insufficient storage - project size limit exceeded
       security:
       - bearerAuth: []
   /functional-components/projects/{projectId}:
@@ -266,11 +384,51 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: Functional component created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
+        "400":
+          description: Invalid request data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+      security:
+      - bearerAuth: []
+  /appusers:
+    post:
+      tags:
+      - User Management
+      summary: Create new user
+      description: Creates a new user account
+      operationId: createAppUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppUserRequest"
+        required: true
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
+        "400":
+          description: Invalid user data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
       security:
       - bearerAuth: []
   /functional-components/{componentId}/projects/{projectId}:
@@ -278,7 +436,7 @@ paths:
       tags:
       - Functional Components
       summary: Delete a functional component
-      description: Deletes a functional component from the specified project
+      description: Soft deletes a functional component from the specified project
       operationId: deleteFunctionalComponent
       parameters:
       - name: componentId
@@ -294,26 +452,24 @@ paths:
           type: integer
           format: int64
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Functional component deleted successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
-      security:
-      - bearerAuth: []
-  /appusers:
-    delete:
-      tags:
-      - User Management
-      summary: Delete user account
-      description: Permanently deletes the authenticated user's account
-      operationId: deleteAppUser
-      responses:
-        "204":
-          description: Account deleted successfully
         "401":
-          description: User not authenticated
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+        "404":
+          description: Component or project not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
       security:
       - bearerAuth: []
 components:
@@ -397,7 +553,20 @@ components:
           description: Position in the component list
           example: 1
           minimum: 0
+        isMLA:
+          type: boolean
+          description: Indicates if the functional component participates in multi-layer
+            architecture (MLA) as either a parent or child component. 'true' means
+            the component is part of MLA hierarchy.
+          example: true
+        parentFCId:
+          type: integer
+          format: int64
+          description: "ID of the parent functional component, if part of multi-layer\
+            \ architecture"
+          example: 12
       required:
+      - isMLA
       - orderPosition
     ProjectRequest:
       type: object
@@ -516,6 +685,17 @@ components:
           description: Position in the component list
           example: 1
           minimum: 0
+        isMLA:
+          type: boolean
+          description: Whether the functional component is part of multi-layer architecture
+            (MLA)
+          example: true
+        parentFCId:
+          type: integer
+          format: int64
+          description: "ID of the parent functional component, if part of multi-layer\
+            \ architecture (MLA)"
+          example: 12
     ProjectAppUserResponse:
       type: object
       description: Response object containing project-user relationship details
@@ -546,11 +726,6 @@ components:
           format: int32
           description: Version of the project
           example: 1
-        totalPoints:
-          type: number
-          format: double
-          description: Total function points of the project
-          example: 150.5
         createdAt:
           type: string
           format: date-time
@@ -578,6 +753,20 @@ components:
           items:
             $ref: "#/components/schemas/ProjectAppUserResponse"
           uniqueItems: true
+    AppUserRequest:
+      type: object
+      description: Request object for creating or updating app users
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          maxLength: 64
+          minLength: 0
+      required:
+      - password
+      - username
     PasswordChangeRequest:
       type: object
       description: Request object containing details on password change
