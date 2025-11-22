@@ -322,3 +322,12 @@ export const getIncompleteComponents = (
     (component) => !hasValidCalculationParams(component),
   );
 };
+
+export const calculateReferencesSum = (
+  parentComponent: TGenericComponent,
+): number => {
+  return (
+    Number(parentComponent.readingReferences ?? 0) +
+    Number(parentComponent.writingReferences ?? 0)
+  );
+};
