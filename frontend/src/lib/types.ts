@@ -25,6 +25,7 @@ export type ProjectResponse = {
 };
 
 export type FunctionalComponentRequest = {
+  id?: number; // Optional for creation, required for updates
   title: string | null;
   description: string | null;
   className: ClassName;
@@ -39,8 +40,10 @@ export type FunctionalComponentRequest = {
   orderPosition: number;
   isMLA: boolean;
   parentFCId: number | null;
+  subComponentType: string | null;
+  isReadonly: boolean;
+  subComponents: FunctionalComponentRequest[];
 };
-
 export type FunctionalComponentResponse = FunctionalComponentRequest & {
   id: number;
 };
@@ -100,6 +103,12 @@ export type Project = {
   projectAppUsers: ProjectAppUser[];
 };
 
+export type MLAsubComponent = TGenericComponent & {
+  subComponentType: "B-UI" | "UI-B" | "B-D" | "D-B";
+  isReadonly: true;
+  subComponents: never;
+};
+
 export type TGenericComponent = {
   id: number;
   title: string | null;
@@ -116,6 +125,7 @@ export type TGenericComponent = {
   orderPosition: number;
   isMLA: boolean;
   parentFCId: number | null;
+  subComponents?: MLAsubComponent[];
 };
 
 // Enums and constants

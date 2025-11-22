@@ -147,6 +147,9 @@ export const translations = {
         "Is this functional component a part of multi-layered architecture?",
       notAvailableForThisFunctionalComponentType:
         "Not available for this functional component type",
+      showSubComponents: "Show sub-components", // ✅ KEEP - Used in button
+      hideSubComponents: "Hide sub-components",
+      noSubComponents: "No sub-components found",
     },
     projectPage: {
       saveProject: "Save",
@@ -167,6 +170,7 @@ export const translations = {
         "No components to show. Add some components using the button above on the right.",
     },
     functionalPointSummary: {
+      noSelectedComponentType: "no selected component type",
       total: "Total",
       totalPossible: "Total Possible",
       completionPercentage: "Completion Percentage",
@@ -333,6 +337,9 @@ export const translations = {
         "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
       notAvailableForThisFunctionalComponentType:
         "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
+      showSubComponents: "Näytä alakomponentit", // ✅ KEEP - Used in button
+      hideSubComponents: "Piilota alakomponentit",
+      noSubComponents: "Alakomponentteja ei löytynyt",
     },
     projectPage: {
       saveProject: "Tallenna",
@@ -354,6 +361,7 @@ export const translations = {
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
     },
     functionalPointSummary: {
+      noSelectedComponentType: "ei valittua toimintotyyppiä",
       total: "Yhteensä",
       totalPossible: "Mahdollinen Yhteensä",
       completionPercentage: "Valmistumisprosentti",

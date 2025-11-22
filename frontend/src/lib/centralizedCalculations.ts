@@ -33,7 +33,7 @@ const generateCacheKey = (component: TGenericComponent): string => {
  * Uses memoization for performance optimization
  */
 export const calculateBasePoints = (component: TGenericComponent): number => {
-  if (!component.className || !component.componentType) {
+  if (!component.className) {
     return 0;
   }
 
@@ -231,11 +231,22 @@ export const getGroupedComponents = (components: TGenericComponent[]) => {
       );
 
       return {
-        type: componentType,
+        type: componentType || null,
         count: componentsOfType.length,
         points: calculateTotalPoints(componentsOfType),
       };
     });
+
+    const componentsWithoutType = componentsInClass.filter(
+      (component) => !component.componentType,
+    );
+    if (componentsWithoutType.length > 0) {
+      typesInClass.push({
+        type: null,
+        count: componentsWithoutType.length,
+        points: calculateTotalPoints(componentsWithoutType),
+      });
+    }
 
     return { className, components: typesInClass };
   });
@@ -283,7 +294,13 @@ export const batchCalculateComponentPoints = (
 export const hasValidCalculationParams = (
   component: TGenericComponent,
 ): boolean => {
-  return !!(component.className && component.componentType);
+  /**
+   * Only "Interactive end-user input service" requires componentType for calculation.
+   * All other classes only require className.
+   */
+  return component.className === "Interactive end-user input service"
+    ? !!(component.className && component.componentType)
+    : !!component.className;
 };
 
 /**
@@ -303,5 +320,14 @@ export const getIncompleteComponents = (
 ): TGenericComponent[] => {
   return components.filter(
     (component) => !hasValidCalculationParams(component),
+  );
+};
+
+export const calculateReferencesSum = (
+  parentComponent: TGenericComponent,
+): number => {
+  return (
+    Number(parentComponent.readingReferences ?? 0) +
+    Number(parentComponent.writingReferences ?? 0)
   );
 };

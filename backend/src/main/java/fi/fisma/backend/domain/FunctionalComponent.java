@@ -1,5 +1,6 @@
 package fi.fisma.backend.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -15,6 +17,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -87,6 +91,17 @@ public class FunctionalComponent {
   @Column(name = "parent_fc_id")
   private Long parentFCId;
 
+  @Size(max = 50, message = "Sub-component type must not exceed 50 characters")
+  @Column(name = "sub_component_type")
+  private String subComponentType;
+
+  @Column(name = "is_readonly")
+  private Boolean isReadonly = false;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+  @JoinColumn(name = "parent_fc_id", insertable = false, updatable = false)
+  private List<FunctionalComponent> subComponents = new ArrayList<>();
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id")
   private Project project;
@@ -109,6 +124,9 @@ public class FunctionalComponent {
       Integer orderPosition,
       Boolean isMLA,
       Long parentFCId,
+      String subComponentType,
+      Boolean isReadonly,
+      List<FunctionalComponent> subComponents, // TODO: Do we need this?
       Project project,
       LocalDateTime deletedAt) {
     this.title = title;
@@ -125,6 +143,9 @@ public class FunctionalComponent {
     this.orderPosition = orderPosition;
     this.isMLA = isMLA;
     this.parentFCId = parentFCId;
+    this.subComponentType = subComponentType;
+    this.isReadonly = isReadonly;
+    this.subComponents = subComponents != null ? subComponents : new ArrayList<>();
     this.project = project;
     this.deletedAt = deletedAt;
   }

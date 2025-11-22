@@ -32,6 +32,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useAlert } from "../context/AlertProvider.tsx";
+import {
+  createSubComponents,
+  updateSubComponents,
+} from "../lib/fc-service-functions.ts";
 
 function SortableFunctionalComponent({
   component,
@@ -43,6 +47,7 @@ function SortableFunctionalComponent({
   collapsed,
   onCollapseChange,
   debouncedSaveProject,
+  onMLAToggle,
 }: {
   component: TGenericComponent;
   project: Project;
@@ -55,6 +60,7 @@ function SortableFunctionalComponent({
   collapsed: boolean;
   onCollapseChange: (componentId: number, collapsed: boolean) => void;
   debouncedSaveProject: () => void;
+  onMLAToggle: (componentId: number, newMLAValue: boolean) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: component.id });
@@ -76,13 +82,11 @@ function SortableFunctionalComponent({
         onCollapseChange={onCollapseChange}
         debouncedSaveProject={debouncedSaveProject}
         dragHandleProps={{ ...attributes, ...listeners }}
+        onMLAToggle={onMLAToggle}
       />
     </div>
   );
 }
-
-//TODO: add state and component which gives user feedback when project is saved, functionalcomponent is added or deleted etc.
-//maybe refactor the if -blocks in the crud functions. maybe the crud functions should be in their own context/file
 
 // Debounce hook for auto-saving projects
 function useDebounce<T extends (...args: unknown[]) => void>(
@@ -135,6 +139,42 @@ export default function ProjectPage() {
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
 
+  // MLA sub-component handler
+  const handleMLAToggle = (componentId: number, newMLAValue: boolean) => {
+    if (!project) return;
+
+    const updatedComponents = project.functionalComponents.map((comp) => {
+      if (comp.id === componentId) {
+        if (newMLAValue && !comp.subComponents) {
+          return {
+            ...comp,
+            isMLA: true,
+            subComponents: createSubComponents(comp),
+          };
+        } else if (!newMLAValue) {
+          return {
+            ...comp,
+            isMLA: false,
+            subComponents: undefined,
+          };
+        }
+        return { ...comp, isMLA: newMLAValue };
+      }
+      return comp;
+    });
+
+    const updatedProject = {
+      ...project,
+      functionalComponents: updatedComponents,
+    };
+
+    setProject(updatedProject);
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
+  };
+
   // sort functional components by order (ascending)
   const sortedComponents =
     project?.functionalComponents
@@ -160,6 +200,7 @@ export default function ProjectPage() {
     if (!currentProject || isManuallySaved.current) {
       return;
     }
+
     showNotification(
       alertTranslation.save,
       alertTranslation.saving,
@@ -171,6 +212,16 @@ export default function ProjectPage() {
       // normalize before saving
       const normalized = currentProject.functionalComponents
         .slice()
+        .map((comp) => {
+          // Update sub-components if MLA is enabled
+          if (comp.isMLA && comp.subComponents) {
+            return {
+              ...comp,
+              subComponents: updateSubComponents(comp, comp.subComponents),
+            };
+          }
+          return comp;
+        })
         .sort((a, b) => a.orderPosition - b.orderPosition)
         .map((c, idx) => ({ ...c, orderPosition: idx }));
       const editedProject = {
@@ -178,6 +229,7 @@ export default function ProjectPage() {
         functionalComponents: normalized,
         updatedAt: CreateCurrentDate(),
       };
+
       await updateProject(sessionToken, editedProject);
 
       updateNotification(
@@ -272,14 +324,11 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken, logout]);
 
   const handleCreateFunctionalComponent = async () => {
-    // START Jessen purkkaratkaisu ongelmaan, jossa uusi komponentti poistaa tallentamattomat muutokset vanhoihin komponentteihin
-
     await saveProject();
 
-    // END Jessen purkkaratkaisu ongelmaan, jossa uusi komponentti poistaa tallentamattomat muutokset vanhoihin komponentteihin
-
-    isManuallySaved.current = true; // TODO: Selvitä miksi tämä määritetään, vaikka mitään ei tallenneta?
+    isManuallySaved.current = true;
     setLoadingProject(true);
+
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
         className: null,
@@ -289,7 +338,7 @@ export default function ProjectPage() {
         writingReferences: null,
         functionalMultiplier: null,
         operations: null,
-        degreeOfCompletion: null,
+        degreeOfCompletion: 1,
         title: null,
         description: null,
         previousFCId: null,
@@ -380,6 +429,7 @@ export default function ProjectPage() {
           functionalComponents: normalized,
           updatedAt: CreateCurrentDate(),
         };
+
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
         updateNotification(
@@ -439,7 +489,7 @@ export default function ProjectPage() {
     if (project) {
       isManuallySaved.current = true;
       try {
-        await saveProject(); //TODO: Automatic saving instead? (Could use useQuery or similar)
+        await saveProject();
         const idOfNewProjectVersion = await createNewProjectVersion(
           sessionToken,
           project,
@@ -607,6 +657,7 @@ export default function ProjectPage() {
                       collapsed={getComponentCollapseState(component.id)}
                       onCollapseChange={updateComponentCollapseState}
                       debouncedSaveProject={debouncedSaveProject}
+                      onMLAToggle={handleMLAToggle}
                     />
                   ))}
                 </div>

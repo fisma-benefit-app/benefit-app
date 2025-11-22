@@ -2,6 +2,8 @@ import {
   faCaretDown,
   faCaretUp,
   faTrash,
+  faLayerGroup,
+  faGripVertical,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState } from "react";
@@ -12,6 +14,9 @@ import {
   getInputFields,
   getClosestCompletionOption,
   isMultiLayerArchitectureComponent,
+  recalculateReadingReferences,
+  recalculateWritingReferences,
+  resetFunctionalComponentParameters,
 } from "../lib/fc-service-functions.ts";
 import {
   calculateBasePoints,
@@ -26,6 +31,7 @@ import {
   TGenericComponent,
 } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
+import SubComponentsModal from "./SubComponentsModal.tsx";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -40,6 +46,7 @@ type FunctionalClassComponentProps = {
   onCollapseChange: (componentId: number, collapsed: boolean) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
   debouncedSaveProject: () => void;
+  onMLAToggle: (componentId: number, newValue: boolean) => void;
 };
 
 export default function FunctionalClassComponent({
@@ -52,10 +59,15 @@ export default function FunctionalClassComponent({
   onCollapseChange,
   debouncedSaveProject,
   dragHandleProps,
+  onMLAToggle,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
   };
+
+  const [isSubComponentsModalOpen, setSubComponentsModalOpen] = useState(false);
+
+  const [showSubComponents, setShowSubComponents] = useState(true);
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
@@ -80,12 +92,17 @@ export default function FunctionalClassComponent({
     //user can select classname only from predefined options
     const newClassName = e.target.value as ClassName;
 
-    const updatedComponent = {
+    const updatedComponent = resetFunctionalComponentParameters({
       ...component,
       className: newClassName,
-      componentType: null,
+      componentType:
+        newClassName !== "Interactive end-user input service"
+          ? null
+          : ("1-functional" as ComponentType), // automatically assigned component type value for Interactive end-user input services
       isMLA: false,
-    };
+      subComponents: undefined, // clears possible subcomponents when a new functional component class is selected
+    });
+
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
         functionalComponent.id === component.id
@@ -141,11 +158,11 @@ export default function FunctionalClassComponent({
       | ChangeEvent<HTMLTextAreaElement>
       | ChangeEvent<HTMLSelectElement>,
   ) => {
-    let updatedComponent;
+    let updatedComponent: TGenericComponent;
     let value = e.target.value;
 
     //check if the updated attribute needs to be converted to a number for math
-    //todo: if there are new input fields in the future where the value is supposed to be a string add their id here
+    //if there are new input fields in the future where the value is supposed to be a string add their id here
     if (["title", "description"].includes(e.target.id)) {
       updatedComponent = { ...component, [e.target.id]: value };
     } else if (
@@ -154,12 +171,6 @@ export default function FunctionalClassComponent({
     ) {
       const num = parseFloat(value);
 
-      //This is the simplest solution for fixing values that aren't numbers,
-      //including values that have commas such as 0,95.
-
-      //TODO: make method that automatically changes commas to dots, 0,95 - 0.95 .
-      //NOTE: we tried value = value.replace(/,/g, '.'); solution, but it didn't worked
-      //for increment - decrement input field of defreeOfCompletion.
       if (isNaN(num)) {
         value = "0";
         console.log("Please do not type commas for percentage.");
@@ -184,6 +195,32 @@ export default function FunctionalClassComponent({
       updatedComponent = { ...component, [e.target.id]: value };
     }
 
+    // If MLA component, update changes to sub-components in real time
+    if (updatedComponent.isMLA && updatedComponent.subComponents) {
+      updatedComponent = {
+        ...updatedComponent,
+        subComponents: updatedComponent.subComponents.map((subComp) => ({
+          ...subComp,
+          title: `${updatedComponent.title || "Untitled"}-${subComp.subComponentType}`,
+          description: updatedComponent.description,
+          dataElements: updatedComponent.dataElements,
+          // references are recalculated, as they are a combined sum of parent references under certain circumstances
+          readingReferences: recalculateReadingReferences(
+            updatedComponent,
+            subComp,
+          ),
+          writingReferences: recalculateWritingReferences(
+            updatedComponent,
+            subComp,
+          ),
+          functionalMultiplier: updatedComponent.functionalMultiplier,
+          operations: updatedComponent.operations,
+          degreeOfCompletion: updatedComponent.degreeOfCompletion,
+          isReadonly: true,
+        })),
+      };
+    }
+
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
         functionalComponent.id === component.id
@@ -202,24 +239,7 @@ export default function FunctionalClassComponent({
   };
 
   const handleMLAChange = () => {
-    const updatedComponent = { ...component, isMLA: !component.isMLA };
-
-    const updatedComponents = project.functionalComponents.map(
-      (functionalComponent) =>
-        functionalComponent.id === component.id
-          ? updatedComponent
-          : functionalComponent,
-    );
-
-    const updatedProject = {
-      ...project,
-      functionalComponents: updatedComponents,
-    };
-    setProject(updatedProject);
-
-    if (isLatest) {
-      debouncedSaveProject();
-    }
+    onMLAToggle(component.id, !component.isMLA);
   };
 
   return (
@@ -345,9 +365,7 @@ export default function FunctionalClassComponent({
                 className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
                 disabled={!isLatest}
               >
-                <option disabled value="">
-                  {translation.classNamePlaceholder}
-                </option>
+                <option value="">{translation.classNamePlaceholder}</option>
                 {classNameOptions.map((className) => (
                   <option key={className} value={className}>
                     {translation.classNameOptions[className]}
@@ -364,9 +382,12 @@ export default function FunctionalClassComponent({
                     className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
                     disabled={!isLatest}
                   >
-                    <option disabled value="">
-                      {translation.componentTypePlaceholder}
-                    </option>
+                    {component.className !==
+                      "Interactive end-user input service" && (
+                      <option value="">
+                        {translation.componentTypePlaceholder}
+                      </option>
+                    )}
                     {componentTypeOptions.map((option) => (
                       <option key={option} value={option}>
                         {translation.componentTypeOptions[option]}
@@ -437,6 +458,72 @@ export default function FunctionalClassComponent({
           </span>
         </div>
       </form>
+
+      {component.isMLA && (
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={() => setShowSubComponents(!showSubComponents)}
+            className="text-sm text-fisma-blue hover:underline flex items-center gap-2 mb-2"
+          >
+            <FontAwesomeIcon
+              icon={showSubComponents ? faCaretUp : faCaretDown}
+            />
+            {showSubComponents
+              ? translation.hideSubComponents
+              : translation.showSubComponents}
+            {component.subComponents && component.subComponents.length > 0 && (
+              <span> ({component.subComponents.length})</span>
+            )}
+          </button>
+
+          {showSubComponents &&
+            component.subComponents &&
+            component.subComponents.length > 0 && (
+              <div className="space-y-3 ml-4 border-l-4 border-fisma-blue pl-4">
+                {component.subComponents.map((subComp) => (
+                  <div key={subComp.id} className="relative">
+                    <div className="opacity-75 pointer-events-none">
+                      <FunctionalClassComponent
+                        component={subComp}
+                        deleteFunctionalComponent={async () => {}}
+                        project={
+                          { functionalComponents: [] } as unknown as Project
+                        }
+                        setProject={() => {}}
+                        setProjectResponse={() => {}}
+                        isLatest={false}
+                        collapsed={false}
+                        onCollapseChange={() => {}}
+                        debouncedSaveProject={() => {}}
+                        onMLAToggle={() => {}}
+                        dragHandleProps={{}}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+          {/* Message if MLA is enabled but no subcomponents loaded */}
+          {showSubComponents &&
+            (!component.subComponents ||
+              component.subComponents.length === 0) && (
+              <div className="ml-4 pl-4 border-l-4 border-fisma-blue text-sm text-gray-600 italic py-2">
+                {translation.noSubComponents}
+              </div>
+            )}
+        </div>
+      )}
+
+      {component.isMLA && component.subComponents && (
+        <SubComponentsModal
+          open={isSubComponentsModalOpen}
+          setOpen={setSubComponentsModalOpen}
+          subComponents={component.subComponents}
+          parentTitle={component.title || "Untitled component"}
+        />
+      )}
 
       <ConfirmModal
         message={

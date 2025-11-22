@@ -28,9 +28,6 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     setLoggedIn(false);
 
     setLoadingAuth(false);
-
-    // TODO (CRITICAL): Revoke token server-side! If someone copied it, it
-    // would still be valid until it expires (i.e. for 24 hours)
   };
 
   const appUserProviderValue: AppUserContextType = {

@@ -95,7 +95,9 @@ export const FunctionalPointSummary = ({
                   // Calculate possible points for this specific component type
                   const componentsOfThisType = componentsInThisClass.filter(
                     (component) =>
-                      component.componentType === groupedTypes.type,
+                      groupedTypes.type === null
+                        ? !component.componentType
+                        : component.componentType === groupedTypes.type,
                   );
                   const possiblePointsForType =
                     calculateTotalPossiblePoints(componentsOfThisType);
@@ -105,12 +107,13 @@ export const FunctionalPointSummary = ({
                       <span className="text-blue-500 pr-2">
                         {groupedTypes.count}{" "}
                       </span>
-                      {
-                        translation.functionalClassComponent
-                          .componentTypeOptions[
-                          groupedTypes.type as ComponentType
-                        ]
-                      }{" "}
+                      {groupedTypes.type
+                        ? translation.functionalClassComponent
+                            .componentTypeOptions[
+                            groupedTypes.type as ComponentType
+                          ]
+                        : translation.functionalPointSummary
+                            .noSelectedComponentType}{" "}
                       <b>{groupedTypes.points.toFixed(2)}</b>{" "}
                       <span className="text-gray-400">
                         / {possiblePointsForType.toFixed(2)}

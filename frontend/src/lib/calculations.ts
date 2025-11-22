@@ -3,12 +3,6 @@ import { TGenericComponent } from "./types.ts";
 const calculateInteractiveEndUserNavigationAndQueryService = (
   functionalComponent: TGenericComponent,
 ) => {
-  if (!functionalComponent.componentType) {
-    throw new Error(
-      "ComponentType missing when calculateInteractiveEndUserNavigationAndQueryService",
-    );
-  }
-
   const dataElements = functionalComponent.dataElements ?? 0;
   const readingReferences = functionalComponent.readingReferences ?? 0;
 
@@ -20,7 +14,7 @@ const calculateInteractiveEndUserInputService = (
 ) => {
   if (!functionalComponent.componentType) {
     throw new Error(
-      "ComponentType missing when calculateInteractiveEndUserNavigationAndQueryService",
+      "ComponentType missing when calculateInteractiveEndUserInputService",
     );
   }
   const dataElements = functionalComponent.dataElements ?? 0;
