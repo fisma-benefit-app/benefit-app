@@ -17,10 +17,11 @@ export default function SubComponentsModal({
   if (!open) return null;
 
   const subComponentLabels = {
-    presentation: "Presentation Layer",
-    businessLogic: "Business Logic Layer",
-    dataAccess: "Data Access Layer",
-    integration: "Integration Layer",
+    // TODO: add translations, if it is decided to start using this modal
+    "B-UI": "B-UI",
+    "UI-B": "UI-B",
+    "B-D": "B-D",
+    "D-B": "D-B",
   };
 
   return (
