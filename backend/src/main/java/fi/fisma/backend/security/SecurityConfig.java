@@ -122,7 +122,7 @@ public class SecurityConfig {
             HttpMethod.PUT.name(),
             HttpMethod.DELETE.name()));
     configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-    configuration.setExposedHeaders(List.of("Location")); // TODO: This cause problems. Fix it!
+    configuration.setExposedHeaders(List.of("Location"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
