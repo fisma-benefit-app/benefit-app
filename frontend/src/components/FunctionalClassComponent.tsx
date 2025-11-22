@@ -14,6 +14,9 @@ import {
   getInputFields,
   getClosestCompletionOption,
   isMultiLayerArchitectureComponent,
+  recalculateReadingReferences,
+  recalculateWritingReferences,
+  resetFunctionalComponentParameters,
 } from "../lib/fc-service-functions.ts";
 import {
   calculateBasePoints,
@@ -89,7 +92,7 @@ export default function FunctionalClassComponent({
     //user can select classname only from predefined options
     const newClassName = e.target.value as ClassName;
 
-    const updatedComponent = {
+    const updatedComponent = resetFunctionalComponentParameters({
       ...component,
       className: newClassName,
       componentType:
@@ -97,7 +100,8 @@ export default function FunctionalClassComponent({
           ? null
           : ("1-functional" as ComponentType), // automatically assigned component type value for Interactive end-user input services
       isMLA: false,
-    };
+      subComponents: undefined, // clears possible subcomponents when a new functional component class is selected
+    });
 
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
@@ -206,17 +210,21 @@ export default function FunctionalClassComponent({
         ...updatedComponent,
         subComponents: updatedComponent.subComponents.map((subComp) => ({
           ...subComp,
-          title: `${updatedComponent.title} - ${subComp.subComponentType}`,
+          title: `${updatedComponent.title || "Untitled"}-${subComp.subComponentType}`,
           description: updatedComponent.description,
-          className: updatedComponent.className,
           dataElements: updatedComponent.dataElements,
-          readingReferences: updatedComponent.readingReferences,
-          writingReferences: updatedComponent.writingReferences,
+          // references are recalculated, as they are a combined sum of parent references under certain circumstances
+          readingReferences: recalculateReadingReferences(
+            updatedComponent,
+            subComp,
+          ),
+          writingReferences: recalculateWritingReferences(
+            updatedComponent,
+            subComp,
+          ),
           functionalMultiplier: updatedComponent.functionalMultiplier,
           operations: updatedComponent.operations,
           degreeOfCompletion: updatedComponent.degreeOfCompletion,
-          parentFCId: subComp.parentFCId,
-          subComponentType: subComp.subComponentType,
           isReadonly: true,
         })),
       };
