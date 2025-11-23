@@ -12,6 +12,7 @@ import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import fi.fisma.backend.security.JwtRevocationFilter;
 import fi.fisma.backend.security.SecurityConfig;
+import fi.fisma.backend.security.TokenBlacklistService;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
 import fi.fisma.backend.service.ProjectService;
 import fi.fisma.backend.setup.StandaloneSetup;
@@ -37,6 +38,7 @@ class ProjectControllerTest {
   @MockitoBean ProjectService projectService;
   @MockitoBean ProjectRepository projectRepository;
   @MockitoBean AppUserRepository appUserRepository;
+  @MockitoBean TokenBlacklistService blacklistService;
 
   private final JwtRequestPostProcessor jwtAuth =
       org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors

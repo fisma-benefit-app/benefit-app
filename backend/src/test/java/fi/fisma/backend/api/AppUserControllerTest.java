@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.security.JwtRevocationFilter;
 import fi.fisma.backend.security.SecurityConfig;
+import fi.fisma.backend.security.TokenBlacklistService;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
 import fi.fisma.backend.service.AppUserService;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ class AppUserControllerTest {
 
   @MockitoBean AppUserService appUserService;
   @MockitoBean AppUserRepository appUserRepository;
+  @MockitoBean TokenBlacklistService blacklistService;
 
   private final JwtRequestPostProcessor jwtAuth =
       org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors

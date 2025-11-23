@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -17,13 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtRevocationFilter extends OncePerRequestFilter {
 
-  private static TokenBlacklistService blacklistService;
-  private JwtDecoder jwtDecoder;
-
-  @Autowired
-  public void setJwtDecoder(JwtDecoder jwtDecoder) {
-    this.jwtDecoder = jwtDecoder;
-  }
+  private final TokenBlacklistService blacklistService;
+  private final JwtDecoder jwtDecoder;
 
   @Override
   protected void doFilterInternal(
@@ -46,8 +40,12 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
           response.getWriter().write("Token has been revoked");
           return;
         }
-      } catch (Exception e) {
+      } catch (org.springframework.security.oauth2.jwt.JwtException e) {
         // Let Spring Security handle invalid tokens
+      } catch (Exception e) {
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.getWriter().write("Internal server error");
+        return;
       }
     }
 
