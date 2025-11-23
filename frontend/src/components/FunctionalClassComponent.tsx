@@ -6,7 +6,7 @@ import {
   faGripVertical,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
 import {
@@ -68,6 +68,13 @@ export default function FunctionalClassComponent({
   const [isSubComponentsModalOpen, setSubComponentsModalOpen] = useState(false);
 
   const [showSubComponents, setShowSubComponents] = useState(true);
+
+  // Hide subcomponents when parent component is collapsed
+  useEffect(() => {
+    if (collapsed) {
+      setShowSubComponents(false);
+    }
+  }, [collapsed]);
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
