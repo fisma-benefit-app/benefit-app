@@ -29,3 +29,6 @@ dist-ssr/
 
 # IntelliJ project file
 /frontend.iml
+
+#TEMPORARY - to be removed later
+package-lock.json
