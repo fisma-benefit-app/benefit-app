@@ -17,13 +17,19 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest({TokenController.class})
-@Import({SecurityConfig.class, UserDetailsServiceImpl.class, TokenService.class})
+@Import({
+  SecurityConfig.class,
+  UserDetailsServiceImpl.class,
+  JwtRevocationFilter.class,
+  TokenService.class
+})
 class TokenControllerTest {
 
   @Autowired MockMvcTester mockMvc;
 
   @MockitoBean AppUserRepository appUserRepository;
   @MockitoBean TokenService tokenService;
+  @MockitoBean TokenBlacklistService blacklistService;
 
   private final JwtRequestPostProcessor jwtAuth =
       org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors

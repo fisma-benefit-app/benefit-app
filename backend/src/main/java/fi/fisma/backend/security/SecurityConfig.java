@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -55,9 +56,12 @@ public class SecurityConfig {
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(
+      HttpSecurity http, JwtRevocationFilter jwtRevocationFilter) throws Exception {
     // @formatter:off
-    http.authorizeHttpRequests(
+    http.csrf((csrf) -> csrf.ignoringRequestMatchers("/token", "/auth/logout"))
+        .addFilterBefore(jwtRevocationFilter, SecurityContextHolderFilter.class)
+        .authorizeHttpRequests(
             (authorize) ->
                 authorize
                     .requestMatchers(
@@ -71,7 +75,6 @@ public class SecurityConfig {
                     .anyRequest()
                     .authenticated())
         .cors(Customizer.withDefaults())
-        .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
         .httpBasic(Customizer.withDefaults())
         .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
         .sessionManagement(
@@ -122,7 +125,7 @@ public class SecurityConfig {
             HttpMethod.PUT.name(),
             HttpMethod.DELETE.name()));
     configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-    configuration.setExposedHeaders(List.of("Location")); // TODO: This cause problems. Fix it!
+    configuration.setExposedHeaders(List.of("Location"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;

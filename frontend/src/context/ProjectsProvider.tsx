@@ -23,7 +23,7 @@ export default function ProjectsProvider({
         setProjects(allProjectsFromDb);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
         setError(
           err instanceof Error
@@ -51,7 +51,7 @@ export default function ProjectsProvider({
       );
     } catch (err) {
       if (err instanceof Error && err.message === "Unauthorized!") {
-        logout();
+        await logout();
       }
       setError(
         err instanceof Error

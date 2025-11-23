@@ -61,9 +61,9 @@ export default function NewProjectModal({
       navigate(`project/${idOfNewProject}`);
     } catch (err) {
       if (err instanceof Error && err.message === "Unauthorized!") {
-        logout();
+        await logout();
       }
-      console.error("Error creating project:", err);
+      console.error("Error creating project");
       setError(
         err instanceof Error
           ? err.message
