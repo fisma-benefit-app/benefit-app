@@ -10,6 +10,7 @@ import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import fi.fisma.backend.security.JwtRevocationFilter;
 import fi.fisma.backend.security.SecurityConfig;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
 import fi.fisma.backend.service.ProjectService;
@@ -27,7 +28,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest(ProjectController.class)
-@Import({SecurityConfig.class, UserDetailsServiceImpl.class})
+@Import({SecurityConfig.class, UserDetailsServiceImpl.class, JwtRevocationFilter.class})
 class ProjectControllerTest {
 
   @Autowired MockMvcTester mockMvcTester;

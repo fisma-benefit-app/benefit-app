@@ -17,7 +17,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest({TokenController.class})
-@Import({SecurityConfig.class, UserDetailsServiceImpl.class, TokenService.class})
+@Import({
+  SecurityConfig.class,
+  UserDetailsServiceImpl.class,
+  TokenService.class,
+  JwtRevocationFilter.class
+})
 class TokenControllerTest {
 
   @Autowired MockMvcTester mockMvc;

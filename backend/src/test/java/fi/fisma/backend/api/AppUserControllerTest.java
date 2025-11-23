@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.security.JwtRevocationFilter;
 import fi.fisma.backend.security.SecurityConfig;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
 import fi.fisma.backend.service.AppUserService;
@@ -21,7 +22,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest(AppUserController.class)
-@Import({SecurityConfig.class, UserDetailsServiceImpl.class})
+@Import({SecurityConfig.class, UserDetailsServiceImpl.class, JwtRevocationFilter.class})
 class AppUserControllerTest {
 
   @Autowired MockMvcTester mockMvcTester;
