@@ -14,10 +14,7 @@ import lombok.Data;
 public class ProjectRequest {
   @NotBlank(message = "Project name is required")
   @Size(max = 255, message = "Project name must not exceed 255 characters")
-  @Schema(
-      description = "Name of the project",
-      example = "User Authentication System",
-      required = true)
+  @Schema(description = "Name of the project", example = "User Authentication System")
   private String projectName;
 
   @NotNull(message = "Version is required")

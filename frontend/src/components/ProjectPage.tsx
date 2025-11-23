@@ -240,7 +240,7 @@ export default function ProjectPage() {
       );
     } catch (err) {
       if (err instanceof Error && err.message === "Unauthorized") {
-        logout();
+        await logout();
       }
 
       updateNotification(
@@ -249,8 +249,6 @@ export default function ProjectPage() {
         alertTranslation.saveFailed,
         "error",
       );
-
-      console.error(err);
     }
   }, 5000); // Auto-save every 5 seconds
 
@@ -308,9 +306,9 @@ export default function ProjectPage() {
         setProject({ ...projectFromDb, functionalComponents: normalized });
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
-        console.error("Error fetching project:", err);
+        console.error("Error fetching project");
         setError(
           err instanceof Error
             ? err.message
@@ -371,9 +369,8 @@ export default function ProjectPage() {
         }, 100);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
-        console.error(err);
       } finally {
         setLoadingProject(false);
         setTimeout(() => {
@@ -396,9 +393,8 @@ export default function ProjectPage() {
         setProject(updatedProject);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
-        console.error(err);
       } finally {
         setLoadingProject(false);
         setTimeout(() => {
@@ -440,7 +436,7 @@ export default function ProjectPage() {
         );
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
         updateNotification(
           "manual-save",
@@ -448,7 +444,6 @@ export default function ProjectPage() {
           alertTranslation.saveFailed,
           "error",
         );
-        console.error(err);
       } finally {
         setTimeout(() => {
           isManuallySaved.current = false;
@@ -499,9 +494,9 @@ export default function ProjectPage() {
         navigate(`/project/${idOfNewProjectVersion}`);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
-        console.error("Error creating new project version:", err);
+        console.error("Error creating new project version");
       } finally {
         setTimeout(() => {
           isManuallySaved.current = false;
