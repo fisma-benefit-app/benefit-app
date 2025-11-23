@@ -1,23 +1,41 @@
 package fi.fisma.backend.security;
 
-import java.util.Set;
+import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import java.util.concurrent.ConcurrentMap;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
-@EnableScheduling
 public class TokenBlacklistService {
-  // WARNING: This in-memory blacklist will be lost when the application restarts,
-  // allowing revoked tokens to be used again until they naturally expire.
-  // For production use, consider implementing persistence (e.g., using Redis or a database).
-  private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
+  // jti -> token expiry time
+  private final ConcurrentMap<String, Instant> blacklistedTokens = new ConcurrentHashMap<>();
 
-  public void blacklistToken(String tokenId) {
-    blacklistedTokens.add(tokenId);
+  // Add a revoked token with its expiry
+  public void blacklistToken(String jti, Instant expiresAt) {
+    if (jti != null && expiresAt != null) {
+      blacklistedTokens.put(jti, expiresAt);
+    }
   }
 
-  public boolean isTokenBlacklisted(String tokenId) {
-    return blacklistedTokens.contains(tokenId);
+  // Check if a token is currently revoked and not expired
+  public boolean isTokenBlacklisted(String jti) {
+    if (jti == null) return false;
+    Instant exp = blacklistedTokens.get(jti);
+    if (exp == null) return false;
+
+    // drop stale entries on read
+    if (Instant.now().isAfter(exp)) {
+      blacklistedTokens.remove(jti, exp);
+      return false;
+    }
+    return true;
+  }
+
+  // Periodic cleanup to trim any leftovers
+  @Scheduled(fixedRate = 3_600_000) // every hour
+  public void cleanupExpiredTokens() {
+    Instant now = Instant.now();
+    blacklistedTokens.entrySet().removeIf(e -> now.isAfter(e.getValue()));
   }
 }

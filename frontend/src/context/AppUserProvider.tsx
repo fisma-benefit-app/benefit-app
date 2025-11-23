@@ -23,7 +23,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       throw new Error("User needs to be logged in to log out!");
 
     // Send logout request to backend
-    const fetchURL = `${API_URL}/logout`;
+    const fetchURL = `${API_URL}/auth/logout`;
     const headers = {
       Authorization: sessionToken,
     };
