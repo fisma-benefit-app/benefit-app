@@ -45,7 +45,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final UserDetailsServiceImpl userDetailsService;
-  private final JwtRevocationFilter jwtRevocationFilter;
 
   @Value("${jwt.public.key}")
   RSAPublicKey key;
@@ -57,7 +56,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(
+      HttpSecurity http, JwtRevocationFilter jwtRevocationFilter) throws Exception {
     // @formatter:off
     http.authorizeHttpRequests(
             (authorize) ->
@@ -69,13 +69,13 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
-                        "/token",
                         "/logout")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
         .addFilterBefore(jwtRevocationFilter, UsernamePasswordAuthenticationFilter.class)
         .cors(Customizer.withDefaults())
+        .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
         .httpBasic(Customizer.withDefaults())
         .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
         .sessionManagement(

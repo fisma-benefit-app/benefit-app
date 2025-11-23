@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -16,8 +17,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtRevocationFilter extends OncePerRequestFilter {
 
-  private final TokenBlacklistService blacklistService;
-  private final JwtDecoder jwtDecoder;
+  private static TokenBlacklistService blacklistService;
+  private JwtDecoder jwtDecoder;
+
+  @Autowired
+  public void setJwtDecoder(JwtDecoder jwtDecoder) {
+    this.jwtDecoder = jwtDecoder;
+  }
 
   @Override
   protected void doFilterInternal(
