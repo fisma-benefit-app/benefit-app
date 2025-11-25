@@ -120,7 +120,10 @@ const Header = () => {
                         className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors flex items-center gap-3"
                         onClick={handleProfileClick}
                       >
-                        <FontAwesomeIcon icon={faUser} className="text-fisma-blue" />
+                        <FontAwesomeIcon
+                          icon={faUser}
+                          className="text-fisma-blue"
+                        />
                         {translation.profile}
                       </button>
                       <button
@@ -170,7 +173,7 @@ const Header = () => {
         {/* Mobile Menu Dropdown */}
         {loggedIn && isMobileMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-fisma-blue shadow-lg md:hidden z-40">
-                                    <button
+            <button
               className="w-full text-left px-6 py-4 hover:bg-fisma-dark-blue border-b border-fisma-dark-blue flex items-center gap-3"
               onClick={() => {
                 changeLanguage();
@@ -196,7 +199,7 @@ const Header = () => {
               {translation.newProject}
             </button>
 
-                        <div className="px-6 py-3 bg-fisma-dark-blue text-xs font-semibold border-b border-fisma-blue">
+            <div className="px-6 py-3 bg-fisma-dark-blue text-xs font-semibold border-b border-fisma-blue">
               {appUser?.username}
             </div>
             <button

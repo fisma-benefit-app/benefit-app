@@ -32,7 +32,7 @@ export default function ProfilePage() {
     try {
       // TODO: Replace with actual API call when backend endpoint is ready
       // await updatePassword(sessionToken, currentPassword, newPassword);
-      
+
       // Dummy success for now
       console.log("Password change requested:", {
         currentPassword: "***",
@@ -43,7 +43,7 @@ export default function ProfilePage() {
         alertTranslation.success,
         translation.passwordUpdated,
         "success",
-        "password-update"
+        "password-update",
       );
 
       // Clear form
@@ -56,7 +56,7 @@ export default function ProfilePage() {
         alertTranslation.error,
         translation.passwordUpdateFailed,
         "error",
-        "password-update"
+        "password-update",
       );
     }
   };
