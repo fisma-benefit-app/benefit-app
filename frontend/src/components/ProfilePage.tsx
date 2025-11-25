@@ -19,7 +19,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
 
   // User ID state
-  const [userId, setUserId] = useState<number | null>(null);
+  const [userId, setUserId] = useState<number | null>(null); // TODO: Issue #388
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -41,6 +41,7 @@ export default function ProfilePage() {
       if (!appUser?.username || !sessionToken) return;
 
       try {
+        // TODO: Issue #388
         // For now, we'll need to fetch from a different endpoint or store ID in context
         // As a workaround, we'll use a hardcoded approach until we have the user ID in context
         // This should ideally come from the login response or user context
@@ -216,62 +217,65 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* TODO: Issue #388 */}
         {/* Update Username Section */}
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            {translation.updateUsername}
-          </h2>
+        {userId && ( // Temporarily hide until userId fetching is implemented
+          <div className="bg-white shadow-md rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              {translation.updateUsername}
+            </h2>
 
-          <form onSubmit={handleUsernameUpdate} className="space-y-4">
-            {usernameError && (
-              <div className="bg-fisma-red text-white p-3 rounded">
-                {usernameError}
+            <form onSubmit={handleUsernameUpdate} className="space-y-4">
+              {usernameError && (
+                <div className="bg-fisma-red text-white p-3 rounded">
+                  {usernameError}
+                </div>
+              )}
+
+              <div>
+                <label
+                  htmlFor="newUsername"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  {translation.newUsername}
+                </label>
+                <input
+                  type="text"
+                  id="newUsername"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  className="w-full border-2 border-gray-300 rounded p-3 focus:border-fisma-blue focus:outline-none"
+                  required
+                  placeholder={appUser?.username}
+                />
               </div>
-            )}
 
-            <div>
-              <label
-                htmlFor="newUsername"
-                className="block text-sm font-medium text-gray-700 mb-2"
+              <div>
+                <label
+                  htmlFor="passwordForUsername"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  {translation.currentPasswordForUsername}
+                </label>
+                <input
+                  type="password"
+                  id="passwordForUsername"
+                  value={passwordForUsername}
+                  onChange={(e) => setPasswordForUsername(e.target.value)}
+                  className="w-full border-2 border-gray-300 rounded p-3 focus:border-fisma-blue focus:outline-none"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white font-semibold py-3 px-6 rounded transition-colors"
               >
-                {translation.newUsername}
-              </label>
-              <input
-                type="text"
-                id="newUsername"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                className="w-full border-2 border-gray-300 rounded p-3 focus:border-fisma-blue focus:outline-none"
-                required
-                placeholder={appUser?.username}
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="passwordForUsername"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                {translation.currentPasswordForUsername}
-              </label>
-              <input
-                type="password"
-                id="passwordForUsername"
-                value={passwordForUsername}
-                onChange={(e) => setPasswordForUsername(e.target.value)}
-                className="w-full border-2 border-gray-300 rounded p-3 focus:border-fisma-blue focus:outline-none"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white font-semibold py-3 px-6 rounded transition-colors"
-            >
-              {translation.updateUsernameButton}
-            </button>
-          </form>
-        </div>
+                {translation.updateUsernameButton}
+              </button>
+            </form>
+          </div>
+        )}
 
         {/* Password Change Section */}
         <div className="bg-white shadow-md rounded-lg p-6">
@@ -348,21 +352,24 @@ export default function ProfilePage() {
           </form>
         </div>
 
+        {/* TODO: Issue #388 */}
         {/* Delete Account Section */}
-        <div className="bg-white shadow-md rounded-lg p-6 border-2 border-fisma-red">
-          <h2 className="text-xl font-semibold text-fisma-red mb-4">
-            {translation.deleteAccount}
-          </h2>
-          <p className="text-gray-700 mb-4">
-            {translation.deleteAccountDangerZone}
-          </p>
-          <button
-            onClick={() => setDeleteModalOpen(true)}
-            className="w-full bg-fisma-red hover:brightness-110 text-white font-semibold py-3 px-6 rounded transition-colors"
-          >
-            {translation.deleteAccountButton}
-          </button>
-        </div>
+        {userId && ( // Temporarily hide until userId fetching is implemented
+          <div className="bg-white shadow-md rounded-lg p-6 border-2 border-fisma-red">
+            <h2 className="text-xl font-semibold text-fisma-red mb-4">
+              {translation.deleteAccount}
+            </h2>
+            <p className="text-gray-700 mb-4">
+              {translation.deleteAccountDangerZone}
+            </p>
+            <button
+              onClick={() => setDeleteModalOpen(true)}
+              className="w-full bg-fisma-red hover:brightness-110 text-white font-semibold py-3 px-6 rounded transition-colors"
+            >
+              {translation.deleteAccountButton}
+            </button>
+          </div>
+        )}
       </div>
 
       <ConfirmModal
