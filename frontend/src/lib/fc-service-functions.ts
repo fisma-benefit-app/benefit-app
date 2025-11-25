@@ -40,6 +40,7 @@ export const getInputFields = (className: ClassName) => {
 };
 
 export const getClosestCompletionOption = (degree: number): string => {
+  if (degree === 0) return ""; // 0.0 -> show placeholder text
   if (degree >= 0.01 && degree <= 0.29) return "0.1"; // 0.01-0.29 → specified
   if (degree >= 0.3 && degree <= 0.69) return "0.3"; // 0.3-0.69 → planned
   if (degree >= 0.7 && degree <= 0.89) return "0.7"; // 0.7-0.89 → implemented

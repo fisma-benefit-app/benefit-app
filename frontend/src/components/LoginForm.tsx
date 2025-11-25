@@ -40,9 +40,9 @@ export default function LoginForm() {
       setLoggedIn(true);
     } catch (err) {
       if (err instanceof Error) {
-        console.error("Login failed: ", err.message);
+        console.error("Login failed");
       } else {
-        console.error("Unknown error:", err);
+        console.error("Unknown error");
       }
 
       setLoginError(translation.errorMessage);

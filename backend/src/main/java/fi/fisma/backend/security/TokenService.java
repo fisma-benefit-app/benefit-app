@@ -1,6 +1,7 @@
 package fi.fisma.backend.security;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -30,6 +31,7 @@ public class TokenService {
   public String generateToken(Authentication authentication) {
     Instant now = Instant.now();
     long expiry = 86400L; // 24 hours
+    String jti = UUID.randomUUID().toString();
     // @formatter:off
     String scope =
         authentication.getAuthorities().stream()
@@ -42,6 +44,7 @@ public class TokenService {
             .expiresAt(now.plusSeconds(expiry))
             .subject(authentication.getName())
             .claim("scope", scope)
+            .id(jti)
             .build();
     // @formatter:on
     return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

@@ -176,20 +176,29 @@ export default function FunctionalClassComponent({
       e.target.id === "degreeOfCompletion" ||
       e.target.id === "degreeOfCompletionOptions"
     ) {
-      const num = parseFloat(value);
-
-      if (isNaN(num)) {
-        value = "0";
-        console.log("Please do not type commas for percentage.");
+      // Handle empty field - set to null
+      if (value === "") {
+        updatedComponent = {
+          ...component,
+          degreeOfCompletion: null,
+        };
       } else {
-        if (num < 0) value = "0";
-        if (num > 1) value = "1";
-      }
+        // Replace comma with dot for decimal parsing
+        const normalizedValue = value.replace(",", ".");
 
-      updatedComponent = {
-        ...component,
-        degreeOfCompletion: parseFloat(value),
-      };
+        const num = parseFloat(normalizedValue);
+
+        if (isNaN(num)) {
+          value = "0";
+        } else {
+          if (num < 0) value = "0";
+          if (num > 1) value = "1";
+        }
+        updatedComponent = {
+          ...component,
+          degreeOfCompletion: parseFloat(parseFloat(value).toFixed(2)),
+        };
+      }
     } else {
       const num = parseFloat(value);
       // correct any number greater than 99999 and less than 0
@@ -311,18 +320,16 @@ export default function FunctionalClassComponent({
                   min={0.01}
                   max={1}
                   step={0.01}
-                  value={component.degreeOfCompletion || ""}
+                  value={component.degreeOfCompletion ?? ""}
                   onChange={handleComponentChange}
                   className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
                   disabled={!isLatest}
                 />
                 <select
                   id="degreeOfCompletionOptions"
-                  value={
-                    component.degreeOfCompletion
-                      ? getClosestCompletionOption(component.degreeOfCompletion)
-                      : ""
-                  }
+                  value={getClosestCompletionOption(
+                    component.degreeOfCompletion ?? 0,
+                  )}
                   onChange={handleComponentChange}
                   className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
                   disabled={!isLatest}
