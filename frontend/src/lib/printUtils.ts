@@ -333,7 +333,10 @@ export const createPdf = (
 
   const printingWindow = window.open("", "_blank", "width=800,height=600");
   if (printingWindow) {
+    // WARNING: Risk of XSS injection if pdfContent contains untrusted data - all
+    // user inputs should be sanitized properly
     printingWindow.document.documentElement.innerHTML = pdfContent;
+
     printingWindow.document.close();
     printingWindow.print();
     setTimeout(() => printingWindow.close(), 500);

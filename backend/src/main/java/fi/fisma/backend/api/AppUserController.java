@@ -45,6 +45,9 @@ public class AppUserController {
   @Operation(summary = "Update user", description = "Updates an existing user's information")
   @ApiResponse(responseCode = "200", description = "User updated successfully")
   @ApiResponse(responseCode = "404", description = "User not found")
+  @ApiResponse(
+      responseCode = "500",
+      description = "Failed to update user due to database constraint violation or internal error")
   public ResponseEntity<AppUserSummary> updateAppUser(
       @PathVariable Long id,
       @Valid @RequestBody AppUserRequest request,
@@ -58,6 +61,10 @@ public class AppUserController {
       description = "Permanently deletes the authenticated user's account")
   @ApiResponse(responseCode = "204", description = "Account deleted successfully")
   @ApiResponse(responseCode = "401", description = "User not authenticated")
+  @ApiResponse(
+      responseCode = "500",
+      description =
+          "Failed to delete user due to database integrity constraints or cascading deletion errors")
   public ResponseEntity<Void> deleteAppUser(
       @PathVariable("id") Long id, Authentication authentication) {
     appUserService.deleteAppUser(id, authentication);
@@ -71,6 +78,9 @@ public class AppUserController {
   @ApiResponse(responseCode = "200", description = "Password changed successfully")
   @ApiResponse(responseCode = "400", description = "Invalid password format")
   @ApiResponse(responseCode = "401", description = "User not authenticated")
+  @ApiResponse(
+      responseCode = "500",
+      description = "Password encryption failure or database error during password update")
   public ResponseEntity<String> changePassword(
       @Valid @RequestBody PasswordChangeRequest request, Authentication authentication) {
     appUserService.changePassword(request.getNewPassword(), authentication);

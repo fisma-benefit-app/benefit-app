@@ -44,6 +44,9 @@ public class ProjectController {
       summary = "Get all projects",
       description = "Retrieves all projects accessible to the authenticated user")
   @ApiResponse(responseCode = "200", description = "List of projects returned")
+  @ApiResponse(
+      responseCode = "500",
+      description = "Internal server error - database connection issues")
   public ResponseEntity<List<ProjectResponse>> getAllProjects(Authentication authentication) {
     var projects = projectService.getAllProjects(authentication.getName());
     return ResponseEntity.ok(projects);
@@ -58,6 +61,9 @@ public class ProjectController {
   @ApiResponse(
       responseCode = "403",
       description = "User does not have permission to update this project")
+  @ApiResponse(
+      responseCode = "500",
+      description = "Internal server error - update operation failed")
   public ResponseEntity<ProjectResponse> updateProject(
       @Parameter(description = "ID of the project to update") @PathVariable("id") Long id,
       @Valid @RequestBody ProjectRequest projectUpdate,
@@ -72,6 +78,9 @@ public class ProjectController {
       description = "Creates a new project for the authenticated user")
   @ApiResponse(responseCode = "201", description = "Project created successfully")
   @ApiResponse(responseCode = "400", description = "Invalid project data")
+  @ApiResponse(
+      responseCode = "503",
+      description = "Service unavailable - system resources exhausted")
   public ResponseEntity<Void> createProject(
       @Valid @RequestBody ProjectRequest newProjectRequest,
       UriComponentsBuilder ucb,
@@ -88,6 +97,9 @@ public class ProjectController {
   @ApiResponse(responseCode = "201", description = "Project version created successfully")
   @ApiResponse(responseCode = "404", description = "Original project not found")
   @ApiResponse(responseCode = "403", description = "User does not have permission")
+  @ApiResponse(
+      responseCode = "507",
+      description = "Insufficient storage - project size limit exceeded")
   public ResponseEntity<Void> createProjectVersion(
       @Parameter(description = "ID of the project to version") @PathVariable("id") Long id,
       @Valid @RequestBody ProjectRequest versionRequest,

@@ -85,7 +85,72 @@ export const calculateComponentPointsWithMultiplier = (
   return multiplier != null ? basePoints * multiplier : basePoints;
 };
 
-// Helper: Order-independent hash for array of strings
+/**
+ * Calculate functional points grouped by layer (UI, Business, Database)
+ * Based on component subComponentType
+ */
+export const calculatePointsByLayer = (
+  components: TGenericComponent[],
+): { userInterface: number; business: number; database: number } => {
+  const totalPoints = {
+    userInterface: 0,
+    business: 0,
+    database: 0,
+  };
+
+  for (const component of components) {
+    const componentPoints = calculateComponentPoints(component); // Calculate main component points
+
+    // If component is one of these classes, assign points directly to business layer
+    if (
+      component.className === "Non-interactive end-user output service" ||
+      component.className === "Interface service to other applications" ||
+      component.className === "Interface service from other applications" ||
+      component.className === "Algorithmic or manipulation service"
+    ) {
+      totalPoints.business += componentPoints;
+      break;
+    }
+
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        const subType = subComponent.subComponentType?.toLowerCase() || "";
+
+        // Calculate subcomponent points
+        const subComponentPoints = calculateComponentPoints(
+          subComponent as TGenericComponent,
+        );
+
+        // Calculate total points by layer
+        if (subType.startsWith("b-")) {
+          totalPoints.business += subComponentPoints;
+          break; // Assign to first matching layer found
+        } else if (subType.startsWith("ui-")) {
+          totalPoints.userInterface += componentPoints + subComponentPoints;
+          break;
+        } else if (subType.startsWith("d-")) {
+          totalPoints.database += componentPoints + subComponentPoints;
+          break;
+        }
+      }
+    }
+  }
+
+  return totalPoints;
+};
+
+/**
+ * Calculate layer points for a project
+ */
+export const calculateProjectPointsByLayer = (
+  project: Project,
+): { userInterface: number; business: number; database: number } => {
+  return calculatePointsByLayer(project.functionalComponents);
+};
+
+/**
+ * Helper: Order-independent hash for array of strings
+ */
 function hashComponentKeys(keys: string[]): string {
   // Simple commutative hash: XOR of string hashes
   let hash = 0;
