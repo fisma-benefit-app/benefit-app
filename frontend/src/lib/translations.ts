@@ -3,6 +3,10 @@ export const translations = {
     header: {
       logout: "Logout",
       logoutWarning: "Are you sure you want to log out?",
+      home: "Home",
+      newProject: "New Project",
+      profile: "Profile",
+      menu: "Menu",
     },
     loginForm: {
       header: "Log in",
@@ -187,11 +191,27 @@ export const translations = {
       saveFailed: "Save failed",
       loading: "Loading...",
     },
+    profilePage: {
+      header: "Profile",
+      username: "Username",
+      changePassword: "Change Password",
+      currentPassword: "Current Password",
+      newPassword: "New Password",
+      confirmPassword: "Confirm New Password",
+      updatePassword: "Update Password",
+      passwordsDoNotMatch: "Passwords do not match",
+      passwordUpdated: "Password updated successfully",
+      passwordUpdateFailed: "Failed to update password",
+    },
   },
   fi: {
     header: {
       logout: "Kirjaudu ulos",
       logoutWarning: "Oletko varma, että haluat kirjautua ulos?",
+      home: "Etusivu",
+      newProject: "Uusi projekti",
+      profile: "Profiili",
+      menu: "Valikko",
     },
     loginForm: {
       header: "Kirjaudu sisään",
@@ -377,6 +397,18 @@ export const translations = {
       error: "Virhe",
       saveFailed: "Tallennus epäonnistui",
       loading: "Ladataan...",
+    },
+    profilePage: {
+      header: "Profiili",
+      username: "Käyttäjänimi",
+      changePassword: "Vaihda salasana",
+      currentPassword: "Nykyinen salasana",
+      newPassword: "Uusi salasana",
+      confirmPassword: "Vahvista uusi salasana",
+      updatePassword: "Päivitä salasana",
+      passwordsDoNotMatch: "Salasanat eivät täsmää",
+      passwordUpdated: "Salasana päivitetty onnistuneesti",
+      passwordUpdateFailed: "Salasanan päivitys epäonnistui",
     },
   },
 };
