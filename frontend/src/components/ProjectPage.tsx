@@ -400,7 +400,9 @@ export default function ProjectPage() {
     }
   };
 
-  const handleDeleteFunctionalComponent = async (componentId: number): Promise<void> => {
+  const handleDeleteFunctionalComponent = async (
+    componentId: number,
+  ): Promise<void> => {
     isManuallySaved.current = true;
     setLoadingProject(true);
 
@@ -413,11 +415,7 @@ export default function ProjectPage() {
 
     if (project) {
       try {
-        await deleteFunctionalComponent(
-          sessionToken,
-          componentId,
-          project.id,
-        );
+        await deleteFunctionalComponent(sessionToken, componentId, project.id);
 
         const updatedProject = await fetchProject(sessionToken, project.id);
         setProject(updatedProject);
@@ -473,11 +471,11 @@ export default function ProjectPage() {
     if (project) {
       if (showNotif) {
         showNotification(
-        alertTranslation.save,
-        alertTranslation.saving,
-        "loading",
-        "manual-save",
-      );
+          alertTranslation.save,
+          alertTranslation.saving,
+          "loading",
+          "manual-save",
+        );
       }
       try {
         // normalize before saving
@@ -497,26 +495,24 @@ export default function ProjectPage() {
 
         if (showNotif) {
           updateNotification(
-          "manual-save",
-          alertTranslation.success,
-          alertTranslation.saveSuccessful,
-          "success",
-        );
+            "manual-save",
+            alertTranslation.success,
+            alertTranslation.saveSuccessful,
+            "success",
+          );
         }
-        
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
         }
         if (showNotif) {
           updateNotification(
-          "manual-save",
-          alertTranslation.error,
-          alertTranslation.saveFailed,
-          "error",
-        );
+            "manual-save",
+            alertTranslation.error,
+            alertTranslation.saveFailed,
+            "error",
+          );
         }
-        
       } finally {
         setTimeout(() => {
           isManuallySaved.current = false;
