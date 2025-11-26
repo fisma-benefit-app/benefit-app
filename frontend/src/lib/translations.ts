@@ -151,9 +151,10 @@ export const translations = {
         "Is this functional component a part of multi-layered architecture?",
       notAvailableForThisFunctionalComponentType:
         "Not available for this functional component type",
-      showSubComponents: "Show sub-components", // ✅ KEEP - Used in button
-      hideSubComponents: "Hide sub-components",
-      noSubComponents: "No sub-components found",
+      showMultiLayerInterfaces: "Show multi-layer interfaces", // ✅ KEEP - Used in button
+      hideMultiLayerInterfaces: "Hide multi-layer interfaces",
+      noMultiLayerInterfaces: "No multi-layer interfaces found",
+      multiLayerInterfaces: "Multi-layer interfaces",
     },
     projectPage: {
       saveProject: "Save",
@@ -370,9 +371,10 @@ export const translations = {
         "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
       notAvailableForThisFunctionalComponentType:
         "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
-      showSubComponents: "Näytä alakomponentit", // ✅ KEEP - Used in button
-      hideSubComponents: "Piilota alakomponentit",
-      noSubComponents: "Alakomponentteja ei löytynyt",
+      showMultiLayerInterfaces: "Näytä monikerrosliittymät", // ✅ KEEP - Used in button
+      hideMultiLayerInterfaces: "Piilota monikerrosliittymät",
+      noMultiLayerInterfaces: "Monikerrosliittymiä ei löytynyt",
+      multiLayerInterfaces: "Monikerrosliittymät",
     },
     projectPage: {
       saveProject: "Tallenna",
