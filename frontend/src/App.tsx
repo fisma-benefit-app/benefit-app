@@ -4,6 +4,7 @@ import Header from "./components/Header.tsx";
 import LoginForm from "./components/LoginForm.tsx";
 import ProjectPage from "./components/ProjectPage.tsx";
 import ProjectList from "./components/ProjectList.tsx";
+import ProfilePage from "./components/ProfilePage.tsx";
 import useAppUser from "./hooks/useAppUser.tsx";
 
 export default function App() {
@@ -25,6 +26,10 @@ export default function App() {
             <Route
               path="/"
               element={loggedIn ? <ProjectList /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/profile"
+              element={loggedIn ? <ProfilePage /> : <Navigate to="/login" />}
             />
             <Route
               path="/project/:selectedProjectId"
