@@ -1,13 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useAppUser from "../hooks/useAppUser";
 import useTranslations from "../hooks/useTranslations";
 import { useAlert } from "../context/AlertProvider";
-import {
-  changePassword,
-  updateAppUser,
-  deleteAppUser,
-  getUserById,
-} from "../api/profile";
+import { changePassword, updateAppUser, deleteAppUser } from "../api/profile";
 import { useNavigate } from "react-router";
 import ConfirmModal from "./ConfirmModal";
 
@@ -17,9 +12,6 @@ export default function ProfilePage() {
   const alertTranslation = useTranslations().alert;
   const { showNotification } = useAlert();
   const navigate = useNavigate();
-
-  // User ID state
-  const [userId, setUserId] = useState<number | null>(null); // TODO: Issue #388
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -34,25 +26,6 @@ export default function ProfilePage() {
 
   // Delete account state
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  // Fetch user ID on mount
-  useEffect(() => {
-    const fetchUserId = async () => {
-      if (!appUser?.username || !sessionToken) return;
-
-      try {
-        // TODO: Issue #388
-        // For now, we'll need to fetch from a different endpoint or store ID in context
-        // As a workaround, we'll use a hardcoded approach until we have the user ID in context
-        // This should ideally come from the login response or user context
-        console.log("User ID needs to be fetched or stored in context");
-      } catch (err) {
-        console.error("Error fetching user ID:", err);
-      }
-    };
-
-    fetchUserId();
-  }, [appUser, sessionToken]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,13 +86,13 @@ export default function ProfilePage() {
       return;
     }
 
-    if (!userId) {
+    if (!appUser?.id) {
       setUsernameError("User ID not found. Please try logging in again.");
       return;
     }
 
     try {
-      await updateAppUser(sessionToken, userId, {
+      await updateAppUser(sessionToken, appUser.id, {
         username: newUsername,
         password: passwordForUsername,
       });
@@ -158,7 +131,7 @@ export default function ProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!userId) {
+    if (!appUser?.id) {
       showNotification(
         alertTranslation.error,
         translation.accountDeleteFailed,
@@ -169,7 +142,7 @@ export default function ProfilePage() {
     }
 
     try {
-      await deleteAppUser(sessionToken, userId);
+      await deleteAppUser(sessionToken, appUser.id);
 
       showNotification(
         alertTranslation.success,
@@ -217,9 +190,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* TODO: Issue #388 */}
         {/* Update Username Section */}
-        {userId && ( // Temporarily hide until userId fetching is implemented
+        {appUser?.id && (
           <div className="bg-white shadow-md rounded-lg p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
               {translation.updateUsername}
@@ -352,9 +324,8 @@ export default function ProfilePage() {
           </form>
         </div>
 
-        {/* TODO: Issue #388 */}
         {/* Delete Account Section */}
-        {userId && ( // Temporarily hide until userId fetching is implemented
+        {appUser?.id && (
           <div className="bg-white shadow-md rounded-lg p-6 border-2 border-fisma-red">
             <h2 className="text-xl font-semibold text-fisma-red mb-4">
               {translation.deleteAccount}

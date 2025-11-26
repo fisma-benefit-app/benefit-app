@@ -1,13 +1,10 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
+import { AppUser } from "../lib/types";
 const API_URL = import.meta.env.VITE_API_URL;
 
 type AppUserProviderProps = {
   children: ReactNode;
-};
-
-export type AppUser = {
-  username: string;
 };
 
 const AppUserProvider = ({ children }: AppUserProviderProps) => {
@@ -41,6 +38,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     // Remove locally stored authentication data
     sessionStorage.removeItem("loginToken");
     sessionStorage.removeItem("userInfo");
+    sessionStorage.removeItem("userId");
 
     // Reset app state
     setSessionToken(null);
@@ -66,10 +64,14 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     setLoadingAuth(true);
     const loginToken = sessionStorage.getItem("loginToken");
     const userInfo = sessionStorage.getItem("userInfo");
+    const userId = sessionStorage.getItem("userId");
 
     if (loginToken && userInfo) {
       setSessionToken(loginToken);
-      setAppUser({ username: userInfo });
+      setAppUser({
+        id: userId ? parseInt(userId) : undefined,
+        username: userInfo,
+      });
       setLoggedIn(true);
     }
 

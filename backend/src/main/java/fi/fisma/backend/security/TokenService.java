@@ -1,5 +1,6 @@
 package fi.fisma.backend.security;
 
+import fi.fisma.backend.security.UserDetailsServiceImpl.AppUserDetails;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,15 +38,29 @@ public class TokenService {
         authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(" "));
-    JwtClaimsSet claims =
+
+    // Extract user ID from authentication principal
+    Long userId = null;
+    if (authentication.getPrincipal() instanceof AppUserDetails) {
+      AppUserDetails userDetails = (AppUserDetails) authentication.getPrincipal();
+      userId = userDetails.getId();
+    }
+
+    JwtClaimsSet.Builder claimsBuilder =
         JwtClaimsSet.builder()
             .issuer("self")
             .issuedAt(now)
             .expiresAt(now.plusSeconds(expiry))
             .subject(authentication.getName())
             .claim("scope", scope)
-            .id(jti)
-            .build();
+            .id(jti);
+
+    // Add user ID to claims if available
+    if (userId != null) {
+      claimsBuilder.claim("userId", userId);
+    }
+
+    JwtClaimsSet claims = claimsBuilder.build();
     // @formatter:on
     return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
   }

@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations";
 import DotLoadingSpinner from "./DotLoadingSpinner";
+import { decodeJWT } from "../lib/jwtUtils";
 
 export default function LoginForm() {
   const [username, setUsername] = useState<string>("");
@@ -33,10 +34,18 @@ export default function LoginForm() {
     try {
       const loginToken = await fetchJWT(username, password);
 
+      // Decode JWT to extract user ID
+      const decodedToken = decodeJWT(loginToken);
+      const userId = decodedToken?.userId;
+
       sessionStorage.setItem("loginToken", loginToken);
       sessionStorage.setItem("userInfo", username);
+      if (userId != null) {
+        sessionStorage.setItem("userId", userId.toString());
+      }
+
       setSessionToken(loginToken);
-      setAppUser({ username: username });
+      setAppUser({ id: userId, username: username });
       setLoggedIn(true);
     } catch (err) {
       if (err instanceof Error) {
