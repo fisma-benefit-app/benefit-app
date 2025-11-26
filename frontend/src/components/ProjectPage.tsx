@@ -430,7 +430,6 @@ export default function ProjectPage() {
         console.error("Delete component error:", err);
 
         if (err instanceof Error && err.message.includes("JSON")) {
-          console.log("JSON parse error");
           try {
             const updatedProject = await fetchProject(sessionToken, project.id);
             setProject(updatedProject);
