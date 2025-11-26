@@ -322,7 +322,7 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken, logout]);
 
   const handleCreateFunctionalComponent = async () => {
-    await saveProject();
+    await saveProject(false);
 
     isManuallySaved.current = true;
     setLoadingProject(true);
@@ -345,6 +345,13 @@ export default function ProjectPage() {
         parentFCId: null,
       };
 
+      showNotification(
+        alertTranslation.creating,
+        alertTranslation.creating,
+        "loading",
+        "create-functional-component",
+      );
+
       try {
         const updatedProject = await createFunctionalComponent(
           sessionToken,
@@ -364,6 +371,13 @@ export default function ProjectPage() {
 
         setProject(updatedProject);
 
+        updateNotification(
+          "create-functional-component",
+          alertTranslation.success,
+          alertTranslation.createSuccessful,
+          "success",
+        );
+
         setTimeout(() => {
           bottomRef.current?.scrollIntoView({ behavior: "smooth" });
         }, 100);
@@ -371,6 +385,12 @@ export default function ProjectPage() {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
         }
+        updateNotification(
+          "create-functional-component",
+          alertTranslation.error,
+          alertTranslation.createFailed,
+          "error",
+        );
       } finally {
         setLoadingProject(false);
         setTimeout(() => {
@@ -380,21 +400,65 @@ export default function ProjectPage() {
     }
   };
 
-  const handleDeleteFunctionalComponent = async (componentId: number) => {
+  const handleDeleteFunctionalComponent = async (componentId: number): Promise<void> => {
     isManuallySaved.current = true;
     setLoadingProject(true);
+
+    showNotification(
+      alertTranslation.deleting,
+      alertTranslation.deleting,
+      "loading",
+      "delete-functional-component",
+    );
+
     if (project) {
       try {
-        const updatedProject = await deleteFunctionalComponent(
+        await deleteFunctionalComponent(
           sessionToken,
           componentId,
           project.id,
         );
+
+        const updatedProject = await fetchProject(sessionToken, project.id);
         setProject(updatedProject);
+
+        updateNotification(
+          "delete-functional-component",
+          alertTranslation.success,
+          alertTranslation.deleteSuccessful,
+          "success",
+        );
       } catch (err) {
+        console.error("Delete component error:", err);
+
+        if (err instanceof Error && err.message.includes("JSON")) {
+          console.log("JSON parse error");
+          try {
+            const updatedProject = await fetchProject(sessionToken, project.id);
+            setProject(updatedProject);
+
+            updateNotification(
+              "delete-functional-component",
+              alertTranslation.success,
+              alertTranslation.deleteSuccessful,
+              "success",
+            );
+            return;
+          } catch (fetchErr) {
+            console.error("Refetch failed:", fetchErr);
+          }
+        }
+
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
         }
+
+        updateNotification(
+          "delete-functional-component",
+          alertTranslation.error,
+          alertTranslation.deleteFailed,
+          "error",
+        );
       } finally {
         setLoadingProject(false);
         setTimeout(() => {
@@ -404,15 +468,17 @@ export default function ProjectPage() {
     }
   };
 
-  const saveProject = async () => {
+  const saveProject = async (showNotif: boolean = true) => {
     isManuallySaved.current = true;
     if (project) {
-      showNotification(
+      if (showNotif) {
+        showNotification(
         alertTranslation.save,
         alertTranslation.saving,
         "loading",
         "manual-save",
       );
+      }
       try {
         // normalize before saving
         const normalized = project.functionalComponents
@@ -428,22 +494,29 @@ export default function ProjectPage() {
 
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
-        updateNotification(
+
+        if (showNotif) {
+          updateNotification(
           "manual-save",
           alertTranslation.success,
           alertTranslation.saveSuccessful,
           "success",
         );
+        }
+        
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
         }
-        updateNotification(
+        if (showNotif) {
+          updateNotification(
           "manual-save",
           alertTranslation.error,
           alertTranslation.saveFailed,
           "error",
         );
+        }
+        
       } finally {
         setTimeout(() => {
           isManuallySaved.current = false;
@@ -560,7 +633,7 @@ export default function ProjectPage() {
                         ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
                         : "bg-fisma-gray"
                     } text-white text-xs py-3 px-4`}
-                    onClick={saveProject}
+                    onClick={() => saveProject()}
                     disabled={loadingProject}
                   >
                     {translation.saveProject}
