@@ -32,6 +32,7 @@ import {
 } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
 import SubComponentsModal from "./SubComponentsModal.tsx";
+import FunctionalClassSubComponent from "./FunctionalClassSubComponent.tsx";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -412,30 +413,48 @@ export default function FunctionalClassComponent({
               )}
             </div>
 
-            <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md">
+            <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md w-full">
               <label className="font-bold text-fisma-blue">
                 {
                   translation.isThisFunctionalComponentAPartOfMultiLayerArchitecture
                 }
               </label>
-              <div>
-                <input
-                  id="mlaCheckBox"
-                  type="checkbox"
-                  className="w-4 h-4"
-                  checked={component.isMLA}
-                  disabled={
-                    !isMultiLayerArchitectureComponent(component) || !isLatest
-                  }
-                  onChange={handleMLAChange}
-                />
-                {!isMultiLayerArchitectureComponent(component) && (
-                  <label className="text-gray-400">
-                    {" "}
-                    {translation.notAvailableForThisFunctionalComponentType}
-                  </label>
+              <div className="flex items-center gap-3">
+                {isMultiLayerArchitectureComponent(component) && (
+                  <input
+                    id="mlaCheckBox"
+                    type="checkbox"
+                    className="w-4 h-4"
+                    checked={component.isMLA}
+                    disabled={
+                      !isMultiLayerArchitectureComponent(component) || !isLatest
+                    }
+                    onChange={handleMLAChange}
+                  />
+                )}
+
+                {component.isMLA && (
+                  <button
+                    type="button"
+                    onClick={() => setShowSubComponents(!showSubComponents)}
+                    className="text-sm text-fisma-blue hover:underline flex items-center gap-2"
+                  >
+                    {showSubComponents
+                      ? translation.hideMultiLayerInterfaces
+                      : translation.showMultiLayerInterfaces}
+                    {component.subComponents &&
+                      component.subComponents.length > 0 && (
+                        <span>({component.subComponents.length})</span>
+                      )}
+                  </button>
                 )}
               </div>
+              {!isMultiLayerArchitectureComponent(component) && (
+                <label className="flex items-center gap-3 text-gray-400">
+                  {" "}
+                  {translation.notAvailableForThisFunctionalComponentType}
+                </label>
+              )}
             </div>
 
             {/* Parameters Section */}
@@ -462,7 +481,7 @@ export default function FunctionalClassComponent({
           </>
         )}
 
-        <div className="mt-4 border-t pt-2 text-sm sm:text-base flex justify-between text-fisma-blue font-semibold">
+        <div className="border-t pt-2 text-sm sm:text-base flex justify-between text-fisma-blue font-semibold">
           <span>
             {translation.functionalPointText}:{" "}
             {pointsByDegreeOfCompletion.toFixed(2)}
@@ -471,64 +490,40 @@ export default function FunctionalClassComponent({
             {translation.functionalPointReadyText}: {fullPoints.toFixed(2)}
           </span>
         </div>
-      </form>
 
-      {component.isMLA && (
-        <div className="mt-2">
-          <button
-            type="button"
-            onClick={() => setShowSubComponents(!showSubComponents)}
-            className="text-sm text-fisma-blue hover:underline flex items-center gap-2 mb-2"
-          >
-            <FontAwesomeIcon
-              icon={showSubComponents ? faCaretUp : faCaretDown}
-            />
-            {showSubComponents
-              ? translation.hideSubComponents
-              : translation.showSubComponents}
-            {component.subComponents && component.subComponents.length > 0 && (
-              <span> ({component.subComponents.length})</span>
-            )}
-          </button>
-
-          {showSubComponents &&
-            component.subComponents &&
-            component.subComponents.length > 0 && (
-              <div className="space-y-3 ml-4 border-l-4 border-fisma-blue pl-4">
-                {component.subComponents.map((subComp) => (
-                  <div key={subComp.id} className="relative">
-                    <div className="opacity-75 pointer-events-none">
-                      <FunctionalClassComponent
-                        component={subComp}
-                        deleteFunctionalComponent={async () => {}}
-                        project={
-                          { functionalComponents: [] } as unknown as Project
-                        }
-                        setProject={() => {}}
-                        setProjectResponse={() => {}}
-                        isLatest={false}
-                        collapsed={false}
-                        onCollapseChange={() => {}}
-                        debouncedSaveProject={() => {}}
-                        onMLAToggle={() => {}}
-                        dragHandleProps={{}}
-                      />
+        {component.isMLA && (
+          <div>
+            {showSubComponents &&
+              component.subComponents &&
+              component.subComponents.length > 0 && (
+                <div className="space-y-3 ml-4 border-l-4 border-fisma-blue pl-4">
+                  <label className="font-bold text-fisma-blue">
+                    {translation.multiLayerInterfaces}
+                  </label>
+                  {component.subComponents.map((subComp) => (
+                    <div key={subComp.id} className="relative">
+                      <div className="opacity-75 pointer-events-none">
+                        <FunctionalClassSubComponent
+                          component={subComp}
+                          collapsed={false}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
 
-          {/* Message if MLA is enabled but no subcomponents loaded */}
-          {showSubComponents &&
-            (!component.subComponents ||
-              component.subComponents.length === 0) && (
-              <div className="ml-4 pl-4 border-l-4 border-fisma-blue text-sm text-gray-600 italic py-2">
-                {translation.noSubComponents}
-              </div>
-            )}
-        </div>
-      )}
+            {/* Message if MLA is enabled but no subcomponents loaded */}
+            {showSubComponents &&
+              (!component.subComponents ||
+                component.subComponents.length === 0) && (
+                <div className="ml-4 pl-4 border-l-4 border-fisma-blue text-sm text-gray-600 italic py-2">
+                  {translation.noMultiLayerInterfaces}
+                </div>
+              )}
+          </div>
+        )}
+      </form>
 
       {component.isMLA && component.subComponents && (
         <SubComponentsModal
