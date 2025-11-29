@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
     info =
         @Info(
             title = "Project API",
-            version = "1.0.1",
+            version = "1.0.2",
             description = "API documentation for the benefit application"))
 @SecurityScheme(
     name = "bearerAuth",
