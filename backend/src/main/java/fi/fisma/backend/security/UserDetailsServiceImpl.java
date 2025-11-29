@@ -28,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     return new AppUserDetails(appUser);
   }
 
-  static final class AppUserDetails extends AppUser implements UserDetails {
+  public static final class AppUserDetails extends AppUser implements UserDetails {
 
     private static final List<GrantedAuthority> ROLE_USER =
         Collections.unmodifiableList(AuthorityUtils.createAuthorityList("ROLE_USER"));

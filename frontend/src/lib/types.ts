@@ -58,6 +58,11 @@ export type AppUserSummary = {
   username: string;
 };
 
+export type AppUser = {
+  id?: number;
+  username: string;
+};
+
 // Remove if needed
 export type ProjectAppUser = {
   id: number;
