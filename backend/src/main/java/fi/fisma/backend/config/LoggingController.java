@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class LoggingController {
 
-  Logger logger = LoggerFactory.getLogger(LoggingController.class);
+  private static final Logger logger = LoggerFactory.getLogger(LoggingController.class);
 
-  @RequestMapping("/")
+  @RequestMapping("/logging")
   public String index() {
     logger.trace("A TRACE Message");
     logger.debug("A DEBUG Message");
