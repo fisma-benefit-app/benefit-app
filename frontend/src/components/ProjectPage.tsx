@@ -240,7 +240,7 @@ export default function ProjectPage() {
       );
     } catch (err) {
       if (err instanceof Error && err.message === "Unauthorized") {
-        logout();
+        await logout();
       }
 
       updateNotification(
@@ -249,8 +249,6 @@ export default function ProjectPage() {
         alertTranslation.saveFailed,
         "error",
       );
-
-      console.error(err);
     }
   }, 5000); // Auto-save every 5 seconds
 
@@ -308,9 +306,9 @@ export default function ProjectPage() {
         setProject({ ...projectFromDb, functionalComponents: normalized });
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
-        console.error("Error fetching project:", err);
+        console.error("Error fetching project");
         setError(
           err instanceof Error
             ? err.message
@@ -324,7 +322,7 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken, logout]);
 
   const handleCreateFunctionalComponent = async () => {
-    await saveProject();
+    await saveProject(false);
 
     isManuallySaved.current = true;
     setLoadingProject(true);
@@ -347,6 +345,13 @@ export default function ProjectPage() {
         parentFCId: null,
       };
 
+      showNotification(
+        alertTranslation.creating,
+        alertTranslation.creating,
+        "loading",
+        "create-functional-component",
+      );
+
       try {
         const updatedProject = await createFunctionalComponent(
           sessionToken,
@@ -366,14 +371,26 @@ export default function ProjectPage() {
 
         setProject(updatedProject);
 
+        updateNotification(
+          "create-functional-component",
+          alertTranslation.success,
+          alertTranslation.createSuccessful,
+          "success",
+        );
+
         setTimeout(() => {
           bottomRef.current?.scrollIntoView({ behavior: "smooth" });
         }, 100);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
-        console.error(err);
+        updateNotification(
+          "create-functional-component",
+          alertTranslation.error,
+          alertTranslation.createFailed,
+          "error",
+        );
       } finally {
         setLoadingProject(false);
         setTimeout(() => {
@@ -383,22 +400,62 @@ export default function ProjectPage() {
     }
   };
 
-  const handleDeleteFunctionalComponent = async (componentId: number) => {
+  const handleDeleteFunctionalComponent = async (
+    componentId: number,
+  ): Promise<void> => {
     isManuallySaved.current = true;
     setLoadingProject(true);
+
+    showNotification(
+      alertTranslation.deleting,
+      alertTranslation.deleting,
+      "loading",
+      "delete-functional-component",
+    );
+
     if (project) {
       try {
-        const updatedProject = await deleteFunctionalComponent(
-          sessionToken,
-          componentId,
-          project.id,
-        );
+        await deleteFunctionalComponent(sessionToken, componentId, project.id);
+
+        const updatedProject = await fetchProject(sessionToken, project.id);
         setProject(updatedProject);
+
+        updateNotification(
+          "delete-functional-component",
+          alertTranslation.success,
+          alertTranslation.deleteSuccessful,
+          "success",
+        );
       } catch (err) {
-        if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+        console.error("Delete component error:", err);
+
+        if (err instanceof Error && err.message.includes("JSON")) {
+          try {
+            const updatedProject = await fetchProject(sessionToken, project.id);
+            setProject(updatedProject);
+
+            updateNotification(
+              "delete-functional-component",
+              alertTranslation.success,
+              alertTranslation.deleteSuccessful,
+              "success",
+            );
+            return;
+          } catch (fetchErr) {
+            console.error("Refetch failed:", fetchErr);
+          }
         }
-        console.error(err);
+
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          await logout();
+        }
+
+        updateNotification(
+          "delete-functional-component",
+          alertTranslation.error,
+          alertTranslation.deleteFailed,
+          "error",
+        );
       } finally {
         setLoadingProject(false);
         setTimeout(() => {
@@ -408,15 +465,17 @@ export default function ProjectPage() {
     }
   };
 
-  const saveProject = async () => {
+  const saveProject = async (showNotif: boolean = true) => {
     isManuallySaved.current = true;
     if (project) {
-      showNotification(
-        alertTranslation.save,
-        alertTranslation.saving,
-        "loading",
-        "manual-save",
-      );
+      if (showNotif) {
+        showNotification(
+          alertTranslation.save,
+          alertTranslation.saving,
+          "loading",
+          "manual-save",
+        );
+      }
       try {
         // normalize before saving
         const normalized = project.functionalComponents
@@ -432,23 +491,27 @@ export default function ProjectPage() {
 
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
-        updateNotification(
-          "manual-save",
-          alertTranslation.success,
-          alertTranslation.saveSuccessful,
-          "success",
-        );
+
+        if (showNotif) {
+          updateNotification(
+            "manual-save",
+            alertTranslation.success,
+            alertTranslation.saveSuccessful,
+            "success",
+          );
+        }
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
-        updateNotification(
-          "manual-save",
-          alertTranslation.error,
-          alertTranslation.saveFailed,
-          "error",
-        );
-        console.error(err);
+        if (showNotif) {
+          updateNotification(
+            "manual-save",
+            alertTranslation.error,
+            alertTranslation.saveFailed,
+            "error",
+          );
+        }
       } finally {
         setTimeout(() => {
           isManuallySaved.current = false;
@@ -499,9 +562,9 @@ export default function ProjectPage() {
         navigate(`/project/${idOfNewProjectVersion}`);
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
-          logout();
+          await logout();
         }
-        console.error("Error creating new project version:", err);
+        console.error("Error creating new project version");
       } finally {
         setTimeout(() => {
           isManuallySaved.current = false;
@@ -565,7 +628,7 @@ export default function ProjectPage() {
                         ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
                         : "bg-fisma-gray"
                     } text-white text-xs py-3 px-4`}
-                    onClick={saveProject}
+                    onClick={() => saveProject()}
                     disabled={loadingProject}
                   >
                     {translation.saveProject}
