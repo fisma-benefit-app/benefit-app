@@ -142,6 +142,21 @@ The JwtDecoder bean verifies that
 
 If everything matches, Spring builds an Authentication object that controllers can then use to access the logged-in user.
 
-### Logout / expiration
+### Logout / token revocation
 
-When the user logs out, tokens are removed from client-side sessionStorage and React state is reset. Since the backend is stateless, logout does not invalidate the token on the server. The token remains valid until it expires after 24 hours.
+When the user logs out, the frontend sends a `POST /auth/logout` request to the backend with the JWT in the `Authorization` header. The backend extracts the token’s unique ID (`jti`) and expiration time, and adds it to an in-memory blacklist using `TokenBlacklistService`.
+
+After logout:
+
+- The token is immediately invalidated on the backend, even if it has not expired.
+- Any subsequent requests using the same JWT will be rejected with a `401 Unauthorized` response.
+- The blacklist is periodically cleaned to remove expired tokens.
+
+**Session management:**
+
+- Tokens are still stored in client-side sessionStorage and React state.
+- After logout, the frontend removes the token from storage and resets authentication state.
+- The backend checks the blacklist for every incoming JWT. If the token is blacklisted, authentication fails.
+
+**Note:**  
+This approach provides immediate logout and token invalidation, even though JWTs are stateless by default. The backend remains stateless except for the blacklist, which is kept in memory and cleaned regularly.
