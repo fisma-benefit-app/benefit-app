@@ -338,7 +338,7 @@ const deleteFunctionalComponent = async (
   token: string | null,
   componentId: number | undefined,
   projectId: number | undefined,
-): Promise<Project> => {
+): Promise<Project | undefined> => {
   if (!token)
     throw new Error(
       "User needs to be logged in to delete functional component!",
@@ -362,7 +362,10 @@ const deleteFunctionalComponent = async (
     );
   }
 
-  return response.json();
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return response.json();
+  }
 };
 
 export {
