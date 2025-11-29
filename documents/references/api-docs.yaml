@@ -9,6 +9,8 @@ servers:
 tags:
 - name: Project Management
   description: Endpoints for managing projects
+- name: Authentication
+  description: Endpoint for token revocation
 - name: User Management
   description: Endpoints for managing user accounts
 - name: Functional Components
@@ -403,6 +405,28 @@ paths:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
       - bearerAuth: []
+  /auth/logout:
+    post:
+      tags:
+      - Authentication
+      summary: Logout and revoke JWT
+      description: "Revokes the current JWT by adding it to the blacklist. Clients\
+        \ must send the JWT in the Authorization header as 'Bearer <token>'. After\
+        \ logout, the token cannot be used for further requests."
+      operationId: logout
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: "Logout successful, token revoked"
+        "400":
+          description: Missing or invalid Authorization header
+        "401":
+          description: "Invalid, expired or blacklisted JWT"
   /appusers:
     post:
       tags:
@@ -452,7 +476,7 @@ paths:
           type: integer
           format: int64
       responses:
-        "201":
+        "204":
           description: Functional component deleted successfully
           content:
             '*/*':
@@ -565,8 +589,32 @@ components:
           description: "ID of the parent functional component, if part of multi-layer\
             \ architecture"
           example: 12
+        subComponents:
+          type: array
+          description: List of sub-components if part of multi-layer architecture
+          example: "[...]"
+          items:
+            description: Request object for creating or updating functional components
+              within a project
+            required:
+            - isMLA
+            - orderPosition
+        subComponentType:
+          type: string
+          description: Type of sub-component in multi-layer architecture
+          enum:
+          - presentation
+          - businessLogic
+          - dataAccess
+          - integration
+          example: presentation
+        isReadonly:
+          type: boolean
+          description: Indicates if component is readonly
+          example: true
       required:
       - isMLA
+      - isReadonly
       - orderPosition
     ProjectRequest:
       type: object
@@ -696,6 +744,20 @@ components:
           description: "ID of the parent functional component, if part of multi-layer\
             \ architecture (MLA)"
           example: 12
+        subComponentType:
+          type: string
+          description: Type of sub-component in multi-layer architecture
+          example: presentation
+        isReadonly:
+          type: boolean
+          description: Indicates if this component is readonly (for sub-components)
+          example: true
+        subComponents:
+          type: array
+          description: List of sub-components for multi-layer architecture
+          items:
+            description: Response object containing details on functional components
+              within a project
     ProjectAppUserResponse:
       type: object
       description: Response object containing project-user relationship details
