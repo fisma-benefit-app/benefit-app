@@ -311,64 +311,68 @@ export const FunctionalPointSummary = ({
           mlaLayerDetails &&
           mlaMessageCounts && (
             <div className="space-y-4">
-              {/* Layer Details */}
-              <div className="space-y-3">
-                {/* UI Layer */}
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-4">
-                    <span className="font-semibold">
-                      {translation.functionalPointSummary.uiLayer}
-                    </span>
-                    <span className="text-gray-600">
-                      {translation.functionalPointSummary.amount}:{" "}
-                      <span className="font-medium text-blue-600">
+              {/* Layer Details Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b-2 border-gray-300">
+                      <th className="text-left py-2 font-semibold">Layer</th>
+                      <th className="text-center py-2 font-semibold">
+                        {translation.functionalPointSummary.amount}
+                      </th>
+                      <th className="text-right py-2 font-semibold">
+                        {translation.functionalPointSummary.functionalPointText}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* UI Layer */}
+                    <tr className="border-b border-gray-200">
+                      <td className="py-2 font-medium">
+                        {translation.functionalPointSummary.uiLayer}
+                      </td>
+                      <td className="text-center text-blue-600 font-medium">
                         {mlaLayerDetails.ui.count}
-                      </span>
-                    </span>
-                  </div>
-                  <span className="font-semibold">
-                    {mlaLayerDetails.ui.points.toFixed(2)}{" "}
-                    {translation.functionalPointSummary.functionalPointText}
-                  </span>
-                </div>
-
-                {/* Business Layer */}
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-4">
-                    <span className="font-semibold">
-                      {translation.functionalPointSummary.businessLayer}
-                    </span>
-                    <span className="text-gray-600">
-                      {translation.functionalPointSummary.amount}:{" "}
-                      <span className="font-medium text-blue-600">
+                      </td>
+                      <td className="text-right font-semibold">
+                        {mlaLayerDetails.ui.points.toFixed(2)}{" "}
+                        <span className="text-gray-400">
+                          / {mlaLayerDetails.ui.possiblePoints.toFixed(2)}
+                        </span>
+                      </td>
+                    </tr>
+                    {/* Business Layer */}
+                    <tr className="border-b border-gray-200">
+                      <td className="py-2 font-medium">
+                        {translation.functionalPointSummary.businessLayer}
+                      </td>
+                      <td className="text-center text-blue-600 font-medium">
                         {mlaLayerDetails.business.count}
-                      </span>
-                    </span>
-                  </div>
-                  <span className="font-semibold">
-                    {mlaLayerDetails.business.points.toFixed(2)}{" "}
-                    {translation.functionalPointSummary.functionalPointText}
-                  </span>
-                </div>
-
-                {/* Data Layer */}
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-4">
-                    <span className="font-semibold">
-                      {translation.functionalPointSummary.dataLayer}
-                    </span>
-                    <span className="text-gray-600">
-                      {translation.functionalPointSummary.amount}:{" "}
-                      <span className="font-medium text-blue-600">
+                      </td>
+                      <td className="text-right font-semibold">
+                        {mlaLayerDetails.business.points.toFixed(2)}{" "}
+                        <span className="text-gray-400">
+                          / {mlaLayerDetails.business.possiblePoints.toFixed(2)}
+                        </span>
+                      </td>
+                    </tr>
+                    {/* Data Layer */}
+                    <tr className="border-b border-gray-200">
+                      <td className="py-2 font-medium">
+                        {translation.functionalPointSummary.dataLayer}
+                      </td>
+                      <td className="text-center text-blue-600 font-medium">
                         {mlaLayerDetails.database.count}
-                      </span>
-                    </span>
-                  </div>
-                  <span className="font-semibold">
-                    {mlaLayerDetails.database.points.toFixed(2)}{" "}
-                    {translation.functionalPointSummary.functionalPointText}
-                  </span>
-                </div>
+                      </td>
+                      <td className="text-right font-semibold">
+                        {mlaLayerDetails.database.points.toFixed(2)}{" "}
+                        <span className="text-gray-400">
+                          / {mlaLayerDetails.database.possiblePoints.toFixed(2)}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
 
               {/* Multilayer Messages */}

@@ -117,7 +117,7 @@ export const calculatePointsByLayer = (
     // Loop through subcomponents to assign points by layer
     if (component.subComponents && component.subComponents.length > 0) {
       for (const subComponent of component.subComponents) {
-        const subType = subComponent.subComponentType?.toLowerCase() || "";
+        const subType = subComponent.subComponentType ?? "";
 
         // Calculate subcomponent points
         const subComponentPoints = calculateComponentPoints(
@@ -125,11 +125,11 @@ export const calculatePointsByLayer = (
         );
 
         // Calculate total points by layer
-        if (subType.startsWith("b-")) {
+        if (subType.startsWith("B-")) {
           totalPoints.business += subComponentPoints;
-        } else if (subType.startsWith("ui-")) {
+        } else if (subType.startsWith("UI-")) {
           totalPoints.userInterface += subComponentPoints;
-        } else if (subType.startsWith("d-")) {
+        } else if (subType.startsWith("D-")) {
           totalPoints.database += subComponentPoints;
         } else {
           // Default to UI layer if no subtype match
@@ -149,6 +149,63 @@ export const calculateProjectPointsByLayer = (
   project: Project,
 ): { userInterface: number; business: number; database: number } => {
   return calculatePointsByLayer(project.functionalComponents);
+};
+
+/**
+ * Calculate possible functional points grouped by layer (UI, Business, Database)
+ * Same logic as calculatePointsByLayer but uses base points (without degree of completion)
+ */
+export const calculatePossiblePointsByLayer = (
+  components: TGenericComponent[],
+): { userInterface: number; business: number; database: number } => {
+  const totalPossiblePoints = {
+    userInterface: 0,
+    business: 0,
+    database: 0,
+  };
+
+  for (const component of components) {
+    const componentBasePoints = calculateBasePoints(component); // Calculate main component base points
+
+    // If component is one of these classes, assign points directly to business layer
+    if (
+      component.className === "Non-interactive end-user output service" ||
+      component.className === "Interface service to other applications" ||
+      component.className === "Interface service from other applications" ||
+      component.className === "Algorithmic or manipulation service"
+    ) {
+      totalPossiblePoints.business += componentBasePoints;
+    } else {
+      // Default assignment to UI layer for other classes
+      totalPossiblePoints.userInterface += componentBasePoints;
+    }
+
+    // Loop through subcomponents to assign points by layer
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        const subType = subComponent.subComponentType ?? "";
+
+        // Calculate subcomponent base points
+        const subComponentBasePoints = calculateBasePoints(
+          subComponent as TGenericComponent,
+        );
+
+        // Calculate total possible points by layer
+        if (subType.startsWith("B-")) {
+          totalPossiblePoints.business += subComponentBasePoints;
+        } else if (subType.startsWith("UI-")) {
+          totalPossiblePoints.userInterface += subComponentBasePoints;
+        } else if (subType.startsWith("D-")) {
+          totalPossiblePoints.database += subComponentBasePoints;
+        } else {
+          // Default to UI layer if no subtype match
+          totalPossiblePoints.userInterface += subComponentBasePoints;
+        }
+      }
+    }
+  }
+
+  return totalPossiblePoints;
 };
 
 /**
@@ -515,14 +572,14 @@ export const calculateReferencesSum = (
 export const calculateMLALayerDetails = (
   components: TGenericComponent[],
 ): {
-  ui: { count: number; points: number };
-  business: { count: number; points: number };
-  database: { count: number; points: number };
+  ui: { count: number; points: number; possiblePoints: number };
+  business: { count: number; points: number; possiblePoints: number };
+  database: { count: number; points: number; possiblePoints: number };
 } => {
   const layerDetails = {
-    ui: { count: 0, points: 0 },
-    business: { count: 0, points: 0 },
-    database: { count: 0, points: 0 },
+    ui: { count: 0, points: 0, possiblePoints: 0 },
+    business: { count: 0, points: 0, possiblePoints: 0 },
+    database: { count: 0, points: 0, possiblePoints: 0 },
   };
 
   // Get points using existing calculatePointsByLayer function
@@ -530,6 +587,12 @@ export const calculateMLALayerDetails = (
   layerDetails.ui.points = pointsByLayer.userInterface;
   layerDetails.business.points = pointsByLayer.business;
   layerDetails.database.points = pointsByLayer.database;
+
+  // Get possible points using calculatePossiblePointsByLayer function
+  const possiblePointsByLayer = calculatePossiblePointsByLayer(components);
+  layerDetails.ui.possiblePoints = possiblePointsByLayer.userInterface;
+  layerDetails.business.possiblePoints = possiblePointsByLayer.business;
+  layerDetails.database.possiblePoints = possiblePointsByLayer.database;
 
   // Count components and subcomponents by layer
   const countedParentComponents = new Set<number>();
