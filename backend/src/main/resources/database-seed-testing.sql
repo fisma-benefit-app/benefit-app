@@ -59,12 +59,14 @@ INSERT INTO functional_components (
     order_position,
     is_mla,
     parent_fc_id,
+    sub_component_type,
+    is_readonly,
     project_id,
     deleted_at
 )
-VALUES  (1, 'Hakijan syöte', 'Kenttä hakijan syötteelle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.12, NULL, 1, FALSE, NULL, 1, NULL),
-        (2, 'Lukumäärän valintapainike', 'Valintapainike lukumäärälle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.34, 1, 2, FALSE, NULL, 2, NULL),
-        (3, 'Lähetä-painike', 'Painikkeella käyttäjä lähettää tiedot', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.5, 2, 3, FALSE, NULL, 1, NULL);
+VALUES  (1, 'Hakijan syöte', 'Kenttä hakijan syötteelle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.12, NULL, 1, FALSE, NULL, NULL, FALSE, 1, NULL),
+        (2, 'Lukumäärän valintapainike', 'Valintapainike lukumäärälle', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.34, 1, 2, FALSE, NULL, NULL, FALSE, 2, NULL),
+        (3, 'Lähetä-painike', 'Painikkeella käyttäjä lähettää tiedot', 'Interactive end-user input service', '1-functional', 2, 4, 2, NULL, 3, 0.5, 2, 3, FALSE, NULL, NULL, FALSE, 1, NULL);
 
 INSERT INTO projects_app_users (id, project_id, app_user_id)
 VALUES  (1, 1, 1),
