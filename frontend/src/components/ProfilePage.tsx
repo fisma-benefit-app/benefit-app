@@ -38,7 +38,7 @@ export default function ProfilePage() {
     }
 
     if (newPassword.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
+      setPasswordError(translation.passwordMinLength);
       return;
     }
 
@@ -77,17 +77,17 @@ export default function ProfilePage() {
 
     // Validation
     if (!newUsername.trim()) {
-      setUsernameError("Username cannot be empty");
+      setUsernameError(translation.usernameEmpty);
       return;
     }
 
     if (!passwordForUsername) {
-      setUsernameError("Password is required to update username");
+      setUsernameError(translation.usernamePasswordRequired);
       return;
     }
 
     if (!appUser?.id) {
-      setUsernameError("User ID not found. Please try logging in again.");
+      setUsernameError(translation.userIdNotFound);
       return;
     }
 
