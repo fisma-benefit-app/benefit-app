@@ -599,9 +599,23 @@ export const calculateMLALayerDetails = (
   const countedSubComponents = new Set<number>();
 
   for (const component of components) {
-    // All parent components go to UI layer
+    // Assign parent component count to the correct layer based on className
     if (!countedParentComponents.has(component.id)) {
-      layerDetails.ui.count++;
+      // Determine layer for parent component
+      let layer: "ui" | "business" | "database" = "ui";
+      const className = (component.className || "").toLowerCase();
+      if (
+        className === "non-interactive end-user output service" ||
+        className === "interface service to other applications"
+      ) {
+        layer = "business";
+      } else if (
+        className === "data storage and retrieval service" ||
+        className === "database"
+      ) {
+        layer = "database";
+      }
+      layerDetails[layer].count++;
       countedParentComponents.add(component.id);
     }
 
