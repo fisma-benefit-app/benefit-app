@@ -371,9 +371,14 @@ export const FunctionalPointSummary = ({
 
               {/* Multilayer Messages */}
               <div className="pt-4 mt-4 border-t border-gray-300 space-y-2">
+
+                <h3 className="font-semibold text-lg">
+                  {translation.functionalPointSummary.multiLayerMessages}
+                </h3>
+
                 <div className="flex justify-between">
                   <span className="text-sm">
-                    {translation.functionalPointSummary.multiLayerMessagesUIToBusiness}:
+                    {translation.functionalPointSummary.UiToBusiness}:
                   </span>
                   <span className="font-semibold text-blue-600">
                     {mlaMessageCounts.uiToBusiness}
@@ -382,7 +387,7 @@ export const FunctionalPointSummary = ({
 
                 <div className="flex justify-between">
                   <span className="text-sm">
-                    {translation.functionalPointSummary.multiLayerMessagesBusinessToUI}:
+                    {translation.functionalPointSummary.BusinessToUi}:
                   </span>
                   <span className="font-semibold text-blue-600">
                     {mlaMessageCounts.businessToUi}
@@ -391,7 +396,7 @@ export const FunctionalPointSummary = ({
 
                 <div className="flex justify-between">
                   <span className="text-sm">
-                    {translation.functionalPointSummary.multiLayerMessagesBusinessToData}:
+                    {translation.functionalPointSummary.BusinessToData}:
                   </span>
                   <span className="font-semibold text-blue-600">
                     {mlaMessageCounts.businessToDatabase}
@@ -400,7 +405,7 @@ export const FunctionalPointSummary = ({
 
                 <div className="flex justify-between">
                   <span className="text-sm">
-                    {translation.functionalPointSummary.multiLayerMessagesDataToBusiness}:
+                    {translation.functionalPointSummary.DataToBusiness}:
                   </span>
                   <span className="font-semibold text-blue-600">
                     {mlaMessageCounts.databaseToBusiness}
