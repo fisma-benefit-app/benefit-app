@@ -121,98 +121,9 @@ export const FunctionalPointSummary = ({
         {activeTab === "calculations" ? (
           <>
             {/* Parent Components */}
-            {getGroupedComponents(project.functionalComponents).parentGroups.map(
-          (group) => {
-            const componentCount = group.components.reduce(
-              (acc, curr) => acc + curr.count,
-              0,
-            );
-            const totalPointsForClass = group.components.reduce(
-              (acc, curr) => acc + curr.points,
-              0,
-            );
-
-            // Collect all parent components for this class
-            const allComponentsInThisClass: TGenericComponent[] = [];
-            project.functionalComponents.forEach((component) => {
-              if (component.className === group.className) {
-                allComponentsInThisClass.push(component);
-              }
-            });
-
-            const possiblePointsForClass = calculateTotalPossiblePoints(
-              allComponentsInThisClass,
-            );
-
-            return (
-              <div
-                key={group.className}
-                className="flex gap-2 sm:gap-5 justify-between w-full pb-3 text-sm sm:text-base"
-              >
-                <div>
-                  <b>
-                    <span className="text-blue-600 pr-2">{componentCount}</span>{" "}
-                    {
-                      translation.functionalClassComponent.classNameOptions[
-                        group.className as ClassName
-                      ]
-                    }{" "}
-                    {}
-                  </b>
-                  <br />
-                  {group.components.map((groupedTypes, idx) => {
-                    // Calculate possible points for this specific component type
-                    const componentsOfThisType =
-                      allComponentsInThisClass.filter((component) =>
-                        groupedTypes.type === null
-                          ? !component.componentType
-                          : component.componentType === groupedTypes.type,
-                      );
-                    const possiblePointsForType =
-                      calculateTotalPossiblePoints(componentsOfThisType);
-
-                    return (
-                      <div key={idx}>
-                        <span className="text-blue-500 pr-2">
-                          {groupedTypes.count}{" "}
-                        </span>
-                        {groupedTypes.type
-                          ? translation.functionalClassComponent
-                              .componentTypeOptions[
-                              groupedTypes.type as ComponentType
-                            ]
-                          : translation.functionalPointSummary
-                              .noSelectedComponentType}{" "}
-                        <b>{groupedTypes.points.toFixed(2)}</b>{" "}
-                        <span className="text-gray-400">
-                          / {possiblePointsForType.toFixed(2)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="whitespace-nowrap">
-                  <span className="font-semibold text-right">
-                    {totalPointsForClass.toFixed(2)}
-                  </span>
-                  <span className="text-gray-400">
-                    {" "}
-                    / {possiblePointsForClass.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            );
-          },
-        )}
-
-        {/* Subcomponents - with padding */}
-        {getGroupedComponents(project.functionalComponents).subComponentGroups
-          .length > 0 && (
-          <div className="pt-4 mt-4 border-t border-gray-300">
             {getGroupedComponents(
               project.functionalComponents,
-            ).subComponentGroups.map((group) => {
+            ).parentGroups.map((group) => {
               const componentCount = group.components.reduce(
                 (acc, curr) => acc + curr.count,
                 0,
@@ -222,22 +133,16 @@ export const FunctionalPointSummary = ({
                 0,
               );
 
-              // Collect all subcomponents for this class
-              const allSubComponentsInThisClass: TGenericComponent[] = [];
+              // Collect all parent components for this class
+              const allComponentsInThisClass: TGenericComponent[] = [];
               project.functionalComponents.forEach((component) => {
-                if (component.subComponents) {
-                  component.subComponents.forEach((subComponent) => {
-                    if (subComponent.className === group.className) {
-                      allSubComponentsInThisClass.push(
-                        subComponent as TGenericComponent,
-                      );
-                    }
-                  });
+                if (component.className === group.className) {
+                  allComponentsInThisClass.push(component);
                 }
               });
 
               const possiblePointsForClass = calculateTotalPossiblePoints(
-                allSubComponentsInThisClass,
+                allComponentsInThisClass,
               );
 
               return (
@@ -261,7 +166,7 @@ export const FunctionalPointSummary = ({
                     {group.components.map((groupedTypes, idx) => {
                       // Calculate possible points for this specific component type
                       const componentsOfThisType =
-                        allSubComponentsInThisClass.filter((component) =>
+                        allComponentsInThisClass.filter((component) =>
                           groupedTypes.type === null
                             ? !component.componentType
                             : component.componentType === groupedTypes.type,
@@ -302,12 +207,109 @@ export const FunctionalPointSummary = ({
                 </div>
               );
             })}
-          </div>
-        )}
+
+            {/* Subcomponents - with padding */}
+            {getGroupedComponents(project.functionalComponents)
+              .subComponentGroups.length > 0 && (
+              <div className="pt-4 mt-4 border-t border-gray-300">
+                {getGroupedComponents(
+                  project.functionalComponents,
+                ).subComponentGroups.map((group) => {
+                  const componentCount = group.components.reduce(
+                    (acc, curr) => acc + curr.count,
+                    0,
+                  );
+                  const totalPointsForClass = group.components.reduce(
+                    (acc, curr) => acc + curr.points,
+                    0,
+                  );
+
+                  // Collect all subcomponents for this class
+                  const allSubComponentsInThisClass: TGenericComponent[] = [];
+                  project.functionalComponents.forEach((component) => {
+                    if (component.subComponents) {
+                      component.subComponents.forEach((subComponent) => {
+                        if (subComponent.className === group.className) {
+                          allSubComponentsInThisClass.push(
+                            subComponent as TGenericComponent,
+                          );
+                        }
+                      });
+                    }
+                  });
+
+                  const possiblePointsForClass = calculateTotalPossiblePoints(
+                    allSubComponentsInThisClass,
+                  );
+
+                  return (
+                    <div
+                      key={group.className}
+                      className="flex gap-2 sm:gap-5 justify-between w-full pb-3 text-sm sm:text-base"
+                    >
+                      <div>
+                        <b>
+                          <span className="text-blue-600 pr-2">
+                            {componentCount}
+                          </span>{" "}
+                          {
+                            translation.functionalClassComponent
+                              .classNameOptions[group.className as ClassName]
+                          }{" "}
+                          {}
+                        </b>
+                        <br />
+                        {group.components.map((groupedTypes, idx) => {
+                          // Calculate possible points for this specific component type
+                          const componentsOfThisType =
+                            allSubComponentsInThisClass.filter((component) =>
+                              groupedTypes.type === null
+                                ? !component.componentType
+                                : component.componentType === groupedTypes.type,
+                            );
+                          const possiblePointsForType =
+                            calculateTotalPossiblePoints(componentsOfThisType);
+
+                          return (
+                            <div key={idx}>
+                              <span className="text-blue-500 pr-2">
+                                {groupedTypes.count}{" "}
+                              </span>
+                              {groupedTypes.type
+                                ? translation.functionalClassComponent
+                                    .componentTypeOptions[
+                                    groupedTypes.type as ComponentType
+                                  ]
+                                : translation.functionalPointSummary
+                                    .noSelectedComponentType}{" "}
+                              <b>{groupedTypes.points.toFixed(2)}</b>{" "}
+                              <span className="text-gray-400">
+                                / {possiblePointsForType.toFixed(2)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="whitespace-nowrap">
+                        <span className="font-semibold text-right">
+                          {totalPointsForClass.toFixed(2)}
+                        </span>
+                        <span className="text-gray-400">
+                          {" "}
+                          / {possiblePointsForClass.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </>
         ) : (
           // MLA Details Tab
-          mlaLayerDetails && mlaMessageCounts && (
+          mlaLayerDetails &&
+          mlaMessageCounts && (
             <div className="space-y-4">
               {/* Layer Details */}
               <div className="space-y-3">
@@ -371,7 +373,6 @@ export const FunctionalPointSummary = ({
 
               {/* Multilayer Messages */}
               <div className="pt-4 mt-4 border-t border-gray-300 space-y-2">
-
                 <h3 className="font-semibold text-lg">
                   {translation.functionalPointSummary.multiLayerMessages}
                 </h3>

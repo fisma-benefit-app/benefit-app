@@ -124,13 +124,13 @@ export const calculatePointsByLayer = (
         // Calculate total points by layer
         if (subType.startsWith("b-")) {
           totalPoints.business += subComponentPoints;
-          break; // Assign to first matching layer found
+          continue; // Assign to first matching layer found
         } else if (subType.startsWith("ui-")) {
           totalPoints.userInterface += componentPoints + subComponentPoints;
-          break;
+          continue;
         } else if (subType.startsWith("d-")) {
           totalPoints.database += componentPoints + subComponentPoints;
-          break;
+          continue;
         }
       }
     }
@@ -503,7 +503,7 @@ export const calculateReferencesSum = (
 /**
  * Calculate MLA layer details with component count and functional points
  * Uses the existing calculatePointsByLayer logic and adds component counting
- * 
+ *
  * Layer assignment rules:
  * - UI layer: All parent components + subcomponents with subtype starting with "UI-"
  * - Business layer: Subcomponents with subtype starting with "B-"
@@ -543,7 +543,7 @@ export const calculateMLALayerDetails = (
     if (component.subComponents && component.subComponents.length > 0) {
       for (const subComponent of component.subComponents) {
         const subType = subComponent.subComponentType?.toUpperCase() || "";
-        
+
         if (countedSubComponents.has(subComponent.id)) continue;
 
         if (subType.startsWith("UI-")) {

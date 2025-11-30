@@ -191,10 +191,14 @@ export const translations = {
       businessLayer: "Business layer",
       dataLayer: "Data layer",
       amount: "Amount",
-      multiLayerMessagesUIToBusiness: "Multilayer messages from UI layer to Business layer",
-      multiLayerMessagesBusinessToUI: "Multilayer messages from Business layer to UI layer",
-      multiLayerMessagesBusinessToData: "Multilayer messages from Business layer to Data layer",
-      multiLayerMessagesDataToBusiness: "Multilayer messages from Data layer to Business layer",
+      multiLayerMessagesUIToBusiness:
+        "Multilayer messages from UI layer to Business layer",
+      multiLayerMessagesBusinessToUI:
+        "Multilayer messages from Business layer to UI layer",
+      multiLayerMessagesBusinessToData:
+        "Multilayer messages from Business layer to Data layer",
+      multiLayerMessagesDataToBusiness:
+        "Multilayer messages from Data layer to Business layer",
       multiLayerMessages: "Multi-layer messages",
       UiToBusiness: "UI Layer → Business Layer",
       BusinessToUi: "Business Layer → UI Layer",
@@ -440,10 +444,14 @@ export const translations = {
       businessLayer: "Välikerros",
       dataLayer: "Tietovarasto",
       amount: "Määrä",
-      multiLayerMessagesUIToBusiness: "Monikerrosviestit Käyttöliittymäkerroksesta välikerrokseen",
-      multiLayerMessagesBusinessToUI: "Monikerrosviestit välikerroksesta Käyttöliittymäkerrokseen",
-      multiLayerMessagesBusinessToData: "Monikerrosviestit välikerroksesta datakerrokseen",
-      multiLayerMessagesDataToBusiness: "Monikerrosviestit datakerroksesta välikerrokseen",
+      multiLayerMessagesUIToBusiness:
+        "Monikerrosviestit Käyttöliittymäkerroksesta välikerrokseen",
+      multiLayerMessagesBusinessToUI:
+        "Monikerrosviestit välikerroksesta Käyttöliittymäkerrokseen",
+      multiLayerMessagesBusinessToData:
+        "Monikerrosviestit välikerroksesta datakerrokseen",
+      multiLayerMessagesDataToBusiness:
+        "Monikerrosviestit datakerroksesta välikerrokseen",
       multiLayerMessages: "Monikerrosviestit",
       UiToBusiness: "Käyttöliittymäkerros → Välikerros",
       BusinessToUi: "Välikerros → Käyttöliittymäkerros",
