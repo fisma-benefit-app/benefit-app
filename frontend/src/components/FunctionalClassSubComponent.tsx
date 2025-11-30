@@ -32,8 +32,14 @@ export default function FunctionalClassSubComponent({
     <>
       {!collapsed && (
         <>
+          {/* Name Section */}
+          <div className="flex flex-row flex-wrap gap-2 items-center mt-2">
+            <div className="flex flex-col gap-2 items-center">
+              <h3 className="text-xl mt-2">{component.title}</h3>
+            </div>
+          </div>
           {/* Metadata Section */}
-          <div className="flex flex-row flex-wrap gap-3 items-center">
+          <div className="flex flex-row flex-wrap gap-2 items-end">
             <select
               id="className"
               value={component.className || ""}
