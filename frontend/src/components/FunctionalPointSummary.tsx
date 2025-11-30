@@ -327,7 +327,9 @@ export const FunctionalPointSummary = ({
                 <table className="w-full text-sm border-collapse">
                   <thead>
                     <tr className="border-b-2 border-gray-300">
-                      <th className="text-left py-2 font-semibold">Layer</th>
+                      <th className="text-left py-2 font-semibold">
+                        {translation.functionalPointSummary.layer}
+                      </th>
                       <th className="text-center py-2 font-semibold">
                         {translation.functionalPointSummary.amount}
                       </th>
@@ -394,7 +396,7 @@ export const FunctionalPointSummary = ({
 
                 <div className="flex justify-between">
                   <span className="text-sm">
-                    {translation.functionalPointSummary.UiToBusiness}:
+                    {translation.functionalPointSummary.uiToBusiness}:
                   </span>
                   <span className="font-semibold text-blue-600">
                     {mlaMessageCounts.uiToBusiness}
@@ -403,7 +405,7 @@ export const FunctionalPointSummary = ({
 
                 <div className="flex justify-between">
                   <span className="text-sm">
-                    {translation.functionalPointSummary.BusinessToUi}:
+                    {translation.functionalPointSummary.businessToUi}:
                   </span>
                   <span className="font-semibold text-blue-600">
                     {mlaMessageCounts.businessToUi}
@@ -412,7 +414,7 @@ export const FunctionalPointSummary = ({
 
                 <div className="flex justify-between">
                   <span className="text-sm">
-                    {translation.functionalPointSummary.BusinessToData}:
+                    {translation.functionalPointSummary.businessToData}:
                   </span>
                   <span className="font-semibold text-blue-600">
                     {mlaMessageCounts.businessToDatabase}
@@ -421,7 +423,7 @@ export const FunctionalPointSummary = ({
 
                 <div className="flex justify-between">
                   <span className="text-sm">
-                    {translation.functionalPointSummary.DataToBusiness}:
+                    {translation.functionalPointSummary.dataToBusiness}:
                   </span>
                   <span className="font-semibold text-blue-600">
                     {mlaMessageCounts.databaseToBusiness}

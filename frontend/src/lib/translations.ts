@@ -1,3 +1,5 @@
+import { layer } from "@fortawesome/fontawesome-svg-core";
+
 export const translations = {
   en: {
     header: {
@@ -155,7 +157,10 @@ export const translations = {
       hideMultiLayerInterfaces: "Hide multi-layer interfaces",
       noMultiLayerInterfaces: "No multi-layer interfaces found",
       multiLayerInterfaces: "Multi-layer interfaces",
+      multiLayerInterface: "Multi-layer Interface",
       totalWithMultiLayerInterfaces: "Total with Multi-layer Interfaces",
+      totalWithoutMultiLayerInterfaces: "Total without Multi-layer Interfaces",
+      toggleTotalView: "Toggle total view",
     },
     projectPage: {
       saveProject: "Save",
@@ -192,10 +197,11 @@ export const translations = {
       dataLayer: "Data layer",
       amount: "Amount",
       multiLayerMessages: "Multi-layer messages",
-      UiToBusiness: "UI Layer → Business Layer",
-      BusinessToUi: "Business Layer → UI Layer",
-      BusinessToData: "Business Layer → Data Layer",
-      DataToBusiness: "Data Layer → Business Layer",
+      uiToBusiness: "UI Layer → Business Layer",
+      businessToUi: "Business Layer → UI Layer",
+      businessToData: "Business Layer → Data Layer",
+      dataToBusiness: "Data Layer → Business Layer",
+      layer: "Layer",
     },
     alert: {
       save: "Save",
@@ -399,7 +405,10 @@ export const translations = {
       hideMultiLayerInterfaces: "Piilota monikerrosliittymät",
       noMultiLayerInterfaces: "Monikerrosliittymiä ei löytynyt",
       multiLayerInterfaces: "Monikerrosliittymät",
+      multiLayerInterface: "Monikerrosliittymä",
       totalWithMultiLayerInterfaces: "Yhteensä monikerrosliittymien kanssa",
+      totalWithoutMultiLayerInterfaces: "Yhteensä ilman monikerrosliittymiä",
+      toggleTotalView: "Vaihda kokonaisnäkymää",
     },
     projectPage: {
       saveProject: "Tallenna",
@@ -437,10 +446,11 @@ export const translations = {
       dataLayer: "Tietovarasto",
       amount: "Määrä",
       multiLayerMessages: "Monikerrosviestit",
-      UiToBusiness: "Käyttöliittymäkerros → Välikerros",
-      BusinessToUi: "Välikerros → Käyttöliittymäkerros",
-      BusinessToData: "Välikerros → Tietovarasto",
-      DataToBusiness: "Tietovarasto → Välikerros",
+      uiToBusiness: "Käyttöliittymäkerros → Välikerros",
+      businessToUi: "Välikerros → Käyttöliittymäkerros",
+      businessToData: "Välikerros → Tietovarasto",
+      dataToBusiness: "Tietovarasto → Välikerros",
+      layer: "Kerros",
     },
     alert: {
       save: "Tallennus",
