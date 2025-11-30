@@ -92,7 +92,7 @@ export const FunctionalPointSummary = ({
     <div className="flex flex-col border-2 p-4 bg-white h-[calc(55vh-5rem)] overflow-y-auto sticky top-20">
       {/* Tabs */}
       {hasMLA && (
-        <div className="flex border-b mb-4">
+        <div role="tablist" className="flex border-b mb-4">
           <button
             role="tab"
             aria-selected={activeTab === "calculations"}
@@ -121,7 +121,14 @@ export const FunctionalPointSummary = ({
       )}
 
       {/* Tab Content */}
-      <div className="max-h-[60vh] overflow-y-auto pr-2">
+      <div
+        role="tabpanel"
+        id={activeTab === "calculations" ? "calculations-panel" : "mla-panel"}
+        aria-labelledby={
+          activeTab === "calculations" ? "calculations-tab" : "mla-tab"
+        }
+        className="max-h-[60vh] overflow-y-auto pr-2"
+      >
         {activeTab === "calculations" ? (
           <>
             {/* Parent Components */}
