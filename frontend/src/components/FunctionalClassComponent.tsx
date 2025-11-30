@@ -88,6 +88,23 @@ export default function FunctionalClassComponent({
   const fullPoints = calculateBasePoints(component);
   const pointsByDegreeOfCompletion = calculateComponentPoints(component);
 
+  // Calculate total points including subcomponents
+  const totalPointsWithSubComponents = component.subComponents
+    ? component.subComponents.reduce(
+        (total, subComp) =>
+          total + calculateComponentPoints(subComp as TGenericComponent),
+        pointsByDegreeOfCompletion,
+      )
+    : pointsByDegreeOfCompletion;
+
+  const totalFullPointsWithSubComponents = component.subComponents
+    ? component.subComponents.reduce(
+        (total, subComp) =>
+          total + calculateBasePoints(subComp as TGenericComponent),
+        fullPoints,
+      )
+    : fullPoints;
+
   const degreeOfCompletionOptions = new Map([
     ["0.1", translation.degreeOfCompletion.specified],
     ["0.3", translation.degreeOfCompletion.planned],
@@ -490,6 +507,25 @@ export default function FunctionalClassComponent({
             {translation.functionalPointReadyText}: {fullPoints.toFixed(2)}
           </span>
         </div>
+
+        {/* Total with subcomponents - prominent display */}
+        {component.subComponents && component.subComponents.length > 0 && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-md p-3 mt-2">
+            <div className="text-xs text-blue-700 font-medium mb-1">
+              {translation.totalWithMultiLayerInterfaces}
+            </div>
+            <div className="flex justify-between text-base font-bold text-blue-900">
+              <span>
+                {translation.functionalPointText}:{" "}
+                {totalPointsWithSubComponents.toFixed(2)}
+              </span>
+              <span>
+                {translation.functionalPointReadyText}:{" "}
+                {totalFullPointsWithSubComponents.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        )}
 
         {component.isMLA && (
           <div>

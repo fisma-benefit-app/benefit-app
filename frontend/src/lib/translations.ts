@@ -155,6 +155,7 @@ export const translations = {
       hideMultiLayerInterfaces: "Hide multi-layer interfaces",
       noMultiLayerInterfaces: "No multi-layer interfaces found",
       multiLayerInterfaces: "Multi-layer interfaces",
+      totalWithMultiLayerInterfaces: "Total with Multi-layer Interfaces",
     },
     projectPage: {
       saveProject: "Save",
@@ -397,6 +398,7 @@ export const translations = {
       hideMultiLayerInterfaces: "Piilota monikerrosliittymät",
       noMultiLayerInterfaces: "Monikerrosliittymiä ei löytynyt",
       multiLayerInterfaces: "Monikerrosliittymät",
+      totalWithMultiLayerInterfaces: "Yhteensä monikerrosliittymien kanssa",
     },
     projectPage: {
       saveProject: "Tallenna",
