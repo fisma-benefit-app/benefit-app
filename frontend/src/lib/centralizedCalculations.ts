@@ -109,9 +109,12 @@ export const calculatePointsByLayer = (
       component.className === "Algorithmic or manipulation service"
     ) {
       totalPoints.business += componentPoints;
-      continue; // Continue to next component instead of breaking the entire loop
+    } else {
+      // Default assignment to UI layer for other classes
+      totalPoints.userInterface += componentPoints;
     }
 
+    // Loop through subcomponents to assign points by layer
     if (component.subComponents && component.subComponents.length > 0) {
       for (const subComponent of component.subComponents) {
         const subType = subComponent.subComponentType?.toLowerCase() || "";
@@ -124,13 +127,13 @@ export const calculatePointsByLayer = (
         // Calculate total points by layer
         if (subType.startsWith("b-")) {
           totalPoints.business += subComponentPoints;
-          continue; // Assign to first matching layer found
         } else if (subType.startsWith("ui-")) {
-          totalPoints.userInterface += componentPoints + subComponentPoints;
-          continue;
+          totalPoints.userInterface += subComponentPoints;
         } else if (subType.startsWith("d-")) {
-          totalPoints.database += componentPoints + subComponentPoints;
-          continue;
+          totalPoints.database += subComponentPoints;
+        } else {
+          // Default to UI layer if no subtype match
+          totalPoints.userInterface += subComponentPoints;
         }
       }
     }
