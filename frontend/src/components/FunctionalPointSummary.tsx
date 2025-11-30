@@ -94,6 +94,8 @@ export const FunctionalPointSummary = ({
       {hasMLA && (
         <div className="flex border-b mb-4">
           <button
+            role="tab"
+            aria-selected={activeTab === "calculations"}
             onClick={() => setActiveTab("calculations")}
             className={`px-4 py-2 font-medium transition-colors ${
               activeTab === "calculations"
@@ -104,6 +106,8 @@ export const FunctionalPointSummary = ({
             {translation.functionalPointSummary.calculationsTab}
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === "mla"}
             onClick={() => setActiveTab("mla")}
             className={`px-4 py-2 font-medium transition-colors ${
               activeTab === "mla"
