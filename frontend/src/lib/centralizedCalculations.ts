@@ -200,6 +200,88 @@ export const calculateProjectTotalPoints = (project: Project): number => {
 };
 
 /**
+ * Calculate total functional points for parent components only (excluding subcomponents)
+ */
+export const calculateParentOnlyPoints = (
+  components: TGenericComponent[],
+): number => {
+  if (components.length === 0) return 0;
+
+  let totalPoints = 0;
+  for (const component of components) {
+    totalPoints += calculateComponentPoints(component);
+  }
+
+  return totalPoints;
+};
+
+/**
+ * Calculate total possible functional points for parent components only (excluding subcomponents)
+ */
+export const calculateParentOnlyPossiblePoints = (
+  components: TGenericComponent[],
+): number => {
+  if (components.length === 0) return 0;
+
+  let totalPossiblePoints = 0;
+  for (const component of components) {
+    totalPossiblePoints += calculateBasePoints(component);
+  }
+
+  return totalPossiblePoints;
+};
+
+/**
+ * Calculate grand total including all subcomponents
+ */
+export const calculateGrandTotalPoints = (
+  components: TGenericComponent[],
+): number => {
+  if (components.length === 0) return 0;
+
+  let totalPoints = 0;
+  for (const component of components) {
+    totalPoints += calculateComponentPoints(component);
+
+    // Add subcomponents
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        totalPoints += calculateComponentPoints(
+          subComponent as TGenericComponent,
+        );
+      }
+    }
+  }
+
+  return totalPoints;
+};
+
+/**
+ * Calculate grand total possible points including all subcomponents
+ */
+export const calculateGrandTotalPossiblePoints = (
+  components: TGenericComponent[],
+): number => {
+  if (components.length === 0) return 0;
+
+  let totalPossiblePoints = 0;
+  for (const component of components) {
+    totalPossiblePoints += calculateBasePoints(component);
+
+    // Add subcomponents
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        totalPossiblePoints += calculateBasePoints(
+          subComponent as TGenericComponent,
+        );
+      }
+    }
+  }
+
+  return totalPossiblePoints;
+};
+
+/**
  * Calculate total possible functional points for components (if all were 100% complete)
  * Uses memoization for performance optimization
  */
@@ -279,42 +361,63 @@ export const getUniqueComponentTypes = (
 
 /**
  * Group components by class name and component type for summary displays
+ * Separates parent components and subcomponents
  */
 export const getGroupedComponents = (components: TGenericComponent[]) => {
-  const uniqueClasses = getUniqueClassNames(components);
+  // Separate parent components and subcomponents
+  const parentComponents: TGenericComponent[] = [];
+  const subComponents: TGenericComponent[] = [];
 
-  return uniqueClasses.map((className) => {
-    const componentsInClass = components.filter(
-      (component) => component.className === className,
-    );
-
-    const uniqueTypes = getUniqueComponentTypes(componentsInClass);
-
-    const typesInClass = uniqueTypes.map((componentType) => {
-      const componentsOfType = componentsInClass.filter(
-        (component) => component.componentType === componentType,
-      );
-
-      return {
-        type: componentType || null,
-        count: componentsOfType.length,
-        points: calculateTotalPoints(componentsOfType),
-      };
-    });
-
-    const componentsWithoutType = componentsInClass.filter(
-      (component) => !component.componentType,
-    );
-    if (componentsWithoutType.length > 0) {
-      typesInClass.push({
-        type: null,
-        count: componentsWithoutType.length,
-        points: calculateTotalPoints(componentsWithoutType),
+  components.forEach((component) => {
+    parentComponents.push(component);
+    if (component.subComponents && component.subComponents.length > 0) {
+      component.subComponents.forEach((subComponent) => {
+        subComponents.push(subComponent as TGenericComponent);
       });
     }
-
-    return { className, components: typesInClass };
   });
+
+  const groupByClassAndType = (componentsList: TGenericComponent[]) => {
+    const uniqueClasses = getUniqueClassNames(componentsList);
+
+    return uniqueClasses.map((className) => {
+      const componentsInClass = componentsList.filter(
+        (component) => component.className === className,
+      );
+
+      const uniqueTypes = getUniqueComponentTypes(componentsInClass);
+
+      const typesInClass = uniqueTypes.map((componentType) => {
+        const componentsOfType = componentsInClass.filter(
+          (component) => component.componentType === componentType,
+        );
+
+        return {
+          type: componentType || null,
+          count: componentsOfType.length,
+          points: calculateTotalPoints(componentsOfType),
+        };
+      });
+
+      const componentsWithoutType = componentsInClass.filter(
+        (component) => !component.componentType,
+      );
+      if (componentsWithoutType.length > 0) {
+        typesInClass.push({
+          type: null,
+          count: componentsWithoutType.length,
+          points: calculateTotalPoints(componentsWithoutType),
+        });
+      }
+
+      return { className, components: typesInClass };
+    });
+  };
+
+  return {
+    parentGroups: groupByClassAndType(parentComponents),
+    subComponentGroups: groupByClassAndType(subComponents),
+  };
 };
 
 /**

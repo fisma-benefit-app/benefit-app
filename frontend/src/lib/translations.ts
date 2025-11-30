@@ -182,6 +182,8 @@ export const translations = {
       functionalPointText: "FP",
       csv: "Export CSV",
       pdf: "Export PDF",
+      parentComponents: "Total without multi-layer interfaces",
+      grandTotal: "Total",
     },
     alert: {
       save: "Save",
@@ -413,6 +415,8 @@ export const translations = {
       functionalPointText: "TP",
       csv: "Luo CSV",
       pdf: "Luo PDF",
+      parentComponents: "Yhteensä ilman monikerrosliittymiä",
+      grandTotal: "Yhteensä",
     },
     alert: {
       save: "Tallennus",
