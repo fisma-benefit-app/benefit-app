@@ -4,6 +4,7 @@ import {
   faTrash,
   faLayerGroup,
   faGripVertical,
+  faArrowsRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, useEffect } from "react";
@@ -70,6 +71,9 @@ export default function FunctionalClassComponent({
 
   const [showSubComponents, setShowSubComponents] = useState(true);
 
+  // State to toggle between showing totals with or without MLA
+  const [showMLATotal, setShowMLATotal] = useState(true);
+
   // Hide subcomponents when parent component is collapsed
   useEffect(() => {
     if (collapsed) {
@@ -87,6 +91,23 @@ export default function FunctionalClassComponent({
   // Calculate functional points using centralized calculations
   const fullPoints = calculateBasePoints(component);
   const pointsByDegreeOfCompletion = calculateComponentPoints(component);
+
+  // Calculate total points including subcomponents
+  const totalPointsWithSubComponents = component.subComponents
+    ? component.subComponents.reduce(
+        (total, subComp) =>
+          total + calculateComponentPoints(subComp as TGenericComponent),
+        pointsByDegreeOfCompletion,
+      )
+    : pointsByDegreeOfCompletion;
+
+  const totalFullPointsWithSubComponents = component.subComponents
+    ? component.subComponents.reduce(
+        (total, subComp) =>
+          total + calculateBasePoints(subComp as TGenericComponent),
+        fullPoints,
+      )
+    : fullPoints;
 
   const degreeOfCompletionOptions = new Map([
     ["0.1", translation.degreeOfCompletion.specified],
@@ -481,33 +502,125 @@ export default function FunctionalClassComponent({
           </>
         )}
 
-        <div className="border-t pt-2 text-sm sm:text-base flex justify-between text-fisma-blue font-semibold">
-          <span>
-            {translation.functionalPointText}:{" "}
-            {pointsByDegreeOfCompletion.toFixed(2)}
-          </span>
-          <span>
-            {translation.functionalPointReadyText}: {fullPoints.toFixed(2)}
-          </span>
+        {/* Component Points Progress Bar */}
+        <div className="border-t pt-3">
+          {component.subComponents && component.subComponents.length > 0 ? (
+            // Show toggle-able total for components with MLA
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-md p-3">
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-xs text-blue-700 font-medium">
+                  {showMLATotal
+                    ? translation.totalWithMultiLayerInterfaces
+                    : translation.totalWithoutMultiLayerInterfaces}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowMLATotal(!showMLATotal)}
+                  className="text-blue-600 hover:text-blue-800 transition-colors"
+                  title={translation.toggleTotalView}
+                >
+                  <FontAwesomeIcon icon={faArrowsRotate} className="text-sm" />
+                </button>
+              </div>
+              <div className="flex justify-between text-xs font-semibold text-blue-900 mb-1">
+                <span>
+                  {translation.functionalPointText}:{" "}
+                  {showMLATotal
+                    ? totalPointsWithSubComponents.toFixed(2)
+                    : pointsByDegreeOfCompletion.toFixed(2)}{" "}
+                  (
+                  {showMLATotal
+                    ? totalFullPointsWithSubComponents > 0
+                      ? (
+                          (totalPointsWithSubComponents /
+                            totalFullPointsWithSubComponents) *
+                          100
+                        ).toFixed(1)
+                      : "0.0"
+                    : fullPoints > 0
+                      ? (
+                          (pointsByDegreeOfCompletion / fullPoints) *
+                          100
+                        ).toFixed(1)
+                      : "0.0"}
+                  %)
+                </span>
+                <span>
+                  {translation.functionalPointReadyText}:{" "}
+                  {showMLATotal
+                    ? totalFullPointsWithSubComponents.toFixed(2)
+                    : fullPoints.toFixed(2)}{" "}
+                  (100%)
+                </span>
+              </div>
+              <div className="w-full bg-blue-200 rounded-full h-3">
+                <div
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                  style={{
+                    width: showMLATotal
+                      ? totalFullPointsWithSubComponents > 0
+                        ? `${(totalPointsWithSubComponents / totalFullPointsWithSubComponents) * 100}%`
+                        : "0%"
+                      : fullPoints > 0
+                        ? `${(pointsByDegreeOfCompletion / fullPoints) * 100}%`
+                        : "0%",
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            // Show simple progress bar for components without MLA
+            <>
+              <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
+                <span>
+                  {translation.functionalPointText}:{" "}
+                  {pointsByDegreeOfCompletion.toFixed(2)} (
+                  {fullPoints > 0
+                    ? ((pointsByDegreeOfCompletion / fullPoints) * 100).toFixed(
+                        1,
+                      )
+                    : "0.0"}
+                  %)
+                </span>
+                <span>
+                  {translation.functionalPointReadyText}:{" "}
+                  {fullPoints.toFixed(2)} (100%)
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-400 h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width:
+                      fullPoints > 0
+                        ? `${(pointsByDegreeOfCompletion / fullPoints) * 100}%`
+                        : "0%",
+                  }}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         {component.isMLA && (
-          <div>
+          <div className="mt-4">
             {showSubComponents &&
               component.subComponents &&
               component.subComponents.length > 0 && (
-                <div className="space-y-3 ml-4 border-l-4 border-fisma-blue pl-4">
-                  <label className="font-bold text-fisma-blue">
-                    {translation.multiLayerInterfaces}
-                  </label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="h-px bg-gradient-to-r from-blue-400 to-transparent flex-grow"></div>
+                    <label className="font-semibold text-blue-600 text-sm uppercase tracking-wide">
+                      {translation.multiLayerInterfaces}
+                    </label>
+                    <div className="h-px bg-gradient-to-l from-blue-400 to-transparent flex-grow"></div>
+                  </div>
                   {component.subComponents.map((subComp) => (
                     <div key={subComp.id} className="relative">
-                      <div className="opacity-75 pointer-events-none">
-                        <FunctionalClassSubComponent
-                          component={subComp}
-                          collapsed={false}
-                        />
-                      </div>
+                      <FunctionalClassSubComponent
+                        component={subComp}
+                        collapsed={false}
+                      />
                     </div>
                   ))}
                 </div>
@@ -517,7 +630,7 @@ export default function FunctionalClassComponent({
             {showSubComponents &&
               (!component.subComponents ||
                 component.subComponents.length === 0) && (
-                <div className="ml-4 pl-4 border-l-4 border-fisma-blue text-sm text-gray-600 italic py-2">
+                <div className="text-sm text-gray-500 italic py-4 text-center bg-gray-50 rounded-md border border-gray-200">
                   {translation.noMultiLayerInterfaces}
                 </div>
               )}

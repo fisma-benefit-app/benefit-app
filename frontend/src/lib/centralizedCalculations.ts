@@ -109,12 +109,15 @@ export const calculatePointsByLayer = (
       component.className === "Algorithmic or manipulation service"
     ) {
       totalPoints.business += componentPoints;
-      break;
+    } else {
+      // Default assignment to UI layer for other classes
+      totalPoints.userInterface += componentPoints;
     }
 
+    // Loop through subcomponents to assign points by layer
     if (component.subComponents && component.subComponents.length > 0) {
       for (const subComponent of component.subComponents) {
-        const subType = subComponent.subComponentType?.toLowerCase() || "";
+        const subType = subComponent.subComponentType ?? "";
 
         // Calculate subcomponent points
         const subComponentPoints = calculateComponentPoints(
@@ -122,15 +125,15 @@ export const calculatePointsByLayer = (
         );
 
         // Calculate total points by layer
-        if (subType.startsWith("b-")) {
+        if (subType.startsWith("B-")) {
           totalPoints.business += subComponentPoints;
-          break; // Assign to first matching layer found
-        } else if (subType.startsWith("ui-")) {
-          totalPoints.userInterface += componentPoints + subComponentPoints;
-          break;
-        } else if (subType.startsWith("d-")) {
-          totalPoints.database += componentPoints + subComponentPoints;
-          break;
+        } else if (subType.startsWith("UI-")) {
+          totalPoints.userInterface += subComponentPoints;
+        } else if (subType.startsWith("D-")) {
+          totalPoints.database += subComponentPoints;
+        } else {
+          // Default to UI layer if no subtype match
+          totalPoints.userInterface += subComponentPoints;
         }
       }
     }
@@ -146,6 +149,63 @@ export const calculateProjectPointsByLayer = (
   project: Project,
 ): { userInterface: number; business: number; database: number } => {
   return calculatePointsByLayer(project.functionalComponents);
+};
+
+/**
+ * Calculate possible functional points grouped by layer (UI, Business, Database)
+ * Same logic as calculatePointsByLayer but uses base points (without degree of completion)
+ */
+export const calculatePossiblePointsByLayer = (
+  components: TGenericComponent[],
+): { userInterface: number; business: number; database: number } => {
+  const totalPossiblePoints = {
+    userInterface: 0,
+    business: 0,
+    database: 0,
+  };
+
+  for (const component of components) {
+    const componentBasePoints = calculateBasePoints(component); // Calculate main component base points
+
+    // If component is one of these classes, assign points directly to business layer
+    if (
+      component.className === "Non-interactive end-user output service" ||
+      component.className === "Interface service to other applications" ||
+      component.className === "Interface service from other applications" ||
+      component.className === "Algorithmic or manipulation service"
+    ) {
+      totalPossiblePoints.business += componentBasePoints;
+    } else {
+      // Default assignment to UI layer for other classes
+      totalPossiblePoints.userInterface += componentBasePoints;
+    }
+
+    // Loop through subcomponents to assign points by layer
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        const subType = subComponent.subComponentType ?? "";
+
+        // Calculate subcomponent base points
+        const subComponentBasePoints = calculateBasePoints(
+          subComponent as TGenericComponent,
+        );
+
+        // Calculate total possible points by layer
+        if (subType.startsWith("B-")) {
+          totalPossiblePoints.business += subComponentBasePoints;
+        } else if (subType.startsWith("UI-")) {
+          totalPossiblePoints.userInterface += subComponentBasePoints;
+        } else if (subType.startsWith("D-")) {
+          totalPossiblePoints.database += subComponentBasePoints;
+        } else {
+          // Default to UI layer if no subtype match
+          totalPossiblePoints.userInterface += subComponentBasePoints;
+        }
+      }
+    }
+  }
+
+  return totalPossiblePoints;
 };
 
 /**
@@ -197,6 +257,88 @@ export const calculateTotalPoints = (
  */
 export const calculateProjectTotalPoints = (project: Project): number => {
   return calculateTotalPoints(project.functionalComponents);
+};
+
+/**
+ * Calculate total functional points for parent components only (excluding subcomponents)
+ */
+export const calculateParentOnlyPoints = (
+  components: TGenericComponent[],
+): number => {
+  if (components.length === 0) return 0;
+
+  let totalPoints = 0;
+  for (const component of components) {
+    totalPoints += calculateComponentPoints(component);
+  }
+
+  return totalPoints;
+};
+
+/**
+ * Calculate total possible functional points for parent components only (excluding subcomponents)
+ */
+export const calculateParentOnlyPossiblePoints = (
+  components: TGenericComponent[],
+): number => {
+  if (components.length === 0) return 0;
+
+  let totalPossiblePoints = 0;
+  for (const component of components) {
+    totalPossiblePoints += calculateBasePoints(component);
+  }
+
+  return totalPossiblePoints;
+};
+
+/**
+ * Calculate grand total including all subcomponents
+ */
+export const calculateGrandTotalPoints = (
+  components: TGenericComponent[],
+): number => {
+  if (components.length === 0) return 0;
+
+  let totalPoints = 0;
+  for (const component of components) {
+    totalPoints += calculateComponentPoints(component);
+
+    // Add subcomponents
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        totalPoints += calculateComponentPoints(
+          subComponent as TGenericComponent,
+        );
+      }
+    }
+  }
+
+  return totalPoints;
+};
+
+/**
+ * Calculate grand total possible points including all subcomponents
+ */
+export const calculateGrandTotalPossiblePoints = (
+  components: TGenericComponent[],
+): number => {
+  if (components.length === 0) return 0;
+
+  let totalPossiblePoints = 0;
+  for (const component of components) {
+    totalPossiblePoints += calculateBasePoints(component);
+
+    // Add subcomponents
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        totalPossiblePoints += calculateBasePoints(
+          subComponent as TGenericComponent,
+        );
+      }
+    }
+  }
+
+  return totalPossiblePoints;
 };
 
 /**
@@ -279,42 +421,63 @@ export const getUniqueComponentTypes = (
 
 /**
  * Group components by class name and component type for summary displays
+ * Separates parent components and subcomponents
  */
 export const getGroupedComponents = (components: TGenericComponent[]) => {
-  const uniqueClasses = getUniqueClassNames(components);
+  // Separate parent components and subcomponents
+  const parentComponents: TGenericComponent[] = [];
+  const subComponents: TGenericComponent[] = [];
 
-  return uniqueClasses.map((className) => {
-    const componentsInClass = components.filter(
-      (component) => component.className === className,
-    );
-
-    const uniqueTypes = getUniqueComponentTypes(componentsInClass);
-
-    const typesInClass = uniqueTypes.map((componentType) => {
-      const componentsOfType = componentsInClass.filter(
-        (component) => component.componentType === componentType,
-      );
-
-      return {
-        type: componentType || null,
-        count: componentsOfType.length,
-        points: calculateTotalPoints(componentsOfType),
-      };
-    });
-
-    const componentsWithoutType = componentsInClass.filter(
-      (component) => !component.componentType,
-    );
-    if (componentsWithoutType.length > 0) {
-      typesInClass.push({
-        type: null,
-        count: componentsWithoutType.length,
-        points: calculateTotalPoints(componentsWithoutType),
+  components.forEach((component) => {
+    parentComponents.push(component);
+    if (component.subComponents && component.subComponents.length > 0) {
+      component.subComponents.forEach((subComponent) => {
+        subComponents.push(subComponent as TGenericComponent);
       });
     }
-
-    return { className, components: typesInClass };
   });
+
+  const groupByClassAndType = (componentsList: TGenericComponent[]) => {
+    const uniqueClasses = getUniqueClassNames(componentsList);
+
+    return uniqueClasses.map((className) => {
+      const componentsInClass = componentsList.filter(
+        (component) => component.className === className,
+      );
+
+      const uniqueTypes = getUniqueComponentTypes(componentsInClass);
+
+      const typesInClass = uniqueTypes.map((componentType) => {
+        const componentsOfType = componentsInClass.filter(
+          (component) => component.componentType === componentType,
+        );
+
+        return {
+          type: componentType || null,
+          count: componentsOfType.length,
+          points: calculateTotalPoints(componentsOfType),
+        };
+      });
+
+      const componentsWithoutType = componentsInClass.filter(
+        (component) => !component.componentType,
+      );
+      if (componentsWithoutType.length > 0) {
+        typesInClass.push({
+          type: null,
+          count: componentsWithoutType.length,
+          points: calculateTotalPoints(componentsWithoutType),
+        });
+      }
+
+      return { className, components: typesInClass };
+    });
+  };
+
+  return {
+    parentGroups: groupByClassAndType(parentComponents),
+    subComponentGroups: groupByClassAndType(subComponents),
+  };
 };
 
 /**
@@ -395,4 +558,133 @@ export const calculateReferencesSum = (
     Number(parentComponent.readingReferences ?? 0) +
     Number(parentComponent.writingReferences ?? 0)
   );
+};
+
+/**
+ * Calculate MLA layer details with component count and functional points
+ * Uses the existing calculatePointsByLayer logic and adds component counting
+ *
+ * Layer assignment rules:
+ * - UI layer: All parent components + subcomponents with subtype starting with "UI-"
+ * - Business layer: Subcomponents with subtype starting with "B-"
+ * - Data layer: Subcomponents with subtype starting with "D-"
+ */
+export const calculateMLALayerDetails = (
+  components: TGenericComponent[],
+): {
+  ui: { count: number; points: number; possiblePoints: number };
+  business: { count: number; points: number; possiblePoints: number };
+  database: { count: number; points: number; possiblePoints: number };
+} => {
+  const layerDetails = {
+    ui: { count: 0, points: 0, possiblePoints: 0 },
+    business: { count: 0, points: 0, possiblePoints: 0 },
+    database: { count: 0, points: 0, possiblePoints: 0 },
+  };
+
+  // Get points using existing calculatePointsByLayer function
+  const pointsByLayer = calculatePointsByLayer(components);
+  layerDetails.ui.points = pointsByLayer.userInterface;
+  layerDetails.business.points = pointsByLayer.business;
+  layerDetails.database.points = pointsByLayer.database;
+
+  // Get possible points using calculatePossiblePointsByLayer function
+  const possiblePointsByLayer = calculatePossiblePointsByLayer(components);
+  layerDetails.ui.possiblePoints = possiblePointsByLayer.userInterface;
+  layerDetails.business.possiblePoints = possiblePointsByLayer.business;
+  layerDetails.database.possiblePoints = possiblePointsByLayer.database;
+
+  // Count components and subcomponents by layer
+  const countedParentComponents = new Set<number>();
+  const countedSubComponents = new Set<number>();
+
+  for (const component of components) {
+    // Assign parent component count to the correct layer based on className
+    if (!countedParentComponents.has(component.id)) {
+      // Determine layer for parent component
+      let layer: "ui" | "business" | "database" = "ui";
+      const className = (component.className || "").toLowerCase();
+      if (
+        className === "non-interactive end-user output service" ||
+        className === "interface service to other applications"
+      ) {
+        layer = "business";
+      } else if (
+        className === "data storage and retrieval service" ||
+        className === "database"
+      ) {
+        layer = "database";
+      }
+      layerDetails[layer].count++;
+      countedParentComponents.add(component.id);
+    }
+
+    // Count subcomponents by their subtype
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        const subType = subComponent.subComponentType?.toUpperCase() || "";
+
+        if (countedSubComponents.has(subComponent.id)) continue;
+
+        if (subType.startsWith("UI-")) {
+          layerDetails.ui.count++;
+          countedSubComponents.add(subComponent.id);
+        } else if (subType.startsWith("B-")) {
+          layerDetails.business.count++;
+          countedSubComponents.add(subComponent.id);
+        } else if (subType.startsWith("D-")) {
+          layerDetails.database.count++;
+          countedSubComponents.add(subComponent.id);
+        }
+      }
+    }
+  }
+
+  return layerDetails;
+};
+
+/**
+ * Calculate multilayer message counts between layers
+ */
+export const calculateMLAMessageCounts = (
+  components: TGenericComponent[],
+): {
+  uiToBusiness: number;
+  businessToUi: number;
+  businessToDatabase: number;
+  databaseToBusiness: number;
+} => {
+  const messageCounts = {
+    uiToBusiness: 0,
+    businessToUi: 0,
+    businessToDatabase: 0,
+    databaseToBusiness: 0,
+  };
+
+  for (const component of components) {
+    if (!component.subComponents) continue;
+
+    for (const subComponent of component.subComponents) {
+      const subType = subComponent.subComponentType;
+
+      if (subType === "UI-B") {
+        messageCounts.uiToBusiness++;
+      } else if (subType === "B-UI") {
+        messageCounts.businessToUi++;
+      } else if (subType === "B-D") {
+        messageCounts.businessToDatabase++;
+      } else if (subType === "D-B") {
+        messageCounts.databaseToBusiness++;
+      }
+    }
+  }
+
+  return messageCounts;
+};
+
+/**
+ * Check if project has any MLA components
+ */
+export const hasMLAComponents = (components: TGenericComponent[]): boolean => {
+  return components.some((component) => component.isMLA);
 };
