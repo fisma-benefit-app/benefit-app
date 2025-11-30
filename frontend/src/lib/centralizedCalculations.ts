@@ -109,7 +109,7 @@ export const calculatePointsByLayer = (
       component.className === "Algorithmic or manipulation service"
     ) {
       totalPoints.business += componentPoints;
-      break;
+      continue; // Continue to next component instead of breaking the entire loop
     }
 
     if (component.subComponents && component.subComponents.length > 0) {
@@ -498,4 +498,113 @@ export const calculateReferencesSum = (
     Number(parentComponent.readingReferences ?? 0) +
     Number(parentComponent.writingReferences ?? 0)
   );
+};
+
+/**
+ * Calculate MLA layer details with component count and functional points
+ * Uses the existing calculatePointsByLayer logic and adds component counting
+ * 
+ * Layer assignment rules:
+ * - UI layer: All parent components + subcomponents with subtype starting with "UI-"
+ * - Business layer: Subcomponents with subtype starting with "B-"
+ * - Data layer: Subcomponents with subtype starting with "D-"
+ */
+export const calculateMLALayerDetails = (
+  components: TGenericComponent[],
+): {
+  ui: { count: number; points: number };
+  business: { count: number; points: number };
+  database: { count: number; points: number };
+} => {
+  const layerDetails = {
+    ui: { count: 0, points: 0 },
+    business: { count: 0, points: 0 },
+    database: { count: 0, points: 0 },
+  };
+
+  // Get points using existing calculatePointsByLayer function
+  const pointsByLayer = calculatePointsByLayer(components);
+  layerDetails.ui.points = pointsByLayer.userInterface;
+  layerDetails.business.points = pointsByLayer.business;
+  layerDetails.database.points = pointsByLayer.database;
+
+  // Count components and subcomponents by layer
+  const countedParentComponents = new Set<number>();
+  const countedSubComponents = new Set<number>();
+
+  for (const component of components) {
+    // All parent components go to UI layer
+    if (!countedParentComponents.has(component.id)) {
+      layerDetails.ui.count++;
+      countedParentComponents.add(component.id);
+    }
+
+    // Count subcomponents by their subtype
+    if (component.subComponents && component.subComponents.length > 0) {
+      for (const subComponent of component.subComponents) {
+        const subType = subComponent.subComponentType?.toUpperCase() || "";
+        
+        if (countedSubComponents.has(subComponent.id)) continue;
+
+        if (subType.startsWith("UI-")) {
+          layerDetails.ui.count++;
+          countedSubComponents.add(subComponent.id);
+        } else if (subType.startsWith("B-")) {
+          layerDetails.business.count++;
+          countedSubComponents.add(subComponent.id);
+        } else if (subType.startsWith("D-")) {
+          layerDetails.database.count++;
+          countedSubComponents.add(subComponent.id);
+        }
+      }
+    }
+  }
+
+  return layerDetails;
+};
+
+/**
+ * Calculate multilayer message counts between layers
+ */
+export const calculateMLAMessageCounts = (
+  components: TGenericComponent[],
+): {
+  uiToBusiness: number;
+  businessToUi: number;
+  businessToDatabase: number;
+  databaseToBusiness: number;
+} => {
+  const messageCounts = {
+    uiToBusiness: 0,
+    businessToUi: 0,
+    businessToDatabase: 0,
+    databaseToBusiness: 0,
+  };
+
+  for (const component of components) {
+    if (!component.subComponents) continue;
+
+    for (const subComponent of component.subComponents) {
+      const subType = subComponent.subComponentType;
+
+      if (subType === "UI-B") {
+        messageCounts.uiToBusiness++;
+      } else if (subType === "B-UI") {
+        messageCounts.businessToUi++;
+      } else if (subType === "B-D") {
+        messageCounts.businessToDatabase++;
+      } else if (subType === "D-B") {
+        messageCounts.databaseToBusiness++;
+      }
+    }
+  }
+
+  return messageCounts;
+};
+
+/**
+ * Check if project has any MLA components
+ */
+export const hasMLAComponents = (components: TGenericComponent[]): boolean => {
+  return components.some((component) => component.isMLA);
 };

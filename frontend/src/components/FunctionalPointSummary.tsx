@@ -12,11 +12,15 @@ import {
   calculateParentOnlyPossiblePoints,
   calculateGrandTotalPoints,
   calculateGrandTotalPossiblePoints,
+  calculateMLALayerDetails,
+  calculateMLAMessageCounts,
+  hasMLAComponents,
 } from "../lib/centralizedCalculations";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
+import { useState } from "react";
 
 type FunctionalClassComponentProps = {
   project: Project;
@@ -29,6 +33,9 @@ export const FunctionalPointSummary = ({
 }: FunctionalClassComponentProps) => {
   const translation = useTranslations();
   const { sortedProjects, returnLatestOrPreviousVersion } = useProjects();
+  const [activeTab, setActiveTab] = useState<"calculations" | "mla">(
+    "calculations",
+  );
 
   //Get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
@@ -53,6 +60,15 @@ export const FunctionalPointSummary = ({
     project.functionalComponents,
   );
 
+  // MLA calculations
+  const hasMLA = hasMLAComponents(project.functionalComponents);
+  const mlaLayerDetails = hasMLA
+    ? calculateMLALayerDetails(project.functionalComponents)
+    : null;
+  const mlaMessageCounts = hasMLA
+    ? calculateMLAMessageCounts(project.functionalComponents)
+    : null;
+
   const handleExportPdf = () => {
     createPdf(
       project,
@@ -74,9 +90,38 @@ export const FunctionalPointSummary = ({
 
   return (
     <div className="flex flex-col border-2 p-4 bg-white h-[calc(55vh-5rem)] overflow-y-auto sticky top-20">
+      {/* Tabs */}
+      {hasMLA && (
+        <div className="flex border-b mb-4">
+          <button
+            onClick={() => setActiveTab("calculations")}
+            className={`px-4 py-2 font-medium transition-colors ${
+              activeTab === "calculations"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {translation.functionalPointSummary.calculationsTab}
+          </button>
+          <button
+            onClick={() => setActiveTab("mla")}
+            className={`px-4 py-2 font-medium transition-colors ${
+              activeTab === "mla"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {translation.functionalPointSummary.mlaDetailsTab}
+          </button>
+        </div>
+      )}
+
+      {/* Tab Content */}
       <div className="max-h-[60vh] overflow-y-auto pr-2">
-        {/* Parent Components */}
-        {getGroupedComponents(project.functionalComponents).parentGroups.map(
+        {activeTab === "calculations" ? (
+          <>
+            {/* Parent Components */}
+            {getGroupedComponents(project.functionalComponents).parentGroups.map(
           (group) => {
             const componentCount = group.components.reduce(
               (acc, curr) => acc + curr.count,
@@ -258,6 +303,112 @@ export const FunctionalPointSummary = ({
               );
             })}
           </div>
+        )}
+          </>
+        ) : (
+          // MLA Details Tab
+          mlaLayerDetails && mlaMessageCounts && (
+            <div className="space-y-4">
+              {/* Layer Details */}
+              <div className="space-y-3">
+                {/* UI Layer */}
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-4">
+                    <span className="font-semibold">
+                      {translation.functionalPointSummary.uiLayer}
+                    </span>
+                    <span className="text-gray-600">
+                      {translation.functionalPointSummary.amount}:{" "}
+                      <span className="font-medium text-blue-600">
+                        {mlaLayerDetails.ui.count}
+                      </span>
+                    </span>
+                  </div>
+                  <span className="font-semibold">
+                    {mlaLayerDetails.ui.points.toFixed(2)}{" "}
+                    {translation.functionalPointSummary.functionalPointText}
+                  </span>
+                </div>
+
+                {/* Business Layer */}
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-4">
+                    <span className="font-semibold">
+                      {translation.functionalPointSummary.businessLayer}
+                    </span>
+                    <span className="text-gray-600">
+                      {translation.functionalPointSummary.amount}:{" "}
+                      <span className="font-medium text-blue-600">
+                        {mlaLayerDetails.business.count}
+                      </span>
+                    </span>
+                  </div>
+                  <span className="font-semibold">
+                    {mlaLayerDetails.business.points.toFixed(2)}{" "}
+                    {translation.functionalPointSummary.functionalPointText}
+                  </span>
+                </div>
+
+                {/* Data Layer */}
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-4">
+                    <span className="font-semibold">
+                      {translation.functionalPointSummary.dataLayer}
+                    </span>
+                    <span className="text-gray-600">
+                      {translation.functionalPointSummary.amount}:{" "}
+                      <span className="font-medium text-blue-600">
+                        {mlaLayerDetails.database.count}
+                      </span>
+                    </span>
+                  </div>
+                  <span className="font-semibold">
+                    {mlaLayerDetails.database.points.toFixed(2)}{" "}
+                    {translation.functionalPointSummary.functionalPointText}
+                  </span>
+                </div>
+              </div>
+
+              {/* Multilayer Messages */}
+              <div className="pt-4 mt-4 border-t border-gray-300 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm">
+                    {translation.functionalPointSummary.multiLayerMessagesUIToBusiness}:
+                  </span>
+                  <span className="font-semibold text-blue-600">
+                    {mlaMessageCounts.uiToBusiness}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-sm">
+                    {translation.functionalPointSummary.multiLayerMessagesBusinessToUI}:
+                  </span>
+                  <span className="font-semibold text-blue-600">
+                    {mlaMessageCounts.businessToUi}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-sm">
+                    {translation.functionalPointSummary.multiLayerMessagesBusinessToData}:
+                  </span>
+                  <span className="font-semibold text-blue-600">
+                    {mlaMessageCounts.businessToDatabase}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-sm">
+                    {translation.functionalPointSummary.multiLayerMessagesDataToBusiness}:
+                  </span>
+                  <span className="font-semibold text-blue-600">
+                    {mlaMessageCounts.databaseToBusiness}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )
         )}
       </div>
 
