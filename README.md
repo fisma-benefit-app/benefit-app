@@ -111,8 +111,6 @@ More information on how to access the database can found in the [database guide]
 
 Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/how_to_generate_api_docs.md).
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ### Logging
 
 Logging in the Benefit app covers both runtime and build/test events:
@@ -463,13 +461,13 @@ Basic authentication is used. After successful authentication, a JWT is generate
 - [ ] Improve error management
 - [ ] Improve quality assurance
 - [ ] Improve project listing
-  - [ ] Implement search functionality
+  - [x] Implement search functionality
   - [ ] Improve edit functionality
   - [ ] Improve project sorting
 - [ ] Update documentation
-  - [ ] Document how Benefit handles login tokens (database to API, and vice versa) in user_authentication_guide.md
+  - [ ] Document how Benefit handles login tokens (database to API, and vice versa) in `guides/authentication.md`
   - [ ] Document information security on JWTs and cookies
-- [ ] Compatibility with mobile
+- [x] Compatibility with mobile
 
 The project's requirement specification can be found [here](https://docs.google.com/document/d/1FXYXPMAwyoZNdxBxYVOIQPrcBr01fXAB4nvHD-Diy7w/edit?tab=t.0#heading=h.6dj02y3xjnh0). See the [open issues](https://github.com/fisma-benefit-app/benefit-app/issues) for a full list of proposed features and known issues.
 
