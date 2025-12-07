@@ -436,34 +436,38 @@ export const FunctionalPointSummary = ({
       </div>
 
       {/* Parent Components Only Progress Bar */}
-      <div className="w-full mb-4 mt-4">
-        <div className="flex justify-between text-xs font-medium text-gray-600">
-          <span>
-            {translation.functionalPointSummary.parentComponents}:{" "}
-            {parentOnlyPoints.toFixed(2)}{" "}
-            {translation.functionalPointSummary.functionalPointText} (
-            {parentOnlyPossiblePoints > 0
-              ? ((parentOnlyPoints / parentOnlyPossiblePoints) * 100).toFixed(1)
-              : "0.0"}
-            %)
-          </span>
-          <span>
-            {parentOnlyPossiblePoints.toFixed(2)}{" "}
-            {translation.functionalPointSummary.functionalPointText} (100%)
-          </span>
+      {mlaLayerDetails && mlaMessageCounts && (
+        <div className="w-full mb-4 mt-4">
+          <div className="flex justify-between text-xs font-medium text-gray-600">
+            <span>
+              {translation.functionalPointSummary.parentComponents}:{" "}
+              {parentOnlyPoints.toFixed(2)}{" "}
+              {translation.functionalPointSummary.functionalPointText} (
+              {parentOnlyPossiblePoints > 0
+                ? ((parentOnlyPoints / parentOnlyPossiblePoints) * 100).toFixed(
+                    1,
+                  )
+                : "0.0"}
+              %)
+            </span>
+            <span>
+              {parentOnlyPossiblePoints.toFixed(2)}{" "}
+              {translation.functionalPointSummary.functionalPointText} (100%)
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+            <div
+              className="bg-blue-400 h-2 rounded-full"
+              style={{
+                width:
+                  parentOnlyPossiblePoints > 0
+                    ? `${(parentOnlyPoints / parentOnlyPossiblePoints) * 100}%`
+                    : "0%",
+              }}
+            />
+          </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-          <div
-            className="bg-blue-400 h-2 rounded-full"
-            style={{
-              width:
-                parentOnlyPossiblePoints > 0
-                  ? `${(parentOnlyPoints / parentOnlyPossiblePoints) * 100}%`
-                  : "0%",
-            }}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Grand Total Progress Bar (More Prominent) */}
       <div className="w-full border-t-2 border-gray-300 pt-3">

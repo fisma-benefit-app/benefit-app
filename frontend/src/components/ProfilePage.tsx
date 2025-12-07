@@ -191,7 +191,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Update Username Section */}
-        {appUser?.id && (
+        {false && ( // Temporarily disabled - fix backend first
           <div className="bg-white shadow-md rounded-lg p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
               {translation.updateUsername}
