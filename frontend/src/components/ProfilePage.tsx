@@ -190,65 +190,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Update Username Section */}
-        {false && ( // Temporarily disabled - fix backend first
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              {translation.updateUsername}
-            </h2>
-
-            <form onSubmit={handleUsernameUpdate} className="space-y-4">
-              {usernameError && (
-                <div className="bg-fisma-red text-white p-3 rounded">
-                  {usernameError}
-                </div>
-              )}
-
-              <div>
-                <label
-                  htmlFor="newUsername"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  {translation.newUsername}
-                </label>
-                <input
-                  type="text"
-                  id="newUsername"
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  className="w-full border-2 border-gray-300 rounded p-3 focus:border-fisma-blue focus:outline-none"
-                  required
-                  placeholder={appUser?.username}
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="passwordForUsername"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  {translation.currentPasswordForUsername}
-                </label>
-                <input
-                  type="password"
-                  id="passwordForUsername"
-                  value={passwordForUsername}
-                  onChange={(e) => setPasswordForUsername(e.target.value)}
-                  className="w-full border-2 border-gray-300 rounded p-3 focus:border-fisma-blue focus:outline-none"
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white font-semibold py-3 px-6 rounded transition-colors"
-              >
-                {translation.updateUsernameButton}
-              </button>
-            </form>
-          </div>
-        )}
-
         {/* Password Change Section */}
         <div className="bg-white shadow-md rounded-lg p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
