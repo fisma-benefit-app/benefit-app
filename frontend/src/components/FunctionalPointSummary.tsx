@@ -89,7 +89,7 @@ export const FunctionalPointSummary = ({
   };
 
   return (
-    <div className="flex flex-col border-2 p-4 bg-white h-[calc(55vh-5rem)] overflow-y-auto sticky top-20">
+    <div className="flex flex-col border-2 p-4 mb-2 bg-white max-h-[calc(100vh-5rem)] overflow-y-auto sticky top-20">
       {/* Tabs */}
       {hasMLA && (
         <div role="tablist" className="flex border-b mb-4">
@@ -435,8 +435,8 @@ export const FunctionalPointSummary = ({
         )}
       </div>
 
-      {/* Parent Components Only Progress Bar */}
-      {mlaLayerDetails && mlaMessageCounts && (
+      {/* Parent Components Only Progress Bar if MLA has been selected to any component */}
+      {hasMLA && (
         <div className="w-full mb-4 mt-4">
           <div className="flex justify-between text-xs font-medium text-gray-600">
             <span>
