@@ -109,6 +109,8 @@ export const calculatePointsByLayer = (
       component.className === "Algorithmic or manipulation service"
     ) {
       totalPoints.business += componentPoints;
+    } else if (component.className === "Data storage service") {
+      totalPoints.database += componentPoints;
     } else {
       // Default assignment to UI layer for other classes
       totalPoints.userInterface += componentPoints;
@@ -175,6 +177,8 @@ export const calculatePossiblePointsByLayer = (
       component.className === "Algorithmic or manipulation service"
     ) {
       totalPossiblePoints.business += componentBasePoints;
+    } else if (component.className === "Data storage service") {
+      totalPossiblePoints.database += componentBasePoints;
     } else {
       // Default assignment to UI layer for other classes
       totalPossiblePoints.userInterface += componentBasePoints;
@@ -606,13 +610,12 @@ export const calculateMLALayerDetails = (
       const className = (component.className || "").toLowerCase();
       if (
         className === "non-interactive end-user output service" ||
-        className === "interface service to other applications"
+        className === "interface service to other applications" ||
+        className === "interface service from other applications" ||
+        className === "algorithmic or manipulation service"
       ) {
         layer = "business";
-      } else if (
-        className === "data storage and retrieval service" ||
-        className === "database"
-      ) {
+      } else if (className === "data storage service") {
         layer = "database";
       }
       layerDetails[layer].count++;
