@@ -157,7 +157,7 @@ export const downloadProjectComponentsCsv = async (
   ];
 
   const csvData = convertToCSV(componentsAndProjectTotals, translations, ";");
-  downloadCSV(csvData, `${project.projectName}.csv`);
+  downloadCSV(csvData, `${project.projectName}-v${project.version}.csv`);
 };
 
 // Compares values for current and previous project, then returns changed values in blue and bold text
