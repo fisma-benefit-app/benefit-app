@@ -624,7 +624,7 @@ pisteet 100%`,completionPercentage:"Valmistumisprosentti",title:"Otsikko",descri
 `)},b2=(n,o="data.csv")=>{const a="\uFEFF"+n,l=new Blob([a],{type:"text/csv;charset=utf-8"}),c=URL.createObjectURL(l),d=document.createElement("a");d.href=c,d.download=o.endsWith(".csv")?o:`${o}.csv`,document.body.appendChild(d),d.click(),d.remove(),URL.revokeObjectURL(c)},C2=(n,o=";",i={},a={})=>{const l=c=>{if(c==null)return"";const d=c.replace(/"/g,'""');return d.includes('"')||c.includes(o)||/\r|\n/.test(c)?`"${d}"`:d};return{...n,title:l(n.title),description:l(n.description),className:l(n.className?i[n.className]||n.className:""),componentType:l(n.componentType?a[n.componentType]||n.componentType:""),totalPossiblePoints:Et(n).toFixed(2)}},S2=Object.keys({}).filter(n=>!["functionalPoints","totalPossiblePoints"].includes(n)),k2=(n,o)=>{const i={};return S2.forEach(a=>{i[a]=""}),i.functionalPoints=n==null?void 0:n.toFixed(2),i.totalPossiblePoints=o==null?void 0:o.toFixed(2),i},E2=async(n,o,i,a)=>{const l={...n,functionalComponents:u2(n.functionalComponents)},c=xi(n.functionalComponents),d=Rr(n.functionalComponents),p=[...l.functionalComponents.map(h=>C2(h,";",i,a)),k2(c,d)],g=w2(p,o,";");b2(g,`${n.projectName}.csv`)},et=(n,o)=>{const i=o!==n;return`<span class="${i?"project-data highlighted":"project-data"}">${(i?n:o)??""}</span>`},io=n=>new Date(n).toLocaleTimeString("fi-FI",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:!1}).replace("klo",""),N2=(n,o,i={},a={},l={})=>{const c=Object.fromEntries(o.functionalComponents.map(g=>[g.id,g])),d=`
     <html>
       <head>
-        <title>${i.projectReport}</title>
+        <title>${n.projectName}-v${n.version}</title>
         <style>
           .project-data {
             font-weight: normal;
@@ -664,7 +664,7 @@ pisteet 100%`,completionPercentage:"Valmistumisprosentti",title:"Otsikko",descri
         </style>
       </head>
       <body>
-        <h1>${i.projectReport}: ${n.projectName}</h1>
+        <h1>${i.projectReport}: ${n.projectName}-v${n.version}</h1>
         <div class="project-info">
           <p><strong>${i.projectId}:</strong> ${et(n.id,o.id)}</p>
           <p><strong>${i.version}:</strong> ${et(n.version,o.version)}</p>
