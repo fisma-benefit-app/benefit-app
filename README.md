@@ -297,6 +297,7 @@ Open:
    ```
 
    By default, the app runs at `http://localhost:5173`.
+   Username:user, Password:user
 
 ### 4) Other steps
 
