@@ -298,6 +298,9 @@ Open:
 
    By default, the app runs at `http://localhost:5173`.
 
+   Default credentials for development:
+   - Username: `user`
+   - Password: `user`
 ### 4) Other steps
 
 IMPORTANT! If you continue on developing this app, it is important to keep consistent formatting in your changes. Benefit app has a `pre-commit` Git hook to run all necessary formattings on each commit. To take advantage of this, run this command in your terminal:
