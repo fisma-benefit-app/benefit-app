@@ -201,7 +201,7 @@ export const createPdf = (
   const pdfContent = `
     <html>
       <head>
-        <title>${printUtilsTranslation.projectReport}</title>
+        <title>${project.projectName}-v${project.version}</title>
         <style>
           .project-data {
             font-weight: normal;
@@ -241,7 +241,7 @@ export const createPdf = (
         </style>
       </head>
       <body>
-        <h1>${printUtilsTranslation.projectReport}: ${project.projectName}</h1>
+        <h1>${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}</h1>
         <div class="project-info">
           <p><strong>${printUtilsTranslation.projectId}:</strong> ${valueComparer(project.id, oldProject.id)}</p>
           <p><strong>${printUtilsTranslation.version}:</strong> ${valueComparer(project.version, oldProject.version)}</p>
