@@ -45,6 +45,7 @@ The contents of the database can also be reseeded manually. You can run the cont
 heroku login # If not logged in already
 heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app # production database
 heroku pg:psql HEROKU_TESTING_POSTGRES_DB_NAME --app=fisma-benefit-app-testing # testing database
+heroku pg:backups:capture --app=fisma-benefit-app
 # Ctrl + D to exit
 ```
 
