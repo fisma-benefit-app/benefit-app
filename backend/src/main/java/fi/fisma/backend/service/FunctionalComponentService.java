@@ -102,17 +102,18 @@ public class FunctionalComponentService {
     return projectMapper.toResponse(updatedProject);
   }
 
+  @Transactional
   private void deleteSubcomponents(Long parentId, LocalDateTime deletionTime) {
     // Gets a list of a functional component's subcomponents
     List<FunctionalComponent> subcomponents =
       functionalComponentRepository.findByParentFCIdAndDeletedAtIsNull(parentId);
     
     // Goes through the list and soft delets the subcomponents
-    for (FunctionalComponent subcomponent: subcomponents){
+    for (FunctionalComponent subcomponent : subcomponents){
       subcomponent.setDeletedAt(deletionTime);
       functionalComponentRepository.save(subcomponent);
 
-      //Recusively deletes subcomponents of subcomponents, if possible at some point
+      // Recursively deletes subcomponents of subcomponents, if possible at some point
       deleteSubcomponents(subcomponent.getId(), deletionTime);
     }
   }
