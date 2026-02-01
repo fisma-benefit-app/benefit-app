@@ -91,6 +91,9 @@ public class FunctionalComponentService {
     component.setDeletedAt(deletionTime);
     functionalComponentRepository.save(component);
 
+    // Soft deletes the subcomponents
+    deleteSubcomponents(component.getId(), deletionTime);
+
     // Filter out deleted components when normalizing order
     normalizeComponentOrder(project);
 
@@ -98,6 +101,22 @@ public class FunctionalComponentService {
     Project updatedProject = projectRepository.save(project);
     return projectMapper.toResponse(updatedProject);
   }
+
+  private void deleteSubcomponents(Long parentId, LocalDateTime deletionTime) {
+    // Gets a list of a functional component's subcomponents
+    List<FunctionalComponent> subcomponents =
+      functionalComponentRepository.findByParentFCIdAndDeletedAtIsNull(parentId);
+    
+    // Goes through the list and soft delets the subcomponents
+    for (FunctionalComponent subcomponent: subcomponents){
+      subcomponent.setDeletedAt(deletionTime);
+      functionalComponentRepository.save(subcomponent);
+
+      //Recusively deletes subcomponents of subcomponents, if possible at some point
+      deleteSubcomponents(subcomponent.getId(), deletionTime);
+    }
+  }
+
 
   /**
    * Normalizes the order positions of components in a project. Ensures components are numbered

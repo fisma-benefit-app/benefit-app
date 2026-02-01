@@ -30,4 +30,7 @@ public interface FunctionalComponentRepository extends JpaRepository<FunctionalC
         AND fc.deletedAt IS NULL
         """)
   Optional<FunctionalComponent> findByPreviousIdActive(@Param("previousId") Long previousId);
+  
+  List<FunctionalComponent> findByParentFCIdAndDeletedAtIsNull(Long parentId);
+
 }
