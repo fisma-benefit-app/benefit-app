@@ -526,16 +526,17 @@ export default function ProjectPage() {
     const { active, over } = event;
     if (!project || !over || active.id === over.id) return;
 
-    const oldIndex = project.functionalComponents.findIndex(
-      (c) => c.id === active.id,
-    );
-    const newIndex = project.functionalComponents.findIndex(
-      (c) => c.id === over.id,
-    );
+    // Ensure the components are sorted by orderPosition before calculating indices
+    const sortedComponents = project.functionalComponents
+      .slice()
+      .sort((a, b) => a.orderPosition - b.orderPosition);
+
+    const oldIndex = sortedComponents.findIndex((c) => c.id === active.id);
+    const newIndex = sortedComponents.findIndex((c) => c.id === over.id);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const updatedComponents = [...project.functionalComponents];
+    const updatedComponents = [...sortedComponents];
     const [moved] = updatedComponents.splice(oldIndex, 1);
     updatedComponents.splice(newIndex, 0, moved);
 
@@ -597,7 +598,7 @@ export default function ProjectPage() {
     <>
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
         {/* SUMMARY (on top for small screens, on right for large) */}
-        <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-32 mb-10 xl:mb-0 xl:order-2">
+        <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky mb-10 xl:mb-0 xl:order-2">
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center w-full">
