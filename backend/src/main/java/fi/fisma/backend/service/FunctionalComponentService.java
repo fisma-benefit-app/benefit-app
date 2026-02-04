@@ -106,10 +106,10 @@ public class FunctionalComponentService {
   private void deleteSubcomponents(Long parentId, LocalDateTime deletionTime) {
     // Gets a list of a functional component's subcomponents
     List<FunctionalComponent> subcomponents =
-      functionalComponentRepository.findByParentFCIdAndDeletedAtIsNull(parentId);
-    
+        functionalComponentRepository.findByParentFCIdAndDeletedAtIsNull(parentId);
+
     // Goes through the list and soft delets the subcomponents
-    for (FunctionalComponent subcomponent : subcomponents){
+    for (FunctionalComponent subcomponent : subcomponents) {
       subcomponent.setDeletedAt(deletionTime);
       functionalComponentRepository.save(subcomponent);
 
@@ -117,7 +117,6 @@ public class FunctionalComponentService {
       deleteSubcomponents(subcomponent.getId(), deletionTime);
     }
   }
-
 
   /**
    * Normalizes the order positions of components in a project. Ensures components are numbered
