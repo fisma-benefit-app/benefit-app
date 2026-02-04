@@ -56,9 +56,9 @@ public class ProjectMapper {
         null,
         request.getProjectName(),
         request.getVersion(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
+        LocalDateTime.now().plusHours(2),
+        LocalDateTime.now().plusHours(2),
+        LocalDateTime.now().plusHours(2),
         null, // No deletion date initially
         Set.of(), // Empty functional components initially
         Set.of() // ProjectAppUsers will be set by service
