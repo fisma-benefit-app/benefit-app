@@ -66,6 +66,7 @@ export const downloadCSV = (csvData: string, filename = "data.csv") => {
   URL.revokeObjectURL(url);
 };
 
+
 export const encodeComponentForCSV = (
   component: TGenericComponent,
   delimiter: string = ";",
@@ -83,9 +84,21 @@ export const encodeComponentForCSV = (
       escaped.includes('"') || value.includes(delimiter) || /\r|\n/.test(value);
     return needsQuotes ? `"${escaped}"` : escaped;
   };
+  
+  const formatSubcomponents = (subComponents?: any[]) => {
+    if (!Array.isArray(subComponents)) return "";
+
+    return subComponents
+      .map((sc) => sc.title ?? sc.name ?? "")
+      .filter(Boolean)
+      .join(", ");
+  };
 
   return {
     ...component,
+    subComponents: escapeCsv(
+      formatSubcomponents(component.subComponents),
+    ),
     title: escapeCsv(component.title),
     description: escapeCsv(component.description),
     className: escapeCsv(
