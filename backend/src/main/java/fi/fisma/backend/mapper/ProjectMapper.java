@@ -91,7 +91,7 @@ public class ProjectMapper {
             request.getVersion(),
             project.getCreatedAt(),
             project.getVersionCreatedAt(),
-            LocalDateTime.now(), // new edited date
+            LocalDateTime.now().plusHours(2), // new edited date
             project.getDeletedAt(),
             functionalComponents,
             projectAppUsers);
@@ -105,8 +105,8 @@ public class ProjectMapper {
             request.getProjectName(),
             request.getVersion(),
             originalProject.getCreatedAt(), // keep original creation date
-            LocalDateTime.now(), // new version date
-            LocalDateTime.now(), // new edited date
+            LocalDateTime.now().plusHours(2), // new version date
+            LocalDateTime.now().plusHours(2), // new edited date
             null, // No deletion date initially
             Set.of(), // FunctionalComponents will be set by service
             Set.of() // ProjectAppUsers will be set by service
