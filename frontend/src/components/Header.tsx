@@ -68,10 +68,9 @@ const Header = () => {
   const tryLogout = () => {
     if (
       sessionStorage.getItem("loginToken") !== sessionToken ||
-      sessionStorage.getItem("loginToken") === null
+      sessionStorage.getItem("loginToken") === null ||
+      sessionStorage.getItem("loginToken") === ""
     ) {
-      console.log(sessionStorage.getItem("loginToken"));
-      console.log(sessionToken);
       setLoggedIn(false);
       navigate("/login");
     } else {
