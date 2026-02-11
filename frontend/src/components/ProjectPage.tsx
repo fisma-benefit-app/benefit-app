@@ -369,7 +369,13 @@ export default function ProjectPage() {
           setLastAddedComponentId(newComponent.id);
         }
 
-        setProject(updatedProject);
+        // Normalize and sort before setting state
+        const normalized = updatedProject.functionalComponents
+          .slice()
+          .sort((a, b) => a.orderPosition - b.orderPosition)
+          .map((c, idx) => ({ ...c, orderPosition: idx }));
+
+        setProject({ ...updatedProject, functionalComponents: normalized });
 
         updateNotification(
           "create-functional-component",
@@ -689,7 +695,10 @@ export default function ProjectPage() {
 
             {Array.isArray(project?.functionalComponents) &&
               project.functionalComponents.length > 0 && (
-                <FunctionalPointSummary project={project} />
+                <FunctionalPointSummary 
+                  project={project} 
+                  saveProject={saveProject}
+                />
               )}
           </div>
         </div>

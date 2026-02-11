@@ -145,14 +145,17 @@ export const downloadProjectComponentsCsv = async (
   );
 
   const componentsAndProjectTotals = [
-    ...projectWithPoints.functionalComponents.map((c) =>
-      encodeComponentForCSV(
-        c,
-        ";",
-        classNameTranslations,
-        componentTypeTranslations,
+    ...projectWithPoints.functionalComponents
+      .slice()
+      .sort((a, b) => a.orderPosition - b.orderPosition)
+      .map((c) =>
+        encodeComponentForCSV(
+          c,
+          ";",
+          classNameTranslations,
+          componentTypeTranslations,
+        ),
       ),
-    ),
     encodeSummaryRowForCSV(functionalPoints, totalPoints),
   ];
 
