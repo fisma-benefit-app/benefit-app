@@ -15,9 +15,10 @@ import ConfirmModal from "./ConfirmModal";
 import useLanguage from "../hooks/useLanguage";
 import useTranslations from "../hooks/useTranslations";
 
+
 const Header = () => {
   const navigate = useNavigate();
-  const { appUser, loggedIn, logout } = useAppUser();
+  const { appUser, loggedIn, logout, setLoggedIn, sessionToken } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -64,6 +65,18 @@ const Header = () => {
     setUserDropdownOpen(false);
     setMobileMenuOpen(false);
   };
+
+  const tryLogout = () => {
+    if (sessionStorage.getItem("loginToken")!== sessionToken || sessionStorage.getItem("loginToken") === null) {
+      console.log(sessionStorage.getItem("loginToken")); 
+      console.log(sessionToken);
+      setLoggedIn(false);
+      navigate("/login");
+    }
+    else {
+      logout();
+    }
+  }
 
   return (
     <>
@@ -226,7 +239,7 @@ const Header = () => {
       />
       <ConfirmModal
         message={translation.logoutWarning}
-        onConfirm={logout}
+        onConfirm={tryLogout}
         open={isConfirmModalOpen}
         setOpen={setConfirmModalOpen}
       />
