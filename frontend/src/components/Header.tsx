@@ -15,7 +15,6 @@ import ConfirmModal from "./ConfirmModal";
 import useLanguage from "../hooks/useLanguage";
 import useTranslations from "../hooks/useTranslations";
 
-
 const Header = () => {
   const navigate = useNavigate();
   const { appUser, loggedIn, logout, setLoggedIn, sessionToken } = useAppUser();
@@ -67,16 +66,18 @@ const Header = () => {
   };
 
   const tryLogout = () => {
-    if (sessionStorage.getItem("loginToken")!== sessionToken || sessionStorage.getItem("loginToken") === null) {
-      console.log(sessionStorage.getItem("loginToken")); 
+    if (
+      sessionStorage.getItem("loginToken") !== sessionToken ||
+      sessionStorage.getItem("loginToken") === null
+    ) {
+      console.log(sessionStorage.getItem("loginToken"));
       console.log(sessionToken);
       setLoggedIn(false);
       navigate("/login");
-    }
-    else {
+    } else {
       logout();
     }
-  }
+  };
 
   return (
     <>
