@@ -84,8 +84,18 @@ export const encodeComponentForCSV = (
     return needsQuotes ? `"${escaped}"` : escaped;
   };
 
+  const formatSubcomponents = (subComponents?: TGenericComponent[]) => {
+    if (!Array.isArray(subComponents)) return "";
+
+    return subComponents
+      .map((sc) => sc.title ?? "")
+      .filter(Boolean)
+      .join(", ");
+  };
+
   return {
     ...component,
+    subComponents: escapeCsv(formatSubcomponents(component.subComponents)),
     title: escapeCsv(component.title),
     description: escapeCsv(component.description),
     className: escapeCsv(

@@ -597,7 +597,7 @@ export default function ProjectPage() {
     <>
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
         {/* SUMMARY (on top for small screens, on right for large) */}
-        <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-32 mb-10 xl:mb-0 xl:order-2">
+        <div className="w-full xl:w-[480px] 2xl:w-[420px] xl:sticky mb-10 xl:mb-0 xl:order-2">
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center w-full">
