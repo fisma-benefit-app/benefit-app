@@ -453,8 +453,10 @@ export default function FunctionalClassComponent({
                     onChange={handleMLAChange}
                   />
                 )}
+              </div>
 
-                {component.isMLA && (
+              {component.isMLA && (
+                <div className="bg-gray-50 border border-gray-200 rounded p-3 mt-4">
                   <button
                     type="button"
                     onClick={() => setShowSubComponents(!showSubComponents)}
@@ -468,8 +470,8 @@ export default function FunctionalClassComponent({
                         <span>({component.subComponents.length})</span>
                       )}
                   </button>
-                )}
-              </div>
+                </div>
+              )}
               {!isMultiLayerArchitectureComponent(component) && (
                 <label className="flex items-center gap-3 text-gray-400">
                   {" "}
