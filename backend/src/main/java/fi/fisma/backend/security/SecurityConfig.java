@@ -64,6 +64,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             (authorize) ->
                 authorize
+                    .requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
                     .requestMatchers(
                         "/actuator/health",
                         "/v3/api-docs",
@@ -123,9 +125,11 @@ public class SecurityConfig {
             HttpMethod.GET.name(),
             HttpMethod.POST.name(),
             HttpMethod.PUT.name(),
-            HttpMethod.DELETE.name()));
-    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-    configuration.setExposedHeaders(List.of("Location"));
+            HttpMethod.DELETE.name(),
+            HttpMethod.OPTIONS.name()));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setExposedHeaders(List.of("Location", "Authorization"));
+    configuration.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
