@@ -24,7 +24,12 @@ import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 
 // dnd-kit imports
-import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCenter,
+  DragEndEvent,
+  DragStartEvent,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   rectSortingStrategy,
@@ -278,6 +283,12 @@ export default function ProjectPage() {
       return componentCollapseStates.get(componentId)!;
     }
     return collapseAll ? componentId !== lastAddedComponentId : false;
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const componentId = Number(event.active.id);
+    if (!Number.isFinite(componentId)) return;
+    updateComponentCollapseState(componentId, true);
   };
 
   useEffect(() => {
@@ -714,6 +725,7 @@ export default function ProjectPage() {
           {project ? (
             <DndContext
               collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
               <SortableContext
