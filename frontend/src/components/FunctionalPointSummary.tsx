@@ -24,12 +24,14 @@ import { useState } from "react";
 
 type FunctionalClassComponentProps = {
   project: Project;
+  saveProject: (showNotif?: boolean) => Promise<void>;
 };
 
 // All calculation logic moved to centralizedCalculations.ts
 
 export const FunctionalPointSummary = ({
   project,
+  saveProject,  // Add this
 }: FunctionalClassComponentProps) => {
   const translation = useTranslations();
   const { sortedProjects, returnLatestOrPreviousVersion } = useProjects();
@@ -69,7 +71,8 @@ export const FunctionalPointSummary = ({
     ? calculateMLAMessageCounts(project.functionalComponents)
     : null;
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
+    await saveProject(false);  // Save before exporting
     createPdf(
       project,
       previousOrCurrent,
@@ -79,7 +82,8 @@ export const FunctionalPointSummary = ({
     );
   };
 
-  const handleExportCSV = () => {
+  const handleExportCSV = async () => {
+    await saveProject(false);  // Save before exporting
     downloadProjectComponentsCsv(
       project,
       translation.csvHeaders,
