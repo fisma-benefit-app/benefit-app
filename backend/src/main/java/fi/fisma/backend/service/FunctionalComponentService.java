@@ -91,12 +91,31 @@ public class FunctionalComponentService {
     component.setDeletedAt(deletionTime);
     functionalComponentRepository.save(component);
 
+    // Soft deletes the subcomponents
+    deleteSubcomponents(component.getId(), deletionTime);
+
     // Filter out deleted components when normalizing order
     normalizeComponentOrder(project);
 
     // Save and return updated project
     Project updatedProject = projectRepository.save(project);
     return projectMapper.toResponse(updatedProject);
+  }
+
+  @Transactional
+  private void deleteSubcomponents(Long parentId, LocalDateTime deletionTime) {
+    // Gets a list of a functional component's subcomponents
+    List<FunctionalComponent> subcomponents =
+        functionalComponentRepository.findByParentFCIdAndDeletedAtIsNull(parentId);
+
+    // Goes through the list and soft delets the subcomponents
+    for (FunctionalComponent subcomponent : subcomponents) {
+      subcomponent.setDeletedAt(deletionTime);
+      functionalComponentRepository.save(subcomponent);
+
+      // Recursively deletes subcomponents of subcomponents, if possible at some point
+      deleteSubcomponents(subcomponent.getId(), deletionTime);
+    }
   }
 
   /**
