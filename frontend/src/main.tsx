@@ -28,4 +28,3 @@ createRoot(document.getElementById("root")!).render(
     </ErrorProvider>
   </StrictMode>,
 );
-

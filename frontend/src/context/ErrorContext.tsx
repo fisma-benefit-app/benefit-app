@@ -6,7 +6,9 @@ export interface ErrorContextType {
   clearError: () => void;
 }
 
-export const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
+export const ErrorContext = createContext<ErrorContextType | undefined>(
+  undefined,
+);
 
 export const ErrorProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);

@@ -1,7 +1,10 @@
 import { useContext } from "react";
 import { ErrorContext } from "../context/ErrorContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faExclamationCircle,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function ErrorModal() {
   const errorContext = useContext(ErrorContext);
@@ -17,7 +20,10 @@ export default function ErrorModal() {
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+    >
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-4">
         <div className="flex items-start gap-4">
           <FontAwesomeIcon
