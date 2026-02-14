@@ -526,16 +526,17 @@ export default function ProjectPage() {
     const { active, over } = event;
     if (!project || !over || active.id === over.id) return;
 
-    const oldIndex = project.functionalComponents.findIndex(
-      (c) => c.id === active.id,
-    );
-    const newIndex = project.functionalComponents.findIndex(
-      (c) => c.id === over.id,
-    );
+    // Ensure the components are sorted by orderPosition before calculating indices
+    const sortedComponents = project.functionalComponents
+      .slice()
+      .sort((a, b) => a.orderPosition - b.orderPosition);
+
+    const oldIndex = sortedComponents.findIndex((c) => c.id === active.id);
+    const newIndex = sortedComponents.findIndex((c) => c.id === over.id);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const updatedComponents = [...project.functionalComponents];
+    const updatedComponents = [...sortedComponents];
     const [moved] = updatedComponents.splice(oldIndex, 1);
     updatedComponents.splice(newIndex, 0, moved);
 
