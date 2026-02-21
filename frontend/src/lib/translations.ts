@@ -412,7 +412,7 @@ export const translations = {
     },
     projectPage: {
       saveProject: "Tallenna",
-      newFunctionalComponent: "Uusi funktionaalinen komponentti",
+      newFunctionalComponent: "Lisää toiminnallinen komponentti",
       noProject: "Ei näytettäviä projektitietoja!",
       archiveProjectAsVersion: "Arkistoi versiona",
       archiveVersionWarningBeginning:
