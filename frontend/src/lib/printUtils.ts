@@ -154,17 +154,37 @@ export const downloadProjectComponentsCsv = async (
     project.functionalComponents,
   );
 
-  const componentsAndProjectTotals = [
-    ...projectWithPoints.functionalComponents.map((c) =>
+  const componentsAndProjectTotals: Record<string, unknown>[] = [];
+
+  for (const c of projectWithPoints.functionalComponents) {
+    componentsAndProjectTotals.push(
       encodeComponentForCSV(
         c,
         ";",
         classNameTranslations,
         componentTypeTranslations,
       ),
-    ),
+    );
+
+    // Loops thru subcomponents and matches with parentId
+    if (Array.isArray(c.subComponents)) {
+      for (const sub of c.subComponents) {
+        componentsAndProjectTotals.push(
+          encodeComponentForCSV(
+            { ...sub, parentFCId: c.id },
+            ";",
+            classNameTranslations,
+            componentTypeTranslations,
+          ),
+        );
+      }
+    }
+  }
+
+  // Adds summary
+  componentsAndProjectTotals.push(
     encodeSummaryRowForCSV(functionalPoints, totalPoints),
-  ];
+  );
 
   const csvData = convertToCSV(componentsAndProjectTotals, translations, ";");
   downloadCSV(csvData, `${project.projectName}-v${project.version}.csv`);
