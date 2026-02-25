@@ -15,7 +15,7 @@ export default function ProjectList() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-  const commitSha = useCommitSha("");
+  const commitSha = useCommitSha("-");
 
   const navigate = useNavigate();
   const translation = useTranslations().projectList;
