@@ -4,71 +4,72 @@ info:
   description: API documentation for the benefit application
   version: 1.0.1
 servers:
-- url: http://localhost:8080
-  description: Generated server url
+  - url: http://localhost:8080
+    description: Generated server url
 tags:
-- name: Project Management
-  description: Endpoints for managing projects
-- name: Authentication
-  description: Endpoint for token revocation
-- name: User Management
-  description: Endpoints for managing user accounts
-- name: Functional Components
-  description: Endpoints for managing functional components within projects
-- name: Token Generation
-  description: Endpoint for generating token
+  - name: Project Management
+    description: Endpoints for managing projects
+  - name: Authentication
+    description: Endpoint for token revocation
+  - name: User Management
+    description: Endpoints for managing user accounts
+  - name: Functional Components
+    description: Endpoints for managing functional components within projects
+  - name: Token Generation
+    description: Endpoint for generating token
 paths:
   /projects/{id}:
     get:
       tags:
-      - Project Management
+        - Project Management
       summary: Get a project by ID
-      description: Retrieves a specific project if the authenticated user has access
+      description:
+        Retrieves a specific project if the authenticated user has access
         to it
       operationId: getProject
       parameters:
-      - name: id
-        in: path
-        description: ID of the project to retrieve
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          description: ID of the project to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "200":
           description: Project found and returned
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Project not found
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "403":
           description: User does not have access to this project
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
-      - bearerAuth: []
+        - bearerAuth: []
     put:
       tags:
-      - Project Management
+        - Project Management
       summary: Update a project
       description: Updates an existing project if the authenticated user owns it
       operationId: updateProject
       parameters:
-      - name: id
-        in: path
-        description: ID of the project to update
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          description: ID of the project to update
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -79,43 +80,43 @@ paths:
         "200":
           description: Project updated successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Project not found
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "403":
           description: User does not have permission to update this project
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "500":
           description: Internal server error - update operation failed
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
-      - bearerAuth: []
+        - bearerAuth: []
     delete:
       tags:
-      - Project Management
+        - Project Management
       summary: Delete a project
       description: Soft deletes a project if the authenticated user owns it
       operationId: deleteProject
       parameters:
-      - name: id
-        in: path
-        description: ID of the project to delete
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          description: ID of the project to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "204":
           description: Project deleted successfully
@@ -124,49 +125,49 @@ paths:
         "403":
           description: User does not have permission to delete this project
       security:
-      - bearerAuth: []
+        - bearerAuth: []
   /appusers/{id}:
     get:
       tags:
-      - User Management
+        - User Management
       summary: Get user by ID
       description: Retrieves a specific user by their ID
       operationId: getById
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "200":
           description: User found
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
         "404":
           description: User not found
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
       security:
-      - bearerAuth: []
+        - bearerAuth: []
     put:
       tags:
-      - User Management
+        - User Management
       summary: Update user
       description: Updates an existing user's information
       operationId: updateAppUser
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -177,51 +178,53 @@ paths:
         "200":
           description: User updated successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
         "404":
           description: User not found
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
         "500":
-          description: Failed to update user due to database constraint violation
+          description:
+            Failed to update user due to database constraint violation
             or internal error
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
       security:
-      - bearerAuth: []
+        - bearerAuth: []
     delete:
       tags:
-      - User Management
+        - User Management
       summary: Delete user account
       description: Permanently deletes the authenticated user's account
       operationId: deleteAppUser
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "204":
           description: Account deleted successfully
         "401":
           description: User not authenticated
         "500":
-          description: Failed to delete user due to database integrity constraints
+          description:
+            Failed to delete user due to database integrity constraints
             or cascading deletion errors
       security:
-      - bearerAuth: []
+        - bearerAuth: []
   /appusers/password:
     put:
       tags:
-      - User Management
+        - User Management
       summary: Change user password
       description: Allows authenticated users to change their password
       operationId: changePassword
@@ -235,34 +238,35 @@ paths:
         "200":
           description: Password changed successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         "400":
           description: Invalid password format
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         "401":
           description: User not authenticated
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         "500":
-          description: Password encryption failure or database error during password
+          description:
+            Password encryption failure or database error during password
             update
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
       security:
-      - bearerAuth: []
+        - bearerAuth: []
   /token:
     post:
       tags:
-      - Token Generation
+        - Token Generation
       summary: Generate a JWT
       description: Generates a signed JWT for an authenticated user
       operationId: getToken
@@ -270,25 +274,25 @@ paths:
         "200":
           description: Token generated successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
         "401":
           description: User not authenticated
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
         "500":
           description: Failed to encode the token
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
   /projects:
     get:
       tags:
-      - Project Management
+        - Project Management
       summary: Get all projects
       description: Retrieves all projects accessible to the authenticated user
       operationId: getAllProjects
@@ -296,7 +300,7 @@ paths:
         "200":
           description: List of projects returned
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -304,16 +308,16 @@ paths:
         "500":
           description: Internal server error - database connection issues
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/ProjectResponse"
       security:
-      - bearerAuth: []
+        - bearerAuth: []
     post:
       tags:
-      - Project Management
+        - Project Management
       summary: Create a new project
       description: Creates a new project for the authenticated user
       operationId: createProject
@@ -331,22 +335,22 @@ paths:
         "503":
           description: Service unavailable - system resources exhausted
       security:
-      - bearerAuth: []
+        - bearerAuth: []
   /projects/{id}/versions:
     post:
       tags:
-      - Project Management
+        - Project Management
       summary: Create a new version of a project
       description: Creates a new version of an existing project
       operationId: createProjectVersion
       parameters:
-      - name: id
-        in: path
-        description: ID of the project to version
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          description: ID of the project to version
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -363,21 +367,21 @@ paths:
         "507":
           description: Insufficient storage - project size limit exceeded
       security:
-      - bearerAuth: []
+        - bearerAuth: []
   /functional-components/projects/{projectId}:
     post:
       tags:
-      - Functional Components
+        - Functional Components
       summary: Create a new functional component
       description: Creates a new functional component in the specified project
       operationId: createFunctionalComponent
       parameters:
-      - name: projectId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -388,38 +392,39 @@ paths:
         "200":
           description: Functional component created successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "400":
           description: Invalid request data
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "401":
           description: Unauthorized
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
-      - bearerAuth: []
+        - bearerAuth: []
   /auth/logout:
     post:
       tags:
-      - Authentication
+        - Authentication
       summary: Logout and revoke JWT
-      description: "Revokes the current JWT by adding it to the blacklist. Clients\
+      description:
+        "Revokes the current JWT by adding it to the blacklist. Clients\
         \ must send the JWT in the Authorization header as 'Bearer <token>'. After\
         \ logout, the token cannot be used for further requests."
       operationId: logout
       parameters:
-      - name: Authorization
-        in: header
-        required: true
-        schema:
-          type: string
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
       responses:
         "204":
           description: "Logout successful, token revoked"
@@ -430,7 +435,7 @@ paths:
   /appusers:
     post:
       tags:
-      - User Management
+        - User Management
       summary: Create new user
       description: Creates a new user account
       operationId: createAppUser
@@ -444,63 +449,64 @@ paths:
         "201":
           description: User created successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
         "400":
           description: Invalid user data
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
       security:
-      - bearerAuth: []
+        - bearerAuth: []
   /functional-components/{componentId}/projects/{projectId}:
     delete:
       tags:
-      - Functional Components
+        - Functional Components
       summary: Delete a functional component
       description: Soft deletes a functional component from the specified project
       operationId: deleteFunctionalComponent
       parameters:
-      - name: componentId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: projectId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         "204":
           description: Functional component deleted successfully
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "401":
           description: Unauthorized
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Component or project not found
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
       security:
-      - bearerAuth: []
+        - bearerAuth: []
 components:
   schemas:
     FunctionalComponentRequest:
       type: object
-      description: Request object for creating or updating functional components within
+      description:
+        Request object for creating or updating functional components within
         a project
       properties:
         id:
@@ -579,14 +585,16 @@ components:
           minimum: 0
         isMLA:
           type: boolean
-          description: Indicates if the functional component participates in multi-layer
+          description:
+            Indicates if the functional component participates in multi-layer
             architecture (MLA) as either a parent or child component. 'true' means
             the component is part of MLA hierarchy.
           example: true
         parentFCId:
           type: integer
           format: int64
-          description: "ID of the parent functional component, if part of multi-layer\
+          description:
+            "ID of the parent functional component, if part of multi-layer\
             \ architecture"
           example: 12
         subComponents:
@@ -594,28 +602,29 @@ components:
           description: List of sub-components if part of multi-layer architecture
           example: "[...]"
           items:
-            description: Request object for creating or updating functional components
+            description:
+              Request object for creating or updating functional components
               within a project
             required:
-            - isMLA
-            - orderPosition
+              - isMLA
+              - orderPosition
         subComponentType:
           type: string
           description: Type of sub-component in multi-layer architecture
           enum:
-          - presentation
-          - businessLogic
-          - dataAccess
-          - integration
+            - presentation
+            - businessLogic
+            - dataAccess
+            - integration
           example: presentation
         isReadonly:
           type: boolean
           description: Indicates if component is readonly
           example: true
       required:
-      - isMLA
-      - isReadonly
-      - orderPosition
+        - isMLA
+        - isReadonly
+        - orderPosition
     ProjectRequest:
       type: object
       description: Request object for creating or updating a project
@@ -645,8 +654,8 @@ components:
             format: int64
           uniqueItems: true
       required:
-      - projectName
-      - version
+        - projectName
+        - version
     AppUserSummary:
       type: object
       description: Summary information about an application user
@@ -663,7 +672,8 @@ components:
           maxLength: 50
     FunctionalComponentResponse:
       type: object
-      description: Response object containing details on functional components within
+      description:
+        Response object containing details on functional components within
         a project
       properties:
         id:
@@ -735,13 +745,15 @@ components:
           minimum: 0
         isMLA:
           type: boolean
-          description: Whether the functional component is part of multi-layer architecture
+          description:
+            Whether the functional component is part of multi-layer architecture
             (MLA)
           example: true
         parentFCId:
           type: integer
           format: int64
-          description: "ID of the parent functional component, if part of multi-layer\
+          description:
+            "ID of the parent functional component, if part of multi-layer\
             \ architecture (MLA)"
           example: 12
         subComponentType:
@@ -756,7 +768,8 @@ components:
           type: array
           description: List of sub-components for multi-layer architecture
           items:
-            description: Response object containing details on functional components
+            description:
+              Response object containing details on functional components
               within a project
     ProjectAppUserResponse:
       type: object
@@ -827,8 +840,8 @@ components:
           maxLength: 64
           minLength: 0
       required:
-      - password
-      - username
+        - password
+        - username
     PasswordChangeRequest:
       type: object
       description: Request object containing details on password change
@@ -838,7 +851,7 @@ components:
           maxLength: 64
           minLength: 0
       required:
-      - newPassword
+        - newPassword
   securitySchemes:
     bearerAuth:
       type: http

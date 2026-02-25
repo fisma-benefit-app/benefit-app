@@ -72,13 +72,33 @@ export default function ProjectList() {
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
                 {translation.modifiedAt}
               </th>
-              {/* No header cell for actions */}
+              <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
+                <div className="flex items-center">
+                  <span className="text-sm">Actions</span>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
             {filteredProjects.length > 0 ? (
               filteredProjects.map((project) => (
-                <tr key={project.id}>
+                <tr
+                  key={project.id}
+                  className="cursor-pointer hover:bg-blue-200 transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    setSelectedProject(project);
+                    navigate(`/project/${project.id}`);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelectedProject(project);
+                      navigate(`/project/${project.id}`);
+                    }
+                  }}
+                >
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap overflow-hidden truncate">
                     {project.projectName}
                   </td>
@@ -130,16 +150,20 @@ export default function ProjectList() {
                       })
                       .replace(".", ":")}
                   </td>
-                  <td className="p-1 whitespace-nowrap w-[90px]">
+                  <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap w-[90px]">
                     <button
                       className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3"
-                      onClick={() => navigate(`/project/${project.id}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/project/${project.id}`);
+                      }}
                     >
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
                     <button
                       className="bg-fisma-red hover:brightness-130 text-white py-2 px-3 ml-1"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedProject(project);
                         setConfirmModalOpen(true);
                       }}

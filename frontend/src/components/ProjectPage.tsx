@@ -24,7 +24,12 @@ import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 
 // dnd-kit imports
-import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCenter,
+  DragEndEvent,
+  DragStartEvent,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   rectSortingStrategy,
@@ -109,6 +114,10 @@ function useDebounce<T extends (...args: unknown[]) => void>(
   return debouncedFunction;
 }
 
+function sortFunctionalComponents(components: TGenericComponent[]) {
+  return components.slice().sort((a, b) => a.orderPosition - b.orderPosition);
+}
+
 export default function ProjectPage() {
   const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
@@ -176,10 +185,10 @@ export default function ProjectPage() {
   };
 
   // sort functional components by order (ascending)
-  const sortedComponents =
-    project?.functionalComponents
-      .slice() // copy first so we don’t mutate state
-      .sort((a, b) => a.orderPosition - b.orderPosition) || [];
+  const sortedComponents = project
+    ? sortFunctionalComponents(project.functionalComponents)
+    : [];
+
   // Alert functionality
   const { showNotification, updateNotification } = useAlert();
 
@@ -273,6 +282,12 @@ export default function ProjectPage() {
       return componentCollapseStates.get(componentId)!;
     }
     return collapseAll ? componentId !== lastAddedComponentId : false;
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const componentId = Number(event.active.id);
+    if (!Number.isFinite(componentId)) return;
+    updateComponentCollapseState(componentId, true);
   };
 
   useEffect(() => {
@@ -369,7 +384,13 @@ export default function ProjectPage() {
           setLastAddedComponentId(newComponent.id);
         }
 
-        setProject(updatedProject);
+        // Normalize and sort before setting state
+        const normalized = updatedProject.functionalComponents
+          .slice()
+          .sort((a, b) => a.orderPosition - b.orderPosition)
+          .map((c, idx) => ({ ...c, orderPosition: idx }));
+
+        setProject({ ...updatedProject, functionalComponents: normalized });
 
         updateNotification(
           "create-functional-component",
@@ -477,7 +498,6 @@ export default function ProjectPage() {
         );
       }
       try {
-        // normalize before saving
         const normalized = project.functionalComponents
           .slice()
           .sort((a, b) => a.orderPosition - b.orderPosition)
@@ -526,26 +546,28 @@ export default function ProjectPage() {
     const { active, over } = event;
     if (!project || !over || active.id === over.id) return;
 
-    const oldIndex = project.functionalComponents.findIndex(
-      (c) => c.id === active.id,
-    );
-    const newIndex = project.functionalComponents.findIndex(
-      (c) => c.id === over.id,
-    );
+    const sorted = project.functionalComponents
+      .slice()
+      .sort((a, b) => a.orderPosition - b.orderPosition);
 
+    const oldIndex = sorted.findIndex((c) => c.id === active.id);
+    const newIndex = sorted.findIndex((c) => c.id === over.id);
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const updatedComponents = [...project.functionalComponents];
-    const [moved] = updatedComponents.splice(oldIndex, 1);
-    updatedComponents.splice(newIndex, 0, moved);
+    const updated = [...sorted];
+    const [moved] = updated.splice(oldIndex, 1);
+    updated.splice(newIndex, 0, moved);
 
-    // Update orderPosition values
-    const reOrdered = updatedComponents.map((c, index) => ({
+    const reOrdered = updated.map((c, index) => ({
       ...c,
       orderPosition: index,
     }));
 
     setProject({ ...project, functionalComponents: reOrdered });
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
   };
 
   const saveProjectVersion = async () => {
@@ -689,7 +711,10 @@ export default function ProjectPage() {
 
             {Array.isArray(project?.functionalComponents) &&
               project.functionalComponents.length > 0 && (
-                <FunctionalPointSummary project={project} />
+                <FunctionalPointSummary
+                  project={project}
+                  saveProject={saveProject}
+                />
               )}
           </div>
         </div>
@@ -699,6 +724,7 @@ export default function ProjectPage() {
           {project ? (
             <DndContext
               collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
               <SortableContext
