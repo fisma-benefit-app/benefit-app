@@ -7,6 +7,7 @@ import LoadingSpinner from "./LoadingSpinner.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
+import useCommitSha from "../hooks/useCommitSha";
 
 export default function ProjectList() {
   const { sortedProjects, loading, handleDelete } = useProjects();
@@ -14,6 +15,7 @@ export default function ProjectList() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const commitSha = useCommitSha("");
 
   const navigate = useNavigate();
   const translation = useTranslations().projectList;
@@ -182,6 +184,11 @@ export default function ProjectList() {
             )}
           </tbody>
         </table>
+        {commitSha && (
+          <div className="text-[11px] text-gray-500 mt-2 break-all">
+            Github commit Sha: <code className="font-mono">{commitSha}</code>
+          </div>
+        )}
       </div>
       <ConfirmModal
         message={`${translation.confirmDelete} "${selectedProject?.projectName}"?`}

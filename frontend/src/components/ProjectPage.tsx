@@ -22,6 +22,7 @@ import CreateCurrentDate from "../api/date.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
+import useCommitSha from "../hooks/useCommitSha";
 
 // dnd-kit imports
 import {
@@ -139,6 +140,7 @@ export default function ProjectPage() {
   const alertTranslation = useTranslations().alert;
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const commitSha = useCommitSha("");
 
   //get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
@@ -716,6 +718,13 @@ export default function ProjectPage() {
                   saveProject={saveProject}
                 />
               )}
+
+            {commitSha && (
+              <div className="text-[11px] text-gray-500 mt-2 break-all">
+                Github commit Sha:{" "}
+                <code className="font-mono">{commitSha}</code>
+              </div>
+            )}
           </div>
         </div>
 
