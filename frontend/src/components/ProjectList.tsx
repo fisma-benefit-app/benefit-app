@@ -153,13 +153,17 @@ export default function ProjectList() {
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap w-[90px]">
                     <button
                       className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3"
-                      onClick={() => navigate(`/project/${project.id}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/project/${project.id}`);
+                      }}
                     >
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
                     <button
                       className="bg-fisma-red hover:brightness-130 text-white py-2 px-3 ml-1"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedProject(project);
                         setConfirmModalOpen(true);
                       }}
