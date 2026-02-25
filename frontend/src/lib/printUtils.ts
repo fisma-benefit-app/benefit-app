@@ -84,8 +84,18 @@ export const encodeComponentForCSV = (
     return needsQuotes ? `"${escaped}"` : escaped;
   };
 
+  const formatSubcomponents = (subComponents?: TGenericComponent[]) => {
+    if (!Array.isArray(subComponents)) return "";
+
+    return subComponents
+      .map((sc) => sc.title ?? "")
+      .filter(Boolean)
+      .join(", ");
+  };
+
   return {
     ...component,
+    subComponents: escapeCsv(formatSubcomponents(component.subComponents)),
     title: escapeCsv(component.title),
     description: escapeCsv(component.description),
     className: escapeCsv(
@@ -157,7 +167,7 @@ export const downloadProjectComponentsCsv = async (
   ];
 
   const csvData = convertToCSV(componentsAndProjectTotals, translations, ";");
-  downloadCSV(csvData, `${project.projectName}.csv`);
+  downloadCSV(csvData, `${project.projectName}-v${project.version}.csv`);
 };
 
 // Compares values for current and previous project, then returns changed values in blue and bold text
@@ -201,7 +211,7 @@ export const createPdf = (
   const pdfContent = `
     <html>
       <head>
-        <title>${printUtilsTranslation.projectReport}</title>
+        <title>${project.projectName}-v${project.version}</title>
         <style>
           .project-data {
             font-weight: normal;
@@ -241,7 +251,7 @@ export const createPdf = (
         </style>
       </head>
       <body>
-        <h1>${printUtilsTranslation.projectReport}: ${project.projectName}</h1>
+        <h1>${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}</h1>
         <div class="project-info">
           <p><strong>${printUtilsTranslation.projectId}:</strong> ${valueComparer(project.id, oldProject.id)}</p>
           <p><strong>${printUtilsTranslation.version}:</strong> ${valueComparer(project.version, oldProject.version)}</p>

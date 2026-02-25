@@ -29,8 +29,10 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
     if (!response.ok) {
       if (response.status === 401) {
+        setLoadingAuth(false); //If the response is ok, stop loading --> not stuck in a loading loop
         throw new Error("Unauthorized!");
       } else {
+        setLoadingAuth(false);
         throw new Error(`Error logging out! Status: ${response.status}`);
       }
     }

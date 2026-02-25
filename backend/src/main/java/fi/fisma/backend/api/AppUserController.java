@@ -27,7 +27,7 @@ public class AppUserController {
   @Operation(summary = "Get user by ID", description = "Retrieves a specific user by their ID")
   @ApiResponse(responseCode = "200", description = "User found")
   @ApiResponse(responseCode = "404", description = "User not found")
-  public ResponseEntity<AppUserSummary> getById(
+  public ResponseEntity<AppUserSummary> getByUserId(
       @PathVariable Long id, Authentication authentication) {
     return ResponseEntity.ok(appUserService.findById(id, authentication));
   }
