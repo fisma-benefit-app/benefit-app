@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { VersionJson } from "../lib/types";
 
-export default function useCommitSha(fallback = "") {
+export default function useCommitSha(fallback = "-") {
   const [commitSha, setCommitSha] = useState<string>("");
 
   useEffect(() => {

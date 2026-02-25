@@ -140,7 +140,7 @@ export default function ProjectPage() {
   const alertTranslation = useTranslations().alert;
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const commitSha = useCommitSha("");
+  const commitSha = useCommitSha("-");
 
   //get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
