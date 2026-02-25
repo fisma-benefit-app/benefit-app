@@ -398,9 +398,9 @@ export const translations = {
         readyForUse: "Käyttöönottovalmis",
       },
       isThisFunctionalComponentAPartOfMultiLayerArchitecture:
-        "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
+        "Onko tämä toiminnallinen komponentti osa monikerrosarkkitehtuuria?",
       notAvailableForThisFunctionalComponentType:
-        "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
+        "Ei valittavissa tämän tyyppiselle toiminnalliselle komponentille",
       showMultiLayerInterfaces: "Näytä monikerrosliittymät", // ✅ KEEP - Used in button
       hideMultiLayerInterfaces: "Piilota monikerrosliittymät",
       noMultiLayerInterfaces: "Monikerrosliittymiä ei löytynyt",
@@ -461,11 +461,11 @@ export const translations = {
       saveFailed: "Tallennus epäonnistui",
       loading: "Ladataan...",
       creating: "Luodaan...",
-      createSuccessful: "Uusi funktionaalinen komponentti luotu onnistuneesti",
-      createFailed: "Uuden funktionaalisen komponentin luominen epäonnistui",
+      createSuccessful: "Uusi toiminnallinen komponentti luotu onnistuneesti",
+      createFailed: "Uuden toiminnallisen komponentin luominen epäonnistui",
       deleting: "Poistetaan...",
-      deleteSuccessful: "Funktionaalinen komponentti poistettu",
-      deleteFailed: "Funktionaalisen komponentin poistaminen epäonnistui",
+      deleteSuccessful: "Toiminnallinen komponentti poistettu",
+      deleteFailed: "Toiminnallisen komponentin poistaminen epäonnistui",
     },
     profilePage: {
       header: "Profiili",
