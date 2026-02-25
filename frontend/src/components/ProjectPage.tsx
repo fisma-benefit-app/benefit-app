@@ -118,7 +118,6 @@ function sortFunctionalComponents(components: TGenericComponent[]) {
   return components.slice().sort((a, b) => a.orderPosition - b.orderPosition);
 }
 
-
 export default function ProjectPage() {
   const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
@@ -712,8 +711,8 @@ export default function ProjectPage() {
 
             {Array.isArray(project?.functionalComponents) &&
               project.functionalComponents.length > 0 && (
-                <FunctionalPointSummary 
-                  project={project} 
+                <FunctionalPointSummary
+                  project={project}
                   saveProject={saveProject}
                 />
               )}

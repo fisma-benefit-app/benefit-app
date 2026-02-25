@@ -22,6 +22,7 @@ The workflow file is triggered when any backend deployment is done in Heroku. Te
 The workflow file recognizes which GitHub repository environment (`fisma-benefit-app` for production and `fisma-benefit-app-testing` for testing) is deployed in Heroku, and based on this deploys frontend to either production or testing.
 
 ## Backup Database
+
 Before any deployment, ensure a database backup is taken. Get credentials from the `backend-credentials` repo.
 
 ```bash
@@ -41,6 +42,7 @@ psql <db-url> < backup.sql
 ## Manual deployments
 
 Every deployment can be run manually:
+
 - manual backend deployments to Heroku are done in Heroku dashboard (requires to be logged in)
 - manual frontend deployments to GitHub Pages are done from CLI
 
@@ -49,8 +51,10 @@ Every deployment can be run manually:
 You might want to do a manual deployment in case something goes wrong with the automated workflow. Follow these steps:
 
 1. Open the correct Heroku app (must be logged in):
+
 - production: https://dashboard.heroku.com/apps/fisma-benefit-app
 - testing: https://dashboard.heroku.com/apps/fisma-benefit-app-testing
+
 2. Go to Deploy tab
 3. Ensure GitHub repository (`fisma-benefit-app/benefit-app`) is connected: we use the same repository for both testing and production deployments
 4. Under `Manual deploy`, select `main` branch and click `Deploy Branch`
@@ -116,12 +120,13 @@ npm run deploy:production
 # Wait for GitHub Pages deployment to finish (takes maybe 3 minutes)
 npm run deploy:testing
 
-# NOTE: After running production deployment, you need to run testing deployment again! 
+# NOTE: After running production deployment, you need to run testing deployment again!
 # This is because frontend production deployment erases frontend testing environment
 # This is a GitHub Pages limitation, and the automated workflow takes this into account
 ```
 
 These run:
+
 - predeploy → builds into `dist/`
 - production:
   - deploy → publishes `dist/` to GitHub Pages (`gh-pages` branch)
@@ -147,14 +152,16 @@ Production deployment is initiated **manually**, but it runs **automatically**. 
 3. Ensure GitHub repository `fisma-benefit-app/benefit-app` is connected: we use the same repository for both testing and production deployments
 4. Under `Manual deploy`, select `main` branch and click `Deploy Branch`
 5. This triggers the `run-deployments` GitHub Actions workflow which
-  - echos a message that backend production deployment is handled by Heroku and not the workflow itself
-  - deploys frontend to GitHub Pages production environment
-  - waits for the frontend production deployment to finish
-  - deploys frontend to GitHub Pages testing environment
+
+- echos a message that backend production deployment is handled by Heroku and not the workflow itself
+- deploys frontend to GitHub Pages production environment
+- waits for the frontend production deployment to finish
+- deploys frontend to GitHub Pages testing environment
 
 Heroku deploys only the `backend` directory thanks to the `subdir-heroku-buildpack` using the `PROJECT_PATH` config variable.
 
 **IMPORTANT:** We need to deploy frontend to testing environment after doing the production deployment. This is due to GitHub Pages limitations: the production deployment erases the frontend testing environment. This is because the frontend testing environment is a subpage in our GitHub Pages production page, so deployment to production deploys the whole page again. Running frontend testing deployment re-creates this subpage.
+
 - Production URL: https://fisma-benefit-app.github.io/benefit-app/
 - Testing URL: https://fisma-benefit-app.github.io/benefit-app/testing/ <-- "testing" subpage under production URL
 
@@ -175,8 +182,9 @@ Testing deployment is initiated **automatically**, and it runs **automatically**
 
 1. Heroku testing app is set up to automatically deploy to testing after each merge to `main`. There is no need to manually trigger the testing deployment in Heroku (but it can be done, for example, in case of deployment issues).
 2. Heroku's automatic deployment triggers the `run-deployments` GitHub Actions workflow which
-  - echos a message that backend testing deployment is handled by Heroku and not the workflow itself
-  - deploys frontend to GitHub Pages testing environment
+
+- echos a message that backend testing deployment is handled by Heroku and not the workflow itself
+- deploys frontend to GitHub Pages testing environment
 
 Heroku deploys only the `backend` directory thanks to the `subdir-heroku-buildpack` using the `PROJECT_PATH` config variable.
 

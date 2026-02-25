@@ -27,13 +27,14 @@ The production and testing databases are hosted on Heroku Postgres. Database see
 ### Production and testing database seeding
 
 Both production (`fisma-benefit-app`) and testing (`fisma-benefit-app-testing`) apps in Heroku have config variables to control when to seed the databases and from which file:
+
 - `DATABASE_INIT_MODE`: either `always` or `never`
-    - setting the variable to `always` reseeds the database; **NOT RECOMMENDED** for production, sometimes useful for testing
-    - setting the variable to `never` prevents the database from reseeding: default option for both databases
+  - setting the variable to `always` reseeds the database; **NOT RECOMMENDED** for production, sometimes useful for testing
+  - setting the variable to `never` prevents the database from reseeding: default option for both databases
 - `DATABASE_SEED_FILE`: the file from which the database reseeds
-    - `database-seed-production.sql` for reseeding production database
-    - `database-seed-testing.sql` for reseeding testing database
-    - The main difference in different seeding files is the user credentials used to log in to different environments
+  - `database-seed-production.sql` for reseeding production database
+  - `database-seed-testing.sql` for reseeding testing database
+  - The main difference in different seeding files is the user credentials used to log in to different environments
 
 Note that changing config variables in Heroku restarts the dyno.
 
@@ -73,12 +74,15 @@ If you need to update the database manually (i.e. change password or add new use
 
 1. Access the database via your preferred method (Heroku CLI, psql, DBeaver, or pgAdmin).
 2. Run this SQL statement
+
 ```sql
 UPDATE [table name]
 SET [column name] = [value]
 WHERE [column name] = [value];
 ```
+
 For example to update a user called `user`'s password:
+
 ```sql
 UPDATE app_users
 SET password = '$2a$12$csFVT0JamCwPg18duSENPu.6HxtqeDNfXLI3mPXb2tRClCR/VjduK'

@@ -40,7 +40,9 @@ Tietokannasta voisi tulla esimerkiksi seuraavanlainen json:
   ]
 }
 ```
+
 Jos käyttäjä haluaa projektiin uuden functionalComponentin, tarvisee tietokannasta saada uusi id ja oikea projectId. Tällöin tietokannasta tuleva uusi fucntionalComponent json-olisi:
+
 ```
     {
       "id": 100,
@@ -81,11 +83,11 @@ componentProp on (varmaankin 🤔) pakko olla geneerinen, jotta FunctionalClassC
 toimintoluokan vaihtoehdot JA koska käyttäjän halutaan voivan täysin vapaasti muutella
 FunctionalClassComponentissa renderöitäviä toimintoluokkia.
 
-componentProp syötetään FunctionalClassComponent-komponentin alustavaksi component nimiseksi stateksi. Komponentilla on siis yksi state (component) ja sit muuttamalla käyttäjälle tulee haluttu renderöinti ja projektin sisältämät toimintoluokat (eli component(s)) saadaan muokattua halutun kaltaiseksi. 
+componentProp syötetään FunctionalClassComponent-komponentin alustavaksi component nimiseksi stateksi. Komponentilla on siis yksi state (component) ja sit muuttamalla käyttäjälle tulee haluttu renderöinti ja projektin sisältämät toimintoluokat (eli component(s)) saadaan muokattua halutun kaltaiseksi.
 
 ### Tyypitys
 
-Jäljelle jäi selvittää, miten component:in saisi tyypitettyä sen jälkeen kun component:lla on className. Olisi siistiä, jos calculations funktioon saisi syötettyä aina sille tarkoitetun tyypin mukaisen objektin. Ei varmaan ole täydellinen maailmanloppu, jos calculate funktioihin menisikin geneerinen tyyppi, mutta täytyy miettiä ja tutkia, miten tarkemman tyypityksen voisi (tai voiko 🤔) mahdollisesti toteuttaa.   
+Jäljelle jäi selvittää, miten component:in saisi tyypitettyä sen jälkeen kun component:lla on className. Olisi siistiä, jos calculations funktioon saisi syötettyä aina sille tarkoitetun tyypin mukaisen objektin. Ei varmaan ole täydellinen maailmanloppu, jos calculate funktioihin menisikin geneerinen tyyppi, mutta täytyy miettiä ja tutkia, miten tarkemman tyypityksen voisi (tai voiko 🤔) mahdollisesti toteuttaa.
 
 ### FunctionalClassComponentin rakenne
 
