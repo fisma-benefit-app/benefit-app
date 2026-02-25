@@ -9,7 +9,10 @@ export default function useCommitSha(fallback = "") {
 
     const loadVersionJson = async () => {
       try {
-        const url = new URL("version.json", import.meta.env.BASE_URL).toString();
+        const url = new URL(
+          "version.json",
+          import.meta.env.BASE_URL,
+        ).toString();
         const res = await fetch(url, {
           cache: "no-store",
           signal: controller.signal,

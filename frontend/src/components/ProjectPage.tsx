@@ -615,10 +615,7 @@ export default function ProjectPage() {
     setComponentCollapseStates(new Map());
   }, [collapseAll]);
 
-
   if (loadingProject) return <LoadingSpinner />;
-
-  
 
   return (
     <>
@@ -724,11 +721,11 @@ export default function ProjectPage() {
 
             {commitSha && (
               <div className="text-[11px] text-gray-500 mt-2 break-all">
-                Github commit Sha: <code className="font-mono">{commitSha}</code>
+                Github commit Sha:{" "}
+                <code className="font-mono">{commitSha}</code>
               </div>
             )}
           </div>
-
         </div>
 
         {/* FUNCTIONAL COMPONENTS (below on mobile, left on large screens) */}
