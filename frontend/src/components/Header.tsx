@@ -17,7 +17,14 @@ import useTranslations from "../hooks/useTranslations";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { appUser, loggedIn, logout } = useAppUser();
+  const {
+    appUser,
+    loggedIn,
+    logout,
+    setLoggedIn,
+    setSessionToken,
+    setAppUser,
+  } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -63,6 +70,27 @@ const Header = () => {
     navigate("/profile");
     setUserDropdownOpen(false);
     setMobileMenuOpen(false);
+  };
+
+  // Try logout from appUserProvider, if it fails, force the logout (user should always be able to log out).
+  // if the token is corrupted/expired, it doesn't need to be blacklisted so forcing the logout without it is ok.
+  const tryLogout = async () => {
+    try {
+      await logout();
+    } catch (error: unknown) {
+      // Reset session storage
+      sessionStorage.removeItem("loginToken");
+      sessionStorage.removeItem("userInfo");
+      sessionStorage.removeItem("userId");
+
+      // Reset app state
+      setSessionToken(null);
+      setAppUser(null);
+      setLoggedIn(false);
+
+      //Navigate to login page
+      navigate("/");
+    }
   };
 
   return (
@@ -226,7 +254,7 @@ const Header = () => {
       />
       <ConfirmModal
         message={translation.logoutWarning}
-        onConfirm={logout}
+        onConfirm={tryLogout}
         open={isConfirmModalOpen}
         setOpen={setConfirmModalOpen}
       />
