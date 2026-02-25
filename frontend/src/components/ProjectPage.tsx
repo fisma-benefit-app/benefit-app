@@ -719,6 +719,9 @@ export default function ProjectPage() {
                 />
               )}
 
+            
+          </div>
+          <div>
             {commitSha && (
               <div className="text-[11px] text-gray-500 mt-2 break-all">
                 Github commit Sha:{" "}

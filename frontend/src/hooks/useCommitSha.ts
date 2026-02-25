@@ -11,7 +11,7 @@ export default function useCommitSha(fallback = "-") {
       try {
         const url = new URL(
           "version.json",
-          import.meta.env.BASE_URL,
+          import.meta.env.VITE_BASE_PATH,
         ).toString();
         const res = await fetch(url, {
           cache: "no-store",
