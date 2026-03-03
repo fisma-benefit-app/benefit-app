@@ -2,7 +2,7 @@ import * as React from "react";
 import { Project } from "../lib/types.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import { useEffect, useState } from "react";
-import { deleteProject, fetchAllProjects } from "../api/project.ts";
+import { deleteProject, fetchAllProjects, updateProject } from "../api/project.ts";
 import { ProjectsContext } from "./ProjectsContext.ts";
 
 export default function ProjectsProvider({
@@ -61,6 +61,26 @@ export default function ProjectsProvider({
     }
   };
 
+  const handleUpdate = async (updatedProject: Project) => {
+    try {
+      const updated = await updateProject(sessionToken, updatedProject);
+      setProjects((prevProjects) =>
+        prevProjects.map((project) =>
+          project.id === updatedProject.id ? { ...project, projectName: updated.projectName } : project
+        ),
+      );
+    } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized!") {
+        await logout();
+      }
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unexpected error occurred while trying to update project!",
+      );
+    }
+  };
+
   const checkIfLatestVersion = (
     project: Project | null,
     allProjectVersions: Project[],
@@ -96,6 +116,7 @@ export default function ProjectsProvider({
     loading,
     error,
     handleDelete,
+    handleUpdate,
     checkIfLatestVersion,
     returnLatestOrPreviousVersion,
     setProjects,

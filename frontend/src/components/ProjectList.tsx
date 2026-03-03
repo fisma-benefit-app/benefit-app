@@ -10,15 +10,18 @@ import useProjects from "../hooks/useProjects.tsx";
 import useCommitSha from "../hooks/useCommitSha";
 
 export default function ProjectList() {
-  const { sortedProjects, loading, handleDelete } = useProjects();
+  const { sortedProjects, loading, handleDelete, handleUpdate } = useProjects();
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [editProjectName, setEditProjectName] = useState<string>("");
   const commitSha = useCommitSha("-");
 
   const navigate = useNavigate();
-  const translation = useTranslations().projectList;
+  const translation = useTranslations();
+  const projectListTranslation = translation.projectList;
 
   useEffect(() => {
     const latestProjects = getLatestVersion(sortedProjects);
@@ -50,7 +53,7 @@ export default function ProjectList() {
     <div className="flex flex-col h-screen p-4 pt-20">
       <input
         type="text"
-        placeholder={translation.searchPlaceholder}
+        placeholder={projectListTranslation.searchPlaceholder}
         className="mb-4 p-2 border-2 border-gray-400 w-full max-w-100 self-center"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -60,19 +63,19 @@ export default function ProjectList() {
           <thead>
             <tr>
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
-                {translation.projectName}
+                {projectListTranslation.projectName}
               </th>
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/12">
-                {translation.version}
+                {projectListTranslation.version}
               </th>
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
-                {translation.createdAt}
+                {projectListTranslation.createdAt}
               </th>
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
-                {translation.versionCreatedAt}
+                {projectListTranslation.versionCreatedAt}
               </th>
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
-                {translation.modifiedAt}
+                {projectListTranslation.modifiedAt}
               </th>
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
                 <div className="flex items-center">
@@ -155,15 +158,19 @@ export default function ProjectList() {
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap w-[90px]">
                     <button
                       className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3"
+                      title={projectListTranslation.edit}
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/project/${project.id}`);
+                        setSelectedProject(project);
+                        setEditProjectName(project.projectName);
+                        setEditModalOpen(true);
                       }}
                     >
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
                     <button
                       className="bg-fisma-red hover:brightness-130 text-white py-2 px-3 ml-1"
+                      title={projectListTranslation.delete}
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedProject(project);
@@ -178,7 +185,7 @@ export default function ProjectList() {
             ) : (
               <tr>
                 <td colSpan={6} className="text-center text-fisma-gray p-4">
-                  {translation.noProjectsCouldBeFound}
+                  {projectListTranslation.noProjectsCouldBeFound}
                 </td>
               </tr>
             )}
@@ -191,7 +198,7 @@ export default function ProjectList() {
         )}
       </div>
       <ConfirmModal
-        message={`${translation.confirmDelete} "${selectedProject?.projectName}"?`}
+        message={`${projectListTranslation.confirmDelete} "${selectedProject?.projectName}"?`}
         open={isConfirmModalOpen}
         setOpen={setConfirmModalOpen}
         onConfirm={() => {
@@ -199,6 +206,45 @@ export default function ProjectList() {
           setSelectedProject(null);
         }}
       />
+      {isEditModalOpen && selectedProject && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">{projectListTranslation.editProjectName}</h2>
+            <input
+              type="text"
+              value={editProjectName}
+              onChange={(e) => setEditProjectName(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              placeholder={projectListTranslation.projectName}
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
+                onClick={() => {
+                  setEditModalOpen(false);
+                  setSelectedProject(null);
+                  setEditProjectName("");
+                }}
+              >
+                {translation.confirmModal.cancel}
+              </button>
+              <button
+                className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white rounded"
+                onClick={async () => {
+                  if (selectedProject && editProjectName.trim()) {
+                    await handleUpdate({ ...selectedProject, projectName: editProjectName.trim() });
+                    setEditModalOpen(false);
+                    setSelectedProject(null);
+                    setEditProjectName("");
+                  }
+                }}
+              >
+                {translation.alert.save}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

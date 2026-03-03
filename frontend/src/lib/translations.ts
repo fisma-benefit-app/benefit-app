@@ -40,6 +40,9 @@ export const translations = {
       modifiedAt: "Modified at",
       versionCreatedAt: "Version Created at",
       noProjectsCouldBeFound: "No projects could be found.",
+      editProjectName: "Edit Project Name",
+      edit: "Edit",
+      delete: "Delete",
     },
     csvHeaders: {
       title: "Title",
@@ -287,6 +290,9 @@ export const translations = {
       modifiedAt: "Muokattu",
       versionCreatedAt: "Versio luotu",
       noProjectsCouldBeFound: "Projekteja ei löytynyt.",
+      editProjectName: "Muokkaa projektin nimeä",
+      edit: "Muokkaa",
+      delete: "Poista",
     },
     csvHeaders: {
       title: "Otsikko",

@@ -6,6 +6,7 @@ type ProjectsContext = {
   loading: boolean;
   error: string;
   handleDelete: (projectId: number) => Promise<void>;
+  handleUpdate: (updatedProject: Project) => Promise<void>;
   checkIfLatestVersion: (
     project: Project | null,
     oldProjectVersions: Project[],
