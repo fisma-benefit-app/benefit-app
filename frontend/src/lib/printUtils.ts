@@ -230,6 +230,10 @@ export const createPdf = (
           th, td { border: 1px solid #000; padding: 5px; text-align: left; }
           th { background-color: #f2f2f2; }
           .total-row { font-weight: bold; background-color: #ddd; }
+          .subcomponent-row td {
+            padding-left: 30px;
+            background-color: #fafafa;
+          }
           @media print {
             @page {
               margin: 5mm 5mm 5mm 0mm; /* top right bottom left */
@@ -282,11 +286,20 @@ export const createPdf = (
               .map((comp) => {
                 // This returns an error "Type null cannot be used as an index type.", but it works for now
 
+                console.log(
+                  project.functionalComponents.map((c) => ({
+                    id: c.id,
+                    parentFCId: c.parentFCId,
+                  })),
+                );
+                console.log(project.functionalComponents);
+
                 let prevComp: TGenericComponent | null = null;
 
                 if (comp.previousFCId) {
                   prevComp = previousComponentsMap[comp.previousFCId];
                 }
+                const subComponents = comp.subComponents || [];
 
                 return `
               <tr>
@@ -328,6 +341,58 @@ export const createPdf = (
                   prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
                 )}</td>
               </tr>
+              ${subComponents
+                .map((sub) => {
+                  let prevSub: TGenericComponent | null = null;
+                  if (sub.previousFCId) {
+                    prevSub = previousComponentsMap[sub.previousFCId];
+                  }
+
+                  return `
+                    <tr class="subcomponent-row">
+                      <td>${valueComparer(sub.title, prevSub?.title || null)}</td>
+                      <td>${valueComparer(
+                        classNameTranslation[sub.className] || sub.className,
+                        prevSub?.className
+                          ? classNameTranslation[prevSub.className] ||
+                              prevSub.className
+                          : null,
+                      )}</td>
+                      <td>${valueComparer(
+                        sub.componentType
+                          ? componentTypeTranslation[sub.componentType] ||
+                              sub.componentType
+                          : null,
+                        prevSub?.componentType
+                          ? componentTypeTranslation[prevSub.componentType] ||
+                              prevSub.componentType
+                          : null,
+                      )}</td>
+                      <td>${valueComparer(sub.dataElements, prevSub?.dataElements || null)}</td>
+                      <td>${valueComparer(sub.readingReferences, prevSub?.readingReferences || null)}</td>
+                      <td>${valueComparer(sub.writingReferences, prevSub?.writingReferences || null)}</td>
+                      <td>${valueComparer(sub.operations, prevSub?.operations || null)}</td>
+                      <td>${valueComparer(sub.degreeOfCompletion, prevSub?.degreeOfCompletion || null)}</td>
+                      <td>${valueComparer(
+                        calculateComponentPointsWithMultiplier(
+                          sub || null,
+                          sub.degreeOfCompletion,
+                        ).toFixed(2),
+                        calculateComponentPointsWithMultiplier(
+                          prevSub || null,
+                          prevSub?.degreeOfCompletion || null,
+                        ).toFixed(2),
+                      )}</td>
+                      <td>${valueComparer(
+                        calculateBasePoints(sub).toFixed(2),
+                        prevSub
+                          ? calculateBasePoints(prevSub).toFixed(2)
+                          : "0.00",
+                      )}</td>
+                    </tr>
+                  `;
+                })
+                .join("")}
               `;
               })
               .join("")}
