@@ -20,14 +20,19 @@ export default function useCommitSha(fallback = "-") {
 
         const url = `${withTrailingSlash(base)}version.json`;
 
-        const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+        const res = await fetch(url, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
         if (!res.ok) {
           setCommitSha(fallback);
           return;
         }
 
         const data = (await res.json()) as VersionJson;
-        setCommitSha(typeof data.sha === "string" && data.sha ? data.sha : fallback);
+        setCommitSha(
+          typeof data.sha === "string" && data.sha ? data.sha : fallback,
+        );
       } catch {
         setCommitSha(fallback);
       }
