@@ -110,6 +110,7 @@ export default function FunctionalClassComponent({
     : fullPoints;
 
   const degreeOfCompletionOptions = new Map([
+    ["0", translation.degreeOfCompletion.notStarted],
     ["0.1", translation.degreeOfCompletion.specified],
     ["0.3", translation.degreeOfCompletion.planned],
     ["0.7", translation.degreeOfCompletion.implemented],
@@ -339,7 +340,7 @@ export default function FunctionalClassComponent({
                 <input
                   id="degreeOfCompletion"
                   type="number"
-                  min={0.01}
+                  min={0.0}
                   max={1}
                   step={0.01}
                   value={component.degreeOfCompletion ?? ""}
