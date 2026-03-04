@@ -71,7 +71,6 @@ public class AppUserController {
     return ResponseEntity.noContent().build();
   }
 
-
   @PutMapping("/password")
   @Operation(
       summary = "Change user password",
