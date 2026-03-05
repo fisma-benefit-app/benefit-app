@@ -63,11 +63,31 @@ export default function ProjectsProvider({
 
   const handleUpdate = async (updatedProject: Project) => {
     try {
-      const updated = await updateProject(sessionToken, updatedProject);
+      const originalProject = projects.find((p) => p.id === updatedProject.id);
+      const originalName = originalProject?.projectName;
+
+      if (!originalName) return;
+
+      const allVersionsToUpdate = projects.filter(
+        (p) => p.projectName === originalName
+      );
+
+      const updatePromises = allVersionsToUpdate.map((project) =>
+        updateProject(sessionToken, {
+          ...project,
+          projectName: updatedProject.projectName,
+        })
+      );
+
+      await Promise.all(updatePromises);
+
       setProjects((prevProjects) =>
-        prevProjects.map((project) =>
-          project.id === updatedProject.id ? { ...project, projectName: updated.projectName } : project
-        ),
+        prevProjects.map((project) => {
+          if (project.projectName === originalName) {
+            return { ...project, projectName: updatedProject.projectName };
+          }
+          return project;
+        }),
       );
     } catch (err) {
       if (err instanceof Error && err.message === "Unauthorized!") {
