@@ -311,7 +311,7 @@ Install Heroku labs plugin:
   ```
 Purge build cache:
 ```sh
-  heroku builds:cache:purge -a <app-name>
+  heroku builds:cache:purge -a fisma-benefit-app
 ```
 
 Docs: [Heroku Build Cache](https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache)
