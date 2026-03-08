@@ -180,7 +180,7 @@ Development Without Docker (local backend)</b>
 | Frontend build   | Terminal (`npm run dev`)       | GitHub Actions build logs          |
 | Frontend runtime | Browser DevTools console       | Browser DevTools console           |
 | Test logs        | `./gradlew test`               | CI/CD logs (GitHub Actions/Heroku) |  
-| 
+
 
 
 For more details, see the [logging guide](/documents/guides/logging.md).
@@ -281,8 +281,9 @@ Frontend</b>
 
 Docs: [Vite Caching Guide](https://vite.dev/guide/dep-pre-bundling)
 </details>
-<details><b>
-<summary>
+
+<details>
+<summary><b>
 Backend</b>
 </summary>
 
@@ -302,12 +303,16 @@ Docs: [Gradle Build Cache](https://docs.gradle.org/current/userguide/build_cache
 <summary><b>Deployment (Heroku)</b></summary>
 
 
-- **Heroku build cache**: Heroku keeps cached build artifacts between deploys. To purge build cache (requires Heroku Labs plugin):
+- **Heroku build cache**: Heroku keeps cached build artifacts between deploys. To purge build cache (requires Heroku Labs plugin)
 
+Install Heroku labs plugin:
   ```sh
   heroku plugins:install heroku-builds
-  heroku builds:cache:purge -a <app-name>
   ```
+Purge build cache:
+```sh
+  heroku builds:cache:purge -a <app-name>
+```
 
 Docs: [Heroku Build Cache](https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache)
 
