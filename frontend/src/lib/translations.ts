@@ -143,6 +143,7 @@ export const translations = {
         "Enter a value between 0 and 1 (e.g. 0.75 = 75% complete)",
       confirmDeleteMessage: "Are you sure you want to delete component",
       degreeOfCompletion: {
+        notStarted: "Not started",
         specified: "Specified",
         planned: "Planned",
         implemented: "Implemented",
@@ -391,6 +392,7 @@ export const translations = {
         "Syötä arvo väliltä 0 ja 1 (esim. 0.75 = 75% valmis)",
       confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin",
       degreeOfCompletion: {
+        notStarted: "Ei aloitettu",
         specified: "Määritelty",
         planned: "Suunniteltu",
         implemented: "Toteutettu",
