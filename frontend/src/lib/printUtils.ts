@@ -148,11 +148,19 @@ export const downloadProjectComponentsCsv = async (
     ),
   };
 
-  const functionalPoints = calculateTotalPoints(project.functionalComponents);
+  const allComponentsForTotals: TGenericComponent[] = [];
 
-  const totalPoints = calculateTotalPossiblePoints(
-    project.functionalComponents,
-  );
+  for (const c of project.functionalComponents) {
+    allComponentsForTotals.push(c);
+
+    if (Array.isArray(c.subComponents)) {
+      allComponentsForTotals.push(...c.subComponents); // NEW
+    }
+  }
+
+  const functionalPoints = calculateTotalPoints(allComponentsForTotals);
+
+  const totalPoints = calculateTotalPossiblePoints(allComponentsForTotals);
 
   const componentsAndProjectTotals: Record<string, unknown>[] = [];
 
