@@ -199,11 +199,10 @@ const dateLocalizer = (insertedDate: string) => {
 
 // Calculation functions moved to centralizedCalculations.ts
 
-const getAllComponents = (components: TGenericComponent[]): TGenericComponent[] => {
-  return components.flatMap((comp) => [
-    comp,
-    ...(comp.subComponents || []),
-  ]);
+const getAllComponents = (
+  components: TGenericComponent[],
+): TGenericComponent[] => {
+  return components.flatMap((comp) => [comp, ...(comp.subComponents || [])]);
 };
 
 export const createPdf = (
