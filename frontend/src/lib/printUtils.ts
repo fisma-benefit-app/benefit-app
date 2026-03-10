@@ -199,6 +199,13 @@ const dateLocalizer = (insertedDate: string) => {
 
 // Calculation functions moved to centralizedCalculations.ts
 
+const getAllComponents = (components: TGenericComponent[]): TGenericComponent[] => {
+  return components.flatMap((comp) => [
+    comp,
+    ...(comp.subComponents || []),
+  ]);
+};
+
 export const createPdf = (
   project: Project,
   oldProject: Project,
@@ -210,6 +217,10 @@ export const createPdf = (
   const previousComponentsMap = Object.fromEntries(
     oldProject.functionalComponents.map((comp) => [comp.id, comp]),
   );
+
+  // Used for points calculation, so that even subcomponent points are added up. In case this isn't needed, easy to change
+  const allCurrentComponents = getAllComponents(project.functionalComponents);
+  const allOldComponents = getAllComponents(oldProject.functionalComponents);
 
   const pdfContent = `
     <html>
@@ -285,14 +296,6 @@ export const createPdf = (
             ${project.functionalComponents
               .map((comp) => {
                 // This returns an error "Type null cannot be used as an index type.", but it works for now
-
-                console.log(
-                  project.functionalComponents.map((c) => ({
-                    id: c.id,
-                    parentFCId: c.parentFCId,
-                  })),
-                );
-                console.log(project.functionalComponents);
 
                 let prevComp: TGenericComponent | null = null;
 
@@ -400,8 +403,8 @@ export const createPdf = (
           <tfoot>
             <tr class="total-row">
               <td colspan="8"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
-              <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
-              <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+              <td><b>${valueComparer(calculateTotalPoints(allCurrentComponents).toFixed(2), calculateTotalPoints(allOldComponents).toFixed(2))}</b></td>
+              <td><b>${valueComparer(calculateTotalPossiblePoints(allCurrentComponents).toFixed(2), calculateTotalPossiblePoints(allOldComponents).toFixed(2))}</b></td>
             </tr>
           </tfoot>
         </table>
