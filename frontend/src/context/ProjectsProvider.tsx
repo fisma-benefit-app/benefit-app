@@ -2,7 +2,11 @@ import * as React from "react";
 import { Project } from "../lib/types.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import { useEffect, useState } from "react";
-import { deleteProject, fetchAllProjects, updateProject } from "../api/project.ts";
+import {
+  deleteProject,
+  fetchAllProjects,
+  updateProject,
+} from "../api/project.ts";
 import { ProjectsContext } from "./ProjectsContext.ts";
 
 export default function ProjectsProvider({
@@ -69,14 +73,14 @@ export default function ProjectsProvider({
       if (!originalName) return;
 
       const allVersionsToUpdate = projects.filter(
-        (p) => p.projectName === originalName
+        (p) => p.projectName === originalName,
       );
 
       const updatePromises = allVersionsToUpdate.map((project) =>
         updateProject(sessionToken, {
           ...project,
           projectName: updatedProject.projectName,
-        })
+        }),
       );
 
       await Promise.all(updatePromises);

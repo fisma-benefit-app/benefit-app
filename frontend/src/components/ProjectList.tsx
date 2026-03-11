@@ -219,7 +219,10 @@ export default function ProjectList() {
         onEditProjectNameChange={setEditProjectName}
         onSave={async () => {
           if (selectedProject && editProjectName.trim()) {
-            await handleUpdate({ ...selectedProject, projectName: editProjectName.trim() });
+            await handleUpdate({
+              ...selectedProject,
+              projectName: editProjectName.trim(),
+            });
             setEditModalOpen(false);
             setSelectedProject(null);
             setEditProjectName("");
@@ -229,4 +232,3 @@ export default function ProjectList() {
     </div>
   );
 }
-

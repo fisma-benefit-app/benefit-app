@@ -7,9 +7,11 @@ export const handleError = (err: unknown): void => {
 
   if (err instanceof TypeError) {
     if (err.message.includes("Failed to fetch")) {
-      message = "Server unreachable: Please ensure the backend is running and accessible.";
+      message =
+        "Server unreachable: Please ensure the backend is running and accessible.";
     } else {
-      message = "CORS error: Please check if the backend allows requests from this origin.";
+      message =
+        "CORS error: Please check if the backend allows requests from this origin.";
     }
   } else if (err instanceof Error) {
     message = `Error: ${err.message}`;

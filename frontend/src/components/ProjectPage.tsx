@@ -718,8 +718,6 @@ export default function ProjectPage() {
                   saveProject={saveProject}
                 />
               )}
-
-            
           </div>
           <div>
             {commitSha && (
