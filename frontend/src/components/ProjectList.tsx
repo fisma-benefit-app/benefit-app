@@ -80,7 +80,7 @@ export default function ProjectList() {
               </th>
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
                 <div className="flex items-center">
-                  <span className="text-sm">Actions</span>
+                  <span className="text-sm">{projectListTranslation.actions}</span>
                 </div>
               </th>
             </tr>
@@ -194,7 +194,7 @@ export default function ProjectList() {
         </table>
         {commitSha && (
           <div className="text-[11px] text-gray-500 mt-2 break-all">
-            Github commit Sha: <code className="font-mono">{commitSha}</code>
+            {projectListTranslation.githubCommitSha}<code className="font-mono">{commitSha}</code>
           </div>
         )}
       </div>

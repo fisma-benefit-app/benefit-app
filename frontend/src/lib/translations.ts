@@ -1,4 +1,5 @@
 import { layer } from "@fortawesome/fontawesome-svg-core";
+import { act } from "react";
 
 export const translations = {
   en: {
@@ -43,6 +44,8 @@ export const translations = {
       editProjectName: "Edit Project Name",
       edit: "Edit",
       delete: "Delete",
+      actions: "Actions",
+      githubCommitSha: "GitHub commit SHA: ",
     },
     csvHeaders: {
       title: "Title",
@@ -294,6 +297,8 @@ export const translations = {
       editProjectName: "Muokkaa projektin nimeä",
       edit: "Muokkaa",
       delete: "Poista",
+      actions: "Toiminnot",
+      githubCommitSha: "GitHub kommitti SHA: ",
     },
     csvHeaders: {
       title: "Otsikko",
