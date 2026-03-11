@@ -1,6 +1,3 @@
-import { layer } from "@fortawesome/fontawesome-svg-core";
-import { act } from "react";
-
 export const translations = {
   en: {
     header: {
