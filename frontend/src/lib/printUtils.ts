@@ -199,6 +199,12 @@ const dateLocalizer = (insertedDate: string) => {
 
 // Calculation functions moved to centralizedCalculations.ts
 
+const getAllComponents = (
+  components: TGenericComponent[],
+): TGenericComponent[] => {
+  return components.flatMap((comp) => [comp, ...(comp.subComponents || [])]);
+};
+
 export const createPdf = (
   project: Project,
   oldProject: Project,
@@ -210,6 +216,12 @@ export const createPdf = (
   const previousComponentsMap = Object.fromEntries(
     oldProject.functionalComponents.map((comp) => [comp.id, comp]),
   );
+
+  // Used for points calculation, so that even subcomponent points are added up. In case this isn't needed, easy to change
+  const allCurrentComponents = getAllComponents(project.functionalComponents);
+  const allOldComponents = getAllComponents(oldProject.functionalComponents);
+
+  const subComponentRows: string[] = [];
 
   const pdfContent = `
     <html>
@@ -230,6 +242,10 @@ export const createPdf = (
           th, td { border: 1px solid #000; padding: 5px; text-align: left; }
           th { background-color: #f2f2f2; }
           .total-row { font-weight: bold; background-color: #ddd; }
+          .subcomponent-row td {
+            padding-left: 30px;
+            background-color: #fafafa;
+          }
           @media print {
             @page {
               margin: 5mm 5mm 5mm 0mm; /* top right bottom left */
@@ -280,13 +296,64 @@ export const createPdf = (
           <tbody>
             ${project.functionalComponents
               .map((comp) => {
-                // This returns an error "Type null cannot be used as an index type.", but it works for now
-
                 let prevComp: TGenericComponent | null = null;
 
                 if (comp.previousFCId) {
                   prevComp = previousComponentsMap[comp.previousFCId];
                 }
+
+                const subComponents = comp.subComponents || [];
+
+                subComponents.forEach((sub) => {
+                  let prevSub: TGenericComponent | null = null;
+                  if (sub.previousFCId) {
+                    prevSub = previousComponentsMap[sub.previousFCId];
+                  }
+
+                  subComponentRows.push(`
+                    <tr class="subcomponent-row">
+                      <td>${valueComparer(sub.title, prevSub?.title || null)}</td>
+                      <td>${valueComparer(
+                        classNameTranslation[sub.className] || sub.className,
+                        prevSub?.className
+                          ? classNameTranslation[prevSub.className] ||
+                              prevSub.className
+                          : null,
+                      )}</td>
+                      <td>${valueComparer(
+                        sub.componentType
+                          ? componentTypeTranslation[sub.componentType] ||
+                              sub.componentType
+                          : null,
+                        prevSub?.componentType
+                          ? componentTypeTranslation[prevSub.componentType] ||
+                              prevSub.componentType
+                          : null,
+                      )}</td>
+                      <td>${valueComparer(sub.dataElements, prevSub?.dataElements || null)}</td>
+                      <td>${valueComparer(sub.readingReferences, prevSub?.readingReferences || null)}</td>
+                      <td>${valueComparer(sub.writingReferences, prevSub?.writingReferences || null)}</td>
+                      <td>${valueComparer(sub.operations, prevSub?.operations || null)}</td>
+                      <td>${valueComparer(sub.degreeOfCompletion, prevSub?.degreeOfCompletion || null)}</td>
+                      <td>${valueComparer(
+                        calculateComponentPointsWithMultiplier(
+                          sub || null,
+                          sub.degreeOfCompletion,
+                        ).toFixed(2),
+                        calculateComponentPointsWithMultiplier(
+                          prevSub || null,
+                          prevSub?.degreeOfCompletion || null,
+                        ).toFixed(2),
+                      )}</td>
+                      <td>${valueComparer(
+                        calculateBasePoints(sub).toFixed(2),
+                        prevSub
+                          ? calculateBasePoints(prevSub).toFixed(2)
+                          : "0.00",
+                      )}</td>
+                    </tr>
+                  `);
+                });
 
                 return `
               <tr>
@@ -331,12 +398,14 @@ export const createPdf = (
               `;
               })
               .join("")}
+            ${subComponentRows.join("")}
+
           </tbody>
           <tfoot>
             <tr class="total-row">
               <td colspan="8"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
-              <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
-              <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+              <td><b>${valueComparer(calculateTotalPoints(allCurrentComponents).toFixed(2), calculateTotalPoints(allOldComponents).toFixed(2))}</b></td>
+              <td><b>${valueComparer(calculateTotalPossiblePoints(allCurrentComponents).toFixed(2), calculateTotalPossiblePoints(allOldComponents).toFixed(2))}</b></td>
             </tr>
           </tfoot>
         </table>
