@@ -23,6 +23,7 @@ export const convertToCSV = (
         "functionalMultiplier",
         "isMLA",
         "parentFCId",
+        "isReadonly",
       ].includes(key),
   );
 
@@ -154,15 +155,16 @@ export const downloadProjectComponentsCsv = async (
     allComponentsForTotals.push(c);
 
     if (Array.isArray(c.subComponents)) {
-      allComponentsForTotals.push(...c.subComponents); // NEW
+      allComponentsForTotals.push(...c.subComponents);
     }
   }
 
   const functionalPoints = calculateTotalPoints(allComponentsForTotals);
-
   const totalPoints = calculateTotalPossiblePoints(allComponentsForTotals);
 
   const componentsAndProjectTotals: Record<string, unknown>[] = [];
+
+  const subComponentsList: Record<string, unknown>[] = [];
 
   for (const c of projectWithPoints.functionalComponents) {
     componentsAndProjectTotals.push(
@@ -174,10 +176,9 @@ export const downloadProjectComponentsCsv = async (
       ),
     );
 
-    // Loops thru subcomponents and matches with parentId
     if (Array.isArray(c.subComponents)) {
       for (const sub of c.subComponents) {
-        componentsAndProjectTotals.push(
+        subComponentsList.push(
           encodeComponentForCSV(
             { ...sub, parentFCId: c.id },
             ";",
@@ -188,6 +189,8 @@ export const downloadProjectComponentsCsv = async (
       }
     }
   }
+
+  componentsAndProjectTotals.push(...subComponentsList);
 
   // Adds summary
   componentsAndProjectTotals.push(
