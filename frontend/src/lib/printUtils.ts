@@ -23,6 +23,7 @@ export const convertToCSV = (
         "functionalMultiplier",
         "isMLA",
         "parentFCId",
+        "isReadonly",
       ].includes(key),
   );
 
@@ -148,26 +149,53 @@ export const downloadProjectComponentsCsv = async (
     ),
   };
 
-  const functionalPoints = calculateTotalPoints(project.functionalComponents);
+  const allComponentsForTotals: TGenericComponent[] = [];
 
-  const totalPoints = calculateTotalPossiblePoints(
-    project.functionalComponents,
-  );
+  for (const c of project.functionalComponents) {
+    allComponentsForTotals.push(c);
 
-  const componentsAndProjectTotals = [
-    ...projectWithPoints.functionalComponents
-      .slice()
-      .sort((a, b) => a.orderPosition - b.orderPosition)
-      .map((c) =>
-        encodeComponentForCSV(
-          c,
-          ";",
-          classNameTranslations,
-          componentTypeTranslations,
-        ),
+    if (Array.isArray(c.subComponents)) {
+      allComponentsForTotals.push(...c.subComponents);
+    }
+  }
+
+  const functionalPoints = calculateTotalPoints(allComponentsForTotals);
+  const totalPoints = calculateTotalPossiblePoints(allComponentsForTotals);
+
+  const componentsAndProjectTotals: Record<string, unknown>[] = [];
+
+  const subComponentsList: Record<string, unknown>[] = [];
+
+  for (const c of projectWithPoints.functionalComponents) {
+    componentsAndProjectTotals.push(
+      encodeComponentForCSV(
+        c,
+        ";",
+        classNameTranslations,
+        componentTypeTranslations,
       ),
+    );
+
+    if (Array.isArray(c.subComponents)) {
+      for (const sub of c.subComponents) {
+        subComponentsList.push(
+          encodeComponentForCSV(
+            { ...sub, parentFCId: c.id },
+            ";",
+            classNameTranslations,
+            componentTypeTranslations,
+          ),
+        );
+      }
+    }
+  }
+
+  componentsAndProjectTotals.push(...subComponentsList);
+
+  // Adds summary
+  componentsAndProjectTotals.push(
     encodeSummaryRowForCSV(functionalPoints, totalPoints),
-  ];
+  );
 
   const csvData = convertToCSV(componentsAndProjectTotals, translations, ";");
   downloadCSV(csvData, `${project.projectName}-v${project.version}.csv`);
