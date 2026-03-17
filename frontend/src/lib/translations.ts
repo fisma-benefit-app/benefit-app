@@ -40,6 +40,9 @@ export const translations = {
       modifiedAt: "Modified at",
       versionCreatedAt: "Version Created at",
       noProjectsCouldBeFound: "No projects could be found.",
+      editProjectName: "Edit Project Name",
+      edit: "Edit",
+      delete: "Delete",
     },
     csvHeaders: {
       title: "Title",
@@ -143,6 +146,7 @@ export const translations = {
         "Enter a value between 0 and 1 (e.g. 0.75 = 75% complete)",
       confirmDeleteMessage: "Are you sure you want to delete component",
       degreeOfCompletion: {
+        notStarted: "Not started",
         specified: "Specified",
         planned: "Planned",
         implemented: "Implemented",
@@ -287,6 +291,9 @@ export const translations = {
       modifiedAt: "Muokattu",
       versionCreatedAt: "Versio luotu",
       noProjectsCouldBeFound: "Projekteja ei löytynyt.",
+      editProjectName: "Muokkaa projektin nimeä",
+      edit: "Muokkaa",
+      delete: "Poista",
     },
     csvHeaders: {
       title: "Otsikko",
@@ -391,6 +398,7 @@ export const translations = {
         "Syötä arvo väliltä 0 ja 1 (esim. 0.75 = 75% valmis)",
       confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin",
       degreeOfCompletion: {
+        notStarted: "Ei aloitettu",
         specified: "Määritelty",
         planned: "Suunniteltu",
         implemented: "Toteutettu",
@@ -398,9 +406,9 @@ export const translations = {
         readyForUse: "Käyttöönottovalmis",
       },
       isThisFunctionalComponentAPartOfMultiLayerArchitecture:
-        "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
+        "Onko tämä toiminnallinen komponentti osa monikerrosarkkitehtuuria?",
       notAvailableForThisFunctionalComponentType:
-        "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
+        "Ei valittavissa tämän tyyppiselle toiminnalliselle komponentille",
       showMultiLayerInterfaces: "Näytä monikerrosliittymät", // ✅ KEEP - Used in button
       hideMultiLayerInterfaces: "Piilota monikerrosliittymät",
       noMultiLayerInterfaces: "Monikerrosliittymiä ei löytynyt",
@@ -412,7 +420,7 @@ export const translations = {
     },
     projectPage: {
       saveProject: "Tallenna",
-      newFunctionalComponent: "Uusi funktionaalinen komponentti",
+      newFunctionalComponent: "Lisää toiminnallinen komponentti",
       noProject: "Ei näytettäviä projektitietoja!",
       archiveProjectAsVersion: "Arkistoi versiona",
       archiveVersionWarningBeginning:
@@ -461,11 +469,11 @@ export const translations = {
       saveFailed: "Tallennus epäonnistui",
       loading: "Ladataan...",
       creating: "Luodaan...",
-      createSuccessful: "Uusi funktionaalinen komponentti luotu onnistuneesti",
-      createFailed: "Uuden funktionaalisen komponentin luominen epäonnistui",
+      createSuccessful: "Uusi toiminnallinen komponentti luotu onnistuneesti",
+      createFailed: "Uuden toiminnallisen komponentin luominen epäonnistui",
       deleting: "Poistetaan...",
-      deleteSuccessful: "Funktionaalinen komponentti poistettu",
-      deleteFailed: "Funktionaalisen komponentin poistaminen epäonnistui",
+      deleteSuccessful: "Toiminnallinen komponentti poistettu",
+      deleteFailed: "Toiminnallisen komponentin poistaminen epäonnistui",
     },
     profilePage: {
       header: "Profiili",

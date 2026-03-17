@@ -5,6 +5,7 @@ https://dashboard.heroku.com/apps/fisma-benefit-app
 Backend urls look like this: https://fisma-benefit-app-f46bf93af467.herokuapp.com/
 
 Logs:
+
 ```
 heroku logs --tail --app fisma-benefit-app
 ```
@@ -15,13 +16,13 @@ heroku logs --tail --app fisma-benefit-app
 
 2. Copy changes to repo. Currently we have to commit changes to repo https://github.com/loota/fisma-backend-alt by manually copying them from this main repo. This because Heroku wants the backend in the root directory.
 
-3. Go to heroku and press *deploy*.
- 
+3. Go to heroku and press _deploy_.
+
 ![updating backend by deploy branch](img/images_for_manuals/backend_heroku_deployment_updating_backend_by_deploy_branch.png)
 
-----
+---
 
-## How the Heroku deployment was created 
+## How the Heroku deployment was created
 
 ### Requirements
 
@@ -91,18 +92,18 @@ Select the correct branch and click Deploy Branch.
 
 ### 4. Updating the backend
 
-After commiting changes to the appopriate github repository, go back to heroku and press *deploy*.
+After commiting changes to the appopriate github repository, go back to heroku and press _deploy_.
 the backend resides at https://github.com/loota/fisma-backend-alt
 
 Currently we have to commit changes to that backend repo by manually copying them from this main repo.
- 
+
 ![updating backend by deploy branch](img/images_for_manuals/backend_heroku_deployment_updating_backend_by_deploy_branch.png)
 
 ### 5. Set up Heroku CLI
 
 Install heroku CLI from https://devcenter.heroku.com/articles/heroku-cli
 
-In your console, enter 
+In your console, enter
 
 ```
 heroku login
@@ -113,9 +114,9 @@ Accept the login prompt in your browser:
 ![heroku_login](img/images_for_manuals/backend_heroku_deployment_heroku_login.png)
 
 To view detailed logs from your app, enter in your console:
+
 ```
 heroku logs --tail --app fisma-benefit-app
 ```
 
 Where `fisma-benefit-app` is the name you entered when creating the app.
-

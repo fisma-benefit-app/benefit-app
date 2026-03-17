@@ -5,6 +5,7 @@ This document describes the state management architecture in the Benefit App, fo
 ## Overview
 
 The app uses React Context API for global state management with two primary contexts:
+
 - **AppUserContext**: Manages authentication and user session
 - **ProjectsContext**: Manages all projects and their versions
 
@@ -15,30 +16,34 @@ Local state is used within individual components for UI-specific concerns (e.g.,
 ## Authentication State (`AppUserContext`)
 
 ### Location
+
 - Context: `frontend/src/context/AppUserContext.ts`
 - Provider: `frontend/src/context/AppUserProvider.tsx`
 - Hook: `frontend/src/hooks/useAppUser.tsx`
 
 ### State Structure
+
 ```typescript
 {
-  loadingAuth: boolean;           // Loading state during auth operations
-  appUser: AppUser | null;        // Current user info (username)
-  loggedIn: boolean;              // Authentication status
-  sessionToken: string | null;    // JWT token for API requests
-  setSessionToken: Function;      // Update session token
-  setLoggedIn: Function;          // Update login status
-  setAppUser: Function;           // Update user info
-  logout: Function;               // Clear auth state
+  loadingAuth: boolean; // Loading state during auth operations
+  appUser: AppUser | null; // Current user info (username)
+  loggedIn: boolean; // Authentication status
+  sessionToken: string | null; // JWT token for API requests
+  setSessionToken: Function; // Update session token
+  setLoggedIn: Function; // Update login status
+  setAppUser: Function; // Update user info
+  logout: Function; // Clear auth state
 }
 ```
 
 ### Persistence
+
 - Session token and user info are stored in `sessionStorage`
 - Retrieved on app refresh via `useEffect` in `AppUserProvider`
 - Cleared on logout (manual or on 401 responses)
 
 ### Usage
+
 ```typescript
 const { sessionToken, logout } = useAppUser();
 ```
@@ -48,11 +53,13 @@ const { sessionToken, logout } = useAppUser();
 ## Projects State (`ProjectsContext`)
 
 ### Location
+
 - Context: `frontend/src/context/ProjectsContext.ts`
 - Provider: `frontend/src/context/ProjectsProvider.tsx`
 - Hook: `frontend/src/hooks/useProjects.tsx`
 
 ### State Structure
+
 ```typescript
 {
   sortedProjects: Project[];                    // All projects, sorted by updatedAt (desc)
@@ -96,7 +103,9 @@ const { sessionToken, logout } = useAppUser();
 ### Key Operations
 
 #### Fetch All Projects
+
 On `ProjectsProvider` mount, fetches all projects from backend:
+
 ```typescript
 useEffect(() => {
   const getAllProjects = async () => {
@@ -108,6 +117,7 @@ useEffect(() => {
 ```
 
 #### Delete Project
+
 ```typescript
 const handleDelete = async (projectId: number) => {
   await deleteProject(sessionToken, projectId);
@@ -116,7 +126,9 @@ const handleDelete = async (projectId: number) => {
 ```
 
 #### Version Management
+
 Projects with the same `projectName` are considered versions. The context provides utilities to:
+
 - Identify the latest version (highest `version` number, most recent `updatedAt`)
 - Get the previous version for comparison
 - Check if a specific project is the latest version
@@ -126,25 +138,28 @@ Projects with the same `projectName` are considered versions. The context provid
 ## Individual Project State (`ProjectPage`)
 
 ### Location
+
 `frontend/src/components/ProjectPage.tsx`
 
 ### State Structure
+
 The `ProjectPage` component manages local state for a single project being edited:
 
 ```typescript
 {
-  project: Project | null;              // Current project with all functional components
-  projectResponse: ProjectResponse | null;  // Last saved response
-  loadingProject: boolean;              // Loading state
-  error: string;                        // Error messages
-  collapseAll: boolean;                 // Global collapse state
-  componentCollapseStates: Map<number, boolean>;  // Individual collapse states
-  lastAddedComponentId: number | null;  // ID of most recently added component
-  isConfirmModalOpen: boolean;          // Archive version modal state
+  project: Project | null; // Current project with all functional components
+  projectResponse: ProjectResponse | null; // Last saved response
+  loadingProject: boolean; // Loading state
+  error: string; // Error messages
+  collapseAll: boolean; // Global collapse state
+  componentCollapseStates: Map<number, boolean>; // Individual collapse states
+  lastAddedComponentId: number | null; // ID of most recently added component
+  isConfirmModalOpen: boolean; // Archive version modal state
 }
 ```
 
 ### Project Object Structure
+
 ```typescript
 {
   id: number;
@@ -158,16 +173,17 @@ The `ProjectPage` component manages local state for a single project being edite
 ```
 
 ### Functional Component Structure
+
 ```typescript
 {
   id: number;
-  className: ClassName;                 // Component class type
-  componentType: ComponentType | null;  // Specific type within class
+  className: ClassName; // Component class type
+  componentType: ComponentType | null; // Specific type within class
   title: string | null;
   description: string | null;
-  degreeOfCompletion: number | null;    // 0.0 to 1.0
-  isMLA: boolean;                       // Multi-layer architecture flag
-  orderPosition: number;                // For drag-and-drop ordering
+  degreeOfCompletion: number | null; // 0.0 to 1.0
+  isMLA: boolean; // Multi-layer architecture flag
+  orderPosition: number; // For drag-and-drop ordering
   // Calculation parameters (class-specific):
   dataElements: number | null;
   readingReferences: number | null;
@@ -185,7 +201,9 @@ The `ProjectPage` component manages local state for a single project being edite
 ## State Updates in ProjectPage
 
 ### 1. Fetching a Project
+
 On mount or when `selectedProjectId` changes:
+
 ```typescript
 useEffect(() => {
   const getProject = async () => {
@@ -201,6 +219,7 @@ useEffect(() => {
 ```
 
 ### 2. Editing Functional Components
+
 Components update project state immutably via `setProject`:
 
 ```typescript
@@ -208,17 +227,18 @@ Components update project state immutably via `setProject`:
 const handleComponentChange = (e) => {
   const updatedComponent = { ...component, [e.target.id]: value };
   const updatedComponents = project.functionalComponents.map((fc) =>
-    fc.id === component.id ? updatedComponent : fc
+    fc.id === component.id ? updatedComponent : fc,
   );
   setProject({ ...project, functionalComponents: updatedComponents });
-  
+
   if (isLatest) {
-    debouncedSaveProject();  // Triggers auto-save
+    debouncedSaveProject(); // Triggers auto-save
   }
 };
 ```
 
 ### 3. Auto-Save Mechanism
+
 Uses a custom debounce hook with a ref to capture the latest state:
 
 ```typescript
@@ -232,7 +252,7 @@ useEffect(() => {
 const debouncedSaveProject = useDebounce(async () => {
   const currentProject = projectRef.current;
   if (!currentProject || isManuallySaved.current) return;
-  
+
   await updateProject(sessionToken, currentProject);
 }, 5000);
 ```
@@ -240,47 +260,52 @@ const debouncedSaveProject = useDebounce(async () => {
 **Why the ref?** The debounce function creates a closure. Without the ref, it would capture a stale `project` value. The ref ensures it always reads the latest state.
 
 ### 4. Creating Functional Components
+
 ```typescript
 const handleCreateFunctionalComponent = async () => {
-  await saveProject();  // Save current state first
-  
-  const newComponent: TGenericComponentNoId = { /* default values */ };
+  await saveProject(); // Save current state first
+
+  const newComponent: TGenericComponentNoId = {
+    /* default values */
+  };
   const updatedProject = await createFunctionalComponent(
     sessionToken,
     project.id,
-    newComponent
+    newComponent,
   );
-  
-  setProject(updatedProject);  // Replace entire project with server response
+
+  setProject(updatedProject); // Replace entire project with server response
 };
 ```
 
 ### 5. Deleting Functional Components
+
 ```typescript
 const handleDeleteFunctionalComponent = async (componentId: number) => {
   const updatedProject = await deleteFunctionalComponent(
     sessionToken,
     componentId,
-    project.id
+    project.id,
   );
-  setProject(updatedProject);  // Replace entire project with server response
+  setProject(updatedProject); // Replace entire project with server response
 };
 ```
 
 ### 6. Drag-and-Drop Reordering
+
 ```typescript
 const handleDragEnd = (event: DragEndEvent) => {
   // Reorder components array
   const updatedComponents = [...project.functionalComponents];
   const [moved] = updatedComponents.splice(oldIndex, 1);
   updatedComponents.splice(newIndex, 0, moved);
-  
+
   // Update orderPosition values
   const reOrdered = updatedComponents.map((c, index) => ({
     ...c,
-    orderPosition: index
+    orderPosition: index,
   }));
-  
+
   setProject({ ...project, functionalComponents: reOrdered });
   // Auto-save triggered via debounce
 };
@@ -313,7 +338,7 @@ const getComponentCollapseState = (componentId: number): boolean => {
 // Clear individual states when collapseAll is toggled
 useEffect(() => {
   setLastAddedComponentId(null);
-  setComponentCollapseStates(new Map());  // Reset all individual states
+  setComponentCollapseStates(new Map()); // Reset all individual states
 }, [collapseAll]);
 ```
 
@@ -322,6 +347,7 @@ useEffect(() => {
 ## Read-Only vs Editable State
 
 ### Version Control
+
 Only the **latest version** of a project can be edited:
 
 ```typescript
@@ -337,17 +363,19 @@ if (isLatest) {
 ```
 
 ### Creating New Versions
+
 Archiving creates a new version:
+
 ```typescript
 const saveProjectVersion = async () => {
-  await saveProject();  // Save current changes
+  await saveProject(); // Save current changes
   const newVersionId = await createNewProjectVersion(sessionToken, project);
-  
+
   // Refresh projects list
   const updatedProjects = await fetchAllProjects(sessionToken);
   setProjects(updatedProjects);
-  
-  navigate(`/project/${newVersionId}`);  // Navigate to new version
+
+  navigate(`/project/${newVersionId}`); // Navigate to new version
 };
 ```
 
@@ -395,15 +423,19 @@ Filter/Sort      Project + FunctionalComponents
 ## Common Pitfalls
 
 ❌ **Stale closures in debounced functions**
+
 - Use refs to capture latest state
 
 ❌ **Mutating state directly**
+
 - Always use spread operators or `map()`
 
 ❌ **Not normalizing orderPosition**
+
 - Components may have gaps in order values from database
 
 ❌ **Forgetting to check isLatest**
+
 - Users could edit archived versions
 
 ✅ **Solution**: Follow the patterns shown in this document

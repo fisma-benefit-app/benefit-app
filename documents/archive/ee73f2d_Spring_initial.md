@@ -6,7 +6,6 @@ documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/bene
 
 ![img.png](../img/images_for_manuals/ee73f2d_1.png)
 
-
 #### Actuator
 
 - Actuator, jotta voi katsella mm. missä beanit menee.
@@ -25,7 +24,7 @@ documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/bene
 
 #### Docker compose
 
-- Automaattinen docker compose. Etsii compose-fileä defaulttina projektin rootista ja mielestäni root on selkeämpi paikka ylipäätään. Sijainti rootissa on mahdollisesti kätevämpi myös CI/CD. 
+- Automaattinen docker compose. Etsii compose-fileä defaulttina projektin rootista ja mielestäni root on selkeämpi paikka ylipäätään. Sijainti rootissa on mahdollisesti kätevämpi myös CI/CD.
 
 ❗️Huom! Docker Desktopin pitää olla päällä muuten Spring ei lähde päälle ❗️
 
@@ -41,5 +40,4 @@ documentti koskee committia: [ee73f2d](https://github.com/fisma-benefit-app/bene
 
 ![img.png](../img/images_for_manuals/ee73f2d_3.png)
 
-
-Ilman datasourcea ei lähde päälle. Datasource määritetty dockerin Postgrehen. 
+Ilman datasourcea ei lähde päälle. Datasource määritetty dockerin Postgrehen.

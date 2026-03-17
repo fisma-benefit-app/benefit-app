@@ -11,8 +11,9 @@
     "preview": "vite preview",
     "build:testing": "vite build --mode testing",
     "build:production": "vite build --mode production",
-    "predeploy:testing": "npm run build:testing",
-    "predeploy:production": "npm run build:production",
+    "write:version": "node scripts/write-version.mjs",
+    "predeploy:testing": "npm run build:testing && npm run write:version",
+    "predeploy:production": "npm run build:production && npm run write:version",
     "deploy:testing": "gh-pages -d dist -b gh-pages --dest testing",
     "deploy:production": "gh-pages -d dist"
   },

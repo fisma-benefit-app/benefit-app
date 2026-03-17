@@ -178,3 +178,9 @@ export type CalculationParameter =
   | "writingReferences"
   | "readingReferences"
   | "operations";
+
+export type VersionJson = {
+  sha?: string;
+  ref?: string;
+  builtAt?: string;
+};
