@@ -221,6 +221,8 @@ export const createPdf = (
   const allCurrentComponents = getAllComponents(project.functionalComponents);
   const allOldComponents = getAllComponents(oldProject.functionalComponents);
 
+  const subComponentRows: string[] = [];
+
   const pdfContent = `
     <html>
       <head>
@@ -294,63 +296,21 @@ export const createPdf = (
           <tbody>
             ${project.functionalComponents
               .map((comp) => {
-                // This returns an error "Type null cannot be used as an index type.", but it works for now
-
                 let prevComp: TGenericComponent | null = null;
 
                 if (comp.previousFCId) {
                   prevComp = previousComponentsMap[comp.previousFCId];
                 }
+
                 const subComponents = comp.subComponents || [];
 
-                return `
-              <tr>
-                <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
-                <td>${valueComparer(
-                  classNameTranslation[comp.className] || comp.className,
-                  prevComp?.className
-                    ? classNameTranslation[prevComp?.className] ||
-                        prevComp.className
-                    : null,
-                )}</td>
-                <td>${valueComparer(
-                  comp.componentType
-                    ? componentTypeTranslation[comp.componentType] ||
-                        comp.componentType
-                    : null,
-                  prevComp?.componentType
-                    ? componentTypeTranslation[prevComp.componentType] ||
-                        prevComp.componentType
-                    : null,
-                )}</td>
-                <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
-                <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
-                <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
-                <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
-                <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
-                <td>${valueComparer(
-                  calculateComponentPointsWithMultiplier(
-                    comp || null,
-                    comp.degreeOfCompletion,
-                  ).toFixed(2),
-                  calculateComponentPointsWithMultiplier(
-                    prevComp || null,
-                    prevComp?.degreeOfCompletion || null,
-                  ).toFixed(2),
-                )}</td>
-                <td>${valueComparer(
-                  calculateBasePoints(comp).toFixed(2),
-                  prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
-                )}</td>
-              </tr>
-              ${subComponents
-                .map((sub) => {
+                subComponents.forEach((sub) => {
                   let prevSub: TGenericComponent | null = null;
                   if (sub.previousFCId) {
                     prevSub = previousComponentsMap[sub.previousFCId];
                   }
 
-                  return `
+                  subComponentRows.push(`
                     <tr class="subcomponent-row">
                       <td>${valueComparer(sub.title, prevSub?.title || null)}</td>
                       <td>${valueComparer(
@@ -392,12 +352,54 @@ export const createPdf = (
                           : "0.00",
                       )}</td>
                     </tr>
-                  `;
-                })
-                .join("")}
+                  `);
+                });
+
+                return `
+              <tr>
+                <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
+                <td>${valueComparer(
+                  classNameTranslation[comp.className] || comp.className,
+                  prevComp?.className
+                    ? classNameTranslation[prevComp?.className] ||
+                        prevComp.className
+                    : null,
+                )}</td>
+                <td>${valueComparer(
+                  comp.componentType
+                    ? componentTypeTranslation[comp.componentType] ||
+                        comp.componentType
+                    : null,
+                  prevComp?.componentType
+                    ? componentTypeTranslation[prevComp.componentType] ||
+                        prevComp.componentType
+                    : null,
+                )}</td>
+                <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
+                <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
+                <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
+                <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
+                <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
+                <td>${valueComparer(
+                  calculateComponentPointsWithMultiplier(
+                    comp || null,
+                    comp.degreeOfCompletion,
+                  ).toFixed(2),
+                  calculateComponentPointsWithMultiplier(
+                    prevComp || null,
+                    prevComp?.degreeOfCompletion || null,
+                  ).toFixed(2),
+                )}</td>
+                <td>${valueComparer(
+                  calculateBasePoints(comp).toFixed(2),
+                  prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
+                )}</td>
+              </tr>
               `;
               })
               .join("")}
+            ${subComponentRows.join("")}
+
           </tbody>
           <tfoot>
             <tr class="total-row">
