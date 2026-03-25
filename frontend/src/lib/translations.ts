@@ -7,6 +7,7 @@ export const translations = {
       newProject: "New Project",
       profile: "Profile",
       menu: "Menu",
+      testVersion: "Test Version",
     },
     loginForm: {
       header: "Log in",
@@ -260,6 +261,7 @@ export const translations = {
       newProject: "Uusi projekti",
       profile: "Profiili",
       menu: "Valikko",
+      testVersion: "Testiversio",
     },
     loginForm: {
       header: "Kirjaudu sisään",
