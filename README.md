@@ -24,7 +24,7 @@
     All in one repository for the Benefit application developed in collaboration
     <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
     <br />
-    <a href="#quick-production-debug"><strong>Quick production debug »</strong></a></br>
+    <a href="#quick-debug"><strong>Quick debug »</strong></a></br>
     <a href="#getting-started"><strong>Installation and development »</strong></a>
   </p>
 </div>
@@ -92,7 +92,7 @@ There are several function point analysis methods, but in this project, the term
 
 <!-- QUICK PRODUCTION DEBUG-->
 
-## Quick Production Debug
+## Quick Debug
 
 
 ### Running the app
