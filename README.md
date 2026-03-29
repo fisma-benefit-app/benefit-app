@@ -272,7 +272,7 @@ You’ll be prompted for the password.
 Frontend</b>
 </summary>
 
-- **Browser cache & cookies**: Clear from browser settings (e.g. on Chrome: Settings → Privacy → Clear browsing data).
+- **Browser cache & cookies**: Clear from browser settings (e.g. on Firefox: Settings → Privacy & Security → Clear browsing data).
 - **Vite pre-bundling cache**: Vite caches optimized dependencies locally. To clear:
 
   ```sh
