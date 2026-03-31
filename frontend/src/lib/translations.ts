@@ -81,6 +81,7 @@ export const translations = {
       title: "Title",
       description: "Description",
       totalFunctionalPoints: "Total Functional Points",
+      totalFunctionalPointsWithoutSubcomponents: "Total Functional Points Without Subcomponents",
     },
     functionalClassComponent: {
       //creates an object where keys and their values are the same
