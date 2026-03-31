@@ -18,6 +18,7 @@ export const convertToCSV = (
     (key) =>
       ![
         // Exclusion list for CSV export
+        "id",
         "orderPosition",
         "previousFCId",
         "functionalMultiplier",
@@ -435,6 +436,12 @@ export const createPdf = (
               <td><b>${valueComparer(calculateTotalPoints(allCurrentComponents).toFixed(2), calculateTotalPoints(allOldComponents).toFixed(2))}</b></td>
               <td><b>${valueComparer(calculateTotalPossiblePoints(allCurrentComponents).toFixed(2), calculateTotalPossiblePoints(allOldComponents).toFixed(2))}</b></td>
             </tr>
+            <tr class="total-row">
+              <td colspan="8"><b>${printUtilsTranslation.totalFunctionalPointsWithoutSubcomponents}</b></td>
+              <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+              <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
+            </tr>
+            
           </tfoot>
         </table>
       </body>
