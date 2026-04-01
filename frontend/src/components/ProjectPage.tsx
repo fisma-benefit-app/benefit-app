@@ -9,7 +9,7 @@ import {
   createFunctionalComponent,
   deleteFunctionalComponent,
 } from "../api/project.ts";
-import { generateProjectSummaryPDF } from "../lib/PrintUtils.ts";
+import { generateProjectSummaryPDF } from "../lib/printUtils.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
