@@ -679,7 +679,9 @@ export default function ProjectPage() {
                         ? "bg-red-600 hover:bg-red-700 cursor-pointer"
                         : "bg-fisma-gray"
                     } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
-                    onClick={() => project && generateProjectSummaryPDF(project)}
+                    onClick={() =>
+                      project && generateProjectSummaryPDF(project)
+                    }
                     disabled={loadingProject}
                   >
                     <FontAwesomeIcon icon={faFilePdf} />

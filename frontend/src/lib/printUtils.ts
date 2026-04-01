@@ -473,11 +473,11 @@ export const generateProjectSummaryPDF = (project: Project): void => {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    }
+    },
   );
 
   const formattedVersionCreatedAt = new Date(
-    project.versionCreatedAt
+    project.versionCreatedAt,
   ).toLocaleDateString("fi-FI", {
     year: "numeric",
     month: "long",
@@ -494,7 +494,7 @@ export const generateProjectSummaryPDF = (project: Project): void => {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    }
+    },
   );
 
   const htmlContent = `
