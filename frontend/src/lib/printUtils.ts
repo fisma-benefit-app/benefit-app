@@ -459,3 +459,234 @@ export const createPdf = (
     setTimeout(() => printingWindow.close(), 500);
   }
 };
+
+/**
+ * Generoi projektin yhteenveto-PDF:n (alustava placeholder versio!)
+ * Yksinkertaistettu versio nopeaa tulostusta varten
+ */
+export const generateProjectSummaryPDF = (project: Project): void => {
+  const formattedCreatedAt = new Date(project.createdAt).toLocaleDateString(
+    "fi-FI",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+
+  const formattedVersionCreatedAt = new Date(
+    project.versionCreatedAt
+  ).toLocaleDateString("fi-FI", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const formattedUpdatedAt = new Date(project.updatedAt).toLocaleDateString(
+    "fi-FI",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="fi">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${project.projectName} - Yhteenveto</title>
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          background-color: #f5f5f5;
+          padding: 40px 20px;
+        }
+        
+        .container {
+          max-width: 900px;
+          margin: 0 auto;
+          background-color: white;
+          padding: 40px;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+          border-bottom: 3px solid #1e40af;
+          padding-bottom: 20px;
+          margin-bottom: 30px;
+        }
+        
+        .header h1 {
+          font-size: 28px;
+          color: #1e40af;
+          margin-bottom: 10px;
+        }
+        
+        .header p {
+          color: #666;
+          font-size: 14px;
+        }
+        
+        .section {
+          margin-bottom: 30px;
+        }
+        
+        .section-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1e40af;
+          margin-bottom: 15px;
+          border-bottom: 2px solid #e5e7eb;
+          padding-bottom: 10px;
+        }
+        
+        .info-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+        
+        .info-item {
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .info-label {
+          font-weight: 600;
+          color: #1e40af;
+          font-size: 13px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 5px;
+        }
+        
+        .info-value {
+          color: #333;
+          font-size: 14px;
+        }
+        
+        .footer {
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+          font-size: 12px;
+          color: #999;
+          text-align: center;
+        }
+        
+        @media print {
+          body {
+            background-color: white;
+            padding: 0;
+          }
+          
+          .container {
+            box-shadow: none;
+            padding: 0;
+          }
+          
+          .no-print {
+            display: none;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>${escapeHtmlForSummary(project.projectName)}</h1>
+          <p>Projektin yhteenveto - Luotu ${new Date().toLocaleDateString("fi-FI")}</p>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Perustiedot</div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Projektin nimi</div>
+              <div class="info-value">${escapeHtmlForSummary(project.projectName)}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Versio</div>
+              <div class="info-value">v${project.version}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Projektin ID</div>
+              <div class="info-value">${project.id}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Projektin tila</div>
+              <div class="info-value">${project.active ? "Aktiivinen" : "Passiivinen"}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Aikaleima-tiedot</div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Luotu</div>
+              <div class="info-value">${formattedCreatedAt}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Version luotu</div>
+              <div class="info-value">${formattedVersionCreatedAt}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Päivitetty</div>
+              <div class="info-value">${formattedUpdatedAt}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer">
+          <p>Tämä dokumentti on luotu automaattisesti järjestelmästä.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob([htmlContent], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const printWindow = window.open(url, "_blank");
+
+  if (printWindow) {
+    printWindow.addEventListener("load", () => {
+      setTimeout(() => {
+        printWindow.print();
+      }, 250);
+    });
+  }
+};
+
+/**
+ * Escape HTML-merkkejä turvallisuuden vuoksi
+ */
+const escapeHtmlForSummary = (text: string): string => {
+  const map: { [key: string]: string } = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, (char) => map[char]);
+};

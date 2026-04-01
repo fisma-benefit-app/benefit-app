@@ -1,5 +1,7 @@
 import { ChangeEvent, useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import {
   fetchAllProjects,
   fetchProject,
@@ -7,6 +9,7 @@ import {
   createFunctionalComponent,
   deleteFunctionalComponent,
 } from "../api/project.ts";
+import { generateProjectSummaryPDF } from "../lib/PrintUtils.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
@@ -645,28 +648,42 @@ export default function ProjectPage() {
                 </button>
               </div>
               {isLatest ? (
-                <div className="flex flex-row gap-2 w-full">
+                <div className="flex flex-col gap-2 w-full">
+                  <div className="flex flex-row gap-2 w-full">
+                    <button
+                      className={`w-full ${
+                        !loadingProject
+                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                          : "bg-fisma-gray"
+                      } text-white text-xs py-3 px-4`}
+                      onClick={() => saveProject()}
+                      disabled={loadingProject}
+                    >
+                      {translation.saveProject}
+                    </button>
+                    <button
+                      className={`w-full ${
+                        !loadingProject
+                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                          : "bg-fisma-gray"
+                      } text-white text-xs py-3 px-4`}
+                      onClick={() => setConfirmModalOpen(true)}
+                      disabled={loadingProject}
+                    >
+                      {translation.archiveProjectAsVersion} {project?.version}
+                    </button>
+                  </div>
                   <button
                     className={`w-full ${
                       !loadingProject
-                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                        ? "bg-red-600 hover:bg-red-700 cursor-pointer"
                         : "bg-fisma-gray"
-                    } text-white text-xs py-3 px-4`}
-                    onClick={() => saveProject()}
+                    } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
+                    onClick={() => project && generateProjectSummaryPDF(project)}
                     disabled={loadingProject}
                   >
-                    {translation.saveProject}
-                  </button>
-                  <button
-                    className={`w-full ${
-                      !loadingProject
-                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                        : "bg-fisma-gray"
-                    } text-white text-xs py-3 px-4`}
-                    onClick={() => setConfirmModalOpen(true)}
-                    disabled={loadingProject}
-                  >
-                    {translation.archiveProjectAsVersion} {project?.version}
+                    <FontAwesomeIcon icon={faFilePdf} />
+                    Tulosta PDF:ksi
                   </button>
                 </div>
               ) : (
