@@ -65,11 +65,15 @@ public class Project {
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ProjectAppUser> projectAppUsers = new HashSet<>();
 
+  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+  private Set<ProjectComment> projectComments = new HashSet<>();
+
   public Project(
       String projectName,
       int version,
       Set<FunctionalComponent> functionalComponents,
-      Set<ProjectAppUser> projectAppUsers) {
+      Set<ProjectAppUser> projectAppUsers,
+      Set<ProjectComment> projectComments) {
     this.projectName = projectName;
     this.version = version;
     this.createdAt = LocalDateTime.now();
@@ -77,5 +81,6 @@ public class Project {
     this.calculationDate = null;
     this.functionalComponents = functionalComponents;
     this.projectAppUsers = projectAppUsers;
+    this.projectComments = projectComments;
   }
 }
