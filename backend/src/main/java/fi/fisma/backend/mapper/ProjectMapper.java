@@ -2,6 +2,7 @@ package fi.fisma.backend.mapper;
 
 import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
+import fi.fisma.backend.domain.ProjectComment;
 import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.dto.ProjectAppUserResponse;
@@ -19,11 +20,13 @@ public class ProjectMapper {
 
   private final AppUserRepository appUserRepository;
   private final FunctionalComponentMapper functionalComponentMapper;
+  private final ProjectCommentMapper projectCommentMapper;
 
   public ProjectMapper(
-      AppUserRepository appUserRepository, FunctionalComponentMapper functionalComponentMapper) {
+      AppUserRepository appUserRepository, FunctionalComponentMapper functionalComponentMapper, ProjectCommentMapper projectCommentMapper) {
     this.appUserRepository = appUserRepository;
     this.functionalComponentMapper = functionalComponentMapper;
+    this.projectCommentMapper = projectCommentMapper;
   }
 
   public ProjectResponse toResponse(Project project) {
@@ -61,6 +64,7 @@ public class ProjectMapper {
         LocalDateTime.now().plusHours(2),
         null, // No deletion date initially
         Set.of(), // Empty functional components initially
+        Set.of(), // Comments empty initially
         Set.of() // ProjectAppUsers will be set by service
         );
   }
@@ -68,6 +72,8 @@ public class ProjectMapper {
   public Project updateEntityFromRequest(Project project, ProjectRequest request) {
     Set<FunctionalComponent> functionalComponents =
         functionalComponentMapper.updateEntityFromRequest(project, request);
+    Set<ProjectComment> projectComments =
+        projectCommentMapper.updateEntityFromRequest(project, request);
 
     Set<ProjectAppUser> projectAppUsers =
         request.getProjectAppUserIds().stream()
@@ -94,7 +100,8 @@ public class ProjectMapper {
             LocalDateTime.now().plusHours(2), // new edited date
             project.getDeletedAt(),
             functionalComponents,
-            projectAppUsers);
+            projectAppUsers,
+            projectComments);
     return updatedProject;
   }
 
@@ -109,6 +116,7 @@ public class ProjectMapper {
             LocalDateTime.now().plusHours(2), // new edited date
             null, // No deletion date initially
             Set.of(), // FunctionalComponents will be set by service
+            Set.of(),
             Set.of() // ProjectAppUsers will be set by service
             );
     return newVersion;

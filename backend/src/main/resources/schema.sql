@@ -49,5 +49,10 @@ CREATE TABLE IF NOT EXISTS projects_app_users
     id              BIGSERIAL PRIMARY KEY,
     project_id      BIGINT NOT NULL REFERENCES projects (id),
     app_user_id     BIGINT NOT NULL REFERENCES app_users (id)
-)
-
+);
+CREATE TABLE IF NOT EXISTS project_comments
+(
+    id          BIGSERIAL PRIMARY KEY,
+    text        VARCHAR(200),
+    project_id  BIGINT NOT NULL REFERENCES projects (id)
+);

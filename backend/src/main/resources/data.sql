@@ -2,6 +2,7 @@ DELETE FROM  projects_app_users;
 DELETE FROM  functional_components;
 DELETE FROM  app_users;
 DELETE FROM  projects;
+DELETE FROM  project_comments;
 
 INSERT INTO app_users (id, username, password, deleted_at)
 VALUES  (1, 'user', '$2a$12$HKOdaTyz4177IDXr5bhtZuack9SYFe02sZOHP2/8cwAa91ShbKIiO', NULL),
@@ -46,7 +47,13 @@ VALUES  (1, 1, 1),
         (2, 2, 1),
         (3, 3, 1);
 
+INSERT INTO project_comments (id, text, project_id)
+VALUES  (1, 'COMMENT 1', 1),
+        (2, 'COMMENT 2', 1),
+        (3, 'COMMENT 3', 1);
+
 SELECT setval('app_users_id_seq', (SELECT MAX(id) FROM app_users));
 SELECT setval('projects_id_seq', (SELECT MAX(id) FROM projects));
 SELECT setval('functional_components_id_seq', (SELECT MAX(id) FROM functional_components));
 SELECT setval('projects_app_users_id_seq', (SELECT MAX(id) FROM projects_app_users));
+SELECT setval('project_comments_id_seq', (SELECT MAX(id) FROM project_comments));
