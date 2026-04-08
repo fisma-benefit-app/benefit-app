@@ -31,6 +31,7 @@ const Header = () => {
   const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showTestVersion, setShowTestVersion] = useState(false);
 
   const translation = useTranslations().header;
 
@@ -52,6 +53,11 @@ const Header = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const url = window.location.href;
+    setShowTestVersion(url.includes("localhost") || url.includes("testing"));
   }, []);
 
   // Close mobile menu when navigating
@@ -103,6 +109,14 @@ const Header = () => {
             className="h-12 w-auto mb-2 ml-10 hover:opacity-75 drop-shadow-fisma-logo"
           />
         </Link>
+        {showTestVersion && (
+          <div
+            className="absolute h-full flex items-center text-lg font-bold left-1/2 transform -translate-x-1/2"
+            title={translation.testVersion}
+          >
+            {translation.testVersion}
+          </div>
+        )}
         <div className="absolute top-0 right-0 h-full flex items-stretch">
           {loggedIn && (
             <>
