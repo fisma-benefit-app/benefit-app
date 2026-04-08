@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
@@ -24,6 +25,9 @@ public class ProjectRequest {
 
   @Schema(description = "List of functional components in the project")
   private Set<FunctionalComponentRequest> functionalComponents = new HashSet<>();
+
+  @Schema(description = "Calculation date of the project", example = "2026-04-08")
+  private LocalDate calculationDate;
 
   @Schema(description = "List of user IDs to associate with the project")
   private Set<Long> projectAppUserIds = new HashSet<>();

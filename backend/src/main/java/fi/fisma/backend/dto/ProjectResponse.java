@@ -2,6 +2,7 @@ package fi.fisma.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -17,6 +18,9 @@ public record ProjectResponse(
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         @Schema(description = "Last version update timestamp", example = "2025-09-25T15:45:00")
         LocalDateTime versionCreatedAt,
+    @JsonFormat(pattern = "yyyy-MM-dd")
+        @Schema(description = "Calculation date", example = "2026-04-08")
+        LocalDate calculationDate,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         @Schema(description = "Last update timestamp", example = "2025-09-25T15:45:00")
         LocalDateTime updatedAt,

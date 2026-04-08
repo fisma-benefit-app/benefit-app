@@ -187,6 +187,16 @@ const dateLocalizer = (insertedDate: string) => {
     .replace("klo", "");
 };
 
+const dateOnlyLocalizer = (insertedDate?: string | null) => {
+  if (!insertedDate) return null;
+
+  return new Date(`${insertedDate}T00:00:00`).toLocaleDateString("fi-FI", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+};
+
 // Calculation functions moved to centralizedCalculations.ts
 
 export const createPdf = (
@@ -250,6 +260,7 @@ export const createPdf = (
           <p><strong>${printUtilsTranslation.version}:</strong> ${valueComparer(project.version, oldProject.version)}</p>
           <p><strong>${printUtilsTranslation.createdDate}:</strong> ${valueComparer(dateLocalizer(project.createdAt), dateLocalizer(oldProject.createdAt))}</p>
           <p><strong>${printUtilsTranslation.versionCreatedDate}:</strong> ${valueComparer(dateLocalizer(project.versionCreatedAt), dateLocalizer(oldProject.versionCreatedAt))}</p>
+          <p><strong>${printUtilsTranslation.calculationDate}:</strong> ${valueComparer(dateOnlyLocalizer(project.calculationDate), dateOnlyLocalizer(oldProject.calculationDate))}</p>
           <p><strong>${printUtilsTranslation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.updatedAt), dateLocalizer(oldProject.updatedAt))}</p>
         </div>
         <table>

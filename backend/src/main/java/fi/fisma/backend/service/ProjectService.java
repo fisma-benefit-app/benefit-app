@@ -11,6 +11,7 @@ import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
+import fi.fisma.backend.mapper.FunctionalComponentMapper;
 import fi.fisma.backend.repository.ProjectRepository;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ public class ProjectService {
   private final ProjectRepository projectRepository;
   private final AppUserRepository appUserRepository;
   private final FunctionalComponentRepository functionalComponentRepository;
+  private final FunctionalComponentMapper functionalComponentMapper;
   private final ProjectMapper projectMapper;
 
   /**
@@ -89,6 +91,12 @@ public class ProjectService {
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var project = projectMapper.toEntity(newProjectRequest);
+
+    // Map + attach functional components from request (so they persist with the project)
+    var functionalComponents = functionalComponentMapper.updateEntityFromRequest(project, newProjectRequest);
+    functionalComponents.forEach(fc -> fc.setProject(project)); // owning side
+    project.setFunctionalComponents(functionalComponents);
+
     project.setProjectAppUsers(Set.of(new ProjectAppUser(project, appUser)));
     return projectMapper.toResponse(projectRepository.save(project));
   }

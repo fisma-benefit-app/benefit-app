@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS projects
     version             BIGINT NOT NULL,
     created_at          TIMESTAMP(0) NOT NULL,
     version_created_at  TIMESTAMP(0) NOT NULL,
+    calculation_date    DATE,
     updated_at          TIMESTAMP(0),
     deleted_at          TIMESTAMP(0)
 );

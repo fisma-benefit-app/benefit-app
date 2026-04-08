@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router";
 import "./index.css";
+import "react-datepicker/dist/react-datepicker.css";
 import App from "./App.tsx";
 import { AlertProvider } from "./context/AlertProvider.tsx";
 import AppUserProvider from "./context/AppUserProvider.tsx";

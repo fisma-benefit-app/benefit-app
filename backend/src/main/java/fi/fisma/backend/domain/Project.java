@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +31,6 @@ public class Project {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-
   @NotBlank(message = "Project name is required")
   @Size(max = 255, message = "Project name must not exceed 255 characters")
   @Column(name = "project_name")
@@ -48,6 +48,9 @@ public class Project {
   @NotNull(message = "Version date is required")
   @Column(name = "version_created_at")
   private LocalDateTime versionCreatedAt;
+
+  @Column(name = "calculation_date")
+  private LocalDate calculationDate;
 
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
@@ -70,6 +73,7 @@ public class Project {
     this.version = version;
     this.createdAt = LocalDateTime.now();
     this.versionCreatedAt = LocalDateTime.now();
+    this.calculationDate = null;
     this.functionalComponents = functionalComponents;
     this.projectAppUsers = projectAppUsers;
   }

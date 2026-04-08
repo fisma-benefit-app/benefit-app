@@ -10,6 +10,7 @@ export type ProjectRequest = {
   projectName: string;
   version: number;
   functionalComponents: FunctionalComponentRequest[];
+  calculationDate?: string | null;
   projectAppUserIds: number[];
 };
 
@@ -19,6 +20,7 @@ export type ProjectResponse = {
   version: number;
   createdAt: string;
   versionCreatedAt: string;
+  calculationDate?: string | null;
   updatedAt: string;
   functionalComponents: FunctionalComponentResponse[];
   projectAppUsers: ProjectAppUserResponse[];
@@ -92,6 +94,7 @@ export type ProjectWithUpdate = {
   version: number;
   createdAt: string;
   versionCreatedAt: string;
+  calculationDate?: string | null;
   updatedAt: string;
   functionalComponents: (TGenericComponent | TGenericComponentNoId)[];
   appUsers: ProjectAppUser[];
@@ -103,6 +106,7 @@ export type Project = {
   version: number;
   createdAt: string;
   versionCreatedAt: string;
+  calculationDate?: string | null;
   updatedAt: string;
   functionalComponents: TGenericComponent[];
   projectAppUsers: ProjectAppUser[];
