@@ -685,7 +685,7 @@ export default function ProjectPage() {
                     disabled={loadingProject}
                   >
                     <FontAwesomeIcon icon={faFilePdf} />
-                    Tulosta PDF:ksi
+                    {translation.printPDF}
                   </button>
                 </div>
               ) : (
