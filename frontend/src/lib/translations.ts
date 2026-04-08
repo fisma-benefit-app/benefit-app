@@ -186,6 +186,8 @@ export const translations = {
       collapseAll: "Collapse all",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
+      githubCommitSha: "GitHub commit SHA: ",
+      printPDF: "Print PDF",
     },
     functionalPointSummary: {
       noSelectedComponentType: "no selected component type",
@@ -442,6 +444,8 @@ export const translations = {
       collapseAll: "Pienennä kaikki",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
+      githubCommitSha: "GitHub kommitti SHA: ",
+      printPDF: "Tulosta PDF",
     },
     functionalPointSummary: {
       noSelectedComponentType: "ei valittua toimintotyyppiä",
