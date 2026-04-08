@@ -24,6 +24,7 @@
     All in one repository for the Benefit application developed in collaboration
     <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
     <br />
+    <a href="#quick-debug"><strong>Quick debug »</strong></a></br>
     <a href="#getting-started"><strong>Installation and development »</strong></a>
   </p>
 </div>
@@ -37,6 +38,8 @@
     <li>
         <a href="#about-the-project">About the Project</a>
     </li>
+    <li>
+        <a href="#quick-production-debug">Quick production debug</a>
     <li>
         <a href="#deployment">Deployment</a>
     </li>
@@ -86,6 +89,251 @@ Function point analysis is used to measure the functional size of software. This
 There are several function point analysis methods, but in this project, the term specifically refers to the FiSMA 1.1 method.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- QUICK PRODUCTION DEBUG-->
+
+## Quick Debug
+
+
+### Running the app
+
+#### Start (build on first run or when Dockerfiles change)
+
+```bash
+docker compose up --build
+```
+
+#### Stop (keep DB data and caches)
+```bash 
+docker compose down
+```
+
+#### Stop and reset EVERYTHING (DB, caches, volumes)
+```bash
+docker compose down -v
+```
+
+### Opening the app
+
+- Frontend: http://localhost:5173/benefit-app/login
+- Backend: http://localhost:8080/actuator/health
+
+<br>
+<details>
+<summary><b>
+Development Without Docker (local backend)</b>
+</summary>
+
+
+1. You only need the `frontend/.env` file with VITE_API_URL pointing to your backend (`http://localhost:8080` by default).
+2. If you have previously run Docker, clean backend build dirs once to avoid permission issues:
+   ```bash
+   sudo rm -rf backend/.gradle backend/build
+   ```
+3. Make sure a Postgres DB is available:
+   - Run only Postgres via Docker:
+     ```bash
+     docker compose up db
+     ```
+   - Test DB connection:
+     ```bash
+     docker exec -it fisma_db psql -U POSTGRES_USER POSTGRES_DB
+     ```
+   - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
+4. Start backend:
+
+   ```bash
+   cd backend
+   ./gradlew bootRun
+   ```
+
+   Or build and run packaged jar:
+
+   ```bash
+   ./gradlew build
+   java -jar build/libs/backend-0.0.1-SNAPSHOT.jar
+   ```
+
+5. Start frontend:
+
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+   By default, the app runs at `http://localhost:5173`.
+
+   Default credentials for development:
+   - Username: `user`
+   - Password: `user`
+
+   </details>
+   <br>
+
+### Logging
+
+
+| Type of log      | Local                          | Heroku (Production)                |
+| ---------------- | ------------------------------ | ---------------------------------- |
+| Backend runtime  | Terminal (`./gradlew bootRun`) | `heroku logs --app fisma-benefit-app --tail`   |
+| Frontend build   | Terminal (`npm run dev`)       | GitHub Actions build logs          |
+| Frontend runtime | Browser DevTools console       | Browser DevTools console           |
+| Test logs        | `./gradlew test`               | CI/CD logs (GitHub Actions/Heroku) |  
+
+
+
+For more details, see the [logging guide](/documents/guides/logging.md).
+
+<br>
+
+### Database Access
+
+<details>
+<summary><b>Local Database (Docker)</b></summary>
+
+<br>
+
+For development, Postgres runs inside Docker Compose. See compose.yaml in project root for the container name, user, password, and database.
+
+#### Access via Docker
+
+```sh
+docker exec -it benefit-app-postgres-1 psql -U <username> <database>
+```
+
+#### Access via local psql
+
+If you have PostgreSQL installed locally:
+
+```sh
+psql -h localhost -p 5433 -U <username> <database>
+```
+</details>
+
+
+<details>
+<summary><b>Production and Testing databases</b></summary>
+
+<br> See Heroku's dashboard or `backend-credentials` repository for Heroku PostgreSQL database names.
+
+
+
+#### Access via Heroku CLI
+
+Log in (if needed):
+```sh
+heroku login
+```
+
+Connect to production database:
+
+```sh
+heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app
+```
+
+Connect to testing database:
+
+```sh
+heroku pg:psql HEROKU_TESTING_POSTGRES_DB_NAME --app=fisma-benefit-app-testing
+```
+
+Create a database backup:
+
+```sh
+heroku pg:backups:capture --app=fisma-benefit-app
+```
+
+Exit database shell: Ctrl + D
+
+#### Access via Direct PSQL
+You can also connect using credentials from Heroku Dashboard:
+
+```sh
+psql -h <host> -p <port> -U <username> <database>
+```
+
+You’ll be prompted for the password.
+
+</details> 
+<br>
+ 
+ For more details, see the [database guide](/documents/guides/database.md).
+
+<br>
+
+
+
+
+### Clearing caches
+
+<details>
+<summary><b>
+Frontend</b>
+</summary>
+
+- **Browser cache & cookies**: Clear from browser settings (e.g. on Firefox: Settings → Privacy & Security → Clear browsing data).
+- **Vite pre-bundling cache**: Vite caches optimized dependencies locally. To clear:
+
+  ```sh
+  rm -rf node_modules/.vite
+  ```
+
+Docs: [Vite Caching Guide](https://vite.dev/guide/dep-pre-bundling)
+</details>
+
+<details>
+<summary><b>
+Backend</b>
+</summary>
+
+- **Spring Boot caching**: Spring caches are not used by default, but if enabled, see Spring Cache Reference:
+
+  ```sh
+  ./gradlew clean build --no-build-cache
+  rm -rf ~/.gradle/caches/
+  ```
+
+Docs: [Gradle Build Cache](https://docs.gradle.org/current/userguide/build_cache.html)
+
+</details>
+
+<details>
+
+<summary><b>Deployment (Heroku)</b></summary>
+
+
+- **Heroku build cache**: Heroku keeps cached build artifacts between deploys. To purge build cache (requires Heroku Labs plugin)
+
+Install Heroku labs plugin:
+  ```sh
+  heroku plugins:install heroku-builds
+  ```
+Purge build cache:
+```sh
+  heroku builds:cache:purge -a fisma-benefit-app
+```
+
+Docs: [Heroku Build Cache](https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache)
+
+</details>
+
+<details>
+
+<summary><b>App-specific memoization Cache</b></summary>
+
+- **Benefit's memoization cache**: Benefit's memoization cache is used for functional point calculations in the frontend, specifically in centralizedCalculations.ts. To clear use `clearCalculationCache()` via devtools.
+
+</details><br>
+
+
+For more details, see the [Caching Guide](/documents/guides/caching.md).
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<br>
+
 
 <!-- DEPLOYMENT -->
 
@@ -196,6 +444,8 @@ This project is built with:
 [![Visual Studio Code][vs-code-shield]][vs-code-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
 
 <!-- GETTING STARTED -->
 
@@ -312,6 +562,8 @@ git config core.hooksPath .githooks
 
 This command tells Git to look for the `pre-commit` hook from the `.githooks` folder.
 
+
+
 ### (Optional) Troubleshooting
 
 - **No seed users** → ensure backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset DB once.
@@ -342,6 +594,8 @@ This command tells Git to look for the `pre-commit` hook from the `.githooks` fo
   rm -rf node_modules
   npm install
   ```
+
+#### See also: [List of known errors](/documents/notes/known_errors.md).
 
 ### (Optional) Notes
 
@@ -385,6 +639,7 @@ Below are two demos of the app recorded on May 14 2025.
 - Export project, change language, delete project, and attempt login with faulty credentials.
 
 [Click here to see demo part 2](https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba)
+
 
 #### Troubleshooting
 
