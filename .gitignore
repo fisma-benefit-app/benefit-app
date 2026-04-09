@@ -8,3 +8,6 @@
 
 # Node modules (all)
 **/node_modules/
+
+# Logs
+.DS_Store
