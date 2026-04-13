@@ -1,9 +1,8 @@
-// Removed invalid root-level scrollToTop keys
 export const translations = {
   en: {
-        scrollToTop: {
-          tooltip: "Scroll to top",
-        },
+    scrollToTop: {
+      tooltip: "Scroll to top",
+    },
     header: {
       logout: "Logout",
       logoutWarning: "Are you sure you want to log out?",
@@ -90,7 +89,6 @@ export const translations = {
         "Total Functional Points Without Subcomponents",
     },
     functionalClassComponent: {
-      // Tooltip texts for buttons
       collapseExpand: "Collapse/Expand component",
       delete: "Delete component",
       toggleMLAInterfaces: "Show/Hide multi-layer interfaces",
@@ -168,7 +166,7 @@ export const translations = {
         "Is this functional component a part of multi-layered architecture?",
       notAvailableForThisFunctionalComponentType:
         "Not available for this functional component type",
-      showMultiLayerInterfaces: "Show multi-layer interfaces", // ✅ KEEP - Used in button
+      showMultiLayerInterfaces: "Show multi-layer interfaces",
       hideMultiLayerInterfaces: "Hide multi-layer interfaces",
       noMultiLayerInterfaces: "No multi-layer interfaces found",
       multiLayerInterfaces: "Multi-layer interfaces",
@@ -264,9 +262,9 @@ export const translations = {
     },
   },
   fi: {
-        scrollToTop: {
-          tooltip: "Siirry ylös",
-        },
+    scrollToTop: {
+      tooltip: "Siirry ylös",
+    },
     header: {
       logout: "Kirjaudu ulos",
       logoutWarning: "Oletko varma, että haluat kirjautua ulos?",
@@ -351,7 +349,6 @@ export const translations = {
       totalFunctionalPoints: "Toimintopisteet Yhteensä",
     },
     functionalClassComponent: {
-      // Tooltip-tekstit painikkeille
       collapseExpand: "Pienennä/laajenna komponentti",
       delete: "Poista komponentti",
       toggleMLAInterfaces: "Näytä/piilota monikerrosliittymät",
@@ -430,7 +427,7 @@ export const translations = {
         "Onko tämä toiminnallinen komponentti osa monikerrosarkkitehtuuria?",
       notAvailableForThisFunctionalComponentType:
         "Ei valittavissa tämän tyyppiselle toiminnalliselle komponentille",
-      showMultiLayerInterfaces: "Näytä monikerrosliittymät", // ✅ KEEP - Used in button
+      showMultiLayerInterfaces: "Näytä monikerrosliittymät",
       hideMultiLayerInterfaces: "Piilota monikerrosliittymät",
       noMultiLayerInterfaces: "Monikerrosliittymiä ei löytynyt",
       multiLayerInterfaces: "Monikerrosliittymät",

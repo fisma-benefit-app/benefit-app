@@ -309,14 +309,14 @@ export default function FunctionalClassComponent({
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
             <div className="flex gap-2 items-center">
               {/* Collapse button */}
-                  <button
-                    type="button"
-                    onClick={toggleCollapse}
-                    className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
-                    title={translation.collapseExpand}
-                  >
-                    <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
-                  </button>
+              <button
+                type="button"
+                onClick={toggleCollapse}
+                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
+                title={translation.collapseExpand}
+              >
+                <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
+              </button>
               {/* Delete button */}
               <button
                 type="button"
