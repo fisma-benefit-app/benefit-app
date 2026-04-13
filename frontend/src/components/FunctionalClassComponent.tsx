@@ -309,19 +309,21 @@ export default function FunctionalClassComponent({
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
             <div className="flex gap-2 items-center">
               {/* Collapse button */}
-              <button
-                type="button"
-                onClick={toggleCollapse}
-                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
-              >
-                <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
-              </button>
+                  <button
+                    type="button"
+                    onClick={toggleCollapse}
+                    className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
+                    title={translation.collapseExpand}
+                  >
+                    <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
+                  </button>
               {/* Delete button */}
               <button
                 type="button"
                 className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
                 onClick={() => setConfirmModalOpen(true)}
                 disabled={!isLatest}
+                title={translation.delete}
               >
                 <FontAwesomeIcon icon={faTrash} />
               </button>

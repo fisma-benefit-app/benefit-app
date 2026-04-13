@@ -1,5 +1,9 @@
+// Removed invalid root-level scrollToTop keys
 export const translations = {
   en: {
+        scrollToTop: {
+          tooltip: "Scroll to top",
+        },
     header: {
       logout: "Logout",
       logoutWarning: "Are you sure you want to log out?",
@@ -86,6 +90,10 @@ export const translations = {
         "Total Functional Points Without Subcomponents",
     },
     functionalClassComponent: {
+      // Tooltip texts for buttons
+      collapseExpand: "Collapse/Expand component",
+      delete: "Delete component",
+      toggleMLAInterfaces: "Show/Hide multi-layer interfaces",
       //creates an object where keys and their values are the same
       classNameOptions: Object.fromEntries(
         [
@@ -256,6 +264,9 @@ export const translations = {
     },
   },
   fi: {
+        scrollToTop: {
+          tooltip: "Siirry ylös",
+        },
     header: {
       logout: "Kirjaudu ulos",
       logoutWarning: "Oletko varma, että haluat kirjautua ulos?",
@@ -340,6 +351,10 @@ export const translations = {
       totalFunctionalPoints: "Toimintopisteet Yhteensä",
     },
     functionalClassComponent: {
+      // Tooltip-tekstit painikkeille
+      collapseExpand: "Pienennä/laajenna komponentti",
+      delete: "Poista komponentti",
+      toggleMLAInterfaces: "Näytä/piilota monikerrosliittymät",
       classNameOptions: {
         "Interactive end-user navigation and query service":
           "Vuorovaikutteinen navigointi- tai kyselytoiminto",
