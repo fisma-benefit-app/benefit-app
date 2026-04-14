@@ -349,6 +349,8 @@ export const translations = {
       title: "Otsikko",
       description: "Kuvaus/Kommentit",
       totalFunctionalPoints: "Toimintopisteet Yhteensä",
+      totalFunctionalPointsWithoutSubcomponents:
+        "Toimintopisteet ilman alikomponentteja",
     },
     functionalClassComponent: {
       collapseExpand: "Pienennä/laajenna komponentti",
