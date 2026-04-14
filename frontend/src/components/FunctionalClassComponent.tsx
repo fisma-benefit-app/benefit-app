@@ -313,6 +313,7 @@ export default function FunctionalClassComponent({
                 type="button"
                 onClick={toggleCollapse}
                 className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
+                title={translation.collapseExpand}
               >
                 <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
               </button>
@@ -322,6 +323,7 @@ export default function FunctionalClassComponent({
                 className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
                 onClick={() => setConfirmModalOpen(true)}
                 disabled={!isLatest}
+                title={translation.delete}
               >
                 <FontAwesomeIcon icon={faTrash} />
               </button>
