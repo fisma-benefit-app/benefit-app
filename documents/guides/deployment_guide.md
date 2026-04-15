@@ -10,6 +10,7 @@ We can deploy the app to two different environments: testing (staging) and produ
 - Access to repo: https://github.com/fisma-benefit-app/benefit-app
 - Database credentials available in Heroku Config Vars
 - Heroku backend URLs set up in GitHub Actions repository secrets: `HEROKU_PRODUCTION_URL` and `HEROKU_TESTING_URL`
+- Under Deploy -> Authorize GitHub to use your Heroku account -> Authorize Github
 
 URL values can be found in the `backend-credentials` repository.
 
@@ -85,7 +86,7 @@ heroku logs --tail --app fisma-benefit-app-testing # testing logs
 
 ## Manual deployment to frontend from CLI
 
-If you, for some reason, want to do manual frontend deployment to any environment in GitHub Pages, follow these steps:
+Frontend is deployed automatically with Heroku backend. But if it is required to deploy the Frontend to a Github Pages enviroment manually, follow these steps:
 
 ### 1. Install dependencies
 
