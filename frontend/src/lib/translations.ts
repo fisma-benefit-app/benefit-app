@@ -13,7 +13,7 @@ export const translations = {
       testVersion: "Test Version",
     },
     loginForm: {
-      header: "Log in",
+      header: "Sign in",
       errorMessage: "Check username and password!",
       username: "Username",
       password: "Password",
