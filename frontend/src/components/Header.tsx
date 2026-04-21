@@ -101,7 +101,9 @@ const Header = () => {
 
   return (
     <>
-      <header className={`fixed top-0 w-full ${showTestVersion ? "bg-gray-500" : "bg-fisma-blue"} text-white flex z-999 h-15`}>
+      <header
+        className={`fixed top-0 w-full ${showTestVersion ? "bg-gray-500" : "bg-fisma-blue"} text-white flex z-999 h-15`}
+      >
         <Link to="/">
           <img
             src={`${import.meta.env.BASE_URL}Fisma-benefit_logo.png`}
