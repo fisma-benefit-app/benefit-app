@@ -39,10 +39,14 @@
         <a href="#about-the-project">About the Project</a>
     </li>
     <li>
-        <a href="#quick-production-debug">Quick production debug</a>
+    <a href="#production">Production</a>
     <li>
-        <a href="#deployment">Deployment</a>
+    <a href="#quick-debug">Quick Debug</a>
+    <li>
+        <a href="#running-the-app">Running the app</a>
     </li>
+    <li>
+    <a href="#architecture">Architecture</a>
     <li>
         <a href="#fisma-11-method-overview">FiSMA Method Overview</a>
     </li>
@@ -89,6 +93,86 @@ Function point analysis is used to measure the functional size of software. This
 There are several function point analysis methods, but in this project, the term specifically refers to the FiSMA 1.1 method.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+## Production
+
+### Url
+
+``` bash
+https://fisma-benefit-app.github.io/benefit-app/#/login
+```
+
+### Deployment
+
+We can deploy the app to two different environments: testing (staging) and production environments. Testing deployments run automatically and production deployments must be done manually. 
+
+#### Prerequisites:
+
+- Heroku account with CLI installed for logging (see the [logging guide](/documents/guides/logging.md) on this if needed)
+- Access to repo: https://github.com/fisma-benefit-app/benefit-app
+- Database credentials available in Heroku Config Vars
+- Heroku backend URLs set up in GitHub Actions repository secrets: HEROKU_PRODUCTION_URL and HEROKU_TESTING_URL ( URL values can be found in the [backend-credentials repository](https://github.com/fisma-benefit-app/backend-credentials))
+
+#### Backups:
+Before any deployment, ensure a database backup is taken via Heroku or terminal. See [deployment guide](/documents/guides/deployment_guide.md). 
+
+#### Manual deployments:
+
+- manual backend deployments to Heroku are done in Heroku dashboard
+- manual frontend deployments to GitHub Pages are done from CLI
+
+See [deployment guide](/documents/guides/deployment_guide.md) for more instructions.
+
+### Database Access
+
+Log in (if needed):
+```sh
+heroku login
+```
+
+Connect to database:
+
+```sh
+heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app
+```
+
+ 
+ For more details, see the [database guide](/documents/guides/database.md).
+
+
+
+### Logging
+
+
+```sh
+heroku logs --app fisma-benefit-app --tail
+```
+
+
+For full logging information, see [logging guide](/documents/guides/logging.md)
+
+
+
+### Caching
+
+Heroku keeps cached build artifacts between deploys. To purge build cache (requires Heroku Labs plugin)
+
+Install Heroku labs plugin:
+  ```sh
+  heroku plugins:install heroku-builds
+  ```
+Purge build cache:
+```sh
+  heroku builds:cache:purge -a fisma-benefit-app
+```
+
+
+For more details, see [Caching Guide](/documents/guides/caching.md).
+
+
+
 
 <!-- QUICK PRODUCTION DEBUG-->
 
@@ -267,10 +351,8 @@ You’ll be prompted for the password.
 
 ### Clearing caches
 
-<details>
-<summary><b>
-Frontend</b>
-</summary>
+
+#### Frontend
 
 - **Browser cache & cookies**: Clear from browser settings (e.g. on Firefox: Settings → Privacy & Security → Clear browsing data).
 - **Vite pre-bundling cache**: Vite caches optimized dependencies locally. To clear:
@@ -279,31 +361,21 @@ Frontend</b>
   rm -rf node_modules/.vite
   ```
 
-Docs: [Vite Caching Guide](https://vite.dev/guide/dep-pre-bundling)
-</details>
 
-<details>
-<summary><b>
-Backend</b>
-</summary>
+#### Backend
 
-- **Spring Boot caching**: Spring caches are not used by default, but if enabled, see Spring Cache Reference:
+Spring caches are not used by default, but if enabled, see Spring Cache Reference:
 
   ```sh
   ./gradlew clean build --no-build-cache
   rm -rf ~/.gradle/caches/
   ```
 
-Docs: [Gradle Build Cache](https://docs.gradle.org/current/userguide/build_cache.html)
 
-</details>
-
-<details>
-
-<summary><b>Deployment (Heroku)</b></summary>
+#### Heroku
 
 
-- **Heroku build cache**: Heroku keeps cached build artifacts between deploys. To purge build cache (requires Heroku Labs plugin)
+Heroku keeps cached build artifacts between deploys. To purge build cache (requires Heroku Labs plugin)
 
 Install Heroku labs plugin:
   ```sh
@@ -314,17 +386,11 @@ Purge build cache:
   heroku builds:cache:purge -a fisma-benefit-app
 ```
 
-Docs: [Heroku Build Cache](https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache)
 
-</details>
+#### App-specific memoization Cache
 
-<details>
+Benefit's memoization cache is used for functional point calculations in the frontend, specifically in centralizedCalculations.ts. To clear use `clearCalculationCache()` via devtools.
 
-<summary><b>App-specific memoization Cache</b></summary>
-
-- **Benefit's memoization cache**: Benefit's memoization cache is used for functional point calculations in the frontend, specifically in centralizedCalculations.ts. To clear use `clearCalculationCache()` via devtools.
-
-</details><br>
 
 
 For more details, see the [Caching Guide](/documents/guides/caching.md).
@@ -332,16 +398,10 @@ For more details, see the [Caching Guide](/documents/guides/caching.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<br>
 
 
-<!-- DEPLOYMENT -->
 
-## Deployment
-
-You can check Benefit out yourself at https://fisma-benefit-app.github.io/benefit-app/#/login. The backend has been deployed using Heroku and the frontend using GitHub Pages. More information can be found in the [deployment guide](/documents/guides/deployment_guide.md).
-
-### Architecture
+## Architecture
 
 <details>
 <summary><b>Click here to view the software architecture</b></summary>
@@ -359,28 +419,7 @@ More information on how to access the database can found in the [database guide]
 
 Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/how_to_generate_api_docs.md).
 
-### Logging
 
-Logging in the Benefit app covers both runtime and build/test events:
-
-- **Backend**: Spring Boot’s default logging plus Spring Security logs (configurable in `application.yaml`).
-  - Tests: Gradle test results with detailed exceptions and stack traces (configured in `build.gradle`).
-- **Frontend**:
-  - Build logs: terminal (local) or GitHub Actions (Heroku).
-  - Runtime logs: browser DevTools console.
-
-Logs are written to the terminal during local development and can be streamed in production with the Heroku CLI. For full details, see the [logging guide](/documents/guides/logging.md).
-
-### Cache
-
-Benefit uses several caches to improve performance and speed up builds:
-
-- **Vite cache**: Speeds up frontend development by pre-bundling dependencies.
-- **Heroku build cache**: Persists backend build artifacts between deploys for faster CI/CD.
-- **Gradle cache**: Can be enabled for backend build optimization (disabled by default).
-- **App-specific memoization cache**: The frontend caches functional point calculations in [`centralizedCalculations.ts`](frontend/src/lib/centralizedCalculations.ts) using component-specific keys. This ensures recalculation only happens when component data changes. You can monitor or clear this cache using `getCacheSize()` and `clearCalculationCache()`.
-
-For details and cache clearing instructions, see the [Caching Guide](/documents/guides/caching.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
