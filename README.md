@@ -100,13 +100,15 @@ There are several function point analysis methods, but in this project, the term
 
 ### Url
 
-``` bash
+
 https://fisma-benefit-app.github.io/benefit-app/#/login
-```
+
 
 ### Deployment
 
 We can deploy the app to two different environments: testing (staging) and production environments. Testing deployments run automatically and production deployments must be done manually. 
+
+Before any deployment, ensure a database backup is taken via Heroku or terminal. See [deployment guide](/documents/guides/deployment_guide.md). 
 
 #### Prerequisites:
 
@@ -114,9 +116,6 @@ We can deploy the app to two different environments: testing (staging) and produ
 - Access to repo: https://github.com/fisma-benefit-app/benefit-app
 - Database credentials available in Heroku Config Vars
 - Heroku backend URLs set up in GitHub Actions repository secrets: HEROKU_PRODUCTION_URL and HEROKU_TESTING_URL ( URL values can be found in the [backend-credentials repository](https://github.com/fisma-benefit-app/backend-credentials))
-
-#### Backups:
-Before any deployment, ensure a database backup is taken via Heroku or terminal. See [deployment guide](/documents/guides/deployment_guide.md). 
 
 #### Manual deployments:
 
