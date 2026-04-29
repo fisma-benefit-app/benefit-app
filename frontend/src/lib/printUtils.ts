@@ -202,16 +202,6 @@ export const downloadProjectComponentsCsv = async (
   downloadCSV(csvData, `${project.projectName}-v${project.version}.csv`);
 };
 
-// Compares values for current and previous project, then returns changed values in blue and bold text
-const valueComparer = (
-  currentValue: string | number | null,
-  prevValue: string | number | null,
-) => {
-  const changed = prevValue !== currentValue;
-  const className = changed ? "project-data highlighted" : "project-data";
-  return `<span class="${className}">${(changed ? currentValue : prevValue) ?? ""}</span>`;
-};
-
 // Localizes the date to a readable form
 const dateLocalizer = (insertedDate: string) => {
   return new Date(insertedDate)
@@ -250,214 +240,401 @@ export const createPdf = (
   const allCurrentComponents = getAllComponents(project.functionalComponents);
   const allOldComponents = getAllComponents(oldProject.functionalComponents);
 
-  const subComponentRows: string[] = [];
+  const createElementWithText = <K extends keyof HTMLElementTagNameMap>(
+    doc: Document,
+    tag: K,
+    text: string,
+    className?: string,
+  ): HTMLElementTagNameMap[K] => {
+    const element = doc.createElement(tag);
+    if (className) {
+      element.className = className;
+    }
+    element.textContent = text;
+    return element;
+  };
 
-  const pdfContent = `
-    <html>
-      <head>
-        <title>${project.projectName}-v${project.version}</title>
-        <style>
-          .project-data {
-            font-weight: normal;
-          }
-          .highlighted {
-            color: blue;
-            font-weight: bold;
-          }
-          body { font-family: Arial, sans-serif;  padding: 20px; }
-          h1 { text-align: center; }
-          .project-info { margin-bottom: 20px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #000; padding: 5px; text-align: left; }
-          th { background-color: #f2f2f2; }
-          .total-row { font-weight: bold; background-color: #ddd; }
-          .subcomponent-row td {
-            padding-left: 30px;
-            background-color: #fafafa;
-          }
-          @media print {
-            @page {
-              margin: 5mm 5mm 5mm 0mm; /* top right bottom left */
-            }
-            thead {
-              display: table-header-group;
-            }
-            tfoot {
-              display: table-row-group;
-            }
-            tr {
-              page-break-inside: avoid;
-            }
-            .project-info {
-              page-break-after: avoid;
-            }
-            .total-row {
-              break-inside: avoid;
-              page-break-before: avoid;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <h1>${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}</h1>
-        <div class="project-info">
-          <p><strong>${printUtilsTranslation.projectId}:</strong> ${valueComparer(project.id, oldProject.id)}</p>
-          <p><strong>${printUtilsTranslation.version}:</strong> ${valueComparer(project.version, oldProject.version)}</p>
-          <p><strong>${printUtilsTranslation.createdDate}:</strong> ${valueComparer(dateLocalizer(project.createdAt), dateLocalizer(oldProject.createdAt))}</p>
-          <p><strong>${printUtilsTranslation.versionCreatedDate}:</strong> ${valueComparer(dateLocalizer(project.versionCreatedAt), dateLocalizer(oldProject.versionCreatedAt))}</p>
-          <p><strong>${printUtilsTranslation.lastEditedDate}:</strong> ${valueComparer(dateLocalizer(project.updatedAt), dateLocalizer(oldProject.updatedAt))}</p>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>${printUtilsTranslation.title}</th>
-              <th>${printUtilsTranslation.className}</th>
-              <th>${printUtilsTranslation.componentType}</th>
-              <th>${printUtilsTranslation.dataElements}</th>
-              <th>${printUtilsTranslation.readingReferences}</th>
-              <th>${printUtilsTranslation.writingReferences}</th>
-              <th>${printUtilsTranslation.operations}</th>
-              <th>${printUtilsTranslation.degreeOfCompletion}</th>
-              <th>${printUtilsTranslation.functionalPoints}</th>
-              <th>${printUtilsTranslation.totalPossiblePoints}</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${project.functionalComponents
-              .map((comp) => {
-                let prevComp: TGenericComponent | null = null;
+  const createComparisonSpan = (
+    doc: Document,
+    currentValue: string | number | null | undefined,
+    prevValue: string | number | null | undefined,
+  ) => {
+    const value = prevValue !== currentValue ? currentValue : prevValue;
+    const span = doc.createElement("span");
+    span.className =
+      prevValue !== currentValue ? "project-data highlighted" : "project-data";
+    span.textContent = value != null ? String(value) : "";
+    return span;
+  };
 
-                if (comp.previousFCId) {
-                  prevComp = previousComponentsMap[comp.previousFCId];
-                }
+  const createComparisonCell = (
+    doc: Document,
+    currentValue: string | number | null | undefined,
+    prevValue: string | number | null | undefined,
+  ) => {
+    const cell = doc.createElement("td");
+    cell.appendChild(createComparisonSpan(doc, currentValue, prevValue));
+    return cell;
+  };
 
-                const subComponents = comp.subComponents || [];
+  const translateClassName = (className: string) =>
+    classNameTranslation[className] || className;
 
-                subComponents.forEach((sub) => {
-                  let prevSub: TGenericComponent | null = null;
-                  if (sub.previousFCId) {
-                    prevSub = previousComponentsMap[sub.previousFCId];
-                  }
-
-                  subComponentRows.push(`
-                    <tr class="subcomponent-row">
-                      <td>${valueComparer(sub.title, prevSub?.title || null)}</td>
-                      <td>${valueComparer(
-                        classNameTranslation[sub.className] || sub.className,
-                        prevSub?.className
-                          ? classNameTranslation[prevSub.className] ||
-                              prevSub.className
-                          : null,
-                      )}</td>
-                      <td>${valueComparer(
-                        sub.componentType
-                          ? componentTypeTranslation[sub.componentType] ||
-                              sub.componentType
-                          : null,
-                        prevSub?.componentType
-                          ? componentTypeTranslation[prevSub.componentType] ||
-                              prevSub.componentType
-                          : null,
-                      )}</td>
-                      <td>${valueComparer(sub.dataElements, prevSub?.dataElements || null)}</td>
-                      <td>${valueComparer(sub.readingReferences, prevSub?.readingReferences || null)}</td>
-                      <td>${valueComparer(sub.writingReferences, prevSub?.writingReferences || null)}</td>
-                      <td>${valueComparer(sub.operations, prevSub?.operations || null)}</td>
-                      <td>${valueComparer(sub.degreeOfCompletion, prevSub?.degreeOfCompletion || null)}</td>
-                      <td>${valueComparer(
-                        calculateComponentPointsWithMultiplier(
-                          sub || null,
-                          sub.degreeOfCompletion,
-                        ).toFixed(2),
-                        calculateComponentPointsWithMultiplier(
-                          prevSub || null,
-                          prevSub?.degreeOfCompletion || null,
-                        ).toFixed(2),
-                      )}</td>
-                      <td>${valueComparer(
-                        calculateBasePoints(sub).toFixed(2),
-                        prevSub
-                          ? calculateBasePoints(prevSub).toFixed(2)
-                          : "0.00",
-                      )}</td>
-                    </tr>
-                  `);
-                });
-
-                return `
-              <tr>
-                <td>${valueComparer(comp.title, prevComp?.title || null)}</td>
-                <td>${valueComparer(
-                  classNameTranslation[comp.className] || comp.className,
-                  prevComp?.className
-                    ? classNameTranslation[prevComp?.className] ||
-                        prevComp.className
-                    : null,
-                )}</td>
-                <td>${valueComparer(
-                  comp.componentType
-                    ? componentTypeTranslation[comp.componentType] ||
-                        comp.componentType
-                    : null,
-                  prevComp?.componentType
-                    ? componentTypeTranslation[prevComp.componentType] ||
-                        prevComp.componentType
-                    : null,
-                )}</td>
-                <td>${valueComparer(comp.dataElements, prevComp?.dataElements || null)}</td>
-                <td>${valueComparer(comp.readingReferences, prevComp?.readingReferences || null)}</td>
-                <td>${valueComparer(comp.writingReferences, prevComp?.writingReferences || null)}</td>
-                <td>${valueComparer(comp.operations, prevComp?.operations || null)}</td>
-                <td>${valueComparer(comp.degreeOfCompletion, prevComp?.degreeOfCompletion || null)}</td>
-                <td>${valueComparer(
-                  calculateComponentPointsWithMultiplier(
-                    comp || null,
-                    comp.degreeOfCompletion,
-                  ).toFixed(2),
-                  calculateComponentPointsWithMultiplier(
-                    prevComp || null,
-                    prevComp?.degreeOfCompletion || null,
-                  ).toFixed(2),
-                )}</td>
-                <td>${valueComparer(
-                  calculateBasePoints(comp).toFixed(2),
-                  prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
-                )}</td>
-              </tr>
-              `;
-              })
-              .join("")}
-            ${subComponentRows.join("")}
-
-          </tbody>
-          <tfoot>
-            <tr class="total-row">
-              <td colspan="8"><b>${printUtilsTranslation.totalFunctionalPoints}</b></td>
-              <td><b>${valueComparer(calculateTotalPoints(allCurrentComponents).toFixed(2), calculateTotalPoints(allOldComponents).toFixed(2))}</b></td>
-              <td><b>${valueComparer(calculateTotalPossiblePoints(allCurrentComponents).toFixed(2), calculateTotalPossiblePoints(allOldComponents).toFixed(2))}</b></td>
-            </tr>
-            <tr class="total-row">
-              <td colspan="8"><b>${printUtilsTranslation.totalFunctionalPointsWithoutSubcomponents}</b></td>
-              <td><b>${valueComparer(calculateTotalPoints(project.functionalComponents).toFixed(2), calculateTotalPoints(oldProject.functionalComponents).toFixed(2))}</b></td>
-              <td><b>${valueComparer(calculateTotalPossiblePoints(project.functionalComponents).toFixed(2), calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2))}</b></td>
-            </tr>
-            
-          </tfoot>
-        </table>
-      </body>
-    </html>
-  `;
+  const translateComponentType = (componentType?: string | null) =>
+    componentType
+      ? componentTypeTranslation[componentType] || componentType
+      : "";
 
   const printingWindow = window.open("", "_blank", "width=800,height=600");
-  if (printingWindow) {
-    // WARNING: Risk of XSS injection if pdfContent contains untrusted data - all
-    // user inputs should be sanitized properly
-    printingWindow.document.documentElement.innerHTML = pdfContent;
-
-    printingWindow.document.close();
-    printingWindow.print();
-    setTimeout(() => printingWindow.close(), 500);
+  if (!printingWindow) {
+    return;
   }
+
+  const doc = printingWindow.document;
+  doc.title = `${project.projectName}-v${project.version}`;
+  if (doc.documentElement) {
+    doc.documentElement.lang = "fi";
+  }
+
+  const style = doc.createElement("style");
+  style.textContent = `
+      .project-data {
+        font-weight: normal;
+      }
+      .highlighted {
+        color: blue;
+        font-weight: bold;
+      }
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      h1 { text-align: center; }
+      .project-info { margin-bottom: 20px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+      th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+      th { background-color: #f2f2f2; }
+      .total-row { font-weight: bold; background-color: #ddd; }
+      .subcomponent-row td {
+        padding-left: 30px;
+        background-color: #fafafa;
+      }
+      @media print {
+        @page {
+          margin: 5mm 5mm 5mm 0mm;
+        }
+        thead {
+          display: table-header-group;
+        }
+        tfoot {
+          display: table-row-group;
+        }
+        tr {
+          page-break-inside: avoid;
+        }
+        .project-info {
+          page-break-after: avoid;
+        }
+        .total-row {
+          break-inside: avoid;
+          page-break-before: avoid;
+        }
+      }
+    `;
+
+  const container = doc.createElement("div");
+  container.className = "pdf-container";
+
+  const heading = createElementWithText(
+    doc,
+    "h1",
+    `${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}`,
+  );
+
+  const projectInfo = doc.createElement("div");
+  projectInfo.className = "project-info";
+  const infoRows = [
+    [printUtilsTranslation.projectId, project.id, oldProject.id],
+    [printUtilsTranslation.version, project.version, oldProject.version],
+    [
+      printUtilsTranslation.createdDate,
+      dateLocalizer(project.createdAt),
+      dateLocalizer(oldProject.createdAt),
+    ],
+    [
+      printUtilsTranslation.versionCreatedDate,
+      dateLocalizer(project.versionCreatedAt),
+      dateLocalizer(oldProject.versionCreatedAt),
+    ],
+    [
+      printUtilsTranslation.lastEditedDate,
+      dateLocalizer(project.updatedAt),
+      dateLocalizer(oldProject.updatedAt),
+    ],
+  ];
+
+  infoRows.forEach(([label, currentValue, prevValue]) => {
+    const paragraph = doc.createElement("p");
+    const strong = createElementWithText(doc, "strong", `${label}: `);
+    paragraph.appendChild(strong);
+    paragraph.appendChild(createComparisonSpan(doc, currentValue, prevValue));
+    projectInfo.appendChild(paragraph);
+  });
+
+  const table = doc.createElement("table");
+  const thead = doc.createElement("thead");
+  const headerRow = doc.createElement("tr");
+  [
+    printUtilsTranslation.title,
+    printUtilsTranslation.className,
+    printUtilsTranslation.componentType,
+    printUtilsTranslation.dataElements,
+    printUtilsTranslation.readingReferences,
+    printUtilsTranslation.writingReferences,
+    printUtilsTranslation.operations,
+    printUtilsTranslation.degreeOfCompletion,
+    printUtilsTranslation.functionalPoints,
+    printUtilsTranslation.totalPossiblePoints,
+  ].forEach((headerText) => {
+    headerRow.appendChild(createElementWithText(doc, "th", headerText));
+  });
+  thead.appendChild(headerRow);
+
+  const tbody = doc.createElement("tbody");
+  project.functionalComponents.forEach((comp) => {
+    const prevComp = comp.previousFCId
+      ? previousComponentsMap[comp.previousFCId]
+      : null;
+
+    const row = doc.createElement("tr");
+    row.appendChild(
+      createComparisonCell(doc, comp.title, prevComp?.title ?? null),
+    );
+    row.appendChild(
+      createComparisonCell(
+        doc,
+        translateClassName(comp.className),
+        prevComp ? translateClassName(prevComp.className) : null,
+      ),
+    );
+    row.appendChild(
+      createComparisonCell(
+        doc,
+        translateComponentType(comp.componentType),
+        prevComp ? translateComponentType(prevComp.componentType) : null,
+      ),
+    );
+    row.appendChild(
+      createComparisonCell(
+        doc,
+        comp.dataElements,
+        prevComp?.dataElements ?? null,
+      ),
+    );
+    row.appendChild(
+      createComparisonCell(
+        doc,
+        comp.readingReferences,
+        prevComp?.readingReferences ?? null,
+      ),
+    );
+    row.appendChild(
+      createComparisonCell(
+        doc,
+        comp.writingReferences,
+        prevComp?.writingReferences ?? null,
+      ),
+    );
+    row.appendChild(
+      createComparisonCell(doc, comp.operations, prevComp?.operations ?? null),
+    );
+    row.appendChild(
+      createComparisonCell(
+        doc,
+        comp.degreeOfCompletion,
+        prevComp?.degreeOfCompletion ?? null,
+      ),
+    );
+    row.appendChild(
+      createComparisonCell(
+        doc,
+        calculateComponentPointsWithMultiplier(
+          comp || null,
+          comp.degreeOfCompletion,
+        ).toFixed(2),
+        calculateComponentPointsWithMultiplier(
+          prevComp || null,
+          prevComp?.degreeOfCompletion || null,
+        ).toFixed(2),
+      ),
+    );
+    row.appendChild(
+      createComparisonCell(
+        doc,
+        calculateBasePoints(comp).toFixed(2),
+        prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
+      ),
+    );
+    tbody.appendChild(row);
+
+    if (Array.isArray(comp.subComponents)) {
+      comp.subComponents.forEach((sub) => {
+        const prevSub = sub.previousFCId
+          ? previousComponentsMap[sub.previousFCId]
+          : null;
+        const subRow = doc.createElement("tr");
+        subRow.className = "subcomponent-row";
+        subRow.appendChild(
+          createComparisonCell(doc, sub.title, prevSub?.title ?? null),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            translateClassName(sub.className),
+            prevSub ? translateClassName(prevSub.className) : null,
+          ),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            translateComponentType(sub.componentType),
+            prevSub ? translateComponentType(prevSub.componentType) : null,
+          ),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            sub.dataElements,
+            prevSub?.dataElements ?? null,
+          ),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            sub.readingReferences,
+            prevSub?.readingReferences ?? null,
+          ),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            sub.writingReferences,
+            prevSub?.writingReferences ?? null,
+          ),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            sub.operations,
+            prevSub?.operations ?? null,
+          ),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            sub.degreeOfCompletion,
+            prevSub?.degreeOfCompletion ?? null,
+          ),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            calculateComponentPointsWithMultiplier(
+              sub || null,
+              sub.degreeOfCompletion,
+            ).toFixed(2),
+            calculateComponentPointsWithMultiplier(
+              prevSub || null,
+              prevSub?.degreeOfCompletion || null,
+            ).toFixed(2),
+          ),
+        );
+        subRow.appendChild(
+          createComparisonCell(
+            doc,
+            calculateBasePoints(sub).toFixed(2),
+            prevSub ? calculateBasePoints(prevSub).toFixed(2) : "0.00",
+          ),
+        );
+        tbody.appendChild(subRow);
+      });
+    }
+  });
+
+  const tfoot = doc.createElement("tfoot");
+  const totalRow = doc.createElement("tr");
+  totalRow.className = "total-row";
+  const totalLabelCell = doc.createElement("td");
+  totalLabelCell.colSpan = 8;
+  totalLabelCell.appendChild(
+    createElementWithText(
+      doc,
+      "b",
+      printUtilsTranslation.totalFunctionalPoints,
+    ),
+  );
+  totalRow.appendChild(totalLabelCell);
+  totalRow.appendChild(
+    createComparisonCell(
+      doc,
+      calculateTotalPoints(allCurrentComponents).toFixed(2),
+      calculateTotalPoints(allOldComponents).toFixed(2),
+    ),
+  );
+  totalRow.appendChild(
+    createComparisonCell(
+      doc,
+      calculateTotalPossiblePoints(allCurrentComponents).toFixed(2),
+      calculateTotalPossiblePoints(allOldComponents).toFixed(2),
+    ),
+  );
+
+  const totalRowWithoutSubcomponents = doc.createElement("tr");
+  totalRowWithoutSubcomponents.className = "total-row";
+  const totalWithoutSubLabelCell = doc.createElement("td");
+  totalWithoutSubLabelCell.colSpan = 8;
+  totalWithoutSubLabelCell.appendChild(
+    createElementWithText(
+      doc,
+      "b",
+      printUtilsTranslation.totalFunctionalPointsWithoutSubcomponents,
+    ),
+  );
+  totalRowWithoutSubcomponents.appendChild(totalWithoutSubLabelCell);
+  totalRowWithoutSubcomponents.appendChild(
+    createComparisonCell(
+      doc,
+      calculateTotalPoints(project.functionalComponents).toFixed(2),
+      calculateTotalPoints(oldProject.functionalComponents).toFixed(2),
+    ),
+  );
+  totalRowWithoutSubcomponents.appendChild(
+    createComparisonCell(
+      doc,
+      calculateTotalPossiblePoints(project.functionalComponents).toFixed(2),
+      calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2),
+    ),
+  );
+
+  tfoot.appendChild(totalRow);
+  tfoot.appendChild(totalRowWithoutSubcomponents);
+
+  table.appendChild(thead);
+  table.appendChild(tbody);
+  table.appendChild(tfoot);
+
+  container.appendChild(heading);
+  container.appendChild(projectInfo);
+  container.appendChild(table);
+
+  if (doc.head) {
+    doc.head.appendChild(style);
+  }
+
+  while (doc.body.firstChild) {
+    doc.body.removeChild(doc.body.firstChild);
+  }
+  doc.body.appendChild(container);
+  doc.close();
+  printingWindow.print();
+  setTimeout(() => printingWindow.close(), 500);
 };
 
 /**
