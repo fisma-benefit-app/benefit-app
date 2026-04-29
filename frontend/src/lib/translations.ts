@@ -23,7 +23,8 @@ export const translations = {
       requiredField: "Please fill out this field.",
       invalidUsernameOrPassword: "Invalid username or password.",
       sessionExpired: "Session expired. Please log in again.",
-      cannotReachServer: "Cannot reach server. Please ensure the service is running.",
+      cannotReachServer:
+        "Cannot reach server. Please ensure the service is running.",
     },
     confirmModal: {
       cancel: "Cancel",
@@ -268,7 +269,7 @@ export const translations = {
     },
     errorModal: {
       title: "Error",
-    }
+    },
   },
   fi: {
     scrollToTop: {
@@ -293,8 +294,10 @@ export const translations = {
       login: "Kirjaudu",
       requiredField: "Täytä tämä kenttä.",
       invalidUsernameOrPassword: "Virheellinen käyttäjänimi tai salasana.",
-      sessionExpired: "Istunto on päättynyt. Ole hyvä ja kirjaudu sisään uudelleen.",
-      cannotReachServer: "Palvelimeen ei saada yhteyttä. Varmista, että palvelu on käynnissä.",
+      sessionExpired:
+        "Istunto on päättynyt. Ole hyvä ja kirjaudu sisään uudelleen.",
+      cannotReachServer:
+        "Palvelimeen ei saada yhteyttä. Varmista, että palvelu on käynnissä.",
     },
     confirmModal: {
       cancel: "Peruuta",
@@ -542,7 +545,7 @@ export const translations = {
       accountDeleteFailed: "Tilin poistaminen epäonnistui",
     },
     errorModal: {
-      title: "Virhe"
+      title: "Virhe",
     },
   },
 };

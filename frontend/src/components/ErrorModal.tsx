@@ -25,7 +25,7 @@ export default function ErrorModal() {
   }
 
   const errorMessage = error.translationKey
-    ? getNestedTranslation(translation, error.translationKey) ?? error.message
+    ? (getNestedTranslation(translation, error.translationKey) ?? error.message)
     : error.message;
 
   return (
@@ -40,7 +40,9 @@ export default function ErrorModal() {
             className="w-6 h-6 text-fisma-red flex-shrink-0 mt-1"
           />
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">{translation.errorModal.title}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              {translation.errorModal.title}
+            </h2>
             <p className="text-gray-700">{errorMessage}</p>
           </div>
           <button
