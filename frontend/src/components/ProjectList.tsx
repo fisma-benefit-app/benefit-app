@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { type AriaAttributes, type KeyboardEvent, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,10 +25,12 @@ type SortKey =
 type SortDirection = "asc" | "desc";
 
 export default function ProjectList() {
-  const { sortedProjects, loading, handleDelete } = useProjects();
+  const { sortedProjects, loading, handleDelete, handleUpdate } = useProjects();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [editProjectName, setEditProjectName] = useState<string>("");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDirection } | null>(
     {
       key: "updatedAt",
@@ -78,7 +80,7 @@ export default function ProjectList() {
     });
   };
 
-  const onHeaderKeyDown = (key: SortKey) => (e: React.KeyboardEvent) => {
+  const onHeaderKeyDown = (key: SortKey) => (e: KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       toggleSort(key);
@@ -125,7 +127,7 @@ export default function ProjectList() {
     );
   };
 
-  const ariaSort = (key: SortKey): React.AriaAttributes["aria-sort"] => {
+  const ariaSort = (key: SortKey): AriaAttributes["aria-sort"] => {
     if (!sort || sort.key !== key) return "none";
     return sort.dir === "asc" ? "ascending" : "descending";
   };
@@ -137,19 +139,19 @@ export default function ProjectList() {
   }> = [
     {
       key: "projectName",
-      label: translation.projectName,
+      label: projectListTranslation.projectName,
       widthClassName: "w-1/5",
     },
-    { key: "version", label: translation.version, widthClassName: "w-1/12" },
-    { key: "createdAt", label: translation.createdAt, widthClassName: "w-1/5" },
+    { key: "version", label: projectListTranslation.version, widthClassName: "w-1/12" },
+    { key: "createdAt", label: projectListTranslation.createdAt, widthClassName: "w-1/5" },
     {
       key: "versionCreatedAt",
-      label: translation.versionCreatedAt,
+      label: projectListTranslation.versionCreatedAt,
       widthClassName: "w-1/5",
     },
     {
       key: "updatedAt",
-      label: translation.modifiedAt,
+      label: projectListTranslation.modifiedAt,
       widthClassName: "w-1/5",
     },
   ];
