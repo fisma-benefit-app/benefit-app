@@ -1,7 +1,17 @@
-import { useEffect, useState } from "react";
+import {
+  type AriaAttributes,
+  type KeyboardEvent,
+  useMemo,
+  useState,
+} from "react";
 import { useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronDown,
+  faChevronUp,
+  faPenToSquare,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { Project } from "../lib/types.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
@@ -10,32 +20,33 @@ import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
 import useCommitSha from "../hooks/useCommitSha";
 
+type SortKey =
+  | "projectName"
+  | "version"
+  | "createdAt"
+  | "versionCreatedAt"
+  | "updatedAt";
+
+type SortDirection = "asc" | "desc";
+
 export default function ProjectList() {
   const { sortedProjects, loading, handleDelete, handleUpdate } = useProjects();
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [editProjectName, setEditProjectName] = useState<string>("");
+  const [sort, setSort] = useState<{ key: SortKey; dir: SortDirection } | null>(
+    {
+      key: "updatedAt",
+      dir: "desc",
+    },
+  );
   const commitSha = useCommitSha("-");
 
   const navigate = useNavigate();
   const translation = useTranslations();
   const projectListTranslation = translation.projectList;
-
-  useEffect(() => {
-    const latestProjects = getLatestVersion(sortedProjects);
-    if (searchTerm === "") {
-      setFilteredProjects(latestProjects);
-    } else {
-      setFilteredProjects(
-        latestProjects.filter((project) =>
-          project.projectName.toLowerCase().includes(searchTerm.toLowerCase()),
-        ),
-      );
-    }
-  }, [searchTerm, sortedProjects]);
 
   const getLatestVersion = (projects: Project[]) => {
     const projectMap = new Map<string, Project>();
@@ -47,6 +58,116 @@ export default function ProjectList() {
     });
     return Array.from(projectMap.values());
   };
+
+  const getSortValue = (project: Project, key: SortKey) => {
+    switch (key) {
+      case "projectName":
+        return project.projectName;
+      case "version":
+        return project.version;
+      case "createdAt":
+        return new Date(project.createdAt).getTime();
+      case "versionCreatedAt":
+        return new Date(project.versionCreatedAt).getTime();
+      case "updatedAt":
+        return new Date(project.updatedAt).getTime();
+      default: {
+        const exhaustiveCheck: never = key;
+        return exhaustiveCheck;
+      }
+    }
+  };
+
+  const toggleSort = (key: SortKey) => {
+    setSort((prev) => {
+      if (!prev || prev.key !== key) return { key, dir: "asc" };
+      return { key, dir: prev.dir === "asc" ? "desc" : "asc" };
+    });
+  };
+
+  const onHeaderKeyDown = (key: SortKey) => (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleSort(key);
+    }
+  };
+
+  const sortableHeaderClassName =
+    "bg-fisma-blue p-3 text-left text-white whitespace-nowrap cursor-pointer hover:bg-fisma-dark-blue transition-colors";
+
+  const displayedProjects = useMemo(() => {
+    const latestProjects = getLatestVersion(sortedProjects);
+
+    const filtered =
+      searchTerm.trim() === ""
+        ? latestProjects
+        : latestProjects.filter((project) =>
+            project.projectName
+              .toLowerCase()
+              .includes(searchTerm.trim().toLowerCase()),
+          );
+
+    if (!sort) return filtered;
+
+    const dirFactor = sort.dir === "asc" ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      const aValue = getSortValue(a, sort.key);
+      const bValue = getSortValue(b, sort.key);
+
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return aValue.localeCompare(bValue, "fi") * dirFactor;
+      }
+
+      return (Number(aValue) - Number(bValue)) * dirFactor;
+    });
+  }, [searchTerm, sort, sortedProjects]);
+
+  const sortArrow = (key: SortKey) => {
+    if (!sort || sort.key !== key) return null;
+    return (
+      <FontAwesomeIcon
+        icon={sort.dir === "asc" ? faChevronUp : faChevronDown}
+        className="ml-1 text-xs"
+      />
+    );
+  };
+
+  const ariaSort = (key: SortKey): AriaAttributes["aria-sort"] => {
+    if (!sort || sort.key !== key) return "none";
+    return sort.dir === "asc" ? "ascending" : "descending";
+  };
+
+  const sortableColumns: Array<{
+    key: SortKey;
+    label: string;
+    widthClassName: string;
+  }> = [
+    {
+      key: "projectName",
+      label: projectListTranslation.projectName,
+      widthClassName: "w-1/5",
+    },
+    {
+      key: "version",
+      label: projectListTranslation.version,
+      widthClassName: "w-1/12",
+    },
+    {
+      key: "createdAt",
+      label: projectListTranslation.createdAt,
+      widthClassName: "w-1/5",
+    },
+    {
+      key: "versionCreatedAt",
+      label: projectListTranslation.versionCreatedAt,
+      widthClassName: "w-1/5",
+    },
+    {
+      key: "updatedAt",
+      label: projectListTranslation.modifiedAt,
+      widthClassName: "w-1/5",
+    },
+  ];
 
   if (loading) return <LoadingSpinner />;
 
@@ -63,21 +184,22 @@ export default function ProjectList() {
         <table className="min-w-full table-fixed border-collapse">
           <thead>
             <tr>
-              <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
-                {projectListTranslation.projectName}
-              </th>
-              <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/12">
-                {projectListTranslation.version}
-              </th>
-              <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
-                {projectListTranslation.createdAt}
-              </th>
-              <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
-                {projectListTranslation.versionCreatedAt}
-              </th>
-              <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
-                {projectListTranslation.modifiedAt}
-              </th>
+              {sortableColumns.map((col) => (
+                <th
+                  key={col.key}
+                  className={`${sortableHeaderClassName} ${col.widthClassName}`}
+                  aria-sort={ariaSort(col.key)}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => toggleSort(col.key)}
+                  onKeyDown={onHeaderKeyDown(col.key)}
+                >
+                  <div className="flex items-center select-none">
+                    {col.label}
+                    {sortArrow(col.key)}
+                  </div>
+                </th>
+              ))}
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
                 <div className="flex items-center">
                   <span className="text-sm">
@@ -88,8 +210,8 @@ export default function ProjectList() {
             </tr>
           </thead>
           <tbody>
-            {filteredProjects.length > 0 ? (
-              filteredProjects.map((project) => (
+            {displayedProjects.length > 0 ? (
+              displayedProjects.map((project) => (
                 <tr
                   key={project.id}
                   className="cursor-pointer hover:bg-blue-200 transition-colors"

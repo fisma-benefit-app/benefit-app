@@ -26,6 +26,11 @@ import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 import useCommitSha from "../hooks/useCommitSha";
+import useLanguage from "../hooks/useLanguage.tsx";
+
+import DatePicker from "react-datepicker";
+import { format } from "date-fns";
+import { enUS, fi } from "date-fns/locale";
 
 // dnd-kit imports
 import {
@@ -122,6 +127,20 @@ function sortFunctionalComponents(components: TGenericComponent[]) {
   return components.slice().sort((a, b) => a.orderPosition - b.orderPosition);
 }
 
+function isoDateToLocalDate(isoDate: string): Date {
+  const parts = isoDate.split("-").map((p) => Number(p));
+  if (parts.length !== 3) {
+    return new Date(isoDate);
+  }
+
+  const [year, month, day] = parts;
+  return new Date(year, month - 1, day);
+}
+
+function localDateToIsoDate(date: Date): string {
+  return format(date, "yyyy-MM-dd");
+}
+
 export default function ProjectPage() {
   const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
@@ -142,6 +161,7 @@ export default function ProjectPage() {
 
   const translation = useTranslations().projectPage;
   const alertTranslation = useTranslations().alert;
+  const { language } = useLanguage();
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const commitSha = useCommitSha("-");
@@ -653,6 +673,7 @@ export default function ProjectPage() {
                     {project?.projectName}
                   </div>
                 </div>
+
                 <button
                   className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
                   onClick={() => {
@@ -715,6 +736,40 @@ export default function ProjectPage() {
                   </div>
                 </div>
               )}
+
+              <div className="mt-2">
+                <div className="text-left font-medium">
+                  {translation.calculationDate}
+                </div>
+                <DatePicker
+                  key={language}
+                  selected={
+                    project?.calculationDate
+                      ? isoDateToLocalDate(project.calculationDate)
+                      : null
+                  }
+                  onChange={(date: Date | null) => {
+                    const isoDate = date ? localDateToIsoDate(date) : null;
+
+                    setProject((prev) => {
+                      if (!prev) return prev;
+                      const updated = { ...prev, calculationDate: isoDate };
+                      projectRef.current = updated;
+                      return updated;
+                    });
+
+                    if (isLatest) {
+                      debouncedSaveProject();
+                    }
+                  }}
+                  locale={language === "fi" ? fi : enUS}
+                  dateFormat={language === "fi" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
+                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
+                  disabled={!isLatest || loadingProject}
+                  isClearable
+                />
+              </div>
+
               <label
                 htmlFor="version-select"
                 className="text-sm font-medium mt-2"

@@ -80,6 +80,7 @@ const createProject = async (
     projectName: nameForProject,
     version: 1, // first version
     functionalComponents: [], // start empty
+    calculationDate: null,
     projectAppUserIds: [], // start with no users
   };
 
@@ -149,6 +150,7 @@ const createNewProjectVersion = async (
       isReadonly: false,
       subComponents: fc.subComponents || [],
     })),
+    calculationDate: previousProject.calculationDate ?? null,
     projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
 
@@ -252,6 +254,7 @@ const updateProject = async (
     functionalComponents: project.functionalComponents.map(
       mapComponentToRequest,
     ),
+    calculationDate: project.calculationDate ?? null,
     projectAppUserIds: project.projectAppUsers.map((pau) => pau.id),
   };
 

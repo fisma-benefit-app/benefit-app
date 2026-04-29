@@ -4,6 +4,7 @@ import fi.fisma.backend.dto.FunctionalComponentRequest;
 import fi.fisma.backend.dto.PasswordChangeRequest;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ public class StandaloneSetup {
         1,
         LocalDateTime.now(),
         LocalDateTime.now(),
+        (LocalDate) null,
         LocalDateTime.now(),
         Set.of(),
         Set.of());
@@ -38,6 +40,7 @@ public class StandaloneSetup {
             1,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            (LocalDate) null,
             LocalDateTime.now(),
             Set.of(),
             Set.of()),
@@ -47,6 +50,7 @@ public class StandaloneSetup {
             1,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            (LocalDate) null,
             LocalDateTime.now(),
             Set.of(),
             Set.of()));
@@ -59,6 +63,7 @@ public class StandaloneSetup {
         2,
         LocalDateTime.now(),
         LocalDateTime.now(),
+        (LocalDate) null,
         LocalDateTime.now(),
         Set.of(),
         Set.of());
@@ -71,6 +76,7 @@ public class StandaloneSetup {
         1,
         LocalDateTime.now(),
         LocalDateTime.now(),
+        (LocalDate) null,
         LocalDateTime.now(),
         Set.of(),
         Set.of());
@@ -83,6 +89,7 @@ public class StandaloneSetup {
         2,
         LocalDateTime.now(),
         LocalDateTime.now(),
+        (LocalDate) null,
         LocalDateTime.now(),
         Set.of(),
         Set.of());

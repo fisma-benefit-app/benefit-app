@@ -145,7 +145,7 @@ public class FunctionalComponent {
     this.parentFCId = parentFCId;
     this.subComponentType = subComponentType;
     this.isReadonly = isReadonly;
-    this.subComponents = subComponents != null ? subComponents : new ArrayList<>();
+    // this.subComponents = subComponents != null ? subComponents : new ArrayList<>();
     this.project = project;
     this.deletedAt = deletedAt;
   }
