@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { fetchJWT } from "../api/authorization";
 import useAppUser from "../hooks/useAppUser";
 import { useError } from "../hooks/useError";
+import type { ErrorPayload } from "../context/ErrorContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -49,11 +50,24 @@ export default function LoginForm() {
     } catch (err) {
       if (err instanceof Error) {
         console.error("Login failed:", err.message);
-        // Display the actual error message via modal
-        showError(err.message);
+        let errorPayload: ErrorPayload = {
+          translationKey: "loginForm.invalidUsernameOrPassword",
+        };
+
+        if (err.message.includes("Invalid username or password.")) {
+          errorPayload = { translationKey: "loginForm.invalidUsernameOrPassword" };
+        } else if (err.message.includes("Session expired")) {
+          errorPayload = { translationKey: "loginForm.sessionExpired" };
+        } else if (err.message.includes("Cannot reach server")) {
+          errorPayload = { translationKey: "loginForm.cannotReachServer" };
+        } else {
+          errorPayload = { message: err.message };
+        }
+
+        showError(errorPayload);
       } else {
         console.error("Unknown error");
-        showError(translation.errorMessage);
+        showError({ translationKey: "loginForm.errorMessage" });
       }
     } finally {
       setLoading(false);
