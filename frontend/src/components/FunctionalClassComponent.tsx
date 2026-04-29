@@ -110,6 +110,7 @@ export default function FunctionalClassComponent({
     : fullPoints;
 
   const degreeOfCompletionOptions = new Map([
+    ["0", translation.degreeOfCompletion.notStarted],
     ["0.1", translation.degreeOfCompletion.specified],
     ["0.3", translation.degreeOfCompletion.planned],
     ["0.7", translation.degreeOfCompletion.implemented],
@@ -312,6 +313,7 @@ export default function FunctionalClassComponent({
                 type="button"
                 onClick={toggleCollapse}
                 className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
+                title={translation.collapseExpand}
               >
                 <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
               </button>
@@ -321,6 +323,7 @@ export default function FunctionalClassComponent({
                 className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
                 onClick={() => setConfirmModalOpen(true)}
                 disabled={!isLatest}
+                title={translation.delete}
               >
                 <FontAwesomeIcon icon={faTrash} />
               </button>
@@ -339,7 +342,7 @@ export default function FunctionalClassComponent({
                 <input
                   id="degreeOfCompletion"
                   type="number"
-                  min={0.01}
+                  min={0.0}
                   max={1}
                   step={0.01}
                   value={component.degreeOfCompletion ?? ""}
@@ -453,8 +456,10 @@ export default function FunctionalClassComponent({
                     onChange={handleMLAChange}
                   />
                 )}
+              </div>
 
-                {component.isMLA && (
+              {component.isMLA && (
+                <div className="bg-gray-50 border border-gray-200 rounded p-3 mt-4">
                   <button
                     type="button"
                     onClick={() => setShowSubComponents(!showSubComponents)}
@@ -468,8 +473,8 @@ export default function FunctionalClassComponent({
                         <span>({component.subComponents.length})</span>
                       )}
                   </button>
-                )}
-              </div>
+                </div>
+              )}
               {!isMultiLayerArchitectureComponent(component) && (
                 <label className="flex items-center gap-3 text-gray-400">
                   {" "}

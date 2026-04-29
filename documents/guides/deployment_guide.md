@@ -23,8 +23,20 @@ The workflow file recognizes which GitHub repository environment (`fisma-benefit
 
 ## Backup Database
 
-Before any deployment, ensure a database backup is taken. Get credentials from the `backend-credentials` repo.
+Before any deployment, ensure a database backup is taken. There's two ways of doing this:
 
+1) Back up via Heroku (requires login)
+
+```bash
+# Go to Heroku Postman add-on
+# Go to durability -> Create manual backup
+```
+
+2) Back up via terminal
+
+```bash
+# Get credentials from the backend-credentials repo.
+```
 ```bash
 # Make database backup
 pg_dump <db-url> > backup.sql
@@ -38,6 +50,7 @@ psql <db-url> < backup.sql
 
 # Example: psql postgres://username:password@host:port/dbname < backup.sql
 ```
+
 
 ## Manual deployments
 

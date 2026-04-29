@@ -1,7 +1,8 @@
-import { layer } from "@fortawesome/fontawesome-svg-core";
-
 export const translations = {
   en: {
+    scrollToTop: {
+      tooltip: "Scroll to top",
+    },
     header: {
       logout: "Logout",
       logoutWarning: "Are you sure you want to log out?",
@@ -9,15 +10,17 @@ export const translations = {
       newProject: "New Project",
       profile: "Profile",
       menu: "Menu",
+      testVersion: "Test Version",
     },
     loginForm: {
-      header: "Log in",
+      header: "Sign in",
       errorMessage: "Check username and password!",
       username: "Username",
       password: "Password",
       rememberMe: "Remember me",
       forgotPassword: "Did you forget password?",
       login: "Login",
+      requiredField: "Please fill out this field.",
     },
     confirmModal: {
       cancel: "Cancel",
@@ -40,6 +43,11 @@ export const translations = {
       modifiedAt: "Modified at",
       versionCreatedAt: "Version Created at",
       noProjectsCouldBeFound: "No projects could be found.",
+      editProjectName: "Edit Project Name",
+      edit: "Edit",
+      delete: "Delete",
+      actions: "Actions",
+      githubCommitSha: "GitHub commit SHA: ",
     },
     csvHeaders: {
       title: "Title",
@@ -79,8 +87,13 @@ export const translations = {
       title: "Title",
       description: "Description",
       totalFunctionalPoints: "Total Functional Points",
+      totalFunctionalPointsWithoutSubcomponents:
+        "Total Functional Points Without Subcomponents",
     },
     functionalClassComponent: {
+      collapseExpand: "Collapse/Expand component",
+      delete: "Delete component",
+      toggleMLAInterfaces: "Show/Hide multi-layer interfaces",
       //creates an object where keys and their values are the same
       classNameOptions: Object.fromEntries(
         [
@@ -144,6 +157,7 @@ export const translations = {
         "Enter a value between 0 and 1 (e.g. 0.75 = 75% complete)",
       confirmDeleteMessage: "Are you sure you want to delete component",
       degreeOfCompletion: {
+        notStarted: "Not started",
         specified: "Specified",
         planned: "Planned",
         implemented: "Implemented",
@@ -154,7 +168,7 @@ export const translations = {
         "Is this functional component a part of multi-layered architecture?",
       notAvailableForThisFunctionalComponentType:
         "Not available for this functional component type",
-      showMultiLayerInterfaces: "Show multi-layer interfaces", // ✅ KEEP - Used in button
+      showMultiLayerInterfaces: "Show multi-layer interfaces",
       hideMultiLayerInterfaces: "Hide multi-layer interfaces",
       noMultiLayerInterfaces: "No multi-layer interfaces found",
       multiLayerInterfaces: "Multi-layer interfaces",
@@ -181,6 +195,8 @@ export const translations = {
       collapseAll: "Collapse all",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
+      githubCommitSha: "GitHub commit SHA: ",
+      printPDF: "Print PDF",
     },
     functionalPointSummary: {
       noSelectedComponentType: "no selected component type",
@@ -251,6 +267,9 @@ export const translations = {
     },
   },
   fi: {
+    scrollToTop: {
+      tooltip: "Siirry ylös",
+    },
     header: {
       logout: "Kirjaudu ulos",
       logoutWarning: "Oletko varma, että haluat kirjautua ulos?",
@@ -258,6 +277,7 @@ export const translations = {
       newProject: "Uusi projekti",
       profile: "Profiili",
       menu: "Valikko",
+      testVersion: "Testiversio",
     },
     loginForm: {
       header: "Kirjaudu sisään",
@@ -267,6 +287,7 @@ export const translations = {
       rememberMe: "Muista minut",
       forgotPassword: "Unohditko salasanan?",
       login: "Kirjaudu",
+      requiredField: "Täytä tämä kenttä.",
     },
     confirmModal: {
       cancel: "Peruuta",
@@ -289,6 +310,11 @@ export const translations = {
       modifiedAt: "Muokattu",
       versionCreatedAt: "Versio luotu",
       noProjectsCouldBeFound: "Projekteja ei löytynyt.",
+      editProjectName: "Muokkaa projektin nimeä",
+      edit: "Muokkaa",
+      delete: "Poista",
+      actions: "Toiminnot",
+      githubCommitSha: "GitHub kommitti SHA: ",
     },
     csvHeaders: {
       title: "Otsikko",
@@ -328,8 +354,13 @@ export const translations = {
       title: "Otsikko",
       description: "Kuvaus/Kommentit",
       totalFunctionalPoints: "Toimintopisteet Yhteensä",
+      totalFunctionalPointsWithoutSubcomponents:
+        "Toimintopisteet ilman alikomponentteja",
     },
     functionalClassComponent: {
+      collapseExpand: "Pienennä/laajenna komponentti",
+      delete: "Poista komponentti",
+      toggleMLAInterfaces: "Näytä/piilota monikerrosliittymät",
       classNameOptions: {
         "Interactive end-user navigation and query service":
           "Vuorovaikutteinen navigointi- tai kyselytoiminto",
@@ -394,6 +425,7 @@ export const translations = {
         "Syötä arvo väliltä 0 ja 1 (esim. 0.75 = 75% valmis)",
       confirmDeleteMessage: "Oletko varma, että haluat poistaa komponentin",
       degreeOfCompletion: {
+        notStarted: "Ei aloitettu",
         specified: "Määritelty",
         planned: "Suunniteltu",
         implemented: "Toteutettu",
@@ -401,10 +433,10 @@ export const translations = {
         readyForUse: "Käyttöönottovalmis",
       },
       isThisFunctionalComponentAPartOfMultiLayerArchitecture:
-        "Onko tämä funktionaalinen komponentti osa monikerrosarkkitehtuuria?",
+        "Onko tämä toiminnallinen komponentti osa monikerrosarkkitehtuuria?",
       notAvailableForThisFunctionalComponentType:
-        "Ei valittavissa tämän tyyppiselle funktionaaliselle komponentille",
-      showMultiLayerInterfaces: "Näytä monikerrosliittymät", // ✅ KEEP - Used in button
+        "Ei valittavissa tämän tyyppiselle toiminnalliselle komponentille",
+      showMultiLayerInterfaces: "Näytä monikerrosliittymät",
       hideMultiLayerInterfaces: "Piilota monikerrosliittymät",
       noMultiLayerInterfaces: "Monikerrosliittymiä ei löytynyt",
       multiLayerInterfaces: "Monikerrosliittymät",
@@ -415,7 +447,7 @@ export const translations = {
     },
     projectPage: {
       saveProject: "Tallenna",
-      newFunctionalComponent: "Uusi funktionaalinen komponentti",
+      newFunctionalComponent: "Lisää toiminnallinen komponentti",
       noProject: "Ei näytettäviä projektitietoja!",
       archiveProjectAsVersion: "Arkistoi versiona",
       archiveVersionWarningBeginning:
@@ -432,6 +464,8 @@ export const translations = {
       collapseAll: "Pienennä kaikki",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
+      githubCommitSha: "GitHub kommitti SHA: ",
+      printPDF: "Tulosta PDF",
     },
     functionalPointSummary: {
       noSelectedComponentType: "ei valittua toimintotyyppiä",
@@ -465,11 +499,11 @@ export const translations = {
       saveFailed: "Tallennus epäonnistui",
       loading: "Ladataan...",
       creating: "Luodaan...",
-      createSuccessful: "Uusi funktionaalinen komponentti luotu onnistuneesti",
-      createFailed: "Uuden funktionaalisen komponentin luominen epäonnistui",
+      createSuccessful: "Uusi toiminnallinen komponentti luotu onnistuneesti",
+      createFailed: "Uuden toiminnallisen komponentin luominen epäonnistui",
       deleting: "Poistetaan...",
-      deleteSuccessful: "Funktionaalinen komponentti poistettu",
-      deleteFailed: "Funktionaalisen komponentin poistaminen epäonnistui",
+      deleteSuccessful: "Toiminnallinen komponentti poistettu",
+      deleteFailed: "Toiminnallisen komponentin poistaminen epäonnistui",
     },
     profilePage: {
       header: "Profiili",

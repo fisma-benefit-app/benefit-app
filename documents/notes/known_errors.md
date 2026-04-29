@@ -1,4 +1,4 @@
-# Non-critical issues
+# Known errors
 
 This document logs issues that are not going to be fixed because they're
 

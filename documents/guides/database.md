@@ -9,7 +9,7 @@ For development, Postgres runs inside Docker Compose. See compose.yaml in projec
 ### Access via Docker
 
 ```sh
-docker exec -it benefit-app-postgres-1 psql -U <username> <database>
+docker exec -it fisma_db psql -U <username> <database>
 ```
 
 ### Access via local psql
@@ -46,6 +46,7 @@ The contents of the database can also be reseeded manually. You can run the cont
 heroku login # If not logged in already
 heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app # production database
 heroku pg:psql HEROKU_TESTING_POSTGRES_DB_NAME --app=fisma-benefit-app-testing # testing database
+heroku pg:backups:capture --app=fisma-benefit-app
 # Ctrl + D to exit
 ```
 
