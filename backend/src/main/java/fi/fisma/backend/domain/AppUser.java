@@ -27,7 +27,7 @@ public class AppUser {
 
   @NotEmpty(message = "Username is required")
   @Size(max = 50, message = "Username must not exceed 50 characters")
-  @Column(name = "username")
+  @Column(name = "username", unique = true)
   private String username;
 
   // Why max 64 characters? See OWASP's Authentication Cheat Sheet:
