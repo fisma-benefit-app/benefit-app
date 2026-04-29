@@ -110,6 +110,8 @@ We can deploy the app to two different environments: testing (staging) and produ
 
 Before any deployment, ensure a database backup is taken via Heroku or terminal. See [deployment guide](/documents/guides/deployment_guide.md). 
 
+Database migrations are manual. See (/backend/src/main/resources/migrations/). 
+
 #### Prerequisites:
 
 - Heroku account with CLI installed for logging (see the [logging guide](/documents/guides/logging.md) on this if needed)
