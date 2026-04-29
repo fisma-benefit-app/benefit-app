@@ -10,6 +10,7 @@ import {
 import { Project } from "../lib/types.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
+import EditProjectModal from "./EditProjectModal.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
 import useCommitSha from "../hooks/useCommitSha";
@@ -35,7 +36,8 @@ export default function ProjectList() {
   const commitSha = useCommitSha("-");
 
   const navigate = useNavigate();
-  const translation = useTranslations().projectList;
+  const translation = useTranslations();
+  const projectListTranslation = translation.projectList;
 
   const getLatestVersion = (projects: Project[]) => {
     const projectMap = new Map<string, Project>();
@@ -148,7 +150,7 @@ export default function ProjectList() {
     <div className="flex flex-col h-screen p-4 pt-20">
       <input
         type="text"
-        placeholder={translation.searchPlaceholder}
+        placeholder={projectListTranslation.searchPlaceholder}
         className="mb-4 p-2 border-2 border-gray-400 w-full max-w-100 self-center"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -175,7 +177,9 @@ export default function ProjectList() {
               ))}
               <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
                 <div className="flex items-center">
-                  <span className="text-sm">Actions</span>
+                  <span className="text-sm">
+                    {projectListTranslation.actions}
+                  </span>
                 </div>
               </th>
             </tr>
@@ -254,15 +258,19 @@ export default function ProjectList() {
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap w-[90px]">
                     <button
                       className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3"
+                      title={projectListTranslation.edit}
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/project/${project.id}`);
+                        setSelectedProject(project);
+                        setEditProjectName(project.projectName);
+                        setEditModalOpen(true);
                       }}
                     >
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
                     <button
                       className="bg-fisma-red hover:brightness-130 text-white py-2 px-3 ml-1"
+                      title={projectListTranslation.delete}
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedProject(project);
@@ -277,7 +285,7 @@ export default function ProjectList() {
             ) : (
               <tr>
                 <td colSpan={6} className="text-center text-fisma-gray p-4">
-                  {translation.noProjectsCouldBeFound}
+                  {projectListTranslation.noProjectsCouldBeFound}
                 </td>
               </tr>
             )}
@@ -285,17 +293,40 @@ export default function ProjectList() {
         </table>
         {commitSha && (
           <div className="text-[11px] text-gray-500 mt-2 break-all">
-            Github commit Sha: <code className="font-mono">{commitSha}</code>
+            {projectListTranslation.githubCommitSha}
+            <code className="font-mono">{commitSha}</code>
           </div>
         )}
       </div>
       <ConfirmModal
-        message={`${translation.confirmDelete} "${selectedProject?.projectName}"?`}
+        message={`${projectListTranslation.confirmDelete} "${selectedProject?.projectName}"?`}
         open={isConfirmModalOpen}
         setOpen={setConfirmModalOpen}
         onConfirm={() => {
           if (selectedProject) handleDelete(selectedProject.id);
           setSelectedProject(null);
+        }}
+      />
+      <EditProjectModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedProject(null);
+          setEditProjectName("");
+        }}
+        selectedProject={selectedProject}
+        editProjectName={editProjectName}
+        onEditProjectNameChange={setEditProjectName}
+        onSave={async () => {
+          if (selectedProject && editProjectName.trim()) {
+            await handleUpdate({
+              ...selectedProject,
+              projectName: editProjectName.trim(),
+            });
+            setEditModalOpen(false);
+            setSelectedProject(null);
+            setEditProjectName("");
+          }
         }}
       />
     </div>

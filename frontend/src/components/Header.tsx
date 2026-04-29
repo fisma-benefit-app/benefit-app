@@ -17,13 +17,21 @@ import useTranslations from "../hooks/useTranslations";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { appUser, loggedIn, logout } = useAppUser();
+  const {
+    appUser,
+    loggedIn,
+    logout,
+    setLoggedIn,
+    setSessionToken,
+    setAppUser,
+  } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showTestVersion, setShowTestVersion] = useState(false);
 
   const translation = useTranslations().header;
 
@@ -47,6 +55,11 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const url = window.location.href;
+    setShowTestVersion(url.includes("localhost") || url.includes("testing"));
+  }, []);
+
   // Close mobile menu when navigating
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -65,9 +78,32 @@ const Header = () => {
     setMobileMenuOpen(false);
   };
 
+  // Try logout from appUserProvider, if it fails, force the logout (user should always be able to log out).
+  // if the token is corrupted/expired, it doesn't need to be blacklisted so forcing the logout without it is ok.
+  const tryLogout = async () => {
+    try {
+      await logout();
+    } catch (error: unknown) {
+      // Reset session storage
+      sessionStorage.removeItem("loginToken");
+      sessionStorage.removeItem("userInfo");
+      sessionStorage.removeItem("userId");
+
+      // Reset app state
+      setSessionToken(null);
+      setAppUser(null);
+      setLoggedIn(false);
+
+      //Navigate to login page
+      navigate("/");
+    }
+  };
+
   return (
     <>
-      <header className="fixed top-0 w-full bg-fisma-blue text-white flex z-999 h-15">
+      <header
+        className={`fixed top-0 w-full ${showTestVersion ? "bg-gray-500" : "bg-fisma-blue"} text-white flex z-999 h-15`}
+      >
         <Link to="/">
           <img
             src={`${import.meta.env.BASE_URL}Fisma-benefit_logo.png`}
@@ -75,6 +111,14 @@ const Header = () => {
             className="h-12 w-auto mb-2 ml-10 hover:opacity-75 drop-shadow-fisma-logo"
           />
         </Link>
+        {showTestVersion && (
+          <div
+            className="absolute h-full flex items-center text-lg font-bold left-1/2 transform -translate-x-1/2"
+            title={translation.testVersion}
+          >
+            {translation.testVersion}
+          </div>
+        )}
         <div className="absolute top-0 right-0 h-full flex items-stretch">
           {loggedIn && (
             <>
@@ -226,7 +270,7 @@ const Header = () => {
       />
       <ConfirmModal
         message={translation.logoutWarning}
-        onConfirm={logout}
+        onConfirm={tryLogout}
         open={isConfirmModalOpen}
         setOpen={setConfirmModalOpen}
       />

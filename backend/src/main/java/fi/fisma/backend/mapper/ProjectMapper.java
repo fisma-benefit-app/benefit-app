@@ -57,10 +57,10 @@ public class ProjectMapper {
         null,
         request.getProjectName(),
         request.getVersion(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-      request.getCalculationDate(),
-        LocalDateTime.now(),
+        LocalDateTime.now().plusHours(2),
+        LocalDateTime.now().plusHours(2),
+        request.getCalculationDate(),
+        LocalDateTime.now().plusHours(2),
         null, // No deletion date initially
         Set.of(), // Empty functional components initially
         Set.of() // ProjectAppUsers will be set by service
@@ -93,8 +93,8 @@ public class ProjectMapper {
             request.getVersion(),
             project.getCreatedAt(),
             project.getVersionCreatedAt(),
-                        request.getCalculationDate(),
-            LocalDateTime.now(), // new edited date
+            request.getCalculationDate(),
+            LocalDateTime.now().plusHours(2), // new edited date
             project.getDeletedAt(),
             functionalComponents,
             projectAppUsers);
@@ -108,9 +108,9 @@ public class ProjectMapper {
             request.getProjectName(),
             request.getVersion(),
             originalProject.getCreatedAt(), // keep original creation date
-            LocalDateTime.now(), // new version date
-                        request.getCalculationDate(),
-            LocalDateTime.now(), // new edited date
+            LocalDateTime.now().plusHours(2), // new version date
+            request.getCalculationDate(),
+            LocalDateTime.now().plusHours(2), // new edited date
             null, // No deletion date initially
             Set.of(), // FunctionalComponents will be set by service
             Set.of() // ProjectAppUsers will be set by service
