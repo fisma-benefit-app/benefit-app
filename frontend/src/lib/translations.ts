@@ -20,6 +20,7 @@ export const translations = {
       rememberMe: "Remember me",
       forgotPassword: "Did you forget password?",
       login: "Login",
+      requiredField: "Please fill out this field.",
     },
     confirmModal: {
       cancel: "Cancel",
@@ -284,6 +285,7 @@ export const translations = {
       rememberMe: "Muista minut",
       forgotPassword: "Unohditko salasanan?",
       login: "Kirjaudu",
+      requiredField: "Täytä tämä kenttä.",
     },
     confirmModal: {
       cancel: "Peruuta",

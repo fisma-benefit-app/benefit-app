@@ -86,6 +86,14 @@ export default function LoginForm() {
             placeholder={translation.username}
             value={username}
             onChange={(e) => setUsername(e.target.value.trim())}
+            onInvalid={(e) =>
+              (e.target as HTMLInputElement).setCustomValidity(
+                translation.requiredField,
+              )
+            }
+            onInput={(e) =>
+              (e.target as HTMLInputElement).setCustomValidity("")
+            }
             required
             className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
           />
@@ -101,6 +109,14 @@ export default function LoginForm() {
             placeholder={translation.password}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onInvalid={(e) =>
+              (e.target as HTMLInputElement).setCustomValidity(
+                translation.requiredField,
+              )
+            }
+            onInput={(e) =>
+              (e.target as HTMLInputElement).setCustomValidity("")
+            }
             required
             className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
           />
