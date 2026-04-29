@@ -26,7 +26,7 @@ public class StandaloneSetup {
         1,
         LocalDateTime.now(),
         LocalDateTime.now(),
-      (LocalDate) null,
+        (LocalDate) null,
         LocalDateTime.now(),
         Set.of(),
         Set.of());
@@ -40,7 +40,7 @@ public class StandaloneSetup {
             1,
             LocalDateTime.now(),
             LocalDateTime.now(),
-        (LocalDate) null,
+            (LocalDate) null,
             LocalDateTime.now(),
             Set.of(),
             Set.of()),
@@ -50,7 +50,7 @@ public class StandaloneSetup {
             1,
             LocalDateTime.now(),
             LocalDateTime.now(),
-        (LocalDate) null,
+            (LocalDate) null,
             LocalDateTime.now(),
             Set.of(),
             Set.of()));
@@ -63,7 +63,7 @@ public class StandaloneSetup {
         2,
         LocalDateTime.now(),
         LocalDateTime.now(),
-      (LocalDate) null,
+        (LocalDate) null,
         LocalDateTime.now(),
         Set.of(),
         Set.of());
@@ -76,7 +76,7 @@ public class StandaloneSetup {
         1,
         LocalDateTime.now(),
         LocalDateTime.now(),
-      (LocalDate) null,
+        (LocalDate) null,
         LocalDateTime.now(),
         Set.of(),
         Set.of());
@@ -89,7 +89,7 @@ public class StandaloneSetup {
         2,
         LocalDateTime.now(),
         LocalDateTime.now(),
-      (LocalDate) null,
+        (LocalDate) null,
         LocalDateTime.now(),
         Set.of(),
         Set.of());

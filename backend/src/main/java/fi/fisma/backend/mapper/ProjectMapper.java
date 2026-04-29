@@ -59,7 +59,7 @@ public class ProjectMapper {
         request.getVersion(),
         LocalDateTime.now(),
         LocalDateTime.now(),
-      request.getCalculationDate(),
+        request.getCalculationDate(),
         LocalDateTime.now(),
         null, // No deletion date initially
         Set.of(), // Empty functional components initially
@@ -93,7 +93,7 @@ public class ProjectMapper {
             request.getVersion(),
             project.getCreatedAt(),
             project.getVersionCreatedAt(),
-                        request.getCalculationDate(),
+            request.getCalculationDate(),
             LocalDateTime.now(), // new edited date
             project.getDeletedAt(),
             functionalComponents,
@@ -109,7 +109,7 @@ public class ProjectMapper {
             request.getVersion(),
             originalProject.getCreatedAt(), // keep original creation date
             LocalDateTime.now(), // new version date
-                        request.getCalculationDate(),
+            request.getCalculationDate(),
             LocalDateTime.now(), // new edited date
             null, // No deletion date initially
             Set.of(), // FunctionalComponents will be set by service

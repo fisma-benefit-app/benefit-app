@@ -652,10 +652,8 @@ export default function ProjectPage() {
                   <div className="text-left break-words">
                     {project?.projectName}
                   </div>
-                  
                 </div>
 
-                
                 <button
                   className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
                   onClick={() => {
@@ -691,9 +689,7 @@ export default function ProjectPage() {
                   >
                     {translation.archiveProjectAsVersion} {project?.version}
                   </button>
-                  
                 </div>
-                
               ) : (
                 <div className="flex flex-row gap-2 w-full">
                   <div
@@ -706,38 +702,38 @@ export default function ProjectPage() {
               )}
 
               <div className="mt-2">
-                    <div className="text-left font-medium">
-                      {translation.calculationDate}
-                    </div>
-                    <DatePicker
-                      key={language}
-                      selected={
-                        project?.calculationDate
-                          ? isoDateToLocalDate(project.calculationDate)
-                          : null
-                      }
-                      onChange={(date: Date | null) => {
-                        const isoDate = date ? localDateToIsoDate(date) : null;
+                <div className="text-left font-medium">
+                  {translation.calculationDate}
+                </div>
+                <DatePicker
+                  key={language}
+                  selected={
+                    project?.calculationDate
+                      ? isoDateToLocalDate(project.calculationDate)
+                      : null
+                  }
+                  onChange={(date: Date | null) => {
+                    const isoDate = date ? localDateToIsoDate(date) : null;
 
-                        setProject((prev) => {
-                          if (!prev) return prev;
-                          const updated = { ...prev, calculationDate: isoDate };
-                          projectRef.current = updated;
-                          return updated;
-                        });
+                    setProject((prev) => {
+                      if (!prev) return prev;
+                      const updated = { ...prev, calculationDate: isoDate };
+                      projectRef.current = updated;
+                      return updated;
+                    });
 
-                        if (isLatest) {
-                          debouncedSaveProject();
-                        }
-                      }}
-                      locale={language === "fi" ? fi : enUS}
-                      dateFormat={language === "fi" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
-                      className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
-                      disabled={!isLatest || loadingProject}
-                      isClearable
-                    />
-                  </div>
-              
+                    if (isLatest) {
+                      debouncedSaveProject();
+                    }
+                  }}
+                  locale={language === "fi" ? fi : enUS}
+                  dateFormat={language === "fi" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
+                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
+                  disabled={!isLatest || loadingProject}
+                  isClearable
+                />
+              </div>
+
               <label
                 htmlFor="version-select"
                 className="text-sm font-medium mt-2"
@@ -777,8 +773,6 @@ export default function ProjectPage() {
                   saveProject={saveProject}
                 />
               )}
-
-            
           </div>
           <div>
             {commitSha && (

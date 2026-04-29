@@ -31,6 +31,7 @@ public class Project {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   @NotBlank(message = "Project name is required")
   @Size(max = 255, message = "Project name must not exceed 255 characters")
   @Column(name = "project_name")

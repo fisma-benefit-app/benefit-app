@@ -28,10 +28,12 @@ export default function ProjectList() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [sort, setSort] = useState<{ key: SortKey; dir: SortDirection } | null>({
-    key: "updatedAt",
-    dir: "desc",
-  });
+  const [sort, setSort] = useState<{ key: SortKey; dir: SortDirection } | null>(
+    {
+      key: "updatedAt",
+      dir: "desc",
+    },
+  );
   const commitSha = useCommitSha("-");
 
   const navigate = useNavigate();
@@ -131,7 +133,11 @@ export default function ProjectList() {
     label: string;
     widthClassName: string;
   }> = [
-    { key: "projectName", label: translation.projectName, widthClassName: "w-1/5" },
+    {
+      key: "projectName",
+      label: translation.projectName,
+      widthClassName: "w-1/5",
+    },
     { key: "version", label: translation.version, widthClassName: "w-1/12" },
     { key: "createdAt", label: translation.createdAt, widthClassName: "w-1/5" },
     {
@@ -139,7 +145,11 @@ export default function ProjectList() {
       label: translation.versionCreatedAt,
       widthClassName: "w-1/5",
     },
-    { key: "updatedAt", label: translation.modifiedAt, widthClassName: "w-1/5" },
+    {
+      key: "updatedAt",
+      label: translation.modifiedAt,
+      widthClassName: "w-1/5",
+    },
   ];
 
   if (loading) return <LoadingSpinner />;

@@ -8,10 +8,10 @@ import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
+import fi.fisma.backend.mapper.FunctionalComponentMapper;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
-import fi.fisma.backend.mapper.FunctionalComponentMapper;
 import fi.fisma.backend.repository.ProjectRepository;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -93,7 +93,8 @@ public class ProjectService {
     var project = projectMapper.toEntity(newProjectRequest);
 
     // Map + attach functional components from request (so they persist with the project)
-    var functionalComponents = functionalComponentMapper.updateEntityFromRequest(project, newProjectRequest);
+    var functionalComponents =
+        functionalComponentMapper.updateEntityFromRequest(project, newProjectRequest);
     functionalComponents.forEach(fc -> fc.setProject(project)); // owning side
     project.setFunctionalComponents(functionalComponents);
 
