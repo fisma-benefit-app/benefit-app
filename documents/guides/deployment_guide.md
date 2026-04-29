@@ -4,6 +4,9 @@ This guide describes the step-by-step process of deploying the backend (Heroku) 
 
 We can deploy the app to two different environments: testing (staging) and production environments. Testing deployments run **automatically** and production deployments must be done **manually**. Automated deployments are the preferred way of deploying the app. However, if needed, all deployments can be done manually.
 
+**Note that deployment takes a few minutes to take effect, probably because of Github Pages deployment!
+**
+
 ### Prerequisites
 
 - Heroku account with CLI installed for logging (see [the guide](./heroku_cli_setup.md) on this if needed)
