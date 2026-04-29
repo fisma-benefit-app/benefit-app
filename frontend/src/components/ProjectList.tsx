@@ -1,4 +1,9 @@
-import { type AriaAttributes, type KeyboardEvent, useMemo, useState } from "react";
+import {
+  type AriaAttributes,
+  type KeyboardEvent,
+  useMemo,
+  useState,
+} from "react";
 import { useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -142,8 +147,16 @@ export default function ProjectList() {
       label: projectListTranslation.projectName,
       widthClassName: "w-1/5",
     },
-    { key: "version", label: projectListTranslation.version, widthClassName: "w-1/12" },
-    { key: "createdAt", label: projectListTranslation.createdAt, widthClassName: "w-1/5" },
+    {
+      key: "version",
+      label: projectListTranslation.version,
+      widthClassName: "w-1/12",
+    },
+    {
+      key: "createdAt",
+      label: projectListTranslation.createdAt,
+      widthClassName: "w-1/5",
+    },
     {
       key: "versionCreatedAt",
       label: projectListTranslation.versionCreatedAt,
