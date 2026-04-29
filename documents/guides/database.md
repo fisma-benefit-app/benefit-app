@@ -9,7 +9,7 @@ For development, Postgres runs inside Docker Compose. See compose.yaml in projec
 ### Access via Docker
 
 ```sh
-docker exec -it benefit-app-postgres-1 psql -U <username> <database>
+docker exec -it fisma_db psql -U <username> <database>
 ```
 
 ### Access via local psql
