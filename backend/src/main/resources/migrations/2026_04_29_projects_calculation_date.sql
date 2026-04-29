@@ -1,0 +1,1 @@
+BEGIN; ALTER TABLE projects ADD COLUMN IF NOT EXISTS calculation_date DATE; COMMIT;
