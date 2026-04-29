@@ -2,6 +2,10 @@
 
 This guide explains how to connect to the Benefit App database in both local development and staging environments. It also explains how the database is seeded in different environments.
 
+Database initialization mode (always, never) and data locations are set in Heroku config vars.
+This ensures we can dynamically control database seeding in different environments.
+Default values are set for local development.
+
 ## 1. Local Database (Docker)
 
 For development, Postgres runs inside Docker Compose. See compose.yaml in project root for the container name, user, password, and database.
@@ -23,6 +27,8 @@ psql -h localhost -p 5433 -U <username> <database>
 ## 2. Production and Testing Databases (Heroku Postgres)
 
 The production and testing databases are hosted on Heroku Postgres. Database seeding is controlled via Heroku.
+
+Database migrations are manual. See (/backend/src/main/resources/migrations/). 
 
 ### Production and testing database seeding
 
