@@ -34,9 +34,9 @@ UPDATE functional_components set order_position = 1 WHERE ID = 123
 2
 3
 ```
-- You can use this to change those lines to be the line number +1
+- You can use this in vim to change those lines to be the line number +1
 ```
-27,29s/\d/\=(line(".")+1)/
+:27,29s/\d/\=(line(".")+1)/
 ```
 Resulting in
 ```
