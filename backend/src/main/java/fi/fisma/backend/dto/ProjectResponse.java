@@ -2,6 +2,7 @@ package fi.fisma.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
+import fi.fisma.backend.dto.ProjectCommentResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -27,4 +28,6 @@ public record ProjectResponse(
     @Schema(description = "Functional components in the project")
         Set<FunctionalComponentResponse> functionalComponents,
     @Schema(description = "Users associated with the project")
-        Set<ProjectAppUserResponse> projectAppUsers) {}
+        Set<ProjectAppUserResponse> projectAppUsers,
+    @Schema(description = "Comments on the project")
+        Set<ProjectCommentResponse> projectComments) {}

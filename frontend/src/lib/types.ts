@@ -24,6 +24,7 @@ export type ProjectResponse = {
   updatedAt: string;
   functionalComponents: FunctionalComponentResponse[];
   projectAppUsers: ProjectAppUserResponse[];
+  projectComments: ProjectComment[];
 };
 
 export type FunctionalComponentRequest = {
@@ -110,6 +111,12 @@ export type Project = {
   updatedAt: string;
   functionalComponents: TGenericComponent[];
   projectAppUsers: ProjectAppUser[];
+  projectComments: ProjectComment[];
+};
+
+export type ProjectComment = {
+  id: number;
+  text: string;
 };
 
 export type MLAsubComponent = TGenericComponent & {

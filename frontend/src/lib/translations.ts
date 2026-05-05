@@ -197,6 +197,7 @@ export const translations = {
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
       printPDF: "Print PDF",
+      addComments: "Add comments",
     },
     functionalPointSummary: {
       noSelectedComponentType: "no selected component type",
@@ -264,6 +265,15 @@ export const translations = {
       deleteAccountButton: "Delete My Account",
       accountDeleted: "Account deleted successfully",
       accountDeleteFailed: "Failed to delete account",
+    },
+    commentModal: {
+      header: "Add comments",
+      cancel: "Cancel",
+      save: "Save Comments",
+      maxCharacters:
+        "Maximum 200 characters per comment. Up to 6 comments allowed.",
+      comment: "Comment",
+      placeholder: "Enter comment...",
     },
   },
   fi: {
@@ -466,6 +476,7 @@ export const translations = {
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",
       printPDF: "Tulosta PDF",
+      addComments: "Lisää kommentit",
     },
     functionalPointSummary: {
       noSelectedComponentType: "ei valittua toimintotyyppiä",
@@ -535,6 +546,15 @@ export const translations = {
       deleteAccountButton: "Poista tilini",
       accountDeleted: "Tili poistettu onnistuneesti",
       accountDeleteFailed: "Tilin poistaminen epäonnistui",
+    },
+    commentModal: {
+      header: "Lisää kommentit",
+      cancel: "Peruuta",
+      save: "Tallenna kommentit",
+      maxCharacters:
+        "Enintään 200 merkkiä kommentissa. Jopa 6 kommenttia sallittu.",
+      comment: "Kommentti",
+      placeholder: "Syötä kommentti...",
     },
   },
 };

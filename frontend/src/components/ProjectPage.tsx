@@ -8,6 +8,8 @@ import {
   updateProject,
   createFunctionalComponent,
   deleteFunctionalComponent,
+  createProjectComment,
+  deleteProjectComment,
 } from "../api/project.ts";
 import { generateProjectSummaryPDF } from "../lib/printUtils.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
@@ -25,6 +27,7 @@ import CreateCurrentDate from "../api/date.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
+import CommentModal from "./CommentModal.tsx";
 import useCommitSha from "../hooks/useCommitSha";
 import useLanguage from "../hooks/useLanguage.tsx";
 
@@ -158,6 +161,8 @@ export default function ProjectPage() {
   const [lastAddedComponentId, setLastAddedComponentId] = useState<
     number | null
   >(null);
+
+  const [isCommentModalOpen, setCommentModalOpen] = useState(false);
 
   const translation = useTranslations().projectPage;
   const alertTranslation = useTranslations().alert;
@@ -620,16 +625,39 @@ export default function ProjectPage() {
       }
     }
   };
-
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
     const selectedProject = sortedProjects.find(
       (p: Project) => p.id === selectedId,
     );
-
     if (selectedProject) {
       navigate(`/project/${selectedId}`);
     }
+  };
+
+  const handleSaveComments = async (newComments: string[]) => {
+    if (!project) return;
+
+    // Delete all existing comments
+    const existingComments = project.projectComments || [];
+    for (const existingComment of existingComments) {
+      await deleteProjectComment(sessionToken, existingComment.id, project.id);
+    }
+
+    // Add new comments
+    for (const commentText of newComments) {
+      if (commentText.trim()) {
+        await createProjectComment(
+          sessionToken,
+          project.id,
+          commentText.trim(),
+        );
+      }
+    }
+
+    // Refresh the project to get updated comments
+    const updatedProject = await fetchProject(sessionToken, project.id);
+    setProject(updatedProject);
   };
 
   useEffect(() => {
@@ -800,6 +828,17 @@ export default function ProjectPage() {
               >
                 {translation.newFunctionalComponent}
               </button>
+              <button
+                onClick={() => setCommentModalOpen(true)}
+                className={`${
+                  isLatest || !loadingProject
+                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                    : "bg-fisma-gray"
+                } text-white py-3 px-4`}
+                disabled={!isLatest || loadingProject}
+              >
+                {translation.addComments}
+              </button>
             </div>
 
             {Array.isArray(project?.functionalComponents) &&
@@ -872,6 +911,13 @@ export default function ProjectPage() {
           open={isConfirmModalOpen}
           setOpen={setConfirmModalOpen}
           onConfirm={() => saveProjectVersion()}
+        />
+
+        <CommentModal
+          open={isCommentModalOpen}
+          setOpen={setCommentModalOpen}
+          projectComments={project?.projectComments || []}
+          onSaveComments={handleSaveComments}
         />
       </div>
     </>

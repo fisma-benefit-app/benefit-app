@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS projects_app_users, functional_components, projects, app_users;
+DROP TABLE IF EXISTS projects_app_users, functional_components, project_comments, projects, app_users CASCADE;
 
 CREATE TABLE IF NOT EXISTS app_users
 (

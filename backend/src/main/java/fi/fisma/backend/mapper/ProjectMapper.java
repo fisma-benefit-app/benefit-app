@@ -51,6 +51,9 @@ public class ProjectMapper {
                             pau.getId(),
                             new AppUserSummary(
                                 pau.getAppUser().getId(), pau.getAppUser().getUsername())))
+                .collect(Collectors.toSet()),
+            project.getProjectComments().stream()
+                .map(projectCommentMapper::toResponse)
                 .collect(Collectors.toSet()));
     return response;
   }

@@ -371,6 +371,70 @@ const deleteFunctionalComponent = async (
   }
 };
 
+const createProjectComment = async (
+  token: string | null,
+  projectId: number,
+  commentText: string,
+): Promise<Project> => {
+  if (!token)
+    throw new Error("User needs to be logged in to create a comment!");
+  if (!projectId) throw new Error("Request needs the id of the project!");
+  if (!commentText || commentText.trim() === "")
+    throw new Error("Comment text cannot be empty!");
+
+  const fetchURL = `${API_URL}/projectcomments/projects/${projectId}`;
+  const headers = {
+    Authorization: token,
+    "Content-Type": "application/json",
+  };
+
+  const response = await fetch(fetchURL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ text: commentText.trim() }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
+    }
+    throw new Error(
+      `Error creating comment in createProjectComment! Status: ${response.status}`,
+    );
+  }
+
+  return response.json();
+};
+
+const deleteProjectComment = async (
+  token: string | null,
+  commentId: number,
+  projectId: number,
+): Promise<Project> => {
+  if (!token)
+    throw new Error("User needs to be logged in to delete a comment!");
+  if (!commentId) throw new Error("Request needs the id of the comment!");
+  if (!projectId) throw new Error("Request needs the id of the project!");
+
+  const fetchURL = `${API_URL}/projectcomments/${commentId}/projects/${projectId}`;
+  const headers = {
+    Authorization: token,
+  };
+
+  const response = await fetch(fetchURL, { method: "DELETE", headers });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
+    }
+    throw new Error(
+      `Error deleting comment in deleteProjectComment! Status: ${response.status}`,
+    );
+  }
+
+  return response.json();
+};
+
 export {
   fetchAllProjects,
   fetchProject,
@@ -380,4 +444,6 @@ export {
   createNewProjectVersion,
   createFunctionalComponent,
   deleteFunctionalComponent,
+  createProjectComment,
+  deleteProjectComment,
 };
