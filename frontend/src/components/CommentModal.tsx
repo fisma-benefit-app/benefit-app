@@ -43,6 +43,15 @@ export default function CommentModal({
     try {
       // Filter out empty comments
       const nonEmptyComments = comments.filter((c) => c.trim() !== "");
+      // Get existing comments
+      const existingComments = projectComments.map((c) => c.text).filter((c) => c.trim() !== "");
+      // Check if comments have changed
+      const hasChanged = nonEmptyComments.length !== existingComments.length ||
+        nonEmptyComments.some((c, i) => c !== existingComments[i]);
+      if (!hasChanged) {
+        setOpen(false);
+        return;
+      }
       await onSaveComments(nonEmptyComments);
       setOpen(false);
     } catch (error) {
