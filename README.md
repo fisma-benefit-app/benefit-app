@@ -267,7 +267,6 @@ Development Without Docker (local backend)</b>
 | Test logs        | `./gradlew test`               | CI/CD logs (GitHub Actions/Heroku) |  
 
 
-
 For more details, see the [logging guide](/documents/guides/logging.md).
 
 <br>
