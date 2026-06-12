@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# NOTE that widdershins is no longer installed with npm due to it causing problems with npm audit.
+# This script will probably fail. widdershins should be run with npx or something else without installing it
+
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'

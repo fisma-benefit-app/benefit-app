@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "widdershins": "^3.6.7"
+    "form-data": "^4.0.5",
+    "httpsnippet": "^3.0.10"
   }
 }

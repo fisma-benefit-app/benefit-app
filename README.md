@@ -417,7 +417,10 @@ More information on how to access the database can found in the [database guide]
 
 ### API
 
-Benefit's API documentation has been created using SpringDoc and Widdershins. It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/how_to_generate_api_docs.md).
+Benefit's API documentation has been created using SpringDoc and Widdershins.
+NOTE that widdershins is not installed with npm due to it causing npm audit problems. Run it with `npx widdershins`
+
+It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/generate_api_docs.md).
 
 
 

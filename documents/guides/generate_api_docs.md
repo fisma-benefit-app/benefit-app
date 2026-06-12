@@ -1,4 +1,7 @@
-# How to Generate API Documentation
+# How to Generate API Documentation (NEEDS REVIEW)
+
+widdershins is no longer installed via npm due to it causing problems with npm audit.
+It should be run with npx or something else so it won't be installed and thus add vulnerable packages to the project.
 
 ## Prerequisites
 
