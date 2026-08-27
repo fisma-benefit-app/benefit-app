@@ -129,6 +129,7 @@ See [deployment guide](/documents/guides/deployment_guide.md) for more instructi
 ### Database Access
 
 Log in (if needed):
+(Do not use Git Bash for Windows)
 ```sh
 heroku login
 ```
