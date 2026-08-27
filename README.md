@@ -550,6 +550,10 @@ Open:
 - Frontend: http://localhost:5173/benefit-app/login
 - Backend: http://localhost:8080/actuator/health
 
+   Default credentials for development:
+   - Username: `user`
+   - Password: `user`
+
 #### B) Development Without Docker (local backend)
 
 1. You only need the `frontend/.env` file with VITE_API_URL pointing to your backend (`http://localhost:8080` by default).
