@@ -20,16 +20,23 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "projects_app_users")
+
 public class ProjectAppUser {
+
+  // id, project, appUser
+
+  // ID
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  // PROJECT
   @NotNull(message = "Project is required")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id")
   private Project project;
 
+  // APP USER
   @NotNull(message = "App user is required")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "app_user_id")

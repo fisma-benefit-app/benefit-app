@@ -20,16 +20,23 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "app_users")
+
 public class AppUser {
+
+  // id, username, password, deletedAt
+
+  // ID
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  // USERNAME
   @NotEmpty(message = "Username is required")
   @Size(max = 50, message = "Username must not exceed 50 characters")
   @Column(name = "username", unique = true)
   private String username;
 
+  // PASSWORD
   // Why max 64 characters? See OWASP's Authentication Cheat Sheet:
   // https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
   @NotEmpty(message = "Password is required")
@@ -37,6 +44,7 @@ public class AppUser {
   @Column(name = "password")
   private String password;
 
+  // DELETED AT
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 

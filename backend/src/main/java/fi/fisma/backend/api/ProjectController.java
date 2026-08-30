@@ -22,9 +22,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 @Tag(name = "Project Management", description = "Endpoints for managing projects")
 @SecurityRequirement(name = "bearerAuth")
+
 public class ProjectController {
 
   private final ProjectService projectService;
+
+  // GET PROJECT BY ID
 
   @GetMapping("/{id}")
   @Operation(
@@ -39,6 +42,8 @@ public class ProjectController {
     return ResponseEntity.ok(projectService.getProject(id, authentication.getName()));
   }
 
+  // GET ALL USER'S PROJECTS
+
   @GetMapping
   @Operation(
       summary = "Get all projects",
@@ -51,6 +56,8 @@ public class ProjectController {
     var projects = projectService.getAllProjects(authentication.getName());
     return ResponseEntity.ok(projects);
   }
+
+  // UPDATE EXISTING PROJECT
 
   @PutMapping("/{id}")
   @Operation(
@@ -72,6 +79,8 @@ public class ProjectController {
     return ResponseEntity.ok(updatedProject);
   }
 
+  // CREATE NEW PROJECT
+
   @PostMapping
   @Operation(
       summary = "Create a new project",
@@ -89,6 +98,8 @@ public class ProjectController {
     URI location = ucb.path("/projects/{id}").buildAndExpand(savedProject.id()).toUri();
     return ResponseEntity.created(location).build();
   }
+
+  // CREATE NEW PROJECT VERSION
 
   @PostMapping("/{id}/versions")
   @Operation(
@@ -111,6 +122,8 @@ public class ProjectController {
     return ResponseEntity.created(location).build();
   }
 
+  // DELETE PROJECT
+  
   @DeleteMapping("/{id}")
   @Operation(
       summary = "Delete a project",

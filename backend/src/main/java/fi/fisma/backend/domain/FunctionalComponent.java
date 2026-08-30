@@ -30,82 +30,108 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "functional_components")
+
 public class FunctionalComponent {
+
+  // id, title, description, className, componentType, dataElements, readingReferences, writingReferences, 
+  // functionalMultiplier, operations, degreeOfCompletion, previousFCId, orderPosition, isMLA, parentFCId, 
+  // subComponentType, isReadonly, subComponents, project, deletedAt
+
+  // ID
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  // TITLE
   @Size(max = 255, message = "Title must not exceed 255 characters")
   @Column(name = "title")
   private String title;
 
+  // DESCRIPTION
   @Size(max = 1000, message = "Description must not exceed 1000 characters")
   @Column(name = "description")
   private String description;
 
+  // CLASS NAME
   @Size(max = 255, message = "Class name must not exceed 255 characters")
   @Column(name = "class_name")
   private String className;
 
+  // COMPONENT TYPE
   @Size(max = 255, message = "Component type must not exceed 255 characters")
   @Column(name = "component_type")
   private String componentType;
 
+  // DATA ELEMENTS
   @Min(value = 0, message = "Data elements cannot be negative")
   @Column(name = "data_elements")
   private Integer dataElements = 0;
 
+  // READING REFERENCES
   @Min(value = 0, message = "Reading references cannot be negative")
   @Column(name = "reading_references")
   private Integer readingReferences = 0;
 
+  // WRITING REFERENCES
   @Min(value = 0, message = "Writing references cannot be negative")
   @Column(name = "writing_references")
   private Integer writingReferences = 0;
 
+  // FUNCTIONAL MULTIPLIER
   @Min(value = 1, message = "Functional multiplier must be at least 1")
   @Column(name = "functional_multiplier")
   private Integer functionalMultiplier = 1;
 
+  // OPERATIONS
   @Min(value = 0, message = "Operations cannot be negative")
   @Column(name = "operations")
   private Integer operations = 0;
 
+  // DEGREE OF COMPLETION
   @DecimalMin(value = "0.0", message = "Degree of completion must be between 0 and 1")
   @DecimalMax(value = "1.0", message = "Degree of completion must be between 0 and 1")
   @Column(name = "degree_of_completion")
   private Double degreeOfCompletion = 0.0;
 
+  // PREVIOUS FUNCTIONAL COMPONENT ID
   @Column(name = "previous_fc_id")
   private Long previousFCId;
 
+  // ORDER POSITION
   @NotNull(message = "Order position is required")
   @Min(value = 0, message = "Order position cannot be negative")
   @Column(name = "order_position")
   private Integer orderPosition = 0;
 
+  // MULTI-LAYER ARCHITECTURE (MLA) STATUS
   @NotNull(message = "Multi-layer architecture (MLA) status must be specified")
   @Column(name = "is_mla")
   private Boolean isMLA = false;
 
+  // PARENT FUNCTIONAL COMPONENT ID
   @Column(name = "parent_fc_id")
   private Long parentFCId;
 
+  // SUB-COMPONENT TYPE
   @Size(max = 50, message = "Sub-component type must not exceed 50 characters")
   @Column(name = "sub_component_type")
   private String subComponentType;
 
+  // READ-ONLY STATUS
   @Column(name = "is_readonly")
   private Boolean isReadonly = false;
 
+  // SUB-COMPONENTS
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_fc_id", insertable = false, updatable = false)
   private List<FunctionalComponent> subComponents = new ArrayList<>();
 
+  // PROJECT
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id")
   private Project project;
 
+  // DELETED AT
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 

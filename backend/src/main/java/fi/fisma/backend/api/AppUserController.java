@@ -20,8 +20,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/appusers")
 @Tag(name = "User Management", description = "Endpoints for managing user accounts")
 @SecurityRequirement(name = "bearerAuth")
+
 public class AppUserController {
+
   private final AppUserService appUserService;
+
+  // GET USER BY ID
 
   @GetMapping("/{id}")
   @Operation(summary = "Get user by ID", description = "Retrieves a specific user by their ID")
@@ -32,6 +36,8 @@ public class AppUserController {
     return ResponseEntity.ok(appUserService.findById(id, authentication));
   }
 
+  // CREATE NEW USER
+
   @PostMapping
   @Operation(summary = "Create new user", description = "Creates a new user account")
   @ApiResponse(responseCode = "201", description = "User created successfully")
@@ -40,6 +46,8 @@ public class AppUserController {
     var newUser = appUserService.createAppUser(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
   }
+
+  // UPDATE EXISTING USER
 
   @PutMapping("/{id}")
   @Operation(summary = "Update user", description = "Updates an existing user's information")
@@ -55,10 +63,12 @@ public class AppUserController {
     return ResponseEntity.ok(appUserService.updateAppUser(id, request, authentication));
   }
 
+  // DELETE USER ACCOUNT
+
   @DeleteMapping("/{id}")
   @Operation(
       summary = "Delete user account",
-      description = "Permanently deletes the authenticated user's account")
+      description = "Soft deletes the authenticated user's account")
   @ApiResponse(responseCode = "204", description = "Account deleted successfully")
   @ApiResponse(responseCode = "401", description = "User not authenticated")
   @ApiResponse(
@@ -70,6 +80,8 @@ public class AppUserController {
     appUserService.deleteAppUser(id, authentication);
     return ResponseEntity.noContent().build();
   }
+
+  // CHANGE USER PASSWORD
 
   @PutMapping("/password")
   @Operation(

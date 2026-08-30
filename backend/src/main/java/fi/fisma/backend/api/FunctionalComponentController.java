@@ -20,9 +20,12 @@ import org.springframework.web.bind.annotation.*;
     name = "Functional Components",
     description = "Endpoints for managing functional components within projects")
 @SecurityRequirement(name = "bearerAuth")
+
 public class FunctionalComponentController {
 
   private final FunctionalComponentService functionalComponentService;
+
+  // CREATE NEW FUNCTIONAL COMPONENT
 
   @PostMapping("/projects/{projectId}")
   @Operation(
@@ -45,6 +48,8 @@ public class FunctionalComponentController {
             projectId, request, authentication.getName());
     return ResponseEntity.ok(response);
   }
+
+  // DELETE FUNCTIONAL COMPONENT
 
   @DeleteMapping("/{componentId}/projects/{projectId}")
   @Operation(

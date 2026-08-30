@@ -27,41 +27,56 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "projects")
+
 public class Project {
+
+  // id, projectName, version, createdAt, versionCreatedAt, calculationDate, 
+  // updatedAt, deletedAt, functionalComponents, projectAppUsers
+
+  // ID
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  // PROJECT NAME
   @NotBlank(message = "Project name is required")
   @Size(max = 255, message = "Project name must not exceed 255 characters")
   @Column(name = "project_name")
   private String projectName;
 
+  // VERSION
   @NotNull(message = "Version is required")
   @PositiveOrZero
   @Column(name = "version")
   private int version;
 
+  // CREATED AT
   @NotNull(message = "Creation date is required")
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
+  // VERSION CREATED AT
   @NotNull(message = "Version date is required")
   @Column(name = "version_created_at")
   private LocalDateTime versionCreatedAt;
 
+  // CALCULATION DATE
   @Column(name = "calculation_date")
   private LocalDate calculationDate;
 
+  // UPDATED AT
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
+  // DELETED AT
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
+  // FUNCTIONAL COMPONENTS
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
   private Set<FunctionalComponent> functionalComponents = new HashSet<>();
 
+  // PROJECT APP USERS
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ProjectAppUser> projectAppUsers = new HashSet<>();
 
