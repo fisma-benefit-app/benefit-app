@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
     name = "Functional Components",
     description = "Endpoints for managing functional components within projects")
 @SecurityRequirement(name = "bearerAuth")
-
 public class FunctionalComponentController {
 
   private final FunctionalComponentService functionalComponentService;

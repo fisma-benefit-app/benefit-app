@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/appusers")
 @Tag(name = "User Management", description = "Endpoints for managing user accounts")
 @SecurityRequirement(name = "bearerAuth")
-
 public class AppUserController {
 
   private final AppUserService appUserService;

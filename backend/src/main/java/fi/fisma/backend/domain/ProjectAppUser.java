@@ -20,7 +20,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "projects_app_users")
-
 public class ProjectAppUser {
 
   // id, project, appUser

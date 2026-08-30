@@ -27,10 +27,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "projects")
-
 public class Project {
 
-  // id, projectName, version, createdAt, versionCreatedAt, calculationDate, 
+  // id, projectName, version, createdAt, versionCreatedAt, calculationDate,
   // updatedAt, deletedAt, functionalComponents, projectAppUsers
 
   // ID

@@ -30,11 +30,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "functional_components")
-
 public class FunctionalComponent {
 
-  // id, title, description, className, componentType, dataElements, readingReferences, writingReferences, 
-  // functionalMultiplier, operations, degreeOfCompletion, previousFCId, orderPosition, isMLA, parentFCId, 
+  // id, title, description, className, componentType, dataElements, readingReferences,
+  // writingReferences,
+  // functionalMultiplier, operations, degreeOfCompletion, previousFCId, orderPosition, isMLA,
+  // parentFCId,
   // subComponentType, isReadonly, subComponents, project, deletedAt
 
   // ID

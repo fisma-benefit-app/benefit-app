@@ -22,7 +22,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 @Tag(name = "Project Management", description = "Endpoints for managing projects")
 @SecurityRequirement(name = "bearerAuth")
-
 public class ProjectController {
 
   private final ProjectService projectService;
@@ -123,7 +122,7 @@ public class ProjectController {
   }
 
   // DELETE PROJECT
-  
+
   @DeleteMapping("/{id}")
   @Operation(
       summary = "Delete a project",

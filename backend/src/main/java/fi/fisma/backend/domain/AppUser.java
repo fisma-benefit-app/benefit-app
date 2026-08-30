@@ -20,7 +20,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "app_users")
-
 public class AppUser {
 
   // id, username, password, deletedAt
