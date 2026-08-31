@@ -1,5 +1,20 @@
 export const translations = {
   en: {
+    errorModal: {
+      error: "Error",
+      close: "Close"
+    },
+    networkingErrorMessages: {
+      SERVICE_UNAVAILABLE: "Cannot reach server. Please ensure the service is running.",
+      UNAUTHORIZED: "Invalid username or password.",
+      TOKEN_EXPIRED: "Session expired. Please log in again.",
+      NETWORK_ERROR: "Network error occurred. Please check your connection.",
+      VALIDATION_FAILED: "Validation failed",
+      BENEFIT_NOT_FOUND: "Benefit not found",
+      INVALID_INPUT: "Invalid input provided",
+      DATABASE_ERROR: "Database error occurred",
+      UNKNOWN_ERROR: "An unexpected error occurred. Please try again.",
+    },
     scrollToTop: {
       tooltip: "Scroll to top",
     },
@@ -267,6 +282,21 @@ export const translations = {
     },
   },
   fi: {
+    errorModal: {
+      error: "Virhe",
+      close: "Sulje"
+    },
+    networkingErrorMessages: {
+      SERVICE_UNAVAILABLE: "Palvelinta ei tavoiteta. Varmista, että palvelu on käynnissä.",
+      UNAUTHORIZED: "Virheellinen käyttäjätunnus tai salasana.",
+      TOKEN_EXPIRED: "Istunto on vanhentunut. Kirjaudu sisään uudelleen.",
+      NETWORK_ERROR: "Verkkovirhe. Tarkista internetyhteytesi.",
+      VALIDATION_FAILED: "Validointi epäonnistui",
+      BENEFIT_NOT_FOUND: "Benefit ei löytynyt",
+      INVALID_INPUT: "Virheellinen syöte",
+      DATABASE_ERROR: "Tietokantavirhe",
+      UNKNOWN_ERROR: "Tapahtui odottamaton virhe. Yritä uudelleen.",
+    },
     scrollToTop: {
       tooltip: "Siirry ylös",
     },

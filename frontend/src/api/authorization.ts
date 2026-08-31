@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES } from "../errors/messages";
+import { networkingErrorMessages } from "../lib/networkingErrorMessages";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,7 +14,7 @@ const fetchJWT = async (username: string, password: string) => {
 
     if (!response.ok) {
       if (response.status === 401) {
-        throw new Error(ERROR_MESSAGES.UNAUTHORIZED);
+        throw new Error(networkingErrorMessages.UNAUTHORIZED);
       }
       throw new Error(
         `Error getting JWT in fetchJWT! Status: ${response.status}`,
@@ -31,7 +31,7 @@ const fetchJWT = async (username: string, password: string) => {
   } catch (error) {
     // Network error or no connection to server
     if (!navigator.onLine || error instanceof TypeError) {
-      throw new Error(ERROR_MESSAGES.SERVICE_UNAVAILABLE);
+      throw new Error(networkingErrorMessages.SERVICE_UNAVAILABLE);
     }
     // Re-throw other errors
     throw error;

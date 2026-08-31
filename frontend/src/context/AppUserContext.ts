@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { AppUser } from "./AppUserProvider";
+import { AppUser } from "../lib/types";
 
 export type AppUserContextType = {
   loadingAuth: boolean;
