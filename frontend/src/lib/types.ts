@@ -55,6 +55,16 @@ export type ProjectAppUserResponse = {
   appUser: AppUserSummary;
 };
 
+export type CommentRequest = {
+  text: string;
+};
+
+export type CommentResponse = {
+  id: number;
+  text: string;
+  projectId: number;
+};
+
 export type AppUserSummary = {
   id: number;
   username: string;
