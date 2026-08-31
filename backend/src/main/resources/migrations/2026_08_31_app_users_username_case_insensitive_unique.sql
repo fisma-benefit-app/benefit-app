@@ -1,0 +1,1 @@
+BEGIN; CREATE UNIQUE INDEX IF NOT EXISTS app_users_username_lower_key ON app_users (LOWER(username)); COMMIT;
