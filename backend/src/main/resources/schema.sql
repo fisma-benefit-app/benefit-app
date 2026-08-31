@@ -3,10 +3,12 @@ DROP TABLE IF EXISTS projects_app_users, functional_components, projects, app_us
 CREATE TABLE IF NOT EXISTS app_users
 (
     id              BIGSERIAL PRIMARY KEY,
-    username        VARCHAR(50) NOT NULL UNIQUE,
+    username        VARCHAR(50) NOT NULL,
     password        VARCHAR(64) NOT NULL,
     deleted_at      TIMESTAMP(0) -- no fractions of seconds
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS app_users_username_lower_key ON app_users (LOWER(username));
 
 CREATE TABLE IF NOT EXISTS projects
 (
