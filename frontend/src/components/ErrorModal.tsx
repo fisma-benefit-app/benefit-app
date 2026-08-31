@@ -5,9 +5,11 @@ import {
   faExclamationCircle,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import useTranslations from "../hooks/useTranslations";
 
 export default function ErrorModal() {
   const errorContext = useContext(ErrorContext);
+  const translation = useTranslations().errorModal;
 
   if (!errorContext) {
     return null;
@@ -31,7 +33,7 @@ export default function ErrorModal() {
             className="w-6 h-6 text-fisma-red flex-shrink-0 mt-1"
           />
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Error</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">{translation.error}</h2>
             <p className="text-gray-700">{error}</p>
           </div>
           <button
@@ -45,7 +47,7 @@ export default function ErrorModal() {
           onClick={clearError}
           className="mt-4 w-full bg-fisma-blue hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
         >
-          Close
+          {translation.close}
         </button>
       </div>
     </div>

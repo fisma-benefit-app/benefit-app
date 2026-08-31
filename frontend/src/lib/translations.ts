@@ -1,5 +1,20 @@
 export const translations = {
   en: {
+    errorModal: {
+      error: "Error",
+      close: "Close"
+    },
+    networkingErrorMessages: {
+      SERVICE_UNAVAILABLE: "Cannot reach server. Please ensure the service is running.",
+      UNAUTHORIZED: "Invalid username or password.",
+      TOKEN_EXPIRED: "Session expired. Please log in again.",
+      NETWORK_ERROR: "Network error occurred. Please check your connection.",
+      VALIDATION_FAILED: "Validation failed",
+      BENEFIT_NOT_FOUND: "Benefit not found",
+      INVALID_INPUT: "Invalid input provided",
+      DATABASE_ERROR: "Database error occurred",
+      UNKNOWN_ERROR: "An unexpected error occurred. Please try again.",
+    },
     scrollToTop: {
       tooltip: "Scroll to top",
     },
@@ -180,6 +195,17 @@ export const translations = {
     projectPage: {
       saveProject: "Save",
       newFunctionalComponent: "New Functional Component",
+      comments: "Comments",
+      commentsTitle: "Comments",
+      archivedVersionReadOnly: "Archived version: read-only comments.",
+      noCommentsYet: "No comments yet.",
+      addCommentPlaceholder: "Add a comment...",
+      addComment: "Add comment",
+      edit: "Edit",
+      delete: "Delete",
+      save: "Save",
+      cancel: "Cancel",
+      deleteCommentConfirmation: "Are you sure you want to delete the comment?",
       noProject: "No project information to show!",
       archiveProjectAsVersion: "Archive as version",
       archiveVersionWarningBeginning:
@@ -267,6 +293,21 @@ export const translations = {
     },
   },
   fi: {
+    errorModal: {
+      error: "Virhe",
+      close: "Sulje"
+    },
+    networkingErrorMessages: {
+      SERVICE_UNAVAILABLE: "Palvelinta ei tavoiteta. Varmista, että palvelu on käynnissä.",
+      UNAUTHORIZED: "Virheellinen käyttäjätunnus tai salasana.",
+      TOKEN_EXPIRED: "Istunto on vanhentunut. Kirjaudu sisään uudelleen.",
+      NETWORK_ERROR: "Verkkovirhe. Tarkista internetyhteytesi.",
+      VALIDATION_FAILED: "Validointi epäonnistui",
+      BENEFIT_NOT_FOUND: "Benefit ei löytynyt",
+      INVALID_INPUT: "Virheellinen syöte",
+      DATABASE_ERROR: "Tietokantavirhe",
+      UNKNOWN_ERROR: "Tapahtui odottamaton virhe. Yritä uudelleen.",
+    },
     scrollToTop: {
       tooltip: "Siirry ylös",
     },
@@ -448,6 +489,17 @@ export const translations = {
     projectPage: {
       saveProject: "Tallenna",
       newFunctionalComponent: "Lisää toiminnallinen komponentti",
+      comments: "Kommentit",
+      commentsTitle: "Kommentit",
+      archivedVersionReadOnly: "Arkistoitu versio: kommentit ovat vain luku -tilassa.",
+      noCommentsYet: "Ei kommentteja vielä.",
+      addCommentPlaceholder: "Lisää kommentti...",
+      addComment: "Lisää kommentti",
+      edit: "Muokkaa",
+      delete: "Poista",
+      save: "Tallenna",
+      cancel: "Peruuta",
+      deleteCommentConfirmation: "Haluatko varmasti poistaa kommentin?",
       noProject: "Ei näytettäviä projektitietoja!",
       archiveProjectAsVersion: "Arkistoi versiona",
       archiveVersionWarningBeginning:

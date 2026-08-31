@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS projects_app_users, functional_components, projects, app_users;
+DROP TABLE IF EXISTS comments, projects_app_users, functional_components, projects, app_users;
 
 CREATE TABLE IF NOT EXISTS app_users
 (
@@ -43,6 +43,13 @@ CREATE TABLE IF NOT EXISTS functional_components
     is_readonly             BOOLEAN DEFAULT FALSE,
     project_id              BIGINT NOT NULL REFERENCES projects (id),
     deleted_at              TIMESTAMP(0)
+);
+
+CREATE TABLE IF NOT EXISTS comments
+(
+    id          BIGSERIAL PRIMARY KEY,
+    text        VARCHAR(2000) NOT NULL,
+    project_id  BIGINT NOT NULL REFERENCES projects (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_parent_fc_id ON functional_components(parent_fc_id);

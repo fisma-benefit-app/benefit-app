@@ -50,6 +50,12 @@ import {
   createSubComponents,
   updateSubComponents,
 } from "../lib/fc-service-functions.ts";
+import {
+  fetchProjectComments,
+  createProjectComment,
+  updateProjectComment,
+  deleteProjectComment,
+} from "../api/comments.ts";
 
 function SortableFunctionalComponent({
   component,
@@ -158,6 +164,15 @@ export default function ProjectPage() {
   const [lastAddedComponentId, setLastAddedComponentId] = useState<
     number | null
   >(null);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState("");
+  const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(null);
+  const [comments, setComments] = useState<
+    Array<{ id: number; text: string; projectId: number }>
+  >([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
 
   const translation = useTranslations().projectPage;
   const alertTranslation = useTranslations().alert;
@@ -165,6 +180,84 @@ export default function ProjectPage() {
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const commitSha = useCommitSha("-");
+
+  const loadComments = async (projectId: number) => {
+    if (!sessionToken) return;
+    setCommentsLoading(true);
+    try {
+      const projectComments = await fetchProjectComments(sessionToken, projectId);
+      setComments(projectComments);
+    } catch (error) {
+      console.error("Failed to load project comments", error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const handleCreateComment = async () => {
+    if (!project || !commentText.trim()) return;
+
+    try {
+      const createdComment = await createProjectComment(
+        sessionToken,
+        project.id,
+        { text: commentText.trim() },
+      );
+      setComments((prev) => [...prev, createdComment]);
+      setCommentText("");
+      setCommentsOpen(true);
+    } catch (error) {
+      console.error("Failed to create comment", error);
+    }
+  };
+
+  const handleStartEditingComment = (commentId: number, existingText: string) => {
+    setEditingCommentId(commentId);
+    setEditingText(existingText);
+  };
+
+  const handleCancelEditingComment = () => {
+    setEditingCommentId(null);
+    setEditingText("");
+  };
+
+  const handleUpdateComment = async () => {
+    if (!project || editingCommentId == null || !editingText.trim()) return;
+
+    try {
+      const updatedComment = await updateProjectComment(
+        sessionToken,
+        project.id,
+        editingCommentId,
+        { text: editingText.trim() },
+      );
+
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === updatedComment.id ? updatedComment : comment,
+        ),
+      );
+      handleCancelEditingComment();
+    } catch (error) {
+      console.error("Failed to update comment", error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    if (!project) return;
+
+    try {
+      await deleteProjectComment(sessionToken, project.id, commentId);
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      if (editingCommentId === commentId) {
+        handleCancelEditingComment();
+      }
+    } catch (error) {
+      console.error("Failed to delete comment", error);
+    } finally {
+      setCommentToDeleteId(null);
+    }
+  };
 
   //get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
@@ -228,6 +321,12 @@ export default function ProjectPage() {
   useEffect(() => {
     projectRef.current = project;
   }, [project]);
+
+  useEffect(() => {
+    if (project?.id) {
+      loadComments(project.id);
+    }
+  }, [project?.id]);
 
   // Debounced auto-save function
   const debouncedSaveProject = useDebounce(async () => {
@@ -800,6 +899,109 @@ export default function ProjectPage() {
               >
                 {translation.newFunctionalComponent}
               </button>
+
+              <button
+                onClick={() => setCommentsOpen((prev) => !prev)}
+                className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 cursor-pointer"
+                disabled={!project || loadingProject}
+              >
+                {translation.comments}
+              </button>
+
+              {commentsOpen && project && (
+                <div className="mt-3 border border-gray-300 p-3 bg-gray-50 rounded">
+                  <div className="mb-2 text-sm font-medium">{translation.commentsTitle}</div>
+
+                  {!isLatest && (
+                    <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
+                      {translation.archivedVersionReadOnly}
+                    </div>
+                  )}
+
+                  {commentsLoading ? (
+                    <div className="text-xs text-gray-500">{alertTranslation.loading}</div>
+                  ) : comments.length === 0 ? (
+                    <div className="text-xs text-gray-500">{translation.noCommentsYet}</div>
+                  ) : (
+                    <ul className="space-y-2 text-sm">
+                      {comments.map((comment) => (
+                        <li
+                          key={comment.id}
+                          className="bg-white p-2 rounded border border-gray-200"
+                        >
+                          {editingCommentId === comment.id && isLatest ? (
+                            <div className="space-y-2">
+                              <textarea
+                                value={editingText}
+                                onChange={(event) => setEditingText(event.target.value)}
+                                rows={3}
+                                className="w-full border border-gray-300 p-2 text-sm"
+                              />
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={handleUpdateComment}
+                                  className="bg-fisma-blue hover:bg-fisma-dark-blue text-white px-3 py-1.5 text-xs rounded"
+                                  disabled={!editingText.trim()}
+                                >
+                                  {translation.save}
+                                </button>
+                                <button
+                                  onClick={handleCancelEditingComment}
+                                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1.5 text-xs rounded"
+                                >
+                                  {translation.cancel}
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              <div className="whitespace-pre-wrap break-words">{comment.text}</div>
+                              {isLatest && (
+                                <div className="flex justify-end gap-2">
+                                  <button
+                                    onClick={() =>
+                                      handleStartEditingComment(comment.id, comment.text)
+                                    }
+                                    className="text-xs text-fisma-blue underline"
+                                  >
+                                    {translation.edit}
+                                  </button>
+                                  <button
+                                    onClick={() => setCommentToDeleteId(comment.id)}
+                                    className="text-xs text-red-600 underline"
+                                  >
+                                    {translation.delete}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {isLatest && editingCommentId === null && (
+                    <>
+                      <textarea
+                        value={commentText}
+                        onChange={(event) => setCommentText(event.target.value)}
+                        rows={3}
+                        placeholder={translation.addCommentPlaceholder}
+                        className="w-full border border-gray-300 p-2 mt-3 text-sm"
+                      />
+
+                      <button
+                        onClick={handleCreateComment}
+                        className="mt-2 w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-4 rounded"
+                        disabled={!commentText.trim() || !project}
+                      >
+                        {translation.addComment}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             {Array.isArray(project?.functionalComponents) &&
@@ -872,6 +1074,17 @@ export default function ProjectPage() {
           open={isConfirmModalOpen}
           setOpen={setConfirmModalOpen}
           onConfirm={() => saveProjectVersion()}
+        />
+
+        <ConfirmModal
+          message={translation.deleteCommentConfirmation ?? "Are you sure you want to delete the comment?"}
+          open={commentToDeleteId !== null}
+          setOpen={() => setCommentToDeleteId(null)}
+          onConfirm={() => {
+            if (commentToDeleteId !== null) {
+              handleDeleteComment(commentToDeleteId);
+            }
+          }}
         />
       </div>
     </>
