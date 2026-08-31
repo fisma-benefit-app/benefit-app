@@ -1,6 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
+import { decodeJWT } from "../lib/jwtUtils";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 type AppUserProviderProps = {
@@ -80,6 +82,43 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     //need to track that items from sessionstorage are retrieved and state update for loggedIn is finished
     setLoadingAuth(false);
   }, []);
+
+  useEffect(() => {
+    if (!sessionToken) return;
+
+    const decoded = decodeJWT(sessionToken);
+    if (!decoded?.exp) {
+      console.warn("Could not decode token or no exp claim");
+      return;
+    }
+
+    const expirationTime = decoded.exp * 1000; // convert to milliseconds
+    const timeUntilExpiration = expirationTime - Date.now();
+
+    if (timeUntilExpiration <= 0) {
+      logout().catch((error) => {
+        console.error("Error during immediate logout:", error);
+        // Force logout without calling backend
+        sessionStorage.removeItem("loginToken");
+        sessionStorage.removeItem("userInfo");
+        sessionStorage.removeItem("userId");
+        setSessionToken(null);
+        setAppUser(null);
+        setLoggedIn(false);
+      });
+      return;
+    }
+
+    console.log(
+      `Setting auto-logout timeout for ${timeUntilExpiration}ms (${(timeUntilExpiration / 1000).toFixed(2)}s)`,
+    );
+
+    const timeoutId = setTimeout(() => {
+      logout();
+    }, timeUntilExpiration);
+
+    return () => clearTimeout(timeoutId);
+  }, [sessionToken]);
 
   return (
     <AppUserContext.Provider value={appUserProviderValue}>
