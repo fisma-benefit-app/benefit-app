@@ -614,7 +614,7 @@ This command tells Git to look for the `pre-commit` hook from the `.githooks` fo
 ### (Optional) Troubleshooting
 
 - **No seed users** → ensure backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset DB once.
-- **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`.
+- **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`. On Windows with WSL2, if **Spring Boot/Gradle hot reload** does not detect Java file changes, keep the repository in the WSL filesystem (e.g. `~/Projects/benefit-app`) rather than under `/mnt/c/...`, then run Docker Compose from the WSL project directory.
 - **Java not detected / build fails** → Ensure `JAVA_HOME` points to your JDK 21 installation. Example (PowerShell):
 
   ```powershell
