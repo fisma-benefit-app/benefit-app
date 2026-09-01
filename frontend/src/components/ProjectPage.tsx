@@ -259,6 +259,16 @@ export default function ProjectPage() {
     }
   };
 
+  const handlePrintProjectSummaryPDF = () => {
+    if (!project) return;
+
+    generateProjectSummaryPDF(
+      project,
+      comments,
+      translation.commentsTitle,
+    );
+  };
+
   //get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
     (projectInArray) => project?.projectName === projectInArray.projectName,
@@ -816,9 +826,7 @@ export default function ProjectPage() {
                         ? "bg-red-600 hover:bg-red-700 cursor-pointer"
                         : "bg-fisma-gray"
                     } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
-                    onClick={() =>
-                      project && generateProjectSummaryPDF(project)
-                    }
+                    onClick={handlePrintProjectSummaryPDF}
                     disabled={loadingProject}
                   >
                     <FontAwesomeIcon icon={faFilePdf} />

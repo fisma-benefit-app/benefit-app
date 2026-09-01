@@ -1,4 +1,4 @@
-import { Project, TGenericComponent } from "./types";
+import { CommentResponse, Project, TGenericComponent } from "./types";
 import {
   calculateComponentPointsWithMultiplier,
   calculateTotalPoints,
@@ -651,7 +651,11 @@ export const createPdf = (
  * Generoi projektin yhteenveto-PDF:n (alustava placeholder versio!)
  * Yksinkertaistettu versio nopeaa tulostusta varten
  */
-export const generateProjectSummaryPDF = (project: Project): void => {
+export const generateProjectSummaryPDF = (
+  project: Project,
+  comments: CommentResponse[],
+  commentsTitle: string,
+): void => {
   const formattedCreatedAt = new Date(project.createdAt).toLocaleDateString(
     "fi-FI",
     {
@@ -778,6 +782,26 @@ export const generateProjectSummaryPDF = (project: Project): void => {
           color: #999;
           text-align: center;
         }
+
+        .comments-section {
+          page-break-before: always;
+          margin-top: 40px;
+        }
+
+        .comment-item {
+          margin-bottom: 15px;
+          padding: 10px;
+          background-color: #f9f9f9;
+          border-left: 3px solid #1e40af;
+        }
+
+        .comment-text {
+          color: #333;
+          font-size: 14px;
+          line-height: 1.5;
+          word-wrap: break-word;
+          white-space: pre-wrap;
+        }
         
         @media print {
           body {
@@ -788,6 +812,10 @@ export const generateProjectSummaryPDF = (project: Project): void => {
           .container {
             box-shadow: none;
             padding: 0;
+          }
+
+          .comments-section {
+            page-break-before: always;
           }
           
           .no-print {
@@ -842,6 +870,23 @@ export const generateProjectSummaryPDF = (project: Project): void => {
             </div>
           </div>
         </div>
+        ${
+          comments.length > 0
+            ? `
+        <div class="section comments-section">
+          <div class="section-title">${escapeHtmlForSummary(commentsTitle)}</div>
+          ${comments
+            .map(
+              (comment) =>
+                `<div class="comment-item"><div class="comment-text">${escapeHtmlForSummary(
+                  comment.text,
+                )}</div></div>`,
+            )
+            .join("")}
+        </div>
+        `
+            : ""
+        }
         
         <div class="footer">
           <p>Tämä dokumentti on luotu automaattisesti järjestelmästä.</p>
@@ -867,7 +912,8 @@ export const generateProjectSummaryPDF = (project: Project): void => {
 /**
  * Escape HTML-merkkejä turvallisuuden vuoksi
  */
-const escapeHtmlForSummary = (text: string): string => {
+const escapeHtmlForSummary = (text?: string | null): string => {
+  if (!text) return "";
   const map: { [key: string]: string } = {
     "&": "&amp;",
     "<": "&lt;",
