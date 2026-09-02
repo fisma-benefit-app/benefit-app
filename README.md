@@ -492,7 +492,7 @@ This project is built with:
 
 <!-- GETTING STARTED -->
 
-## Getting Started with Development
+## Setting up Development Environment
 
 This guide explains how to set up the Benefit App locally for development.
 
