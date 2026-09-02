@@ -46,7 +46,13 @@ VALUES  (1, 1, 1),
         (2, 2, 1),
         (3, 3, 1);
 
+INSERT INTO comments (id, text, project_id)
+VALUES  (1, 'This is a comment for project-x', 1),
+        (2, 'This is a comment for test-project', 2),
+        (3, 'This is a comment for users another project', 3);
+
 SELECT setval('app_users_id_seq', (SELECT MAX(id) FROM app_users));
 SELECT setval('projects_id_seq', (SELECT MAX(id) FROM projects));
 SELECT setval('functional_components_id_seq', (SELECT MAX(id) FROM functional_components));
 SELECT setval('projects_app_users_id_seq', (SELECT MAX(id) FROM projects_app_users));
+SELECT setval('comments_id_seq', (SELECT MAX(id) FROM comments));
