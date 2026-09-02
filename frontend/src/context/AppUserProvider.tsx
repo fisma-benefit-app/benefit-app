@@ -2,6 +2,8 @@ import { ReactNode, useEffect, useState } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
 import { decodeJWT } from "../lib/jwtUtils";
+import { useAlert } from "./AlertProvider";
+import useTranslations from "../hooks/useTranslations";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,6 +16,9 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
+
+  const { showNotification } = useAlert();
+  const translation = useTranslations().alert;
 
   const logout = async () => {
     setLoadingAuth(true);
@@ -95,6 +100,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     const expirationTime = decoded.exp * 1000; // convert to milliseconds
     const timeUntilExpiration = expirationTime - Date.now();
 
+    //auto logout after token expires
     if (timeUntilExpiration <= 0) {
       logout().catch((error) => {
         console.error("Error during immediate logout:", error);
@@ -117,7 +123,31 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       logout();
     }, timeUntilExpiration);
 
-    return () => clearTimeout(timeoutId);
+    const SESSION_WARNING_THRESHOLD_MS = 15000;
+    const timeUntilWarning = timeUntilExpiration - SESSION_WARNING_THRESHOLD_MS;
+
+    const showSessionWarning = () => {
+      showNotification(
+        "session",
+        translation.sessionAboutToExpire,
+        "error", // "error" type doesn't auto-dismiss, so it stays visible
+        "session-expiring",
+      );
+    };
+
+    let warningTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    if (timeUntilWarning <= 0) {
+      // We're already within 15s of expiry when this effect runs
+      showSessionWarning();
+    } else {
+      warningTimeoutId = setTimeout(showSessionWarning, timeUntilWarning);
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (warningTimeoutId) clearTimeout(warningTimeoutId);
+    } 
   }, [sessionToken]);
 
   return (

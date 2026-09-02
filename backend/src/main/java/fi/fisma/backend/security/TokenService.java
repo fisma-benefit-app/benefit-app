@@ -31,7 +31,7 @@ public class TokenService {
    */
   public String generateToken(Authentication authentication) {
     Instant now = Instant.now();
-    long expiry = 86400L; // 24 hours
+    long expiry = 30L; // 24 hours
     String jti = UUID.randomUUID().toString();
     // @formatter:off
     String scope =
