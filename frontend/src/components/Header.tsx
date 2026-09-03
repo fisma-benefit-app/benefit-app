@@ -78,25 +78,9 @@ const Header = () => {
     setMobileMenuOpen(false);
   };
 
-  // Try logout from appUserProvider, if it fails, force the logout (user should always be able to log out).
-  // if the token is corrupted/expired, it doesn't need to be blacklisted so forcing the logout without it is ok.
   const tryLogout = async () => {
-    try {
-      await logout();
-    } catch (error: unknown) {
-      // Reset session storage
-      sessionStorage.removeItem("loginToken");
-      sessionStorage.removeItem("userInfo");
-      sessionStorage.removeItem("userId");
-
-      // Reset app state
-      setSessionToken(null);
-      setAppUser(null);
-      setLoggedIn(false);
-
-      //Navigate to login page
-      navigate("/");
-    }
+    await logout();
+    navigate("/");
   };
 
   return (
@@ -151,9 +135,8 @@ const Header = () => {
                     </span>
                     <FontAwesomeIcon
                       icon={faChevronDown}
-                      className={`text-xs transition-transform ${
-                        isUserDropdownOpen ? "rotate-180" : ""
-                      }`}
+                      className={`text-xs transition-transform ${isUserDropdownOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
