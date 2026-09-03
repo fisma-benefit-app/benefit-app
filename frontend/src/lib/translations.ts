@@ -261,7 +261,8 @@ export const translations = {
       deleting: "Deleting...",
       deleteSuccessful: "Functional component deleted",
       deleteFailed: "Failed to delete functional component",
-      sessionAboutToExpire: "Your session expires in 30 minutes!"
+      sessionExpirationDescription: "Your session expires in {minutes} minute(s)",
+      sessionExpirationHeader: "Session"
     },
     profilePage: {
       header: "Profile",
@@ -557,7 +558,8 @@ export const translations = {
       deleting: "Poistetaan...",
       deleteSuccessful: "Toiminnallinen komponentti poistettu",
       deleteFailed: "Toiminnallisen komponentin poistaminen epäonnistui",
-      sessionAboutToExpire: "Istuntosi vanhenee 30 minuutis kuluttua"
+      sessionExpirationHeader: "Istunto",
+      sessionExpirationDescription: "Istuntosi vanhenee {minutes} minuutin kuluttua"
     },
     profilePage: {
       header: "Profiili",

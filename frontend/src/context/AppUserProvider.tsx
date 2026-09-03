@@ -17,56 +17,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
-  const { showNotification } = useAlert();
+  const { showNotification, hideNotification } = useAlert();
   const translation = useTranslations().alert;
-
-  const logout = async () => {
-    setLoadingAuth(true);
-
-    if (!sessionToken)
-      throw new Error("User needs to be logged in to log out!");
-
-    // Send logout request to backend
-    const fetchURL = `${API_URL}/auth/logout`;
-    const headers = {
-      Authorization: sessionToken,
-    };
-
-    const response = await fetch(fetchURL, { method: "POST", headers });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        setLoadingAuth(false); //If the response is ok, stop loading --> not stuck in a loading loop
-        throw new Error("Unauthorized!");
-      } else {
-        setLoadingAuth(false);
-        throw new Error(`Error logging out! Status: ${response.status}`);
-      }
-    }
-
-    // Remove locally stored authentication data
-    sessionStorage.removeItem("loginToken");
-    sessionStorage.removeItem("userInfo");
-    sessionStorage.removeItem("userId");
-
-    // Reset app state
-    setSessionToken(null);
-    setAppUser(null);
-    setLoggedIn(false);
-
-    setLoadingAuth(false);
-  };
-
-  const appUserProviderValue: AppUserContextType = {
-    loadingAuth,
-    appUser,
-    loggedIn,
-    sessionToken,
-    setSessionToken,
-    setLoggedIn,
-    setAppUser,
-    logout,
-  };
 
   //get login data from the session storage when application is refreshed
   useEffect(() => {
@@ -88,6 +40,49 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     setLoadingAuth(false);
   }, []);
 
+  const clearLocalSession = () => {
+    sessionStorage.removeItem("loginToken");
+    sessionStorage.removeItem("userInfo");
+    sessionStorage.removeItem("userId");
+    setSessionToken(null);
+    setAppUser(null);
+    setLoggedIn(false);
+  };
+
+  const logout = async () => {
+    setLoadingAuth(true);
+    try {
+      if (sessionToken) {
+        const fetchURL = `${API_URL}/auth/logout`;
+        const headers = { Authorization: sessionToken };
+        await fetch(fetchURL, { method: "POST", headers });
+      }
+    } catch (err) {
+      console.error("Logout request failed, clearing session locally anyway:", err);
+    } finally {
+      clearLocalSession();
+      hideNotification("session-expiring");
+      setLoadingAuth(false);
+    }
+  };
+
+  const showSessionWarning = (expirationTime: number) => {
+    const getMinutesLeft = () => Math.max(0, Math.ceil((expirationTime - Date.now()) / 60000));
+
+    const updateSessionWarning = (minutesLeft: number) =>
+      translation.sessionExpirationDescription.replace(
+        "{minutes}",
+        String(minutesLeft),
+      );
+
+    showNotification(
+      translation.sessionExpirationHeader,
+      updateSessionWarning(getMinutesLeft()),
+      "error",
+      "session-expiring",
+    );
+  }
+
   useEffect(() => {
     if (!sessionToken) return;
 
@@ -97,58 +92,63 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       return;
     }
 
-    const expirationTime = decoded.exp * 1000; // convert to milliseconds
+    const expirationTime = decoded.exp * 1000;
     const timeUntilExpiration = expirationTime - Date.now();
 
-    //auto logout after token expires
     if (timeUntilExpiration <= 0) {
-      logout().catch((error) => {
-        console.error("Error during immediate logout:", error);
-        // Force logout without calling backend
-        sessionStorage.removeItem("loginToken");
-        sessionStorage.removeItem("userInfo");
-        sessionStorage.removeItem("userId");
-        setSessionToken(null);
-        setAppUser(null);
-        setLoggedIn(false);
-      });
+      logout();
       return;
     }
 
-    console.log(
-      `Setting auto-logout timeout for ${timeUntilExpiration}ms (${(timeUntilExpiration / 1000).toFixed(2)}s)`,
-    );
+    console.log(`Setting auto-logout timeout for ${timeUntilExpiration}ms (${(timeUntilExpiration / 1000).toFixed(2)}s)`);
 
     const timeoutId = setTimeout(() => {
       logout();
     }, timeUntilExpiration);
 
-    const SESSION_WARNING_THRESHOLD_MS = 15000;
-    const timeUntilWarning = timeUntilExpiration - SESSION_WARNING_THRESHOLD_MS;
+    const sessionWarningThreshhold = 30 * 60 * 1000;
+    const alertCountdownTick = 5 * 60 * 1000;
+    const timeUntilFirstWarning = timeUntilExpiration - sessionWarningThreshhold;
 
-    const showSessionWarning = () => {
-      showNotification(
-        "session",
-        translation.sessionAboutToExpire,
-        "error", // "error" type doesn't auto-dismiss, so it stays visible
-        "session-expiring",
-      );
+    let countdownIntervalId: number | undefined;
+
+    const startCountdown = () => {
+      showSessionWarning(expirationTime);
+
+      countdownIntervalId = setInterval(() => {
+        if (expirationTime - Date.now() <= 0) {
+          if (countdownIntervalId) clearInterval(countdownIntervalId);
+          return;
+        }
+        showSessionWarning(expirationTime);
+      }, alertCountdownTick);
     };
 
-    let warningTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    let warningTimeoutId: number | undefined;
 
-    if (timeUntilWarning <= 0) {
-      // We're already within 15s of expiry when this effect runs
-      showSessionWarning();
+    if (timeUntilFirstWarning <= 0) {
+      startCountdown();
     } else {
-      warningTimeoutId = setTimeout(showSessionWarning, timeUntilWarning);
+      warningTimeoutId = setTimeout(startCountdown, timeUntilFirstWarning);
     }
 
     return () => {
       clearTimeout(timeoutId);
       if (warningTimeoutId) clearTimeout(warningTimeoutId);
-    } 
-  }, [sessionToken]);
+      if (countdownIntervalId) clearInterval(countdownIntervalId);
+    }
+  }, [sessionToken, translation]);
+
+  const appUserProviderValue: AppUserContextType = {
+    loadingAuth,
+    appUser,
+    loggedIn,
+    sessionToken,
+    setSessionToken,
+    setLoggedIn,
+    setAppUser,
+    logout,
+  };
 
   return (
     <AppUserContext.Provider value={appUserProviderValue}>

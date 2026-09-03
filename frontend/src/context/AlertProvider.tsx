@@ -31,6 +31,7 @@ interface AlertContextType {
     message: string,
     type: NotificationType,
   ) => void;
+  hideNotification: (id: string) => void
 }
 
 const AlertContext = createContext<AlertContextType | null>(null);
@@ -97,7 +98,7 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <AlertContext.Provider value={{ showNotification, updateNotification }}>
+    <AlertContext.Provider value={{ showNotification, updateNotification, hideNotification }}>
       {children}
       <NotificationContainer />
     </AlertContext.Provider>

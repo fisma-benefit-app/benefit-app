@@ -31,6 +31,6 @@ public class TokenController {
     return ResponseEntity.ok()
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
         .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
-        .body(new TokenResponse(token, "Bearer", 30L));
+        .body(new TokenResponse(token, "Bearer", 86400L));
   }
 }
