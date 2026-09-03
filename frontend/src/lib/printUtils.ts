@@ -651,14 +651,19 @@ export const generateOverviewPDF = (
   const previousComponents = previousProject
     ? getAllComponents(previousProject.functionalComponents)
     : [];
-  const previousById = new Map(previousComponents.map((component) => [component.id, component]));
+  const previousById = new Map(
+    previousComponents.map((component) => [component.id, component]),
+  );
   const formatNumber = (value: number) => value.toFixed(2);
   const delta = (current: number, previous?: number) => {
     if (previous === undefined || current === previous) return "";
     const difference = current - previous;
     return ` <span class="delta">(${difference >= 0 ? "+" : ""}${formatNumber(difference)})</span>`;
   };
-  const value = (current: string | number | null | undefined, previous?: string | number | null) => {
+  const value = (
+    current: string | number | null | undefined,
+    previous?: string | number | null,
+  ) => {
     const currentText = current == null ? "" : String(current);
     const previousText = previous == null ? "" : String(previous);
     return currentText === previousText
@@ -671,7 +676,10 @@ export const generateOverviewPDF = (
     allComponents.map((component) => [component.id, pointValue(component)]),
   );
   const previousPoints = new Map(
-    previousComponents.map((component) => [component.id, pointValue(component)]),
+    previousComponents.map((component) => [
+      component.id,
+      pointValue(component),
+    ]),
   );
   const totalPoints = allComponents.reduce(
     (sum, component) => sum + currentPoints.get(component.id)!,
@@ -695,23 +703,26 @@ export const generateOverviewPDF = (
       const typeKey = `componentType:${componentType}`;
       previousGroupTotals.set(
         classKey,
-        (previousGroupTotals.get(classKey) || 0) + previousPoints.get(component.id)!,
+        (previousGroupTotals.get(classKey) || 0) +
+          previousPoints.get(component.id)!,
       );
       previousGroupTotals.set(
         typeKey,
-        (previousGroupTotals.get(typeKey) || 0) + previousPoints.get(component.id)!,
+        (previousGroupTotals.get(typeKey) || 0) +
+          previousPoints.get(component.id)!,
       );
     });
   }
-  const componentRows = allComponents.map((component) => {
-    const previous = component.previousFCId
-      ? previousById.get(component.previousFCId)
-      : undefined;
-    const componentPointValue = currentPoints.get(component.id)!;
-    const previousPointValue = previous
-      ? previousPoints.get(previous.id)
-      : undefined;
-    return `<tr>
+  const componentRows = allComponents
+    .map((component) => {
+      const previous = component.previousFCId
+        ? previousById.get(component.previousFCId)
+        : undefined;
+      const componentPointValue = currentPoints.get(component.id)!;
+      const previousPointValue = previous
+        ? previousPoints.get(previous.id)
+        : undefined;
+      return `<tr>
       <td>${value(component.title, previous?.title)}</td>
       <td>${value(classNameTranslation[component.className] || component.className, previous?.className ? classNameTranslation[previous.className] || previous.className : previous?.className)}</td>
       <td>${value(componentTypeTranslation[component.componentType || ""] || component.componentType, previous?.componentType ? componentTypeTranslation[previous.componentType] || previous.componentType : previous?.componentType)}</td>
@@ -721,82 +732,92 @@ export const generateOverviewPDF = (
       <td>${formatNumber(componentPointValue)}${delta(componentPointValue, previousPointValue)}</td>
       <td>${value(component.degreeOfCompletion, previous?.degreeOfCompletion)}</td>
     </tr>`;
-  }).join("");
+    })
+    .join("");
   const grouped = (key: "className" | "componentType") => {
     const groups = new Map<string, TGenericComponent[]>();
     allComponents.forEach((component) => {
       const rawGroup = component[key] || "Unspecified";
-      const group = key === "className"
-        ? classNameTranslation[rawGroup] || rawGroup
-        : componentTypeTranslation[rawGroup] || rawGroup;
+      const group =
+        key === "className"
+          ? classNameTranslation[rawGroup] || rawGroup
+          : componentTypeTranslation[rawGroup] || rawGroup;
       groups.set(group, [...(groups.get(group) || []), component]);
     });
-    return [...groups.entries()].map(([name, components]) => {
-      const previousGroupTotal = previousProject
-        ? previousGroupTotals.get(`${key}:${name}`) || 0
-        : undefined;
-      const total = components.reduce((sum, component) => sum + currentPoints.get(component.id)!, 0);
-      return `<tr><td>${escapeHtmlForSummary(name)}</td><td>${components.length}</td><td>${formatNumber(total)}${delta(total, previousGroupTotal)}</td></tr>`;
-    }).join("");
+    return [...groups.entries()]
+      .map(([name, components]) => {
+        const previousGroupTotal = previousProject
+          ? previousGroupTotals.get(`${key}:${name}`) || 0
+          : undefined;
+        const total = components.reduce(
+          (sum, component) => sum + currentPoints.get(component.id)!,
+          0,
+        );
+        return `<tr><td>${escapeHtmlForSummary(name)}</td><td>${components.length}</td><td>${formatNumber(total)}${delta(total, previousGroupTotal)}</td></tr>`;
+      })
+      .join("");
   };
   const layers = calculateMLALayerDetails(project.functionalComponents);
   const messages = calculateMLAMessageCounts(project.functionalComponents);
   const reportDate = project.calculationDate
     ? project.calculationDate.split("-").reverse().join(".")
     : "";
-  const labels = language === "fi"
-    ? {
-        calculation: "Toiminnallisen koon laskenta",
-        total: "Kokonaislaajuus",
-        uiLayer: "Käyttöliittymäkerros",
-        businessLayer: "Välikerros",
-        databaseLayer: "Tietovarastokerros",
-        interfaces: "liittymää",
-        functions: "toimintoa",
-        concepts: "käsitettä",
-        actions: "Toiminnot",
-        feature: "Toiminnon nimi",
-        functionClass: "Toimintoluokka",
-        functionType: "Toimintotyyppi",
-        dataElements: "Tietoelementit",
-        readingReferences: "Lukuviittaukset",
-        writingReferences: "Kirjoitusviittaukset",
-        actionPoints: "Toimintopisteet",
-        completion: "Valmistumisaste",
-        aggregates: "Koosteet ja tärkeät muutokset",
-        classAggregate: "Toimintoluokat",
-        typeAggregate: "Toimintotyypit",
-        count: "Lukumäärä",
-        explanation: "Laskennan selitys ja tärkeät muutokset",
-        noFunctions: "Ei laskettavia toimintoja",
-        changed: "Muuttuneet arvot on korostettu. Suluissa oleva luku kertoo eron edelliseen versioon.",
-      }
-    : {
-        calculation: "Functional size calculation",
-        total: "Total size",
-        uiLayer: "User interface layer",
-        businessLayer: "Business layer",
-        databaseLayer: "Data storage layer",
-        interfaces: "interfaces",
-        functions: "functions",
-        concepts: "concepts",
-        actions: "Activities",
-        feature: "Feature name",
-        functionClass: "Function class",
-        functionType: "Function type",
-        dataElements: "Data elements",
-        readingReferences: "Reading references",
-        writingReferences: "Writing references",
-        actionPoints: "Action points",
-        completion: "Degree of completion",
-        aggregates: "Aggregates and important changes",
-        classAggregate: "Function classes",
-        typeAggregate: "Function types",
-        count: "Count",
-        explanation: "Calculation explanation and important changes",
-        noFunctions: "No calculable activities",
-        changed: "Changed values are highlighted. The number in parentheses shows the difference from the previous version.",
-      };
+  const labels =
+    language === "fi"
+      ? {
+          calculation: "Toiminnallisen koon laskenta",
+          total: "Kokonaislaajuus",
+          uiLayer: "Käyttöliittymäkerros",
+          businessLayer: "Välikerros",
+          databaseLayer: "Tietovarastokerros",
+          interfaces: "liittymää",
+          functions: "toimintoa",
+          concepts: "käsitettä",
+          actions: "Toiminnot",
+          feature: "Toiminnon nimi",
+          functionClass: "Toimintoluokka",
+          functionType: "Toimintotyyppi",
+          dataElements: "Tietoelementit",
+          readingReferences: "Lukuviittaukset",
+          writingReferences: "Kirjoitusviittaukset",
+          actionPoints: "Toimintopisteet",
+          completion: "Valmistumisaste",
+          aggregates: "Koosteet ja tärkeät muutokset",
+          classAggregate: "Toimintoluokat",
+          typeAggregate: "Toimintotyypit",
+          count: "Lukumäärä",
+          explanation: "Laskennan selitys ja tärkeät muutokset",
+          noFunctions: "Ei laskettavia toimintoja",
+          changed:
+            "Muuttuneet arvot on korostettu. Suluissa oleva luku kertoo eron edelliseen versioon.",
+        }
+      : {
+          calculation: "Functional size calculation",
+          total: "Total size",
+          uiLayer: "User interface layer",
+          businessLayer: "Business layer",
+          databaseLayer: "Data storage layer",
+          interfaces: "interfaces",
+          functions: "functions",
+          concepts: "concepts",
+          actions: "Activities",
+          feature: "Feature name",
+          functionClass: "Function class",
+          functionType: "Function type",
+          dataElements: "Data elements",
+          readingReferences: "Reading references",
+          writingReferences: "Writing references",
+          actionPoints: "Action points",
+          completion: "Degree of completion",
+          aggregates: "Aggregates and important changes",
+          classAggregate: "Function classes",
+          typeAggregate: "Function types",
+          count: "Count",
+          explanation: "Calculation explanation and important changes",
+          noFunctions: "No calculable activities",
+          changed:
+            "Changed values are highlighted. The number in parentheses shows the difference from the previous version.",
+        };
   const pointUnit = language === "fi" ? "TP" : "FP";
   const year = project.calculationDate?.slice(0, 4) || new Date().getFullYear();
   const filename = `${project.projectName}-Toiminnallisen-laajuuden-yhteenveto-${project.version}-${year}.pdf`;
@@ -814,7 +835,10 @@ export const generateOverviewPDF = (
   printWindow.document.close();
   printWindow.document.title = filename;
   printWindow.focus();
-  setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 250);
 };
 
 /**

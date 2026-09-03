@@ -159,9 +159,8 @@ export default function FunctionalClassComponent({
       ...component,
       componentType: newOptionType,
     };
-    const isMlaEligible = isMultiLayerArchitectureComponent(
-      componentWithNewType,
-    );
+    const isMlaEligible =
+      isMultiLayerArchitectureComponent(componentWithNewType);
 
     const updatedComponent = {
       ...componentWithNewType,
@@ -457,9 +456,7 @@ export default function FunctionalClassComponent({
                     type="checkbox"
                     className="w-4 h-4"
                     checked={component.isMLA}
-                    disabled={
-                      !isMlaEligible || !isLatest
-                    }
+                    disabled={!isMlaEligible || !isLatest}
                     onChange={handleMLAChange}
                   />
                 )}

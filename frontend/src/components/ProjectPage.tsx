@@ -170,7 +170,9 @@ export default function ProjectPage() {
   const [commentText, setCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState("");
-  const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(null);
+  const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(
+    null,
+  );
   const [comments, setComments] = useState<
     Array<{ id: number; text: string; projectId: number }>
   >([]);
@@ -188,7 +190,10 @@ export default function ProjectPage() {
     if (!sessionToken) return;
     setCommentsLoading(true);
     try {
-      const projectComments = await fetchProjectComments(sessionToken, projectId);
+      const projectComments = await fetchProjectComments(
+        sessionToken,
+        projectId,
+      );
       setComments(projectComments);
     } catch (error) {
       console.error("Failed to load project comments", error);
@@ -214,7 +219,10 @@ export default function ProjectPage() {
     }
   };
 
-  const handleStartEditingComment = (commentId: number, existingText: string) => {
+  const handleStartEditingComment = (
+    commentId: number,
+    existingText: string,
+  ) => {
     setEditingCommentId(commentId);
     setEditingText(existingText);
   };
@@ -455,12 +463,10 @@ export default function ProjectPage() {
               (a: TGenericComponent, b: TGenericComponent) =>
                 a.orderPosition - b.orderPosition,
             )
-            .map(
-              (c: TGenericComponent, idx: number): NormalizedComponent => ({
-                ...c,
-                orderPosition: idx,
-              }),
-            );
+            .map((c: TGenericComponent, idx: number): NormalizedComponent => ({
+              ...c,
+              orderPosition: idx,
+            }));
 
         setProject({ ...projectFromDb, functionalComponents: normalized });
         setReportContactDetails(projectFromDb.reportContactDetails ?? "");
@@ -1002,7 +1008,9 @@ export default function ProjectPage() {
 
               {commentsOpen && project && (
                 <div className="mt-3 border border-gray-300 p-3 bg-gray-50 rounded">
-                  <div className="mb-2 text-sm font-medium">{translation.commentsTitle}</div>
+                  <div className="mb-2 text-sm font-medium">
+                    {translation.commentsTitle}
+                  </div>
 
                   {!isLatest && (
                     <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
@@ -1011,9 +1019,13 @@ export default function ProjectPage() {
                   )}
 
                   {commentsLoading ? (
-                    <div className="text-xs text-gray-500">{alertTranslation.loading}</div>
+                    <div className="text-xs text-gray-500">
+                      {alertTranslation.loading}
+                    </div>
                   ) : comments.length === 0 ? (
-                    <div className="text-xs text-gray-500">{translation.noCommentsYet}</div>
+                    <div className="text-xs text-gray-500">
+                      {translation.noCommentsYet}
+                    </div>
                   ) : (
                     <ul className="space-y-2 text-sm">
                       {comments.map((comment) => (
@@ -1025,7 +1037,9 @@ export default function ProjectPage() {
                             <div className="space-y-2">
                               <textarea
                                 value={editingText}
-                                onChange={(event) => setEditingText(event.target.value)}
+                                onChange={(event) =>
+                                  setEditingText(event.target.value)
+                                }
                                 rows={3}
                                 className="w-full border border-gray-300 p-2 text-sm"
                               />
@@ -1047,19 +1061,26 @@ export default function ProjectPage() {
                             </div>
                           ) : (
                             <div className="space-y-2">
-                              <div className="whitespace-pre-wrap break-words">{comment.text}</div>
+                              <div className="whitespace-pre-wrap break-words">
+                                {comment.text}
+                              </div>
                               {isLatest && (
                                 <div className="flex justify-end gap-2">
                                   <button
                                     onClick={() =>
-                                      handleStartEditingComment(comment.id, comment.text)
+                                      handleStartEditingComment(
+                                        comment.id,
+                                        comment.text,
+                                      )
                                     }
                                     className="text-xs text-fisma-blue underline"
                                   >
                                     {translation.edit}
                                   </button>
                                   <button
-                                    onClick={() => setCommentToDeleteId(comment.id)}
+                                    onClick={() =>
+                                      setCommentToDeleteId(comment.id)
+                                    }
                                     className="text-xs text-red-600 underline"
                                   >
                                     {translation.delete}
@@ -1169,7 +1190,10 @@ export default function ProjectPage() {
         />
 
         <ConfirmModal
-          message={translation.deleteCommentConfirmation ?? "Are you sure you want to delete the comment?"}
+          message={
+            translation.deleteCommentConfirmation ??
+            "Are you sure you want to delete the comment?"
+          }
           open={commentToDeleteId !== null}
           setOpen={() => setCommentToDeleteId(null)}
           onConfirm={() => {

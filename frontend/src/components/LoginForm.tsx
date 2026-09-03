@@ -51,7 +51,11 @@ export default function LoginForm() {
       if (err instanceof Error) {
         console.error("Login failed:", err.message);
         // Display the actual error message via modal
-        showError(errorMessageTranslation[err.message as keyof typeof errorMessageTranslation]);
+        showError(
+          errorMessageTranslation[
+            err.message as keyof typeof errorMessageTranslation
+          ],
+        );
       } else {
         console.error("Unknown error");
         showError(translation.errorMessage);

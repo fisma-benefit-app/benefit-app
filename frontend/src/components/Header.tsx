@@ -135,8 +135,9 @@ const Header = () => {
                     </span>
                     <FontAwesomeIcon
                       icon={faChevronDown}
-                      className={`text-xs transition-transform ${isUserDropdownOpen ? "rotate-180" : ""
-                        }`}
+                      className={`text-xs transition-transform ${
+                        isUserDropdownOpen ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 
