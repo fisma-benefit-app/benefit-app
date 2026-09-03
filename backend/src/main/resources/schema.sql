@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS projects
     created_at          TIMESTAMP(0) NOT NULL,
     version_created_at  TIMESTAMP(0) NOT NULL,
     calculation_date    DATE,
+    report_contact_details VARCHAR(2000),
+    report_notes        VARCHAR(5000),
     updated_at          TIMESTAMP(0),
     deleted_at          TIMESTAMP(0)
 );

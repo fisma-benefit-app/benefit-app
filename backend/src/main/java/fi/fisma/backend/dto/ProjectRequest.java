@@ -29,6 +29,14 @@ public class ProjectRequest {
   @Schema(description = "Calculation date of the project", example = "2026-04-08")
   private LocalDate calculationDate;
 
+  @Size(max = 2000, message = "Report contact details must not exceed 2000 characters")
+  @Schema(description = "Optional contact details printed on the report")
+  private String reportContactDetails;
+
+  @Size(max = 5000, message = "Report notes must not exceed 5000 characters")
+  @Schema(description = "Optional calculation notes printed on the report")
+  private String reportNotes;
+
   @Schema(description = "List of user IDs to associate with the project")
   private Set<Long> projectAppUserIds = new HashSet<>();
 }
