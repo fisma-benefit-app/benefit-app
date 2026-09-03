@@ -457,7 +457,7 @@ These are excluded because they do not directly provide new functionality to the
 
 ### northernSCOPE™ Concept
 
-The [northernSCOPE™](https://www.fisma.fi/wp-content/uploads/2022/01/northernscope-brochure-v152.pdf) concept is a framework developed and provided by FiSMA to support the application of function point analysis in software projects.
+The [northernSCOPE™](https://www.fisma.fi/media/northernscope-brochure-v152.pdf) concept is a framework developed and provided by FiSMA to support the application of function point analysis in software projects.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
