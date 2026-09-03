@@ -119,6 +119,10 @@ Database migrations are manual. See (/backend/src/main/resources/migrations/).
 - Database credentials available in Heroku Config Vars
 - Heroku backend URLs set up in GitHub Actions repository secrets: HEROKU_PRODUCTION_URL and HEROKU_TESTING_URL ( URL values can be found in the [backend-credentials repository](https://github.com/fisma-benefit-app/backend-credentials))
 
+#### Automatic deployments:
+
+Testing deployments run automatically after each merge to `main`. Production deployments are initiated from Heroku and then run automatically via GitHub Actions.
+
 #### Manual deployments:
 
 - manual backend deployments to Heroku are done in Heroku dashboard
