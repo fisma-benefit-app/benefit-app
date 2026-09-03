@@ -158,11 +158,18 @@ export default function FunctionalClassComponent({
     const updatedComponent = {
       ...component,
       componentType: newOptionType,
-      isMLA:
-        isMultiLayerArchitectureComponent({
-          ...component,
-          componentType: newOptionType,
-        }) && component.isMLA, // isMLA is preserved only if both the new component type is eligible AND it was previously true.
+      isMLA: isMultiLayerArchitectureComponent({
+        ...component,
+        componentType: newOptionType,
+      })
+        ? component.isMLA
+        : false,
+      subComponents: isMultiLayerArchitectureComponent({
+        ...component,
+        componentType: newOptionType,
+      })
+        ? component.subComponents
+        : undefined,
     };
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>

@@ -9,7 +9,7 @@ import {
   createFunctionalComponent,
   deleteFunctionalComponent,
 } from "../api/project.ts";
-import { generateProjectSummaryPDF } from "../lib/printUtils.ts";
+import { generateOverviewPDF } from "../lib/printUtils.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
@@ -157,6 +157,8 @@ export default function ProjectPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [projectResponse, setProjectResponse] =
     useState<ProjectResponse | null>(null);
+  const [reportContactDetails, setReportContactDetails] = useState("");
+  const [reportNotes, setReportNotes] = useState("");
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -174,7 +176,8 @@ export default function ProjectPage() {
   >([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
 
-  const translation = useTranslations().projectPage;
+  const translations = useTranslations();
+  const translation = translations.projectPage;
   const alertTranslation = useTranslations().alert;
   const { language } = useLanguage();
 
@@ -262,10 +265,16 @@ export default function ProjectPage() {
   const handlePrintProjectSummaryPDF = () => {
     if (!project) return;
 
-    generateProjectSummaryPDF(
+    const previousProject = allProjectVersions
+      .filter((version) => version.version < project.version)
+      .sort((a, b) => b.version - a.version)[0];
+
+    generateOverviewPDF(
       project,
-      comments,
-      translation.commentsTitle,
+      previousProject,
+      language,
+      translations.functionalClassComponent.classNameOptions,
+      translations.functionalClassComponent.componentTypeOptions,
     );
   };
 
@@ -454,6 +463,8 @@ export default function ProjectPage() {
             );
 
         setProject({ ...projectFromDb, functionalComponents: normalized });
+        setReportContactDetails(projectFromDb.reportContactDetails ?? "");
+        setReportNotes(projectFromDb.reportNotes ?? "");
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
@@ -621,9 +632,13 @@ export default function ProjectPage() {
     }
   };
 
-  const saveProject = async (showNotif: boolean = true) => {
+  const saveProject = async (
+    showNotif: boolean = true,
+    projectToSave?: Project,
+  ) => {
     isManuallySaved.current = true;
-    if (project) {
+    const currentProject = projectToSave ?? project;
+    if (currentProject) {
       if (showNotif) {
         showNotification(
           alertTranslation.save,
@@ -633,19 +648,30 @@ export default function ProjectPage() {
         );
       }
       try {
-        const normalized = project.functionalComponents
+        const normalized = currentProject.functionalComponents
           .slice()
           .sort((a, b) => a.orderPosition - b.orderPosition)
           .map((c, idx) => ({ ...c, orderPosition: idx }));
 
         const editedProject = {
-          ...project,
+          ...currentProject,
           functionalComponents: normalized,
           updatedAt: CreateCurrentDate(),
         };
 
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
+        if (projectToSave) {
+          setProject((current) =>
+            current
+              ? {
+                  ...current,
+                  reportContactDetails: savedProject.reportContactDetails,
+                  reportNotes: savedProject.reportNotes,
+                }
+              : current,
+          );
+        }
 
         if (showNotif) {
           updateNotification(
@@ -675,6 +701,16 @@ export default function ProjectPage() {
     } else {
       isManuallySaved.current = false;
     }
+  };
+
+  const saveReportInformation = async () => {
+    if (!project || !isLatest) return;
+
+    await saveProject(true, {
+      ...project,
+      reportContactDetails,
+      reportNotes,
+    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -830,7 +866,7 @@ export default function ProjectPage() {
                     disabled={loadingProject}
                   >
                     <FontAwesomeIcon icon={faFilePdf} />
-                    {translation.printPDF}
+                    {translation.overviewSummaryReport}
                   </button>
                 </div>
               ) : (
@@ -875,6 +911,46 @@ export default function ProjectPage() {
                   disabled={!isLatest || loadingProject}
                   isClearable
                 />
+              </div>
+
+              <div className="mt-2">
+                <label className="text-left font-medium">
+                  {translation.reportContactDetails}
+                </label>
+                <textarea
+                  value={reportContactDetails}
+                  onChange={(event) => {
+                    setReportContactDetails(event.target.value);
+                  }}
+                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
+                  rows={3}
+                  maxLength={2000}
+                  disabled={!isLatest || loadingProject}
+                />
+              </div>
+
+              <div className="mt-2">
+                <label className="text-left font-medium">
+                  {translation.reportNotes}
+                </label>
+                <textarea
+                  value={reportNotes}
+                  onChange={(event) => {
+                    setReportNotes(event.target.value);
+                  }}
+                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
+                  rows={5}
+                  maxLength={5000}
+                  disabled={!isLatest || loadingProject}
+                />
+                <button
+                  type="button"
+                  className="mt-2 bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white text-xs py-2 px-4"
+                  onClick={saveReportInformation}
+                  disabled={!isLatest || loadingProject}
+                >
+                  {translation.saveReportInformation}
+                </button>
               </div>
 
               <label

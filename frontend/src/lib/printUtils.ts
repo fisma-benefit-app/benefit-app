@@ -1,10 +1,13 @@
 import { CommentResponse, Project, TGenericComponent } from "./types";
 import {
   calculateComponentPointsWithMultiplier,
+  calculateComponentPoints,
   calculateTotalPoints,
   calculateTotalPossiblePoints,
   calculateBasePoints,
   calculateComponentsWithPoints,
+  calculateMLALayerDetails,
+  calculateMLAMessageCounts,
 } from "./centralizedCalculations.ts";
 
 export const convertToCSV = (
@@ -216,16 +219,6 @@ const dateLocalizer = (insertedDate: string) => {
     .replace("klo", "");
 };
 
-const dateOnlyLocalizer = (insertedDate?: string | null) => {
-  if (!insertedDate) return null;
-
-  return new Date(`${insertedDate}T00:00:00`).toLocaleDateString("fi-FI", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-};
-
 // Calculation functions moved to centralizedCalculations.ts
 
 const getAllComponents = (
@@ -234,7 +227,7 @@ const getAllComponents = (
   return components.flatMap((comp) => [comp, ...(comp.subComponents || [])]);
 };
 
-export const createPdf = (
+export const generateCalculationReportPDF = (
   project: Project,
   oldProject: Project,
   printUtilsTranslation: Record<string, string> = {},
@@ -645,6 +638,168 @@ export const createPdf = (
   doc.close();
   printingWindow.print();
   setTimeout(() => printingWindow.close(), 500);
+};
+
+export const generateOverviewPDF = (
+  project: Project,
+  previousProject?: Project,
+  language: "fi" | "en" = "fi",
+  classNameTranslation: Record<string, string> = {},
+  componentTypeTranslation: Record<string, string> = {},
+): void => {
+  const allComponents = getAllComponents(project.functionalComponents);
+  const previousComponents = previousProject
+    ? getAllComponents(previousProject.functionalComponents)
+    : [];
+  const previousById = new Map(previousComponents.map((component) => [component.id, component]));
+  const formatNumber = (value: number) => value.toFixed(2);
+  const delta = (current: number, previous?: number) => {
+    if (previous === undefined || current === previous) return "";
+    const difference = current - previous;
+    return ` <span class="delta">(${difference >= 0 ? "+" : ""}${formatNumber(difference)})</span>`;
+  };
+  const value = (current: string | number | null | undefined, previous?: string | number | null) => {
+    const currentText = current == null ? "" : String(current);
+    const previousText = previous == null ? "" : String(previous);
+    return currentText === previousText
+      ? escapeHtmlForSummary(currentText)
+      : `<strong class="changed">${escapeHtmlForSummary(currentText)}</strong>`;
+  };
+  const pointValue = (component: TGenericComponent) =>
+    calculateComponentPoints(component);
+  const currentPoints = new Map(
+    allComponents.map((component) => [component.id, pointValue(component)]),
+  );
+  const previousPoints = new Map(
+    previousComponents.map((component) => [component.id, pointValue(component)]),
+  );
+  const totalPoints = allComponents.reduce(
+    (sum, component) => sum + currentPoints.get(component.id)!,
+    0,
+  );
+  const previousTotalPoints = previousProject
+    ? previousComponents.reduce(
+        (sum, component) => sum + previousPoints.get(component.id)!,
+        0,
+      )
+    : undefined;
+  const componentRows = allComponents.map((component) => {
+    const previous = component.previousFCId
+      ? previousById.get(component.previousFCId)
+      : undefined;
+    const componentPointValue = currentPoints.get(component.id)!;
+    const previousPointValue = previous
+      ? previousPoints.get(previous.id)
+      : undefined;
+    return `<tr>
+      <td>${value(component.title, previous?.title)}</td>
+      <td>${value(classNameTranslation[component.className] || component.className, previous?.className ? classNameTranslation[previous.className] || previous.className : previous?.className)}</td>
+      <td>${value(componentTypeTranslation[component.componentType || ""] || component.componentType, previous?.componentType ? componentTypeTranslation[previous.componentType] || previous.componentType : previous?.componentType)}</td>
+      <td>${value(component.dataElements, previous?.dataElements)}</td>
+      <td>${value(component.readingReferences, previous?.readingReferences)}</td>
+      <td>${value(component.writingReferences, previous?.writingReferences)}</td>
+      <td>${formatNumber(componentPointValue)}${delta(componentPointValue, previousPointValue)}</td>
+      <td>${value(component.degreeOfCompletion, previous?.degreeOfCompletion)}</td>
+    </tr>`;
+  }).join("");
+  const grouped = (key: "className" | "componentType") => {
+    const groups = new Map<string, TGenericComponent[]>();
+    allComponents.forEach((component) => {
+      const rawGroup = component[key] || "Unspecified";
+      const group = key === "className"
+        ? classNameTranslation[rawGroup] || rawGroup
+        : componentTypeTranslation[rawGroup] || rawGroup;
+      groups.set(group, [...(groups.get(group) || []), component]);
+    });
+    return [...groups.entries()].map(([name, components]) => {
+      const previousGroupTotal = previousProject
+        ? previousComponents.filter((component) => {
+            const rawGroup = component[key] || "Unspecified";
+            const translatedGroup = key === "className"
+              ? classNameTranslation[rawGroup] || rawGroup
+              : componentTypeTranslation[rawGroup] || rawGroup;
+            return translatedGroup === name;
+          }).reduce((sum, component) => sum + pointValue(component), 0)
+        : undefined;
+      const total = components.reduce((sum, component) => sum + currentPoints.get(component.id)!, 0);
+      return `<tr><td>${escapeHtmlForSummary(name)}</td><td>${components.length}</td><td>${formatNumber(total)}${delta(total, previousGroupTotal)}</td></tr>`;
+    }).join("");
+  };
+  const layers = calculateMLALayerDetails(project.functionalComponents);
+  const messages = calculateMLAMessageCounts(project.functionalComponents);
+  const reportDate = project.calculationDate
+    ? project.calculationDate.split("-").reverse().join(".")
+    : "";
+  const labels = language === "fi"
+    ? {
+        calculation: "Toiminnallisen koon laskenta",
+        total: "Kokonaislaajuus",
+        uiLayer: "Käyttöliittymäkerros",
+        businessLayer: "Välikerros",
+        databaseLayer: "Tietovarastokerros",
+        interfaces: "liittymää",
+        functions: "toimintoa",
+        concepts: "käsitettä",
+        actions: "Toiminnot",
+        feature: "Toiminnon nimi",
+        functionClass: "Toimintoluokka",
+        functionType: "Toimintotyyppi",
+        dataElements: "Tietoelementit",
+        readingReferences: "Lukuviittaukset",
+        writingReferences: "Kirjoitusviittaukset",
+        actionPoints: "Toimintopisteet",
+        completion: "Valmistumisaste",
+        aggregates: "Koosteet ja tärkeät muutokset",
+        classAggregate: "Toimintoluokat",
+        typeAggregate: "Toimintotyypit",
+        count: "Lukumäärä",
+        explanation: "Laskennan selitys ja tärkeät muutokset",
+        noFunctions: "Ei laskettavia toimintoja",
+        changed: "Muuttuneet arvot on korostettu. Suluissa oleva luku kertoo eron edelliseen versioon.",
+      }
+    : {
+        calculation: "Functional size calculation",
+        total: "Total size",
+        uiLayer: "User interface layer",
+        businessLayer: "Business layer",
+        databaseLayer: "Data storage layer",
+        interfaces: "interfaces",
+        functions: "functions",
+        concepts: "concepts",
+        actions: "Activities",
+        feature: "Feature name",
+        functionClass: "Function class",
+        functionType: "Function type",
+        dataElements: "Data elements",
+        readingReferences: "Reading references",
+        writingReferences: "Writing references",
+        actionPoints: "Action points",
+        completion: "Degree of completion",
+        aggregates: "Aggregates and important changes",
+        classAggregate: "Function classes",
+        typeAggregate: "Function types",
+        count: "Count",
+        explanation: "Calculation explanation and important changes",
+        noFunctions: "No calculable activities",
+        changed: "Changed values are highlighted. The number in parentheses shows the difference from the previous version.",
+      };
+  const year = project.calculationDate?.slice(0, 4) || new Date().getFullYear();
+  const filename = `${project.projectName}-Toiminnallisen-laajuuden-yhteenveto-${project.version}-${year}.pdf`;
+  const html = `<!doctype html><html lang="${language}"><head><meta charset="UTF-8"><title>${escapeHtmlForSummary(filename)}</title><style>
+    @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font:10px Arial,sans-serif;color:#202020;margin:0}.page{height:273mm;break-after:page;position:relative}.page:last-child{break-after:auto}h1{font-size:30px;line-height:1.2;color:#202020;margin:0 0 12mm}.report-date{display:block;font-size:22px;font-weight:normal;margin-top:4mm}h2{font-size:16px;color:#25205f;border-bottom:2px solid #25205f;padding-bottom:3px}table{width:100%;border-collapse:collapse;margin:5mm 0}th,td{border:1px solid #999;padding:3px;text-align:left;vertical-align:top}th{background:#e9e8ef;font-size:9px}.changed{color:#b00020}.delta{color:#087443;font-weight:bold;white-space:nowrap}.report-contact,.notes{white-space:pre-wrap;border:1px solid #999;padding:6mm;min-height:25mm}.footer{position:absolute;bottom:0;border:1px solid #333;padding:4mm;width:100%;font-size:9px}.architecture{text-align:center;margin:4mm auto 2mm;max-width:145mm}.architecture-total{font-size:16px;font-weight:bold;margin-bottom:5mm}.architecture-grid{display:grid;grid-template-columns:35mm 1fr 35mm;grid-template-rows:30mm 18mm 35mm 18mm 38mm;align-items:center;justify-items:center}.layer{width:62mm;min-height:30mm;border:1px solid #5b8cc5;background:linear-gradient(135deg,#b9d2ec,#75a6d5);padding:5mm;text-align:center;font-size:11px;display:flex;flex-direction:column;justify-content:center}.layer strong{font-size:14px}.layer-ui{grid-column:2;grid-row:1;border-radius:8mm}.layer-business{grid-column:2;grid-row:3;width:68mm;min-height:35mm}.layer-database{grid-column:2;grid-row:5;border-radius:50% / 15%;min-height:38mm}.junction{font-size:9px;border:1px solid #5b8cc5;background:#e5eff9;padding:2mm;width:27mm;position:relative}.junction::after{content:"";position:absolute;border:6mm solid transparent}.junction-up{grid-column:2;grid-row:2}.junction-up::after{border-bottom-color:#5b8cc5;top:-12mm;left:8mm}.junction-down{grid-column:2;grid-row:4}.junction-down::after{border-top-color:#5b8cc5;bottom:-12mm;left:8mm}.junction-left{grid-column:1;grid-row:3}.junction-left::after{border-left-color:#5b8cc5;right:-12mm;top:2mm}.junction-right{grid-column:3;grid-row:3}.junction-right::after{border-right-color:#5b8cc5;left:-12mm;top:2mm}.small{font-size:9px}
+    @media print{body{print-color-adjust:exact}.page{height:273mm}}
+  </style></head><body>
+    <section class="page"><h1>${escapeHtmlForSummary(project.projectName)} - ${language === "fi" ? "toiminnallisen laajuuden yhteenveto" : "functional size overview"}<span class="report-date">${reportDate}</span></h1><div class="report-contact">${escapeHtmlForSummary(project.reportContactDetails)}</div><div class="footer">FiSMA 1.1 Toiminnallisen koon mittaamisen menetelmä ISO/IEC 29881:2010</div></section>
+    <section class="page"><h2>${labels.calculation}</h2><div class="architecture"><div class="architecture-total">${labels.total} ${formatNumber(totalPoints)} FP${delta(totalPoints, previousTotalPoints)}</div><div class="architecture-grid"><div class="layer layer-ui">${labels.uiLayer}<strong>${layers.ui.points.toFixed(2)} FP</strong><span>${layers.ui.count} ${labels.functions}</span></div><div class="junction junction-up">${messages.uiToBusiness + messages.businessToUi} ${labels.interfaces}</div><div class="junction junction-left">${messages.uiToBusiness} ${labels.interfaces}<br>${language === "fi" ? "sisään" : "in"}</div><div class="layer layer-business">${labels.businessLayer}<strong>${layers.business.points.toFixed(2)} FP</strong><span>${language === "fi" ? "Algoritmiset toiminnot" : "Algorithmic activities"}</span></div><div class="junction junction-right">${messages.businessToUi} ${labels.interfaces}<br>${language === "fi" ? "ulos" : "out"}</div><div class="junction junction-down">${messages.businessToDatabase + messages.databaseToBusiness} ${labels.interfaces}</div><div class="layer layer-database">${labels.databaseLayer}<strong>${layers.database.points.toFixed(2)} FP</strong><span>${layers.database.count} ${labels.concepts}</span></div></div></div><h3>${labels.actions}</h3><table><thead><tr><th>${labels.feature}</th><th>${labels.functionClass}</th><th>${labels.functionType}</th><th>${labels.dataElements}</th><th>${labels.readingReferences}</th><th>${labels.writingReferences}</th><th>${labels.actionPoints}</th><th>${labels.completion}</th></tr></thead><tbody>${componentRows || `<tr><td colspan="8">${labels.noFunctions}</td></tr>`}</tbody></table></section>
+    <section class="page"><h2>${labels.aggregates}</h2><h3>${labels.classAggregate}</h3><table><thead><tr><th>${labels.functionClass}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("className")}</tbody></table><h3>${labels.typeAggregate}</h3><table><thead><tr><th>${labels.functionType}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("componentType")}</tbody></table><h3>${labels.explanation}</h3><div class="notes">${escapeHtmlForSummary(project.reportNotes)}</div><p class="small">${labels.changed}</p></section>
+  </body></html>`;
+  const printWindow = window.open("", "_blank", "width=1000,height=800");
+  if (!printWindow) return;
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.document.title = filename;
+  printWindow.focus();
+  setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
 };
 
 /**

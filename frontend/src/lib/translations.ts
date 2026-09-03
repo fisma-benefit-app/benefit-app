@@ -81,7 +81,7 @@ export const translations = {
       totalPossiblePoints: "100% Functional Points",
     },
     printUtils: {
-      projectReport: "Project Report",
+      projectReport: "Calculation report",
       projectId: "Project ID",
       version: "Version",
       createdDate: "Created Date",
@@ -216,13 +216,16 @@ export const translations = {
       version: "Version",
       nameOfProject: "Project name",
       calculationDate: "Measurement Date:",
+      reportContactDetails: "Report contact details",
+      reportNotes: "Report calculation notes",
+      saveReportInformation: "Save report information",
       cannotEditOrSaveArchivedVersion: "Cannot edit or save archived version",
       expandAll: "Expand all",
       collapseAll: "Collapse all",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
-      printPDF: "Print PDF",
+      overviewSummaryReport: "Overview summary report",
     },
     functionalPointSummary: {
       noSelectedComponentType: "no selected component type",
@@ -231,7 +234,7 @@ export const translations = {
       completionPercentage: "Completion Percentage",
       functionalPointText: "FP",
       csv: "Export CSV",
-      pdf: "Export PDF",
+      calculationReport: "Calculation report",
       parentComponents: "Total without multi-layer interfaces",
       grandTotal: "Total",
       calculationsTab: "Calculations",
@@ -376,7 +379,7 @@ export const translations = {
       totalPossiblePoints: "100% Toimintopisteet",
     },
     printUtils: {
-      projectReport: "Projektiraportti",
+      projectReport: "Laskentaraportti",
       projectId: "Projektin ID",
       version: "Versio",
       createdDate: "Luotu",
@@ -512,6 +515,9 @@ export const translations = {
       version: "Versio",
       nameOfProject: "Projektin nimi",
       calculationDate: "Laskennan päivämäärä.",
+      reportContactDetails: "Raportin yhteystiedot",
+      reportNotes: "Raportin laskentamuistiinpanot",
+      saveReportInformation: "Tallenna raportin tiedot",
       cannotEditOrSaveArchivedVersion:
         "Arkistoitua versiota ei voi muokata tai tallentaa",
       expandAll: "Laajenna kaikki",
@@ -519,7 +525,7 @@ export const translations = {
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",
-      printPDF: "Tulosta PDF",
+      overviewSummaryReport: "Laajuuden yhteenvetoraportti",
     },
     functionalPointSummary: {
       noSelectedComponentType: "ei valittua toimintotyyppiä",
@@ -528,7 +534,7 @@ export const translations = {
       completionPercentage: "Valmistumisprosentti",
       functionalPointText: "TP",
       csv: "Luo CSV",
-      pdf: "Luo PDF",
+      calculationReport: "Laskentaraportti",
       parentComponents: "Yhteensä ilman monikerrosliittymiä",
       grandTotal: "Yhteensä",
       calculationsTab: "Laskelmat",
