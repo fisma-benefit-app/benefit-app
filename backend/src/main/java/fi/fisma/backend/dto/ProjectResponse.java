@@ -21,10 +21,9 @@ public record ProjectResponse(
     @JsonFormat(pattern = "yyyy-MM-dd")
         @Schema(description = "Calculation date", example = "2026-04-08")
         LocalDate calculationDate,
-        @Schema(description = "Optional contact details printed on the report")
-            String reportContactDetails,
-        @Schema(description = "Optional calculation notes printed on the report")
-            String reportNotes,
+    @Schema(description = "Optional contact details printed on the report")
+        String reportContactDetails,
+    @Schema(description = "Optional calculation notes printed on the report") String reportNotes,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         @Schema(description = "Last update timestamp", example = "2025-09-25T15:45:00")
         LocalDateTime updatedAt,

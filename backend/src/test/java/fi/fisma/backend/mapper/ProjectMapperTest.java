@@ -19,7 +19,8 @@ class ProjectMapperTest {
 
   @BeforeEach
   void setUp() {
-    projectMapper = new ProjectMapper(mock(AppUserRepository.class), mock(FunctionalComponentMapper.class));
+    projectMapper =
+        new ProjectMapper(mock(AppUserRepository.class), mock(FunctionalComponentMapper.class));
   }
 
   @Test
