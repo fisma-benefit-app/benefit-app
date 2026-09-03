@@ -34,6 +34,9 @@ class ProjectRequestTest {
         .extractingJsonPathNumberValue("$.version")
         .isEqualTo(1);
 
+    assertThat(json.write(dto)).hasJsonPathStringValue("$.reportContactDetails");
+    assertThat(json.write(dto)).hasJsonPathStringValue("$.reportNotes");
+
     assertThat(json.write(dto)).hasJsonPathArrayValue("$.projectAppUserIds");
   }
 
@@ -45,6 +48,8 @@ class ProjectRequestTest {
 
     assertThat(dto.getProjectName()).isEqualTo("User Authentication System");
     assertThat(dto.getVersion()).isEqualTo(1);
+    assertThat(dto.getReportContactDetails()).isEqualTo("Calculator");
+    assertThat(dto.getReportNotes()).isEqualTo("Calculation note");
     assertThat(dto.getProjectAppUserIds()).containsExactlyInAnyOrder(10L, 20L);
   }
 }

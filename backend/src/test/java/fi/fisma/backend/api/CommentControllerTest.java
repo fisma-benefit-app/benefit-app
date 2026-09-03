@@ -49,7 +49,8 @@ class CommentControllerTest {
     CommentResponse response = new CommentResponse(1L, "Need more details", 7L);
     when(commentService.getComments(7L, "test-user")).thenReturn(java.util.List.of(response));
 
-    var result = mockMvcTester.get().uri("/projects/{projectId}/comments", 7L).with(jwtAuth).exchange();
+    var result =
+        mockMvcTester.get().uri("/projects/{projectId}/comments", 7L).with(jwtAuth).exchange();
 
     assertThat(result).hasStatusOk();
     assertThat(result).bodyJson().extractingPath("$[0].id").isEqualTo(1);

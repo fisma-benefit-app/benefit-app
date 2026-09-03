@@ -9,6 +9,8 @@ export type ContextProviderProps = {
 export type ProjectRequest = {
   projectName: string;
   version: number;
+  reportContactDetails: string | null;
+  reportNotes: string | null;
   functionalComponents: FunctionalComponentRequest[];
   calculationDate?: string | null;
   projectAppUserIds: number[];
@@ -18,10 +20,13 @@ export type ProjectResponse = {
   id: number;
   projectName: string;
   version: number;
+  reportContactDetails: string | null;
+  reportNotes: string | null;
   createdAt: string;
   versionCreatedAt: string;
   calculationDate?: string | null;
   updatedAt: string;
+  active: boolean;
   functionalComponents: FunctionalComponentResponse[];
   projectAppUsers: ProjectAppUserResponse[];
 };
@@ -114,10 +119,13 @@ export type Project = {
   id: number;
   projectName: string;
   version: number;
+  reportContactDetails: string | null;
+  reportNotes: string | null;
   createdAt: string;
   versionCreatedAt: string;
   calculationDate?: string | null;
   updatedAt: string;
+  active: boolean;
   functionalComponents: TGenericComponent[];
   projectAppUsers: ProjectAppUser[];
 };
@@ -188,10 +196,7 @@ export type ComponentType =
   | "other manipulation routines";
 
 export type CalculationParameter =
-  | "dataElements"
-  | "writingReferences"
-  | "readingReferences"
-  | "operations";
+  "dataElements" | "writingReferences" | "readingReferences" | "operations";
 
 export type VersionJson = {
   sha?: string;

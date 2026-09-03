@@ -9,7 +9,7 @@ import {
   createFunctionalComponent,
   deleteFunctionalComponent,
 } from "../api/project.ts";
-import { generateProjectSummaryPDF } from "../lib/printUtils.ts";
+import { generateOverviewPDF } from "../lib/printUtils.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
@@ -157,6 +157,8 @@ export default function ProjectPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [projectResponse, setProjectResponse] =
     useState<ProjectResponse | null>(null);
+  const [reportContactDetails, setReportContactDetails] = useState("");
+  const [reportNotes, setReportNotes] = useState("");
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -168,13 +170,16 @@ export default function ProjectPage() {
   const [commentText, setCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState("");
-  const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(null);
+  const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(
+    null,
+  );
   const [comments, setComments] = useState<
     Array<{ id: number; text: string; projectId: number }>
   >([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
 
-  const translation = useTranslations().projectPage;
+  const translations = useTranslations();
+  const translation = translations.projectPage;
   const alertTranslation = useTranslations().alert;
   const { language } = useLanguage();
 
@@ -185,7 +190,10 @@ export default function ProjectPage() {
     if (!sessionToken) return;
     setCommentsLoading(true);
     try {
-      const projectComments = await fetchProjectComments(sessionToken, projectId);
+      const projectComments = await fetchProjectComments(
+        sessionToken,
+        projectId,
+      );
       setComments(projectComments);
     } catch (error) {
       console.error("Failed to load project comments", error);
@@ -211,7 +219,10 @@ export default function ProjectPage() {
     }
   };
 
-  const handleStartEditingComment = (commentId: number, existingText: string) => {
+  const handleStartEditingComment = (
+    commentId: number,
+    existingText: string,
+  ) => {
     setEditingCommentId(commentId);
     setEditingText(existingText);
   };
@@ -262,10 +273,16 @@ export default function ProjectPage() {
   const handlePrintProjectSummaryPDF = () => {
     if (!project) return;
 
-    generateProjectSummaryPDF(
+    const previousProject = allProjectVersions
+      .filter((version) => version.version < project.version)
+      .sort((a, b) => b.version - a.version)[0];
+
+    generateOverviewPDF(
       project,
-      comments,
-      translation.commentsTitle,
+      previousProject,
+      language,
+      translations.functionalClassComponent.classNameOptions,
+      translations.functionalClassComponent.componentTypeOptions,
     );
   };
 
@@ -446,14 +463,14 @@ export default function ProjectPage() {
               (a: TGenericComponent, b: TGenericComponent) =>
                 a.orderPosition - b.orderPosition,
             )
-            .map(
-              (c: TGenericComponent, idx: number): NormalizedComponent => ({
-                ...c,
-                orderPosition: idx,
-              }),
-            );
+            .map((c: TGenericComponent, idx: number): NormalizedComponent => ({
+              ...c,
+              orderPosition: idx,
+            }));
 
         setProject({ ...projectFromDb, functionalComponents: normalized });
+        setReportContactDetails(projectFromDb.reportContactDetails ?? "");
+        setReportNotes(projectFromDb.reportNotes ?? "");
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
@@ -621,9 +638,13 @@ export default function ProjectPage() {
     }
   };
 
-  const saveProject = async (showNotif: boolean = true) => {
+  const saveProject = async (
+    showNotif: boolean = true,
+    projectToSave?: Project,
+  ) => {
     isManuallySaved.current = true;
-    if (project) {
+    const currentProject = projectToSave ?? project;
+    if (currentProject) {
       if (showNotif) {
         showNotification(
           alertTranslation.save,
@@ -633,19 +654,30 @@ export default function ProjectPage() {
         );
       }
       try {
-        const normalized = project.functionalComponents
+        const normalized = currentProject.functionalComponents
           .slice()
           .sort((a, b) => a.orderPosition - b.orderPosition)
           .map((c, idx) => ({ ...c, orderPosition: idx }));
 
         const editedProject = {
-          ...project,
+          ...currentProject,
           functionalComponents: normalized,
           updatedAt: CreateCurrentDate(),
         };
 
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
+        if (projectToSave) {
+          setProject((current) =>
+            current
+              ? {
+                  ...current,
+                  reportContactDetails: savedProject.reportContactDetails,
+                  reportNotes: savedProject.reportNotes,
+                }
+              : current,
+          );
+        }
 
         if (showNotif) {
           updateNotification(
@@ -675,6 +707,16 @@ export default function ProjectPage() {
     } else {
       isManuallySaved.current = false;
     }
+  };
+
+  const saveReportInformation = async () => {
+    if (!project || !isLatest) return;
+
+    await saveProject(true, {
+      ...project,
+      reportContactDetails,
+      reportNotes,
+    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -830,7 +872,7 @@ export default function ProjectPage() {
                     disabled={loadingProject}
                   >
                     <FontAwesomeIcon icon={faFilePdf} />
-                    {translation.printPDF}
+                    {translation.overviewSummaryReport}
                   </button>
                 </div>
               ) : (
@@ -877,6 +919,54 @@ export default function ProjectPage() {
                 />
               </div>
 
+              <div className="mt-2">
+                <label
+                  htmlFor="report-contact-details"
+                  className="text-left font-medium"
+                >
+                  {translation.reportContactDetails}
+                </label>
+                <textarea
+                  id="report-contact-details"
+                  value={reportContactDetails}
+                  onChange={(event) => {
+                    setReportContactDetails(event.target.value);
+                  }}
+                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
+                  rows={3}
+                  maxLength={2000}
+                  disabled={!isLatest || loadingProject}
+                />
+              </div>
+
+              <div className="mt-2">
+                <label
+                  htmlFor="report-calculation-notes"
+                  className="text-left font-medium"
+                >
+                  {translation.reportNotes}
+                </label>
+                <textarea
+                  id="report-calculation-notes"
+                  value={reportNotes}
+                  onChange={(event) => {
+                    setReportNotes(event.target.value);
+                  }}
+                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
+                  rows={5}
+                  maxLength={5000}
+                  disabled={!isLatest || loadingProject}
+                />
+                <button
+                  type="button"
+                  className="mt-2 bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white text-xs py-2 px-4"
+                  onClick={saveReportInformation}
+                  disabled={!isLatest || loadingProject}
+                >
+                  {translation.saveReportInformation}
+                </button>
+              </div>
+
               <label
                 htmlFor="version-select"
                 className="text-sm font-medium mt-2"
@@ -918,7 +1008,9 @@ export default function ProjectPage() {
 
               {commentsOpen && project && (
                 <div className="mt-3 border border-gray-300 p-3 bg-gray-50 rounded">
-                  <div className="mb-2 text-sm font-medium">{translation.commentsTitle}</div>
+                  <div className="mb-2 text-sm font-medium">
+                    {translation.commentsTitle}
+                  </div>
 
                   {!isLatest && (
                     <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
@@ -927,9 +1019,13 @@ export default function ProjectPage() {
                   )}
 
                   {commentsLoading ? (
-                    <div className="text-xs text-gray-500">{alertTranslation.loading}</div>
+                    <div className="text-xs text-gray-500">
+                      {alertTranslation.loading}
+                    </div>
                   ) : comments.length === 0 ? (
-                    <div className="text-xs text-gray-500">{translation.noCommentsYet}</div>
+                    <div className="text-xs text-gray-500">
+                      {translation.noCommentsYet}
+                    </div>
                   ) : (
                     <ul className="space-y-2 text-sm">
                       {comments.map((comment) => (
@@ -941,7 +1037,9 @@ export default function ProjectPage() {
                             <div className="space-y-2">
                               <textarea
                                 value={editingText}
-                                onChange={(event) => setEditingText(event.target.value)}
+                                onChange={(event) =>
+                                  setEditingText(event.target.value)
+                                }
                                 rows={3}
                                 className="w-full border border-gray-300 p-2 text-sm"
                               />
@@ -963,19 +1061,26 @@ export default function ProjectPage() {
                             </div>
                           ) : (
                             <div className="space-y-2">
-                              <div className="whitespace-pre-wrap break-words">{comment.text}</div>
+                              <div className="whitespace-pre-wrap break-words">
+                                {comment.text}
+                              </div>
                               {isLatest && (
                                 <div className="flex justify-end gap-2">
                                   <button
                                     onClick={() =>
-                                      handleStartEditingComment(comment.id, comment.text)
+                                      handleStartEditingComment(
+                                        comment.id,
+                                        comment.text,
+                                      )
                                     }
                                     className="text-xs text-fisma-blue underline"
                                   >
                                     {translation.edit}
                                   </button>
                                   <button
-                                    onClick={() => setCommentToDeleteId(comment.id)}
+                                    onClick={() =>
+                                      setCommentToDeleteId(comment.id)
+                                    }
                                     className="text-xs text-red-600 underline"
                                   >
                                     {translation.delete}
@@ -1085,7 +1190,10 @@ export default function ProjectPage() {
         />
 
         <ConfirmModal
-          message={translation.deleteCommentConfirmation ?? "Are you sure you want to delete the comment?"}
+          message={
+            translation.deleteCommentConfirmation ??
+            "Are you sure you want to delete the comment?"
+          }
           open={commentToDeleteId !== null}
           setOpen={() => setCommentToDeleteId(null)}
           onConfirm={() => {

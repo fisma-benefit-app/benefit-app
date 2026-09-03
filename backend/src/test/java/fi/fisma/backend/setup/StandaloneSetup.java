@@ -27,7 +27,10 @@ public class StandaloneSetup {
         LocalDateTime.now(),
         LocalDateTime.now(),
         (LocalDate) null,
+        null,
+        null,
         LocalDateTime.now(),
+        true,
         Set.of(),
         Set.of());
   }
@@ -41,7 +44,10 @@ public class StandaloneSetup {
             LocalDateTime.now(),
             LocalDateTime.now(),
             (LocalDate) null,
+            null,
+            null,
             LocalDateTime.now(),
+            true,
             Set.of(),
             Set.of()),
         new ProjectResponse(
@@ -51,7 +57,10 @@ public class StandaloneSetup {
             LocalDateTime.now(),
             LocalDateTime.now(),
             (LocalDate) null,
+            null,
+            null,
             LocalDateTime.now(),
+            true,
             Set.of(),
             Set.of()));
   }
@@ -64,7 +73,10 @@ public class StandaloneSetup {
         LocalDateTime.now(),
         LocalDateTime.now(),
         (LocalDate) null,
+        null,
+        null,
         LocalDateTime.now(),
+        true,
         Set.of(),
         Set.of());
   }
@@ -77,7 +89,10 @@ public class StandaloneSetup {
         LocalDateTime.now(),
         LocalDateTime.now(),
         (LocalDate) null,
+        null,
+        null,
         LocalDateTime.now(),
+        true,
         Set.of(),
         Set.of());
   }
@@ -90,7 +105,10 @@ public class StandaloneSetup {
         LocalDateTime.now(),
         LocalDateTime.now(),
         (LocalDate) null,
+        null,
+        null,
         LocalDateTime.now(),
+        true,
         Set.of(),
         Set.of());
   }
@@ -121,6 +139,8 @@ public class StandaloneSetup {
   public static ProjectRequest createProjectRequest(ProjectRequest dto) {
     dto.setProjectName("User Authentication System");
     dto.setVersion(1);
+    dto.setReportContactDetails("Calculator");
+    dto.setReportNotes("Calculation note");
     dto.setProjectAppUserIds(Set.of(10L, 20L));
     return dto;
   }
