@@ -683,6 +683,26 @@ export const generateOverviewPDF = (
         0,
       )
     : undefined;
+  const previousGroupTotals = new Map<string, number>();
+  if (previousProject) {
+    previousComponents.forEach((component) => {
+      const rawClassName = component.className || "Unspecified";
+      const className = classNameTranslation[rawClassName] || rawClassName;
+      const rawComponentType = component.componentType || "Unspecified";
+      const componentType =
+        componentTypeTranslation[rawComponentType] || rawComponentType;
+      const classKey = `className:${className}`;
+      const typeKey = `componentType:${componentType}`;
+      previousGroupTotals.set(
+        classKey,
+        (previousGroupTotals.get(classKey) || 0) + previousPoints.get(component.id)!,
+      );
+      previousGroupTotals.set(
+        typeKey,
+        (previousGroupTotals.get(typeKey) || 0) + previousPoints.get(component.id)!,
+      );
+    });
+  }
   const componentRows = allComponents.map((component) => {
     const previous = component.previousFCId
       ? previousById.get(component.previousFCId)
@@ -713,13 +733,7 @@ export const generateOverviewPDF = (
     });
     return [...groups.entries()].map(([name, components]) => {
       const previousGroupTotal = previousProject
-        ? previousComponents.filter((component) => {
-            const rawGroup = component[key] || "Unspecified";
-            const translatedGroup = key === "className"
-              ? classNameTranslation[rawGroup] || rawGroup
-              : componentTypeTranslation[rawGroup] || rawGroup;
-            return translatedGroup === name;
-          }).reduce((sum, component) => sum + pointValue(component), 0)
+        ? previousGroupTotals.get(`${key}:${name}`) || 0
         : undefined;
       const total = components.reduce((sum, component) => sum + currentPoints.get(component.id)!, 0);
       return `<tr><td>${escapeHtmlForSummary(name)}</td><td>${components.length}</td><td>${formatNumber(total)}${delta(total, previousGroupTotal)}</td></tr>`;
@@ -783,6 +797,7 @@ export const generateOverviewPDF = (
         noFunctions: "No calculable activities",
         changed: "Changed values are highlighted. The number in parentheses shows the difference from the previous version.",
       };
+  const pointUnit = language === "fi" ? "TP" : "FP";
   const year = project.calculationDate?.slice(0, 4) || new Date().getFullYear();
   const filename = `${project.projectName}-Toiminnallisen-laajuuden-yhteenveto-${project.version}-${year}.pdf`;
   const html = `<!doctype html><html lang="${language}"><head><meta charset="UTF-8"><title>${escapeHtmlForSummary(filename)}</title><style>
@@ -790,7 +805,7 @@ export const generateOverviewPDF = (
     @media print{body{print-color-adjust:exact}.page{height:273mm}}
   </style></head><body>
     <section class="page"><h1>${escapeHtmlForSummary(project.projectName)} - ${language === "fi" ? "toiminnallisen laajuuden yhteenveto" : "functional size overview"}<span class="report-date">${reportDate}</span></h1><div class="report-contact">${escapeHtmlForSummary(project.reportContactDetails)}</div><div class="footer">FiSMA 1.1 Toiminnallisen koon mittaamisen menetelmä ISO/IEC 29881:2010</div></section>
-    <section class="page"><h2>${labels.calculation}</h2><div class="architecture"><div class="architecture-total">${labels.total} ${formatNumber(totalPoints)} FP${delta(totalPoints, previousTotalPoints)}</div><div class="architecture-grid"><div class="layer layer-ui">${labels.uiLayer}<strong>${layers.ui.points.toFixed(2)} FP</strong><span>${layers.ui.count} ${labels.functions}</span></div><div class="junction junction-up">${messages.uiToBusiness + messages.businessToUi} ${labels.interfaces}</div><div class="junction junction-left">${messages.uiToBusiness} ${labels.interfaces}<br>${language === "fi" ? "sisään" : "in"}</div><div class="layer layer-business">${labels.businessLayer}<strong>${layers.business.points.toFixed(2)} FP</strong><span>${language === "fi" ? "Algoritmiset toiminnot" : "Algorithmic activities"}</span></div><div class="junction junction-right">${messages.businessToUi} ${labels.interfaces}<br>${language === "fi" ? "ulos" : "out"}</div><div class="junction junction-down">${messages.businessToDatabase + messages.databaseToBusiness} ${labels.interfaces}</div><div class="layer layer-database">${labels.databaseLayer}<strong>${layers.database.points.toFixed(2)} FP</strong><span>${layers.database.count} ${labels.concepts}</span></div></div></div><h3>${labels.actions}</h3><table><thead><tr><th>${labels.feature}</th><th>${labels.functionClass}</th><th>${labels.functionType}</th><th>${labels.dataElements}</th><th>${labels.readingReferences}</th><th>${labels.writingReferences}</th><th>${labels.actionPoints}</th><th>${labels.completion}</th></tr></thead><tbody>${componentRows || `<tr><td colspan="8">${labels.noFunctions}</td></tr>`}</tbody></table></section>
+    <section class="page"><h2>${labels.calculation}</h2><div class="architecture"><div class="architecture-total">${labels.total} ${formatNumber(totalPoints)} ${pointUnit}${delta(totalPoints, previousTotalPoints)}</div><div class="architecture-grid"><div class="layer layer-ui">${labels.uiLayer}<strong>${layers.ui.points.toFixed(2)} ${pointUnit}</strong><span>${layers.ui.count} ${labels.functions}</span></div><div class="junction junction-up">${messages.uiToBusiness + messages.businessToUi} ${labels.interfaces}</div><div class="junction junction-left">${messages.uiToBusiness} ${labels.interfaces}<br>${language === "fi" ? "sisään" : "in"}</div><div class="layer layer-business">${labels.businessLayer}<strong>${layers.business.points.toFixed(2)} ${pointUnit}</strong><span>${language === "fi" ? "Algoritmiset toiminnot" : "Algorithmic activities"}</span></div><div class="junction junction-right">${messages.businessToUi} ${labels.interfaces}<br>${language === "fi" ? "ulos" : "out"}</div><div class="junction junction-down">${messages.businessToDatabase + messages.databaseToBusiness} ${labels.interfaces}</div><div class="layer layer-database">${labels.databaseLayer}<strong>${layers.database.points.toFixed(2)} ${pointUnit}</strong><span>${layers.database.count} ${labels.concepts}</span></div></div></div><h3>${labels.actions}</h3><table><thead><tr><th>${labels.feature}</th><th>${labels.functionClass}</th><th>${labels.functionType}</th><th>${labels.dataElements}</th><th>${labels.readingReferences}</th><th>${labels.writingReferences}</th><th>${labels.actionPoints}</th><th>${labels.completion}</th></tr></thead><tbody>${componentRows || `<tr><td colspan="8">${labels.noFunctions}</td></tr>`}</tbody></table></section>
     <section class="page"><h2>${labels.aggregates}</h2><h3>${labels.classAggregate}</h3><table><thead><tr><th>${labels.functionClass}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("className")}</tbody></table><h3>${labels.typeAggregate}</h3><table><thead><tr><th>${labels.functionType}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("componentType")}</tbody></table><h3>${labels.explanation}</h3><div class="notes">${escapeHtmlForSummary(project.reportNotes)}</div><p class="small">${labels.changed}</p></section>
   </body></html>`;
   const printWindow = window.open("", "_blank", "width=1000,height=800");

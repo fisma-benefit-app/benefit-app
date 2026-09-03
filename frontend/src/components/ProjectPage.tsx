@@ -914,10 +914,14 @@ export default function ProjectPage() {
               </div>
 
               <div className="mt-2">
-                <label className="text-left font-medium">
+                <label
+                  htmlFor="report-contact-details"
+                  className="text-left font-medium"
+                >
                   {translation.reportContactDetails}
                 </label>
                 <textarea
+                  id="report-contact-details"
                   value={reportContactDetails}
                   onChange={(event) => {
                     setReportContactDetails(event.target.value);
@@ -930,10 +934,14 @@ export default function ProjectPage() {
               </div>
 
               <div className="mt-2">
-                <label className="text-left font-medium">
+                <label
+                  htmlFor="report-calculation-notes"
+                  className="text-left font-medium"
+                >
                   {translation.reportNotes}
                 </label>
                 <textarea
+                  id="report-calculation-notes"
                   value={reportNotes}
                   onChange={(event) => {
                     setReportNotes(event.target.value);

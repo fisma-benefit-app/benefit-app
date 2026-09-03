@@ -87,6 +87,7 @@ export default function FunctionalClassComponent({
 
   const componentTypeOptions = getComponentTypeOptions(component.className);
   const inputFields = getInputFields(component.className);
+  const isMlaEligible = isMultiLayerArchitectureComponent(component);
 
   // Calculate functional points using centralized calculations
   const fullPoints = calculateBasePoints(component);
@@ -154,22 +155,18 @@ export default function FunctionalClassComponent({
   const handleOptionTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     //user can select component type only from predefined options
     const newOptionType = e.target.value as ComponentType;
-
-    const updatedComponent = {
+    const componentWithNewType = {
       ...component,
       componentType: newOptionType,
-      isMLA: isMultiLayerArchitectureComponent({
-        ...component,
-        componentType: newOptionType,
-      })
-        ? component.isMLA
-        : false,
-      subComponents: isMultiLayerArchitectureComponent({
-        ...component,
-        componentType: newOptionType,
-      })
-        ? component.subComponents
-        : undefined,
+    };
+    const isMlaEligible = isMultiLayerArchitectureComponent(
+      componentWithNewType,
+    );
+
+    const updatedComponent = {
+      ...componentWithNewType,
+      isMLA: isMlaEligible ? component.isMLA : false,
+      subComponents: isMlaEligible ? component.subComponents : undefined,
     };
     const updatedComponents = project.functionalComponents.map(
       (functionalComponent) =>
@@ -342,7 +339,10 @@ export default function FunctionalClassComponent({
           <>
             {/* Degree of Completion Section */}
             <div className="flex flex-col gap-2 bg-fisma-light-gray border-2 border-fisma-gray p-3 rounded-md">
-              <label className="font-bold text-fisma-blue">
+              <label
+                htmlFor={`mlaCheckBox-${component.id}`}
+                className="font-bold text-fisma-blue"
+              >
                 {translation.degreeOfCompletionPlaceholder}:
               </label>
               <div className="flex flex-wrap gap-4">
@@ -451,14 +451,14 @@ export default function FunctionalClassComponent({
                 }
               </label>
               <div className="flex items-center gap-3">
-                {isMultiLayerArchitectureComponent(component) && (
+                {isMlaEligible && (
                   <input
-                    id="mlaCheckBox"
+                    id={`mlaCheckBox-${component.id}`}
                     type="checkbox"
                     className="w-4 h-4"
                     checked={component.isMLA}
                     disabled={
-                      !isMultiLayerArchitectureComponent(component) || !isLatest
+                      !isMlaEligible || !isLatest
                     }
                     onChange={handleMLAChange}
                   />
@@ -482,11 +482,11 @@ export default function FunctionalClassComponent({
                   </button>
                 </div>
               )}
-              {!isMultiLayerArchitectureComponent(component) && (
-                <label className="flex items-center gap-3 text-gray-400">
+              {!isMlaEligible && (
+                <div className="flex items-center gap-3 text-gray-400">
                   {" "}
                   {translation.notAvailableForThisFunctionalComponentType}
-                </label>
+                </div>
               )}
             </div>
 
