@@ -225,6 +225,8 @@ export const translations = {
       collapseAll: "Collapse all",
       expandDescriptions: "Expand descriptions",
       collapseDescriptions: "Collapse descriptions",
+      enableCompactMode: "Compact View",
+      disableCompactMode: "Full View",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
@@ -530,6 +532,8 @@ export const translations = {
       collapseAll: "Pienennä kaikki",
       expandDescriptions: "Laajenna kuvaukset",
       collapseDescriptions: "Pienennä kuvaukset",
+      enableCompactMode: "Tiivis näkymä",
+      disableCompactMode: "Kokonaisnäkymä",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",

@@ -448,6 +448,10 @@ export default function ProjectPage() {
     setDescriptionRowsExpanded((prev) => !prev);
   };
 
+  const toggleCompactMode = () => {
+    setIsCompactMode((prev) => !prev);
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     const componentId = Number(event.active.id);
     if (!Number.isFinite(componentId)) return;
@@ -854,6 +858,16 @@ export default function ProjectPage() {
                   {descriptionRowsExpanded ?
                     translation.collapseDescriptions
                     : translation.expandDescriptions}
+                </button>
+              </div>
+              <div className="flex w-full">
+                <button
+                  className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
+                  onClick={toggleCompactMode}
+                >
+                  {isCompactMode ?
+                    translation.disableCompactMode
+                    : translation.enableCompactMode}
                 </button>
               </div>
               {isLatest ? (
