@@ -50,6 +50,7 @@ type FunctionalClassComponentProps = {
   debouncedSaveProject: () => void;
   onMLAToggle: (componentId: number, newValue: boolean) => void;
   descriptionRowsExpanded: boolean;
+  isCompactMode: boolean;
 };
 
 export default function FunctionalClassComponent({
@@ -63,7 +64,8 @@ export default function FunctionalClassComponent({
   debouncedSaveProject,
   dragHandleProps,
   onMLAToggle,
-  descriptionRowsExpanded
+  descriptionRowsExpanded,
+  isCompactMode
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
@@ -631,6 +633,7 @@ export default function FunctionalClassComponent({
                       <FunctionalClassSubComponent
                         component={subComp}
                         collapsed={false}
+                        isCompactMode={isCompactMode}
                       />
                     </div>
                   ))}

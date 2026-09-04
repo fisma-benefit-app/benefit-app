@@ -13,11 +13,13 @@ import { CalculationParameter, TGenericComponent } from "../lib/types.ts";
 type FunctionalClassSubComponentProps = {
   component: TGenericComponent;
   collapsed: boolean;
+  isCompactMode: boolean;
 };
 
 export default function FunctionalClassSubComponent({
   component,
   collapsed,
+  isCompactMode
 }: FunctionalClassSubComponentProps) {
   const translation = useTranslations().functionalClassComponent;
 

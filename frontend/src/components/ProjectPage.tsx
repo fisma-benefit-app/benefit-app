@@ -69,6 +69,7 @@ function SortableFunctionalComponent({
   debouncedSaveProject,
   onMLAToggle,
   descriptionRowsExpanded,
+  isCompactMode
 }: {
   component: TGenericComponent;
   project: Project;
@@ -83,6 +84,7 @@ function SortableFunctionalComponent({
   debouncedSaveProject: () => void;
   onMLAToggle: (componentId: number, newMLAValue: boolean) => void;
   descriptionRowsExpanded: boolean;
+  isCompactMode: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: component.id });
@@ -106,6 +108,7 @@ function SortableFunctionalComponent({
         dragHandleProps={{ ...attributes, ...listeners }}
         onMLAToggle={onMLAToggle}
         descriptionRowsExpanded={descriptionRowsExpanded}
+        isCompactMode={isCompactMode}
       />
     </div>
   );
@@ -157,6 +160,7 @@ export default function ProjectPage() {
   const navigate = useNavigate();
   const [collapseAll, setCollapseAll] = useState<boolean>(true);
   const [descriptionRowsExpanded, setDescriptionRowsExpanded] = useState<boolean>(true);
+  const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
   const [projectResponse, setProjectResponse] =
@@ -1176,6 +1180,7 @@ export default function ProjectPage() {
                       debouncedSaveProject={debouncedSaveProject}
                       onMLAToggle={handleMLAToggle}
                       descriptionRowsExpanded={descriptionRowsExpanded}
+                      isCompactMode={isCompactMode}
                     />
                   ))}
                 </div>
