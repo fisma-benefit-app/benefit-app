@@ -234,6 +234,8 @@ export const generateCalculationReportPDF = (
   classNameTranslation: Record<string, string> = {},
   componentTypeTranslation: Record<string, string> = {},
 ) => {
+  const isFirstVersion = project.version === 1;
+
   // Maps functional components for previous project so that they can be compared to the current project
   const previousComponentsMap = Object.fromEntries(
     oldProject.functionalComponents.map((comp) => [comp.id, comp]),
@@ -264,7 +266,7 @@ export const generateCalculationReportPDF = (
   ) => {
     const value = prevValue !== currentValue ? currentValue : prevValue;
     const span = doc.createElement("span");
-    span.className =
+    span.className = !isFirstVersion &&
       prevValue !== currentValue ? "project-data highlighted" : "project-data";
     span.textContent = value != null ? String(value) : "";
     return span;
