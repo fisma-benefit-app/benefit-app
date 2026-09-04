@@ -57,9 +57,10 @@ public class CommentController {
       Authentication authentication,
       UriComponentsBuilder ucb) {
     var savedComment = commentService.createComment(projectId, request, authentication.getName());
-    URI location = ucb.path("/projects/{projectId}/comments/{commentId}")
-        .buildAndExpand(projectId, savedComment.id())
-        .toUri();
+    URI location =
+        ucb.path("/projects/{projectId}/comments/{commentId}")
+            .buildAndExpand(projectId, savedComment.id())
+            .toUri();
     return ResponseEntity.created(location).build();
   }
 

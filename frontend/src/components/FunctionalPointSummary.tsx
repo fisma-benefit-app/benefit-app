@@ -4,7 +4,10 @@ import {
   ComponentType,
   TGenericComponent,
 } from "../lib/types";
-import { downloadProjectComponentsCsv, createPdf } from "../lib/printUtils";
+import {
+  downloadProjectComponentsCsv,
+  generateCalculationReportPDF,
+} from "../lib/printUtils";
 import {
   calculateTotalPossiblePoints,
   getGroupedComponents,
@@ -73,7 +76,7 @@ export const FunctionalPointSummary = ({
 
   const handleExportPdf = async () => {
     await saveProject(false); // Save before exporting
-    createPdf(
+    generateCalculationReportPDF(
       project,
       previousOrCurrent,
       translation.printUtils,
@@ -508,13 +511,15 @@ export const FunctionalPointSummary = ({
           onClick={handleExportCSV}
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
         >
-          CSV <FontAwesomeIcon icon={faDownload} />
+          {translation.functionalPointSummary.csv}{" "}
+          <FontAwesomeIcon icon={faDownload} />
         </button>
         <button
           onClick={handleExportPdf}
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
         >
-          PDF <FontAwesomeIcon icon={faDownload} />
+          {translation.functionalPointSummary.calculationReport}{" "}
+          <FontAwesomeIcon icon={faDownload} />
         </button>
       </div>
     </div>

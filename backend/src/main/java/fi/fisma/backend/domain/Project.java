@@ -53,6 +53,14 @@ public class Project {
   @Column(name = "calculation_date")
   private LocalDate calculationDate;
 
+  @Size(max = 2000, message = "Report contact details must not exceed 2000 characters")
+  @Column(name = "report_contact_details", length = 2000)
+  private String reportContactDetails;
+
+  @Size(max = 5000, message = "Report notes must not exceed 5000 characters")
+  @Column(name = "report_notes", length = 5000)
+  private String reportNotes;
+
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 

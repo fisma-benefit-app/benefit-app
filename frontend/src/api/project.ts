@@ -79,6 +79,8 @@ const createProject = async (
   const projectRequest = {
     projectName: nameForProject,
     version: 1, // first version
+    reportContactDetails: null,
+    reportNotes: null,
     functionalComponents: [], // start empty
     calculationDate: null,
     projectAppUserIds: [], // start with no users
@@ -130,6 +132,8 @@ const createNewProjectVersion = async (
   const projectRequest: ProjectRequest = {
     projectName: previousProject.projectName,
     version: previousProject.version + 1,
+    reportContactDetails: previousProject.reportContactDetails ?? null,
+    reportNotes: previousProject.reportNotes ?? null,
     functionalComponents: previousProject.functionalComponents.map((fc) => ({
       // adapt to FunctionalComponentRequest DTO
       className: fc.className,
@@ -251,6 +255,8 @@ const updateProject = async (
   const projectRequest: ProjectRequest = {
     projectName: project.projectName,
     version: project.version,
+    reportContactDetails: project.reportContactDetails ?? null,
+    reportNotes: project.reportNotes ?? null,
     functionalComponents: project.functionalComponents.map(
       mapComponentToRequest,
     ),

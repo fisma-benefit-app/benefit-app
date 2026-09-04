@@ -58,7 +58,10 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
         await fetch(fetchURL, { method: "POST", headers });
       }
     } catch (err) {
-      console.error("Logout request failed, clearing session locally anyway:", err);
+      console.error(
+        "Logout request failed, clearing session locally anyway:",
+        err,
+      );
     } finally {
       clearLocalSession();
       hideNotification("session-expiring");
@@ -67,7 +70,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   };
 
   const showSessionWarning = (expirationTime: number) => {
-    const getMinutesLeft = () => Math.max(0, Math.ceil((expirationTime - Date.now()) / 60000));
+    const getMinutesLeft = () =>
+      Math.max(0, Math.ceil((expirationTime - Date.now()) / 60000));
 
     const updateSessionWarning = (minutesLeft: number) =>
       translation.sessionExpirationDescription.replace(
@@ -81,7 +85,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       "error",
       "session-expiring",
     );
-  }
+  };
 
   useEffect(() => {
     if (!sessionToken) return;
@@ -100,7 +104,9 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       return;
     }
 
-    console.log(`Setting auto-logout timeout for ${timeUntilExpiration}ms (${(timeUntilExpiration / 1000).toFixed(2)}s)`);
+    console.log(
+      `Setting auto-logout timeout for ${timeUntilExpiration}ms (${(timeUntilExpiration / 1000).toFixed(2)}s)`,
+    );
 
     const timeoutId = setTimeout(() => {
       logout();
@@ -108,7 +114,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
     const sessionWarningThreshhold = 30 * 60 * 1000;
     const alertCountdownTick = 5 * 60 * 1000;
-    const timeUntilFirstWarning = timeUntilExpiration - sessionWarningThreshhold;
+    const timeUntilFirstWarning =
+      timeUntilExpiration - sessionWarningThreshhold;
 
     let countdownIntervalId: number | undefined;
 
@@ -136,7 +143,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       clearTimeout(timeoutId);
       if (warningTimeoutId) clearTimeout(warningTimeoutId);
       if (countdownIntervalId) clearInterval(countdownIntervalId);
-    }
+    };
   }, [sessionToken, translation]);
 
   const appUserProviderValue: AppUserContextType = {

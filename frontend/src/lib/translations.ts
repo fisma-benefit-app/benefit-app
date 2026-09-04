@@ -2,10 +2,11 @@ export const translations = {
   en: {
     errorModal: {
       error: "Error",
-      close: "Close"
+      close: "Close",
     },
     networkingErrorMessages: {
-      SERVICE_UNAVAILABLE: "Cannot reach server. Please ensure the service is running.",
+      SERVICE_UNAVAILABLE:
+        "Cannot reach server. Please ensure the service is running.",
       UNAUTHORIZED: "Invalid username or password.",
       TOKEN_EXPIRED: "Session expired. Please log in again.",
       NETWORK_ERROR: "Network error occurred. Please check your connection.",
@@ -81,7 +82,7 @@ export const translations = {
       totalPossiblePoints: "100% Functional Points",
     },
     printUtils: {
-      projectReport: "Project Report",
+      projectReport: "Calculation report",
       projectId: "Project ID",
       version: "Version",
       createdDate: "Created Date",
@@ -216,13 +217,18 @@ export const translations = {
       version: "Version",
       nameOfProject: "Project name",
       calculationDate: "Measurement Date:",
+      reportContactDetails: "Report contact details",
+      reportNotes: "Report calculation notes",
+      saveReportInformation: "Save report information",
       cannotEditOrSaveArchivedVersion: "Cannot edit or save archived version",
       expandAll: "Expand all",
       collapseAll: "Collapse all",
+      expandDescriptions: "Expand descriptions",
+      collapseDescriptions: "Collapse descriptions",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
-      printPDF: "Print PDF",
+      overviewSummaryReport: "Overview summary report",
     },
     functionalPointSummary: {
       noSelectedComponentType: "no selected component type",
@@ -231,7 +237,7 @@ export const translations = {
       completionPercentage: "Completion Percentage",
       functionalPointText: "FP",
       csv: "Export CSV",
-      pdf: "Export PDF",
+      calculationReport: "Calculation report",
       parentComponents: "Total without multi-layer interfaces",
       grandTotal: "Total",
       calculationsTab: "Calculations",
@@ -261,8 +267,9 @@ export const translations = {
       deleting: "Deleting...",
       deleteSuccessful: "Functional component deleted",
       deleteFailed: "Failed to delete functional component",
-      sessionExpirationDescription: "Your session expires in {minutes} minute(s)",
-      sessionExpirationHeader: "Session"
+      sessionExpirationDescription:
+        "Your session expires in {minutes} minute(s)",
+      sessionExpirationHeader: "Session",
     },
     profilePage: {
       header: "Profile",
@@ -297,10 +304,11 @@ export const translations = {
   fi: {
     errorModal: {
       error: "Virhe",
-      close: "Sulje"
+      close: "Sulje",
     },
     networkingErrorMessages: {
-      SERVICE_UNAVAILABLE: "Palvelinta ei tavoiteta. Varmista, että palvelu on käynnissä.",
+      SERVICE_UNAVAILABLE:
+        "Palvelinta ei tavoiteta. Varmista, että palvelu on käynnissä.",
       UNAUTHORIZED: "Virheellinen käyttäjätunnus tai salasana.",
       TOKEN_EXPIRED: "Istunto on vanhentunut. Kirjaudu sisään uudelleen.",
       NETWORK_ERROR: "Verkkovirhe. Tarkista internetyhteytesi.",
@@ -376,7 +384,7 @@ export const translations = {
       totalPossiblePoints: "100% Toimintopisteet",
     },
     printUtils: {
-      projectReport: "Projektiraportti",
+      projectReport: "Laskentaraportti",
       projectId: "Projektin ID",
       version: "Versio",
       createdDate: "Luotu",
@@ -493,7 +501,8 @@ export const translations = {
       newFunctionalComponent: "Lisää toiminnallinen komponentti",
       comments: "Kommentit",
       commentsTitle: "Kommentit",
-      archivedVersionReadOnly: "Arkistoitu versio: kommentit ovat vain luku -tilassa.",
+      archivedVersionReadOnly:
+        "Arkistoitu versio: kommentit ovat vain luku -tilassa.",
       noCommentsYet: "Ei kommentteja vielä.",
       addCommentPlaceholder: "Lisää kommentti...",
       addComment: "Lisää kommentti",
@@ -512,14 +521,19 @@ export const translations = {
       version: "Versio",
       nameOfProject: "Projektin nimi",
       calculationDate: "Laskennan päivämäärä.",
+      reportContactDetails: "Raportin yhteystiedot",
+      reportNotes: "Raportin laskentamuistiinpanot",
+      saveReportInformation: "Tallenna raportin tiedot",
       cannotEditOrSaveArchivedVersion:
         "Arkistoitua versiota ei voi muokata tai tallentaa",
       expandAll: "Laajenna kaikki",
       collapseAll: "Pienennä kaikki",
+      expandDescriptions: "Laajenna kuvaukset",
+      collapseDescriptions: "Pienennä kuvaukset",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",
-      printPDF: "Tulosta PDF",
+      overviewSummaryReport: "Laajuuden yhteenvetoraportti",
     },
     functionalPointSummary: {
       noSelectedComponentType: "ei valittua toimintotyyppiä",
@@ -528,7 +542,7 @@ export const translations = {
       completionPercentage: "Valmistumisprosentti",
       functionalPointText: "TP",
       csv: "Luo CSV",
-      pdf: "Luo PDF",
+      calculationReport: "Laskentaraportti",
       parentComponents: "Yhteensä ilman monikerrosliittymiä",
       grandTotal: "Yhteensä",
       calculationsTab: "Laskelmat",
@@ -559,7 +573,8 @@ export const translations = {
       deleteSuccessful: "Toiminnallinen komponentti poistettu",
       deleteFailed: "Toiminnallisen komponentin poistaminen epäonnistui",
       sessionExpirationHeader: "Istunto",
-      sessionExpirationDescription: "Istuntosi vanhenee {minutes} minuutin kuluttua"
+      sessionExpirationDescription:
+        "Istuntosi vanhenee {minutes} minuutin kuluttua",
     },
     profilePage: {
       header: "Profiili",

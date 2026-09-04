@@ -35,7 +35,10 @@ public class ProjectMapper {
             project.getCreatedAt(),
             project.getVersionCreatedAt(),
             project.getCalculationDate(),
+            project.getReportContactDetails(),
+            project.getReportNotes(),
             project.getUpdatedAt(),
+            project.getDeletedAt() == null,
             project.getFunctionalComponents().stream()
                 .filter(fc -> fc.getParentFCId() == null) // Only include top-level components
                 .map(fc -> functionalComponentMapper.toResponse(fc))
@@ -60,6 +63,8 @@ public class ProjectMapper {
         LocalDateTime.now().plusHours(2),
         LocalDateTime.now().plusHours(2),
         request.getCalculationDate(),
+        request.getReportContactDetails(),
+        request.getReportNotes(),
         LocalDateTime.now().plusHours(2),
         null, // No deletion date initially
         Set.of(), // Empty functional components initially
@@ -94,6 +99,8 @@ public class ProjectMapper {
             project.getCreatedAt(),
             project.getVersionCreatedAt(),
             request.getCalculationDate(),
+            request.getReportContactDetails(),
+            request.getReportNotes(),
             LocalDateTime.now().plusHours(2), // new edited date
             project.getDeletedAt(),
             functionalComponents,
@@ -110,6 +117,8 @@ public class ProjectMapper {
             originalProject.getCreatedAt(), // keep original creation date
             LocalDateTime.now().plusHours(2), // new version date
             request.getCalculationDate(),
+            request.getReportContactDetails(),
+            request.getReportNotes(),
             LocalDateTime.now().plusHours(2), // new edited date
             null, // No deletion date initially
             Set.of(), // FunctionalComponents will be set by service

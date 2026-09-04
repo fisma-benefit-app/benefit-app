@@ -33,7 +33,9 @@ export default function ErrorModal() {
             className="w-6 h-6 text-fisma-red flex-shrink-0 mt-1"
           />
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">{translation.error}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              {translation.error}
+            </h2>
             <p className="text-gray-700">{error}</p>
           </div>
           <button
