@@ -27,6 +27,7 @@ services:
     environment:
       API_DEBUG: ${API_DEBUG}
       API_DEBUG_LEVEL: ${API_DEBUG_LEVEL}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DOCKER_COMPOSE_FILE: /workspace/compose.yaml
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}

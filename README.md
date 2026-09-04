@@ -530,6 +530,12 @@ cp frontend/.env.example frontend/.env
 
 | You can change them as you wish, but the dev environment should usually work with the default values.
 
+# TO DO, PLEASE UPDATE THIS SECTION:
+The backend JWT signing key is supplied through the `JWT_PRIVATE_KEY` environment variable and is
+not stored in the repository. Set it in the root `.env` file before starting the backend. The value
+must be a PKCS#8 RSA private key, including the `-----BEGIN PRIVATE KEY-----` and
+`-----END PRIVATE KEY-----` markers. For a one-line `.env` value, represent line breaks as `\n`.
+
 ### 3) Run Options
 
 #### A) Full Dockerized Setup

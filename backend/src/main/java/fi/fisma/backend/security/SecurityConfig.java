@@ -51,8 +51,12 @@ public class SecurityConfig {
 
   @Bean
   @Profile("default")
-  public RSAPrivateKey privateKey(@Value("${jwt.private.key}") RSAPrivateKey privateKey) {
-    return privateKey;
+  public RSAPrivateKey privateKey(@Value("${jwt.private.key}") String privateKey) {
+    try {
+      return parsePrivateKey(privateKey);
+    } catch (Exception exception) {
+      throw new IllegalStateException("JWT_PRIVATE_KEY is not a valid RSA private key", exception);
+    }
   }
 
   @Bean
@@ -138,6 +142,7 @@ public class SecurityConfig {
   private RSAPrivateKey parsePrivateKey(String privateKeyStr) throws Exception {
     String privateKeyPEM =
         privateKeyStr
+            .replace("\\n", "\n")
             .replace("-----BEGIN PRIVATE KEY-----", "")
             .replace("-----END PRIVATE KEY-----", "")
             .replaceAll("\\s+", "");
