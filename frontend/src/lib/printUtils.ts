@@ -654,7 +654,7 @@ export const generateCalculationReportPDF = (
   table.appendChild(tfoot);
 
     // --- HELPER FUNCTION: Summary Table ---
-  const createSummaryTable = (doc: Document, title: string, data: any[], headers: string[]) => {
+  const createSummaryTable = (doc: Document, title: string, data: (string | number)[][], headers: string[]) => {
     const wrapper = doc.createElement("div");
     wrapper.style.marginTop = "30px";
     
@@ -724,8 +724,8 @@ export const generateCalculationReportPDF = (
 
   // --- HELPER FUNCTION: Group by Class and Components ---
   const getSummaryDataByProperty = (
-    components: any[], 
-    propertyKey: string, 
+    components: ReturnType<typeof getAllComponents>, 
+    propertyKey: keyof ReturnType<typeof getAllComponents>[number], 
     translateFn: (val: string) => string
   ) => {
     const summary: Record<string, { actual: number; possible: number }> = {};
@@ -734,7 +734,7 @@ export const generateCalculationReportPDF = (
       const rawValue = comp[propertyKey];
       if (!rawValue) return; 
 
-      const label = translateFn(rawValue);
+      const label = translateFn(String(rawValue));
 
       if (!summary[label]) {
         summary[label] = { actual: 0, possible: 0 };
