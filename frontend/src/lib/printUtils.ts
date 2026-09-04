@@ -6,6 +6,8 @@ import {
   calculateTotalPossiblePoints,
   calculateBasePoints,
   calculateComponentsWithPoints,
+  calculateProjectPointsByLayer,
+  calculatePossiblePointsByLayer,
   calculateMLALayerDetails,
   calculateMLAMessageCounts,
 } from "./centralizedCalculations.ts";
@@ -369,10 +371,15 @@ export const generateCalculationReportPDF = (
       dateLocalizer(oldProject.versionCreatedAt),
     ],
     [
+      printUtilsTranslation.calculationDate || "Calculation Date",
+      project.calculationDate ? dateLocalizer(project.calculationDate): "N/A",
+      oldProject.calculationDate ? dateLocalizer(oldProject.calculationDate) : "N/A",
+    ],
+    [
       printUtilsTranslation.lastEditedDate,
       dateLocalizer(project.updatedAt),
       dateLocalizer(oldProject.updatedAt),
-    ],
+    ]
   ];
 
   infoRows.forEach(([label, currentValue, prevValue]) => {
@@ -563,6 +570,29 @@ export const generateCalculationReportPDF = (
     }
   });
 
+  
+  // --- HELPER FUNCTION: Compare the change ---
+  const formatTotalWithDiff = (current: number, previous: number) => {
+    if (current === previous)
+      return current.toFixed(2);
+
+    const diff = current - previous;
+    const sign = diff > 0 ? "+" : "-"
+
+    return `${current.toFixed(2)} FP (${sign}${diff.toFixed(2)} FP)`;
+  }
+
+  const currentTotal = calculateTotalPoints(allCurrentComponents);
+  const oldTotal = calculateTotalPoints(allOldComponents);
+  const currentPossible = calculateTotalPossiblePoints(allCurrentComponents);
+  const oldPossible = calculateTotalPossiblePoints(allOldComponents);
+
+  const currentTotalNoSub = calculateTotalPoints(project.functionalComponents);
+  const oldTotalNoSub = calculateTotalPoints(oldProject.functionalComponents);
+  const currentPossibleNoSub = calculateTotalPossiblePoints(project.functionalComponents);
+  const oldPossibleNoSub = calculateTotalPossiblePoints(oldProject.functionalComponents);
+
+
   const tfoot = doc.createElement("tfoot");
   const totalRow = doc.createElement("tr");
   totalRow.className = "total-row";
@@ -579,15 +609,15 @@ export const generateCalculationReportPDF = (
   totalRow.appendChild(
     createComparisonCell(
       doc,
-      calculateTotalPoints(allCurrentComponents).toFixed(2),
-      calculateTotalPoints(allOldComponents).toFixed(2),
+      formatTotalWithDiff(currentTotal, oldTotal),
+      currentTotal === oldTotal ? currentTotal.toFixed(2) : null,
     ),
   );
   totalRow.appendChild(
     createComparisonCell(
       doc,
-      calculateTotalPossiblePoints(allCurrentComponents).toFixed(2),
-      calculateTotalPossiblePoints(allOldComponents).toFixed(2),
+      formatTotalWithDiff(currentPossible, oldPossible),
+      currentPossible === oldPossible ? currentPossible.toFixed(2) : null
     ),
   );
 
@@ -606,15 +636,15 @@ export const generateCalculationReportPDF = (
   totalRowWithoutSubcomponents.appendChild(
     createComparisonCell(
       doc,
-      calculateTotalPoints(project.functionalComponents).toFixed(2),
-      calculateTotalPoints(oldProject.functionalComponents).toFixed(2),
+      formatTotalWithDiff(currentTotalNoSub, oldTotalNoSub),
+      currentTotalNoSub === oldTotalNoSub ? currentTotalNoSub.toFixed(2) : null
     ),
   );
   totalRowWithoutSubcomponents.appendChild(
     createComparisonCell(
       doc,
-      calculateTotalPossiblePoints(project.functionalComponents).toFixed(2),
-      calculateTotalPossiblePoints(oldProject.functionalComponents).toFixed(2),
+      formatTotalWithDiff(currentPossibleNoSub, oldPossibleNoSub),
+      currentPossibleNoSub === oldPossibleNoSub ? currentPossibleNoSub.toFixed(2) : null
     ),
   );
 
@@ -625,9 +655,148 @@ export const generateCalculationReportPDF = (
   table.appendChild(tbody);
   table.appendChild(tfoot);
 
+    // --- HELPER FUNCTION: Summary Table ---
+  const createSummaryTable = (doc: Document, title: string, data: (string | number)[][], headers: string[]) => {
+    const wrapper = doc.createElement("div");
+    wrapper.style.marginTop = "30px";
+    
+    const tableTitle = createElementWithText(doc, "h3", title);
+    wrapper.appendChild(tableTitle);
+
+    const tbl = doc.createElement("table");
+    
+    // Header
+    const tHead = doc.createElement("thead");
+    const hRow = doc.createElement("tr");
+    headers.forEach(headerText => {
+      hRow.appendChild(createElementWithText(doc, "th", headerText));
+    });
+    tHead.appendChild(hRow);
+    tbl.appendChild(tHead);
+
+    // Body
+    const tBody = doc.createElement("tbody");
+    data.forEach(rowData => {
+      const row = doc.createElement("tr");
+      rowData.forEach((cellData: string | number) => {
+        row.appendChild(createElementWithText(doc, "td", String(cellData)));
+      });
+      tBody.appendChild(row);
+    });
+    tbl.appendChild(tBody);
+    
+    wrapper.appendChild(tbl);
+    return wrapper;
+  };
+
   container.appendChild(heading);
   container.appendChild(projectInfo);
   container.appendChild(table);
+
+  // --- Summary MLA ---
+  const actualLayerPoints = calculateProjectPointsByLayer(project);
+  const possibleLayerPoints = calculatePossiblePointsByLayer(allCurrentComponents);
+  const isFinnish = printUtilsTranslation.projectReport?.toLowerCase().includes("raportti") || printUtilsTranslation.projectReport?.toLowerCase().includes("projektin");
+
+  const uiLayerLabel = isFinnish ? "Käyttöliittymäkerros (UI)" : "User Interface Layer (UI)";
+  const businessLayerLabel = isFinnish ? "Välikerros (Business)" : "Business/Middle Layer";
+  const dbLayerLabel = isFinnish ? "Tietokantakerros (Database)" : "Database Layer";
+
+  const mlaData = [
+    [uiLayerLabel, actualLayerPoints.userInterface.toFixed(2), possibleLayerPoints.userInterface.toFixed(2)],
+    [businessLayerLabel, actualLayerPoints.business.toFixed(2), possibleLayerPoints.business.toFixed(2)],
+    [dbLayerLabel, actualLayerPoints.database.toFixed(2), possibleLayerPoints.database.toFixed(2)]
+  ];
+
+  const mlaTableHeading = isFinnish 
+    ? "Monikerrosarkkitehtuurin yhteenveto (MLA Totals)" 
+    : "Multi-layered Architecture Summary (MLA Totals)";
+
+  const mlaTable = createSummaryTable(
+    doc, 
+    mlaTableHeading, 
+    mlaData, 
+    [
+      isFinnish ? "Kerros" : "Layer", 
+      isFinnish ? "Toteutuneet FP" : "Actual FP", 
+      isFinnish ? "Maksimaaliset FP (100%)" : "100% FP"
+    ]
+  );
+  container.appendChild(mlaTable);
+
+  // --- HELPER FUNCTION: Group by Class and Components ---
+  const getSummaryDataByProperty = (
+    components: ReturnType<typeof getAllComponents>, 
+    propertyKey: keyof ReturnType<typeof getAllComponents>[number], 
+    translateFn: (val: string) => string
+  ) => {
+    const summary: Record<string, { actual: number; possible: number }> = {};
+
+    components.forEach((comp) => {
+      const rawValue = comp[propertyKey];
+      if (!rawValue) return; 
+
+      const label = translateFn(String(rawValue));
+
+      if (!summary[label]) {
+        summary[label] = { actual: 0, possible: 0 };
+      }
+
+      const actualPoints = calculateComponentPointsWithMultiplier(comp || null, comp.degreeOfCompletion);
+      const possiblePoints = calculateBasePoints(comp);
+
+      summary[label].actual += actualPoints;
+      summary[label].possible += possiblePoints;
+    });
+
+    return Object.entries(summary).map(([label, totals]) => [
+      label,
+      totals.actual.toFixed(2),
+      totals.possible.toFixed(2),
+    ]);
+  };
+
+  // --- CREATE SUMMARY TABLE GROUP BY CLASS ---
+  const classData = getSummaryDataByProperty(allCurrentComponents, "className", translateClassName);
+  
+  if (classData.length > 0) {
+    const classTableHeading = isFinnish 
+      ? "Yhteenveto toimintoluokittain (By Class)" 
+      : "Summary by Component Class";
+      
+    const classTable = createSummaryTable(
+      doc, 
+      classTableHeading, 
+      classData, 
+      [
+        isFinnish ? "Toimintoluokka" : "Class Name", 
+        isFinnish ? "Toteutuneet FP" : "Actual FP", 
+        isFinnish ? "Maksimaaliset FP (100%)" : "100% FP"
+      ]
+    );
+    container.appendChild(classTable);
+  }
+
+  // --- CREATE SUMMARY TABLE GROUP BY TYPE ---
+  const typeData = getSummaryDataByProperty(allCurrentComponents, "componentType", translateComponentType);
+  
+  if (typeData.length > 0) {
+    const typeTableHeading = isFinnish 
+      ? "Yhteenveto toimintotyypeittäin (By Type)" 
+      : "Summary by Component Type";
+      
+    const typeTable = createSummaryTable(
+      doc, 
+      typeTableHeading, 
+      typeData, 
+      [
+        isFinnish ? "Toimintotyyppi" : "Component Type", 
+        isFinnish ? "Toteutuneet FP" : "Actual FP", 
+        isFinnish ? "Maksimaaliset FP (100%)" : "100% FP"
+      ]
+    );
+    container.appendChild(typeTable);
+  }
 
   if (doc.head) {
     doc.head.appendChild(style);
