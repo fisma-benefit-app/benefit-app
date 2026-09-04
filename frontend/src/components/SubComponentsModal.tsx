@@ -6,6 +6,7 @@ type SubComponentsModalProps = {
   setOpen: (open: boolean) => void;
   subComponents: MLAsubComponent[];
   parentTitle: string;
+  descriptionRowsExpanded: boolean;
 };
 
 export default function SubComponentsModal({
@@ -13,6 +14,7 @@ export default function SubComponentsModal({
   setOpen,
   subComponents,
   parentTitle,
+  descriptionRowsExpanded
 }: SubComponentsModalProps) {
   if (!open) return null;
 
@@ -64,6 +66,7 @@ export default function SubComponentsModal({
                     debouncedSaveProject={() => {}}
                     onMLAToggle={() => {}}
                     dragHandleProps={{}}
+                    descriptionRowsExpanded
                   />
                 </div>
               </div>

@@ -655,6 +655,7 @@ export default function FunctionalClassComponent({
           setOpen={setSubComponentsModalOpen}
           subComponents={component.subComponents}
           parentTitle={component.title || "Untitled component"}
+          descriptionRowsExpanded={descriptionRowsExpanded}
         />
       )}
 
