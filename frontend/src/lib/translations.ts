@@ -223,6 +223,8 @@ export const translations = {
       cannotEditOrSaveArchivedVersion: "Cannot edit or save archived version",
       expandAll: "Expand all",
       collapseAll: "Collapse all",
+      expandDescriptions: "Expand descriptions",
+      collapseDescriptions: "Collapse descriptions",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
@@ -526,6 +528,8 @@ export const translations = {
         "Arkistoitua versiota ei voi muokata tai tallentaa",
       expandAll: "Laajenna kaikki",
       collapseAll: "Pienennä kaikki",
+      expandDescriptions: "Laajenna kuvaukset",
+      collapseDescriptions: "Pienennä kuvaukset",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",

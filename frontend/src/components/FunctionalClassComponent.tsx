@@ -49,6 +49,7 @@ type FunctionalClassComponentProps = {
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
   debouncedSaveProject: () => void;
   onMLAToggle: (componentId: number, newValue: boolean) => void;
+  descriptionRowsExpanded: boolean;
 };
 
 export default function FunctionalClassComponent({
@@ -62,6 +63,7 @@ export default function FunctionalClassComponent({
   debouncedSaveProject,
   dragHandleProps,
   onMLAToggle,
+  descriptionRowsExpanded
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
@@ -395,7 +397,7 @@ export default function FunctionalClassComponent({
                 value={component.description || ""}
                 onChange={handleComponentChange}
                 className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md"
-                rows={3}
+                rows={descriptionRowsExpanded ? 10 : 3}
                 disabled={!isLatest}
                 placeholder={translation.descriptionPlaceholder}
               />
