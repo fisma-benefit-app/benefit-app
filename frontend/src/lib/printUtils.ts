@@ -1,3 +1,5 @@
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { CommentResponse, Project, TGenericComponent } from "./types";
 import {
   calculateComponentPointsWithMultiplier,
@@ -71,6 +73,152 @@ export const downloadCSV = (csvData: string, filename = "data.csv") => {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+};
+
+const PDF_PAGE_WIDTH_MM = 210;
+const PDF_PAGE_HEIGHT_MM = 297;
+const PDF_CANVAS_MAX_PX = 32767;
+
+const ensurePdfFilename = (filename: string) =>
+  filename.toLowerCase().endsWith(".pdf") ? filename : `${filename}.pdf`;
+
+const waitForNextPaint = () =>
+  new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+
+const createHiddenIframe = (): { iframe: HTMLIFrameElement; doc: Document } => {
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.tabIndex = -1;
+  iframe.style.cssText =
+    "position:fixed;left:-10000px;top:0;width:210mm;height:297mm;border:0;pointer-events:none;background:#ffffff;";
+  document.body.appendChild(iframe);
+  const doc = iframe.contentDocument;
+  if (!doc) {
+    iframe.remove();
+    throw new Error("Could not create PDF document");
+  }
+  return { iframe, doc };
+};
+
+const sizeIframeToContent = async (
+  iframe: HTMLIFrameElement,
+  doc: Document,
+) => {
+  const contentHeight = Math.max(
+    doc.documentElement.scrollHeight,
+    doc.body?.scrollHeight ?? 0,
+  );
+  iframe.style.height = `${Math.max(contentHeight, 1)}px`;
+  await waitForNextPaint();
+  if (doc.fonts?.ready) {
+    await doc.fonts.ready;
+  }
+};
+
+const captureElement = (element: HTMLElement) => {
+  const scale = Math.min(
+    2,
+    PDF_CANVAS_MAX_PX / Math.max(element.scrollHeight, 1),
+  );
+  return html2canvas(element, {
+    scale: Number.isFinite(scale) && scale > 0 ? scale : 1,
+    useCORS: true,
+    logging: false,
+    backgroundColor: "#ffffff",
+  });
+};
+
+const addCanvasToPdf = (
+  pdf: jsPDF,
+  canvas: HTMLCanvasElement,
+  state: { isEmpty: boolean },
+) => {
+  const pxPerMm = canvas.width / PDF_PAGE_WIDTH_MM;
+  const pageHeightPx = Math.max(1, Math.floor(PDF_PAGE_HEIGHT_MM * pxPerMm));
+  const pageCanvas = document.createElement("canvas");
+  const pageCtx = pageCanvas.getContext("2d");
+  if (!pageCtx) {
+    throw new Error("Could not create PDF page canvas");
+  }
+
+  let renderedY = 0;
+  while (renderedY < canvas.height) {
+    if (!state.isEmpty) {
+      pdf.addPage();
+    }
+    state.isEmpty = false;
+
+    const sliceHeight = Math.min(pageHeightPx, canvas.height - renderedY);
+    pageCanvas.width = canvas.width;
+    pageCanvas.height = sliceHeight;
+    pageCtx.fillStyle = "#ffffff";
+    pageCtx.fillRect(0, 0, canvas.width, sliceHeight);
+    pageCtx.drawImage(
+      canvas,
+      0,
+      renderedY,
+      canvas.width,
+      sliceHeight,
+      0,
+      0,
+      canvas.width,
+      sliceHeight,
+    );
+    pdf.addImage(
+      pageCanvas.toDataURL("image/png"),
+      "PNG",
+      0,
+      0,
+      PDF_PAGE_WIDTH_MM,
+      sliceHeight / pxPerMm,
+    );
+    renderedY += sliceHeight;
+  }
+};
+
+const downloadElementsAsPdf = async (
+  elements: HTMLElement[],
+  filename: string,
+) => {
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+  const state = { isEmpty: true };
+
+  for (const element of elements) {
+    const canvas = await captureElement(element);
+    addCanvasToPdf(pdf, canvas, state);
+  }
+
+  pdf.save(ensurePdfFilename(filename));
+};
+
+const downloadHtmlAsPdf = async (
+  html: string,
+  filename: string,
+  pageSelector?: string,
+) => {
+  const { iframe, doc } = createHiddenIframe();
+  try {
+    doc.open();
+    doc.write(html);
+    doc.close();
+    await sizeIframeToContent(iframe, doc);
+
+    const pages = pageSelector
+      ? Array.from(doc.querySelectorAll<HTMLElement>(pageSelector))
+      : [];
+    const targets = pages.length > 0 ? pages : [doc.body];
+    await downloadElementsAsPdf(targets, filename);
+  } finally {
+    iframe.remove();
+  }
 };
 
 export const encodeComponentForCSV = (
@@ -229,13 +377,13 @@ const getAllComponents = (
   return components.flatMap((comp) => [comp, ...(comp.subComponents || [])]);
 };
 
-export const generateCalculationReportPDF = (
+export const generateCalculationReportPDF = async (
   project: Project,
   oldProject: Project,
   printUtilsTranslation: Record<string, string> = {},
   classNameTranslation: Record<string, string> = {},
   componentTypeTranslation: Record<string, string> = {},
-) => {
+): Promise<void> => {
   const isFirstVersion = project.version === 1;
 
   // Maps functional components for previous project so that they can be compared to the current project
@@ -292,13 +440,9 @@ export const generateCalculationReportPDF = (
       ? componentTypeTranslation[componentType] || componentType
       : "";
 
-  const printingWindow = window.open("", "_blank", "width=800,height=600");
-  if (!printingWindow) {
-    return;
-  }
-
-  const doc = printingWindow.document;
-  doc.title = `${project.projectName}-v${project.version}`;
+  const { iframe, doc } = createHiddenIframe();
+  const filename = `${project.projectName}-v${project.version}.pdf`;
+  doc.title = filename;
   if (doc.documentElement) {
     doc.documentElement.lang = "fi";
   }
@@ -806,18 +950,21 @@ export const generateCalculationReportPDF = (
     doc.body.removeChild(doc.body.firstChild);
   }
   doc.body.appendChild(container);
-  doc.close();
-  printingWindow.print();
-  setTimeout(() => printingWindow.close(), 500);
+  try {
+    await sizeIframeToContent(iframe, doc);
+    await downloadElementsAsPdf([doc.body], filename);
+  } finally {
+    iframe.remove();
+  }
 };
 
-export const generateOverviewPDF = (
+export const generateOverviewPDF = async (
   project: Project,
   previousProject?: Project,
   language: "fi" | "en" = "fi",
   classNameTranslation: Record<string, string> = {},
   componentTypeTranslation: Record<string, string> = {},
-): void => {
+): Promise<void> => {
   const allComponents = getAllComponents(project.functionalComponents);
   const previousComponents = previousProject
     ? getAllComponents(previousProject.functionalComponents)
@@ -1000,27 +1147,17 @@ export const generateOverviewPDF = (
     <section class="page"><h2>${labels.calculation}</h2><div class="architecture"><div class="architecture-total">${labels.total} ${formatNumber(totalPoints)} ${pointUnit}${delta(totalPoints, previousTotalPoints)}</div><div class="architecture-grid"><div class="layer layer-ui">${labels.uiLayer}<strong>${layers.ui.points.toFixed(2)} ${pointUnit}</strong><span>${layers.ui.count} ${labels.functions}</span></div><div class="junction junction-up">${messages.uiToBusiness + messages.businessToUi} ${labels.interfaces}</div><div class="junction junction-left">${messages.uiToBusiness} ${labels.interfaces}<br>${language === "fi" ? "sisään" : "in"}</div><div class="layer layer-business">${labels.businessLayer}<strong>${layers.business.points.toFixed(2)} ${pointUnit}</strong><span>${language === "fi" ? "Algoritmiset toiminnot" : "Algorithmic activities"}</span></div><div class="junction junction-right">${messages.businessToUi} ${labels.interfaces}<br>${language === "fi" ? "ulos" : "out"}</div><div class="junction junction-down">${messages.businessToDatabase + messages.databaseToBusiness} ${labels.interfaces}</div><div class="layer layer-database">${labels.databaseLayer}<strong>${layers.database.points.toFixed(2)} ${pointUnit}</strong><span>${layers.database.count} ${labels.concepts}</span></div></div></div><h3>${labels.actions}</h3><table><thead><tr><th>${labels.feature}</th><th>${labels.functionClass}</th><th>${labels.functionType}</th><th>${labels.dataElements}</th><th>${labels.readingReferences}</th><th>${labels.writingReferences}</th><th>${labels.actionPoints}</th><th>${labels.completion}</th></tr></thead><tbody>${componentRows || `<tr><td colspan="8">${labels.noFunctions}</td></tr>`}</tbody></table></section>
     <section class="page"><h2>${labels.aggregates}</h2><h3>${labels.classAggregate}</h3><table><thead><tr><th>${labels.functionClass}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("className")}</tbody></table><h3>${labels.typeAggregate}</h3><table><thead><tr><th>${labels.functionType}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("componentType")}</tbody></table><h3>${labels.explanation}</h3><div class="notes">${escapeHtmlForSummary(project.reportNotes)}</div><p class="small">${labels.changed}</p></section>
   </body></html>`;
-  const printWindow = window.open("", "_blank", "width=1000,height=800");
-  if (!printWindow) return;
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.document.title = filename;
-  printWindow.focus();
-  setTimeout(() => {
-    printWindow.print();
-    printWindow.close();
-  }, 250);
+  await downloadHtmlAsPdf(html, filename, ".page");
 };
 
 /**
  * Generoi projektin yhteenveto-PDF:n (alustava placeholder versio!)
- * Yksinkertaistettu versio nopeaa tulostusta varten
  */
-export const generateProjectSummaryPDF = (
+export const generateProjectSummaryPDF = async (
   project: Project,
   comments: CommentResponse[],
   commentsTitle: string,
-): void => {
+): Promise<void> => {
   const formattedCreatedAt = new Date(project.createdAt).toLocaleDateString(
     "fi-FI",
     {
@@ -1261,17 +1398,10 @@ export const generateProjectSummaryPDF = (
     </html>
   `;
 
-  const blob = new Blob([htmlContent], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const printWindow = window.open(url, "_blank");
-
-  if (printWindow) {
-    printWindow.addEventListener("load", () => {
-      setTimeout(() => {
-        printWindow.print();
-      }, 250);
-    });
-  }
+  await downloadHtmlAsPdf(
+    htmlContent,
+    `${project.projectName}-v${project.version}-yhteenveto.pdf`,
+  );
 };
 
 /**

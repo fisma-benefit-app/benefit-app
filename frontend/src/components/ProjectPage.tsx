@@ -274,20 +274,24 @@ export default function ProjectPage() {
     }
   };
 
-  const handlePrintProjectSummaryPDF = () => {
+  const handlePrintProjectSummaryPDF = async () => {
     if (!project) return;
 
     const previousProject = allProjectVersions
       .filter((version) => version.version < project.version)
       .sort((a, b) => b.version - a.version)[0];
 
-    generateOverviewPDF(
-      project,
-      previousProject,
-      language,
-      translations.functionalClassComponent.classNameOptions,
-      translations.functionalClassComponent.componentTypeOptions,
-    );
+    try {
+      await generateOverviewPDF(
+        project,
+        previousProject,
+        language,
+        translations.functionalClassComponent.classNameOptions,
+        translations.functionalClassComponent.componentTypeOptions,
+      );
+    } catch (error) {
+      console.error("Failed to generate PDF", error);
+    }
   };
 
   //get all versions of the same project
