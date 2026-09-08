@@ -449,7 +449,13 @@ export default function ProjectPage() {
   };
 
   const toggleCompactMode = () => {
-    setIsCompactMode((prev) => !prev);
+    if (isCompactMode) {
+      setIsCompactMode(false);
+      setCollapseAll(true);
+    } else {
+      setIsCompactMode(true);
+      setCollapseAll(false);
+    }
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -842,7 +848,7 @@ export default function ProjectPage() {
               </div>
               <div className="flex flex-row gap-2 w-full">
                 <button
-                  className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
+                  className={`${isCompactMode ? "w-full" : "w-[49%]"} bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis`}
                   onClick={() => {
                     setCollapseAll((prev) => !prev);
                   }}
@@ -851,14 +857,16 @@ export default function ProjectPage() {
                     ? translation.expandAll
                     : translation.collapseAll}
                 </button>
-                <button
-                  className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
-                  onClick={toggleDescriptionRows}
-                >
-                  {descriptionRowsExpanded ?
-                    translation.collapseDescriptions
-                    : translation.expandDescriptions}
-                </button>
+                {!isCompactMode && (
+                  <button
+                    className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
+                    onClick={toggleDescriptionRows}
+                  >
+                    {descriptionRowsExpanded ?
+                      translation.collapseDescriptions
+                      : translation.expandDescriptions}
+                  </button>
+                )}
               </div>
               <div className="flex w-full">
                 <button
