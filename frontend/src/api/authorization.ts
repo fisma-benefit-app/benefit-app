@@ -38,4 +38,23 @@ const fetchJWT = async (username: string, password: string) => {
   }
 };
 
-export { fetchJWT };
+const extendSession = async (sessionToken: string) => {
+  const fetchURL = `${API_URL}/token`;
+  const response = await fetch(fetchURL, {
+    method: "POST",
+    headers: { Authorization: sessionToken },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error extending session! Status: ${response.status}`);
+  }
+
+  const token = response.headers.get("Authorization");
+  if (!token) {
+    throw new Error("No Authorization token received from server.");
+  }
+
+  return token;
+};
+
+export { extendSession, fetchJWT };

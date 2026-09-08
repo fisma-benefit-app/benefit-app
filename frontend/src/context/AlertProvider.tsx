@@ -16,6 +16,10 @@ interface Notification {
   message: string;
   type: NotificationType;
   isVisible: boolean;
+  action?: {
+    label: string;
+    onClick: () => void | Promise<void>;
+  };
 }
 
 interface AlertContextType {
@@ -24,6 +28,7 @@ interface AlertContextType {
     message: string,
     type?: NotificationType,
     id?: string, // optional ID for tracking same operation
+    action?: Notification["action"],
   ) => void;
   updateNotification: (
     id: string,
@@ -44,17 +49,20 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
     message: string,
     type: NotificationType = "info",
     id: string = `${Date.now()}`, // default unique id if not given
+    action?: Notification["action"],
   ) => {
     setNotifications((prev) => {
       const existing = prev.find((n) => n.id === id);
       if (existing) {
         // Update existing instead of adding
         return prev.map((n) =>
-          n.id === id ? { ...n, title, message, type, isVisible: true } : n,
+          n.id === id
+            ? { ...n, title, message, type, isVisible: true, action }
+            : n,
         );
       }
       // Add new
-      return [...prev, { id, title, message, type, isVisible: true }];
+      return [...prev, { id, title, message, type, isVisible: true, action }];
     });
   };
 
@@ -119,12 +127,14 @@ function NotificationToast({
   message,
   type,
   isVisible,
+  action,
   onClose,
 }: {
   title: string;
   message: string;
   type: NotificationType;
   isVisible: boolean;
+  action?: Notification["action"];
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -176,6 +186,17 @@ function NotificationToast({
         <div className="flex-1">
           <h3 className="text-sm font-semibold">{title}</h3>
           <p className="mt-1 text-sm">{message}</p>
+          {action && (
+            <button
+              type="button"
+              onClick={() => {
+                void action.onClick();
+              }}
+              className="mt-2 text-sm font-semibold underline"
+            >
+              {action.label}
+            </button>
+          )}
         </div>
         {type === "error" && (
           <button

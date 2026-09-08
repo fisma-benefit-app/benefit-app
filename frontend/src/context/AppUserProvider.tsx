@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
 import { decodeJWT } from "../lib/jwtUtils";
+import { extendSession } from "../api/authorization";
 import { useAlert } from "./AlertProvider";
 import useTranslations from "../hooks/useTranslations";
 
@@ -84,6 +85,20 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       updateSessionWarning(getMinutesLeft()),
       "error",
       "session-expiring",
+      {
+        label: translation.extendSession,
+        onClick: async () => {
+          try {
+            const renewedToken = await extendSession(sessionToken!);
+            sessionStorage.setItem("loginToken", renewedToken);
+            setSessionToken(renewedToken);
+            hideNotification("session-expiring");
+          } catch (error) {
+            console.error("Could not extend session:", error);
+            await logout();
+          }
+        },
+      },
     );
   };
 
