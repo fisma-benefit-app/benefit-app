@@ -29,3 +29,8 @@ export const decodeJWT = (token: string): JWTPayload | null => {
     return null;
   }
 };
+
+export const sessionTimeoutConfig = {
+  sessionWarningThreshhold: 30 * 60 * 1000,
+  alertCountdownTick: 5 * 60 * 1000
+}

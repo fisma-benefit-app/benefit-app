@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
-import { decodeJWT } from "../lib/jwtUtils";
+import { decodeJWT, sessionTimeoutConfig } from "../lib/jwtUtils";
 import { useAlert } from "./AlertProvider";
 import useTranslations from "../hooks/useTranslations";
 
@@ -112,8 +112,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       logout();
     }, timeUntilExpiration);
 
-    const sessionWarningThreshhold = 30 * 60 * 1000;
-    const alertCountdownTick = 5 * 60 * 1000;
+    const sessionWarningThreshhold = sessionTimeoutConfig.sessionWarningThreshhold;
+    const alertCountdownTick = sessionTimeoutConfig.alertCountdownTick;
     const timeUntilFirstWarning =
       timeUntilExpiration - sessionWarningThreshhold;
 
