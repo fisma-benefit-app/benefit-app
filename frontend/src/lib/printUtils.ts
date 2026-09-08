@@ -1,3 +1,5 @@
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { CommentResponse, Project, TGenericComponent } from "./types";
 import {
   calculateComponentPointsWithMultiplier,
@@ -71,6 +73,152 @@ export const downloadCSV = (csvData: string, filename = "data.csv") => {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+};
+
+const PDF_PAGE_WIDTH_MM = 210;
+const PDF_PAGE_HEIGHT_MM = 297;
+const PDF_CANVAS_MAX_PX = 32767;
+
+const ensurePdfFilename = (filename: string) =>
+  filename.toLowerCase().endsWith(".pdf") ? filename : `${filename}.pdf`;
+
+const waitForNextPaint = () =>
+  new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+
+const createHiddenIframe = (): { iframe: HTMLIFrameElement; doc: Document } => {
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.tabIndex = -1;
+  iframe.style.cssText =
+    "position:fixed;left:-10000px;top:0;width:210mm;height:297mm;border:0;pointer-events:none;background:#ffffff;";
+  document.body.appendChild(iframe);
+  const doc = iframe.contentDocument;
+  if (!doc) {
+    iframe.remove();
+    throw new Error("Could not create PDF document");
+  }
+  return { iframe, doc };
+};
+
+const sizeIframeToContent = async (
+  iframe: HTMLIFrameElement,
+  doc: Document,
+) => {
+  const contentHeight = Math.max(
+    doc.documentElement.scrollHeight,
+    doc.body?.scrollHeight ?? 0,
+  );
+  iframe.style.height = `${Math.max(contentHeight, 1)}px`;
+  await waitForNextPaint();
+  if (doc.fonts?.ready) {
+    await doc.fonts.ready;
+  }
+};
+
+const captureElement = (element: HTMLElement) => {
+  const scale = Math.min(
+    2,
+    PDF_CANVAS_MAX_PX / Math.max(element.scrollHeight, 1),
+  );
+  return html2canvas(element, {
+    scale: Number.isFinite(scale) && scale > 0 ? scale : 1,
+    useCORS: true,
+    logging: false,
+    backgroundColor: "#ffffff",
+  });
+};
+
+const addCanvasToPdf = (
+  pdf: jsPDF,
+  canvas: HTMLCanvasElement,
+  state: { isEmpty: boolean },
+) => {
+  const pxPerMm = canvas.width / PDF_PAGE_WIDTH_MM;
+  const pageHeightPx = Math.max(1, Math.floor(PDF_PAGE_HEIGHT_MM * pxPerMm));
+  const pageCanvas = document.createElement("canvas");
+  const pageCtx = pageCanvas.getContext("2d");
+  if (!pageCtx) {
+    throw new Error("Could not create PDF page canvas");
+  }
+
+  let renderedY = 0;
+  while (renderedY < canvas.height) {
+    if (!state.isEmpty) {
+      pdf.addPage();
+    }
+    state.isEmpty = false;
+
+    const sliceHeight = Math.min(pageHeightPx, canvas.height - renderedY);
+    pageCanvas.width = canvas.width;
+    pageCanvas.height = sliceHeight;
+    pageCtx.fillStyle = "#ffffff";
+    pageCtx.fillRect(0, 0, canvas.width, sliceHeight);
+    pageCtx.drawImage(
+      canvas,
+      0,
+      renderedY,
+      canvas.width,
+      sliceHeight,
+      0,
+      0,
+      canvas.width,
+      sliceHeight,
+    );
+    pdf.addImage(
+      pageCanvas.toDataURL("image/png"),
+      "PNG",
+      0,
+      0,
+      PDF_PAGE_WIDTH_MM,
+      sliceHeight / pxPerMm,
+    );
+    renderedY += sliceHeight;
+  }
+};
+
+const downloadElementsAsPdf = async (
+  elements: HTMLElement[],
+  filename: string,
+) => {
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+  const state = { isEmpty: true };
+
+  for (const element of elements) {
+    const canvas = await captureElement(element);
+    addCanvasToPdf(pdf, canvas, state);
+  }
+
+  pdf.save(ensurePdfFilename(filename));
+};
+
+const downloadHtmlAsPdf = async (
+  html: string,
+  filename: string,
+  pageSelector?: string,
+) => {
+  const { iframe, doc } = createHiddenIframe();
+  try {
+    doc.open();
+    doc.write(html);
+    doc.close();
+    await sizeIframeToContent(iframe, doc);
+
+    const pages = pageSelector
+      ? Array.from(doc.querySelectorAll<HTMLElement>(pageSelector))
+      : [];
+    const targets = pages.length > 0 ? pages : [doc.body];
+    await downloadElementsAsPdf(targets, filename);
+  } finally {
+    iframe.remove();
+  }
 };
 
 export const encodeComponentForCSV = (
@@ -229,13 +377,13 @@ const getAllComponents = (
   return components.flatMap((comp) => [comp, ...(comp.subComponents || [])]);
 };
 
-export const generateCalculationReportPDF = (
+export const generateCalculationReportPDF = async (
   project: Project,
   oldProject: Project,
   printUtilsTranslation: Record<string, string> = {},
   classNameTranslation: Record<string, string> = {},
   componentTypeTranslation: Record<string, string> = {},
-) => {
+): Promise<void> => {
   const isFirstVersion = project.version === 1;
 
   // Maps functional components for previous project so that they can be compared to the current project
@@ -292,13 +440,9 @@ export const generateCalculationReportPDF = (
       ? componentTypeTranslation[componentType] || componentType
       : "";
 
-  const printingWindow = window.open("", "_blank", "width=800,height=600");
-  if (!printingWindow) {
-    return;
-  }
-
-  const doc = printingWindow.document;
-  doc.title = `${project.projectName}-v${project.version}`;
+  const { iframe, doc } = createHiddenIframe();
+  const filename = `${project.projectName}-v${project.version}.pdf`;
+  doc.title = filename;
   if (doc.documentElement) {
     doc.documentElement.lang = "fi";
   }
@@ -806,18 +950,23 @@ export const generateCalculationReportPDF = (
     doc.body.removeChild(doc.body.firstChild);
   }
   doc.body.appendChild(container);
-  doc.close();
-  printingWindow.print();
-  setTimeout(() => printingWindow.close(), 500);
+  try {
+    await sizeIframeToContent(iframe, doc);
+    await downloadElementsAsPdf([doc.body], filename);
+  } finally {
+    iframe.remove();
+  }
 };
 
-export const generateOverviewPDF = (
+export const generateOverviewPDF = async (
   project: Project,
   previousProject?: Project,
   language: "fi" | "en" = "fi",
   classNameTranslation: Record<string, string> = {},
   componentTypeTranslation: Record<string, string> = {},
-): void => {
+  comments: CommentResponse[] = [],
+  commentsTitle: string = "",
+): Promise<void> => {
   const allComponents = getAllComponents(project.functionalComponents);
   const previousComponents = previousProject
     ? getAllComponents(previousProject.functionalComponents)
@@ -992,35 +1141,36 @@ export const generateOverviewPDF = (
   const pointUnit = language === "fi" ? "TP" : "FP";
   const year = project.calculationDate?.slice(0, 4) || new Date().getFullYear();
   const filename = `${project.projectName}-Toiminnallisen-laajuuden-yhteenveto-${project.version}-${year}.pdf`;
+  const commentsHtml =
+    comments.length > 0
+      ? `<h3>${escapeHtmlForSummary(commentsTitle)}</h3><div class="comments">${comments
+          .map(
+            (comment) =>
+              `<div class="comment-item"><div class="comment-text">${escapeHtmlForSummary(
+                comment.text,
+              )}</div></div>`,
+          )
+          .join("")}</div>`
+      : "";
   const html = `<!doctype html><html lang="${language}"><head><meta charset="UTF-8"><title>${escapeHtmlForSummary(filename)}</title><style>
-    @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font:10px Arial,sans-serif;color:#202020;margin:0}.page{height:273mm;break-after:page;position:relative}.page:last-child{break-after:auto}h1{font-size:30px;line-height:1.2;color:#202020;margin:0 0 12mm}.report-date{display:block;font-size:22px;font-weight:normal;margin-top:4mm}h2{font-size:16px;color:#25205f;border-bottom:2px solid #25205f;padding-bottom:3px}table{width:100%;border-collapse:collapse;margin:5mm 0}th,td{border:1px solid #999;padding:3px;text-align:left;vertical-align:top}th{background:#e9e8ef;font-size:9px}.changed{color:#b00020}.delta{color:#087443;font-weight:bold;white-space:nowrap}.report-contact,.notes{white-space:pre-wrap;border:1px solid #999;padding:6mm;min-height:25mm}.footer{position:absolute;bottom:0;border:1px solid #333;padding:4mm;width:100%;font-size:9px}.architecture{text-align:center;margin:4mm auto 2mm;max-width:145mm}.architecture-total{font-size:16px;font-weight:bold;margin-bottom:5mm}.architecture-grid{display:grid;grid-template-columns:35mm 1fr 35mm;grid-template-rows:30mm 18mm 35mm 18mm 38mm;align-items:center;justify-items:center}.layer{width:62mm;min-height:30mm;border:1px solid #5b8cc5;background:linear-gradient(135deg,#b9d2ec,#75a6d5);padding:5mm;text-align:center;font-size:11px;display:flex;flex-direction:column;justify-content:center}.layer strong{font-size:14px}.layer-ui{grid-column:2;grid-row:1;border-radius:8mm}.layer-business{grid-column:2;grid-row:3;width:68mm;min-height:35mm}.layer-database{grid-column:2;grid-row:5;border-radius:50% / 15%;min-height:38mm}.junction{font-size:9px;border:1px solid #5b8cc5;background:#e5eff9;padding:2mm;width:27mm;position:relative}.junction::after{content:"";position:absolute;border:6mm solid transparent}.junction-up{grid-column:2;grid-row:2}.junction-up::after{border-bottom-color:#5b8cc5;top:-12mm;left:8mm}.junction-down{grid-column:2;grid-row:4}.junction-down::after{border-top-color:#5b8cc5;bottom:-12mm;left:8mm}.junction-left{grid-column:1;grid-row:3}.junction-left::after{border-left-color:#5b8cc5;right:-12mm;top:2mm}.junction-right{grid-column:3;grid-row:3}.junction-right::after{border-right-color:#5b8cc5;left:-12mm;top:2mm}.small{font-size:9px}
+    @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font:10px Arial,sans-serif;color:#202020;margin:0}.page{height:273mm;break-after:page;position:relative}.page:last-child{break-after:auto}h1{font-size:30px;line-height:1.2;color:#202020;margin:0 0 12mm}.report-date{display:block;font-size:22px;font-weight:normal;margin-top:4mm}h2{font-size:16px;color:#25205f;border-bottom:2px solid #25205f;padding-bottom:3px}table{width:100%;border-collapse:collapse;margin:5mm 0}th,td{border:1px solid #999;padding:3px;text-align:left;vertical-align:top}th{background:#e9e8ef;font-size:9px}.changed{color:#b00020}.delta{color:#087443;font-weight:bold;white-space:nowrap}.report-contact,.notes{white-space:pre-wrap;border:1px solid #999;padding:6mm;min-height:25mm}.footer{position:absolute;bottom:0;border:1px solid #333;padding:4mm;width:100%;font-size:9px}.architecture{text-align:center;margin:4mm auto 2mm;max-width:145mm}.architecture-total{font-size:16px;font-weight:bold;margin-bottom:5mm}.architecture-grid{display:grid;grid-template-columns:35mm 1fr 35mm;grid-template-rows:30mm 18mm 35mm 18mm 38mm;align-items:center;justify-items:center}.layer{width:62mm;min-height:30mm;border:1px solid #5b8cc5;background:linear-gradient(135deg,#b9d2ec,#75a6d5);padding:5mm;text-align:center;font-size:11px;display:flex;flex-direction:column;justify-content:center}.layer strong{font-size:14px}.layer-ui{grid-column:2;grid-row:1;border-radius:8mm}.layer-business{grid-column:2;grid-row:3;width:68mm;min-height:35mm}.layer-database{grid-column:2;grid-row:5;border-radius:50% / 15%;min-height:38mm}.junction{font-size:9px;border:1px solid #5b8cc5;background:#e5eff9;padding:2mm;width:27mm;position:relative}.junction::after{content:"";position:absolute;border:6mm solid transparent}.junction-up{grid-column:2;grid-row:2}.junction-up::after{border-bottom-color:#5b8cc5;top:-12mm;left:8mm}.junction-down{grid-column:2;grid-row:4}.junction-down::after{border-top-color:#5b8cc5;bottom:-12mm;left:8mm}.junction-left{grid-column:1;grid-row:3}.junction-left::after{border-left-color:#5b8cc5;right:-12mm;top:2mm}.junction-right{grid-column:3;grid-row:3}.junction-right::after{border-right-color:#5b8cc5;left:-12mm;top:2mm}.small{font-size:9px}.comments{margin-top:2mm}.comment-item{margin:0 0 3mm;padding:3mm;background:#f9f9f9;border-left:3px solid #25205f}.comment-text{white-space:pre-wrap;word-wrap:break-word}
     @media print{body{print-color-adjust:exact}.page{height:273mm}}
   </style></head><body>
     <section class="page"><h1>${escapeHtmlForSummary(project.projectName)} - ${language === "fi" ? "toiminnallisen laajuuden yhteenveto" : "functional size overview"}<span class="report-date">${reportDate}</span></h1><div class="report-contact">${escapeHtmlForSummary(project.reportContactDetails)}</div><div class="footer">FiSMA 1.1 Toiminnallisen koon mittaamisen menetelmä ISO/IEC 29881:2010</div></section>
     <section class="page"><h2>${labels.calculation}</h2><div class="architecture"><div class="architecture-total">${labels.total} ${formatNumber(totalPoints)} ${pointUnit}${delta(totalPoints, previousTotalPoints)}</div><div class="architecture-grid"><div class="layer layer-ui">${labels.uiLayer}<strong>${layers.ui.points.toFixed(2)} ${pointUnit}</strong><span>${layers.ui.count} ${labels.functions}</span></div><div class="junction junction-up">${messages.uiToBusiness + messages.businessToUi} ${labels.interfaces}</div><div class="junction junction-left">${messages.uiToBusiness} ${labels.interfaces}<br>${language === "fi" ? "sisään" : "in"}</div><div class="layer layer-business">${labels.businessLayer}<strong>${layers.business.points.toFixed(2)} ${pointUnit}</strong><span>${language === "fi" ? "Algoritmiset toiminnot" : "Algorithmic activities"}</span></div><div class="junction junction-right">${messages.businessToUi} ${labels.interfaces}<br>${language === "fi" ? "ulos" : "out"}</div><div class="junction junction-down">${messages.businessToDatabase + messages.databaseToBusiness} ${labels.interfaces}</div><div class="layer layer-database">${labels.databaseLayer}<strong>${layers.database.points.toFixed(2)} ${pointUnit}</strong><span>${layers.database.count} ${labels.concepts}</span></div></div></div><h3>${labels.actions}</h3><table><thead><tr><th>${labels.feature}</th><th>${labels.functionClass}</th><th>${labels.functionType}</th><th>${labels.dataElements}</th><th>${labels.readingReferences}</th><th>${labels.writingReferences}</th><th>${labels.actionPoints}</th><th>${labels.completion}</th></tr></thead><tbody>${componentRows || `<tr><td colspan="8">${labels.noFunctions}</td></tr>`}</tbody></table></section>
-    <section class="page"><h2>${labels.aggregates}</h2><h3>${labels.classAggregate}</h3><table><thead><tr><th>${labels.functionClass}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("className")}</tbody></table><h3>${labels.typeAggregate}</h3><table><thead><tr><th>${labels.functionType}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("componentType")}</tbody></table><h3>${labels.explanation}</h3><div class="notes">${escapeHtmlForSummary(project.reportNotes)}</div><p class="small">${labels.changed}</p></section>
+    <section class="page"><h2>${labels.aggregates}</h2><h3>${labels.classAggregate}</h3><table><thead><tr><th>${labels.functionClass}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("className")}</tbody></table><h3>${labels.typeAggregate}</h3><table><thead><tr><th>${labels.functionType}</th><th>${labels.count}</th><th>${labels.actionPoints}</th></tr></thead><tbody>${grouped("componentType")}</tbody></table><h3>${labels.explanation}</h3><div class="notes">${escapeHtmlForSummary(project.reportNotes)}</div>${commentsHtml}<p class="small">${labels.changed}</p></section>
   </body></html>`;
-  const printWindow = window.open("", "_blank", "width=1000,height=800");
-  if (!printWindow) return;
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.document.title = filename;
-  printWindow.focus();
-  setTimeout(() => {
-    printWindow.print();
-    printWindow.close();
-  }, 250);
+  await downloadHtmlAsPdf(html, filename, ".page");
 };
 
 /**
  * Generoi projektin yhteenveto-PDF:n (alustava placeholder versio!)
- * Yksinkertaistettu versio nopeaa tulostusta varten
  */
-export const generateProjectSummaryPDF = (
+export const generateProjectSummaryPDF = async (
   project: Project,
   comments: CommentResponse[],
   commentsTitle: string,
-): void => {
+): Promise<void> => {
   const formattedCreatedAt = new Date(project.createdAt).toLocaleDateString(
     "fi-FI",
     {
@@ -1261,17 +1411,10 @@ export const generateProjectSummaryPDF = (
     </html>
   `;
 
-  const blob = new Blob([htmlContent], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const printWindow = window.open(url, "_blank");
-
-  if (printWindow) {
-    printWindow.addEventListener("load", () => {
-      setTimeout(() => {
-        printWindow.print();
-      }, 250);
-    });
-  }
+  await downloadHtmlAsPdf(
+    htmlContent,
+    `${project.projectName}-v${project.version}-yhteenveto.pdf`,
+  );
 };
 
 /**

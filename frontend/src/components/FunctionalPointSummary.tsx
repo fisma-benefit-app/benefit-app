@@ -76,13 +76,17 @@ export const FunctionalPointSummary = ({
 
   const handleExportPdf = async () => {
     await saveProject(false); // Save before exporting
-    generateCalculationReportPDF(
-      project,
-      previousOrCurrent,
-      translation.printUtils,
-      translation.functionalClassComponent.classNameOptions,
-      translation.functionalClassComponent.componentTypeOptions,
-    );
+    try {
+      await generateCalculationReportPDF(
+        project,
+        previousOrCurrent,
+        translation.printUtils,
+        translation.functionalClassComponent.classNameOptions,
+        translation.functionalClassComponent.componentTypeOptions,
+      );
+    } catch (error) {
+      console.error("Failed to generate PDF", error);
+    }
   };
 
   const handleExportCSV = async () => {

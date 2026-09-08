@@ -69,6 +69,7 @@ function SortableFunctionalComponent({
   debouncedSaveProject,
   onMLAToggle,
   descriptionRowsExpanded,
+  isCompactMode
 }: {
   component: TGenericComponent;
   project: Project;
@@ -83,6 +84,7 @@ function SortableFunctionalComponent({
   debouncedSaveProject: () => void;
   onMLAToggle: (componentId: number, newMLAValue: boolean) => void;
   descriptionRowsExpanded: boolean;
+  isCompactMode: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: component.id });
@@ -106,6 +108,7 @@ function SortableFunctionalComponent({
         dragHandleProps={{ ...attributes, ...listeners }}
         onMLAToggle={onMLAToggle}
         descriptionRowsExpanded={descriptionRowsExpanded}
+        isCompactMode={isCompactMode}
       />
     </div>
   );
@@ -157,6 +160,7 @@ export default function ProjectPage() {
   const navigate = useNavigate();
   const [collapseAll, setCollapseAll] = useState<boolean>(true);
   const [descriptionRowsExpanded, setDescriptionRowsExpanded] = useState<boolean>(true);
+  const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
   const [projectResponse, setProjectResponse] =
@@ -274,20 +278,26 @@ export default function ProjectPage() {
     }
   };
 
-  const handlePrintProjectSummaryPDF = () => {
+  const handlePrintProjectSummaryPDF = async () => {
     if (!project) return;
 
     const previousProject = allProjectVersions
       .filter((version) => version.version < project.version)
       .sort((a, b) => b.version - a.version)[0];
 
-    generateOverviewPDF(
-      project,
-      previousProject,
-      language,
-      translations.functionalClassComponent.classNameOptions,
-      translations.functionalClassComponent.componentTypeOptions,
-    );
+    try {
+      await generateOverviewPDF(
+        project,
+        previousProject,
+        language,
+        translations.functionalClassComponent.classNameOptions,
+        translations.functionalClassComponent.componentTypeOptions,
+        comments,
+        translation.commentsTitle,
+      );
+    } catch (error) {
+      console.error("Failed to generate PDF", error);
+    }
   };
 
   //get all versions of the same project
@@ -442,6 +452,16 @@ export default function ProjectPage() {
 
   const toggleDescriptionRows = () => {
     setDescriptionRowsExpanded((prev) => !prev);
+  };
+
+  const toggleCompactMode = () => {
+    if (isCompactMode) {
+      setIsCompactMode(false);
+      setCollapseAll(true);
+    } else {
+      setIsCompactMode(true);
+      setCollapseAll(false);
+    }
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -834,7 +854,7 @@ export default function ProjectPage() {
               </div>
               <div className="flex flex-row gap-2 w-full">
                 <button
-                  className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
+                  className={`${isCompactMode ? "w-full" : "w-[49%]"} bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis`}
                   onClick={() => {
                     setCollapseAll((prev) => !prev);
                   }}
@@ -843,13 +863,25 @@ export default function ProjectPage() {
                     ? translation.expandAll
                     : translation.collapseAll}
                 </button>
+                {!isCompactMode && (
+                  <button
+                    className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
+                    onClick={toggleDescriptionRows}
+                  >
+                    {descriptionRowsExpanded ?
+                      translation.collapseDescriptions
+                      : translation.expandDescriptions}
+                  </button>
+                )}
+              </div>
+              <div className="flex w-full">
                 <button
-                  className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
-                  onClick={toggleDescriptionRows}
+                  className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
+                  onClick={toggleCompactMode}
                 >
-                  {descriptionRowsExpanded ?
-                    translation.collapseDescriptions
-                    : translation.expandDescriptions}
+                  {isCompactMode ?
+                    translation.disableCompactMode
+                    : translation.enableCompactMode}
                 </button>
               </div>
               {isLatest ? (
@@ -1176,6 +1208,7 @@ export default function ProjectPage() {
                       debouncedSaveProject={debouncedSaveProject}
                       onMLAToggle={handleMLAToggle}
                       descriptionRowsExpanded={descriptionRowsExpanded}
+                      isCompactMode={isCompactMode}
                     />
                   ))}
                 </div>
