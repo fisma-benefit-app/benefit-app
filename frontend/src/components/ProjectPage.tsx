@@ -288,6 +288,8 @@ export default function ProjectPage() {
         language,
         translations.functionalClassComponent.classNameOptions,
         translations.functionalClassComponent.componentTypeOptions,
+        comments,
+        translation.commentsTitle,
       );
     } catch (error) {
       console.error("Failed to generate PDF", error);
