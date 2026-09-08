@@ -50,6 +50,7 @@ type FunctionalClassComponentProps = {
   debouncedSaveProject: () => void;
   onMLAToggle: (componentId: number, newValue: boolean) => void;
   descriptionRowsExpanded: boolean;
+  isCompactMode: boolean;
 };
 
 export default function FunctionalClassComponent({
@@ -63,7 +64,8 @@ export default function FunctionalClassComponent({
   debouncedSaveProject,
   dragHandleProps,
   onMLAToggle,
-  descriptionRowsExpanded
+  descriptionRowsExpanded,
+  isCompactMode
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
@@ -98,18 +100,18 @@ export default function FunctionalClassComponent({
   // Calculate total points including subcomponents
   const totalPointsWithSubComponents = component.subComponents
     ? component.subComponents.reduce(
-        (total, subComp) =>
-          total + calculateComponentPoints(subComp as TGenericComponent),
-        pointsByDegreeOfCompletion,
-      )
+      (total, subComp) =>
+        total + calculateComponentPoints(subComp as TGenericComponent),
+      pointsByDegreeOfCompletion,
+    )
     : pointsByDegreeOfCompletion;
 
   const totalFullPointsWithSubComponents = component.subComponents
     ? component.subComponents.reduce(
-        (total, subComp) =>
-          total + calculateBasePoints(subComp as TGenericComponent),
-        fullPoints,
-      )
+      (total, subComp) =>
+        total + calculateBasePoints(subComp as TGenericComponent),
+      fullPoints,
+    )
     : fullPoints;
 
   const degreeOfCompletionOptions = new Map([
@@ -339,52 +341,55 @@ export default function FunctionalClassComponent({
         {!collapsed && (
           <>
             {/* Degree of Completion Section */}
-            <div className="flex flex-col gap-2 bg-fisma-light-gray border-2 border-fisma-gray p-3 rounded-md">
-              <label
-                htmlFor={`mlaCheckBox-${component.id}`}
-                className="font-bold text-fisma-blue"
-              >
-                {translation.degreeOfCompletionPlaceholder}:
-              </label>
-              <div className="flex flex-wrap gap-4">
-                <input
-                  id="degreeOfCompletion"
-                  type="number"
-                  min={0.0}
-                  max={1}
-                  step={0.01}
-                  value={component.degreeOfCompletion ?? ""}
-                  onChange={handleComponentChange}
-                  className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
-                  disabled={!isLatest}
-                />
-                <select
-                  id="degreeOfCompletionOptions"
-                  value={getClosestCompletionOption(
-                    component.degreeOfCompletion ?? 0,
-                  )}
-                  onChange={handleComponentChange}
-                  className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
-                  disabled={!isLatest}
+            {!isCompactMode && (
+              <div className="flex flex-col gap-2 bg-fisma-light-gray border-2 border-fisma-gray p-3 rounded-md">
+                <label
+                  htmlFor={`mlaCheckBox-${component.id}`}
+                  className="font-bold text-fisma-blue"
                 >
-                  <option disabled value="">
-                    {translation.selectDegreeOfCompletion}
-                  </option>
-                  {Array.from(degreeOfCompletionOptions.entries()).map(
-                    ([key, value]) => (
-                      <option key={key} value={key}>
-                        {key} - {value}
-                      </option>
-                    ),
-                  )}
-                </select>
+                  {translation.degreeOfCompletionPlaceholder}:
+                </label>
+                <div className="flex flex-wrap gap-4">
+                  <input
+                    id="degreeOfCompletion"
+                    type="number"
+                    min={0.0}
+                    max={1}
+                    step={0.01}
+                    value={component.degreeOfCompletion ?? ""}
+                    onChange={handleComponentChange}
+                    className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                    disabled={!isLatest}
+                  />
+                  <select
+                    id="degreeOfCompletionOptions"
+                    value={getClosestCompletionOption(
+                      component.degreeOfCompletion ?? 0,
+                    )}
+                    onChange={handleComponentChange}
+                    className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
+                    disabled={!isLatest}
+                  >
+                    <option disabled value="">
+                      {translation.selectDegreeOfCompletion}
+                    </option>
+                    {Array.from(degreeOfCompletionOptions.entries()).map(
+                      ([key, value]) => (
+                        <option key={key} value={key}>
+                          {key} - {value}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </div>
+                <p className="text-xs text-gray-900">
+                  {translation.degreeOfCompletionDescription}
+                </p>
               </div>
-              <p className="text-xs text-gray-900">
-                {translation.degreeOfCompletionDescription}
-              </p>
-            </div>
+            )}
 
             {/* Description / Comment Section */}
+            {!isCompactMode && (
             <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md">
               <label
                 htmlFor="description"
@@ -402,8 +407,10 @@ export default function FunctionalClassComponent({
                 placeholder={translation.descriptionPlaceholder}
               />
             </div>
+            )}
 
             {/* Metadata Section */}
+            {!isCompactMode && (
             <div className="flex flex-row flex-wrap gap-3 items-center">
               <select
                 id="className"
@@ -431,10 +438,10 @@ export default function FunctionalClassComponent({
                   >
                     {component.className !==
                       "Interactive end-user input service" && (
-                      <option value="">
-                        {translation.componentTypePlaceholder}
-                      </option>
-                    )}
+                        <option value="">
+                          {translation.componentTypePlaceholder}
+                        </option>
+                      )}
                     {componentTypeOptions.map((option) => (
                       <option key={option} value={option}>
                         {translation.componentTypeOptions[option]}
@@ -444,7 +451,8 @@ export default function FunctionalClassComponent({
                 </div>
               )}
             </div>
-
+            )}
+            {!isCompactMode && (
             <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md w-full">
               <label className="font-bold text-fisma-blue">
                 {
@@ -488,6 +496,7 @@ export default function FunctionalClassComponent({
                 </div>
               )}
             </div>
+            )}
 
             {/* Parameters Section */}
             {component.className && (
@@ -543,16 +552,16 @@ export default function FunctionalClassComponent({
                   {showMLATotal
                     ? totalFullPointsWithSubComponents > 0
                       ? (
-                          (totalPointsWithSubComponents /
-                            totalFullPointsWithSubComponents) *
-                          100
-                        ).toFixed(1)
+                        (totalPointsWithSubComponents /
+                          totalFullPointsWithSubComponents) *
+                        100
+                      ).toFixed(1)
                       : "0.0"
                     : fullPoints > 0
                       ? (
-                          (pointsByDegreeOfCompletion / fullPoints) *
-                          100
-                        ).toFixed(1)
+                        (pointsByDegreeOfCompletion / fullPoints) *
+                        100
+                      ).toFixed(1)
                       : "0.0"}
                   %)
                 </span>
@@ -588,8 +597,8 @@ export default function FunctionalClassComponent({
                   {pointsByDegreeOfCompletion.toFixed(2)} (
                   {fullPoints > 0
                     ? ((pointsByDegreeOfCompletion / fullPoints) * 100).toFixed(
-                        1,
-                      )
+                      1,
+                    )
                     : "0.0"}
                   %)
                 </span>
@@ -613,7 +622,7 @@ export default function FunctionalClassComponent({
           )}
         </div>
 
-        {component.isMLA && (
+        {component.isMLA && !isCompactMode && (
           <div className="mt-4">
             {showSubComponents &&
               component.subComponents &&
