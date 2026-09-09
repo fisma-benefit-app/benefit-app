@@ -272,6 +272,7 @@ export const translations = {
       sessionExpirationDescription:
         "Your session expires in {minutes} minute(s)",
       sessionExpirationHeader: "Session",
+      extendSession: "Extend the session",
     },
     profilePage: {
       header: "Profile",
@@ -579,6 +580,7 @@ export const translations = {
       sessionExpirationHeader: "Istunto",
       sessionExpirationDescription:
         "Istuntosi vanhenee {minutes} minuutin kuluttua",
+      extendSession: "Pidennä istuntoa",
     },
     profilePage: {
       header: "Profiili",
