@@ -28,7 +28,7 @@ Without Docker: run only the DB via `docker compose up db`, then `cd backend && 
 ```bash
 ./gradlew bootRun                                    # run
 ./gradlew build                                       # build
-./gradlew test                                        # run all tests
+./gradlew test                                        # run all tests (needs Postgres — `docker compose up db` first)
 ./gradlew test --tests fi.fisma.backend.YourTestClass # run a single test class
 ./gradlew spotlessCheck                                # check formatting (Google Java Format)
 ./gradlew spotlessApply                                # auto-fix formatting
@@ -43,6 +43,8 @@ npx prettier . --write      # format
 npm run build:testing        # build for testing env (needs frontend/.env)
 npm run build:production     # build for production env
 ```
+
+There is no frontend test suite (no test runner installed, no `*.test.ts(x)`/`*.spec.ts(x)` files) — don't invent an `npm test` command. Frontend correctness currently relies on ESLint, Prettier, `run-checks-on-pr.yml`, and manual verification.
 
 ### Formatting hook
 
@@ -90,12 +92,14 @@ A `Project` contains `FunctionalComponent`s. Each component has a `className`/`c
 
 ## CI/CD
 
-- Trunk-based development: all work merges to `main` via PR (see `documents/guides/branching_strategy.md`).
+- Trunk-based development: all work merges to `main` via PR (see `documents/guides/branching_strategy.md`). Development branches are named `issue/#XXX-description` (features), `bugfix/#XXX-description`, or `chore/description`; keep each PR scoped to one issue — unrelated changes get their own issue and PR.
 - `run-checks-on-pr.yml` (GitHub Actions) runs on every PR and must pass: backend Spotless check, frontend Prettier check, frontend ESLint, backend tests (against a Postgres service container). PRs also require peer review/approval.
+- Before opening a PR: link it to its issue and make sure CI (Spotless, Prettier, ESLint, backend tests) passes locally first.
 - Merges to `main` auto-deploy to the testing environment (Heroku backend + GitHub Pages frontend). Production deploys are triggered manually from Heroku, then GitHub Actions rolls the frontend to GitHub Pages (`run-deployments.yml`).
-- Version bumps use `./update_version.sh X.Y.Z`, which opens a `chore/update-version-to-X.Y.Z` PR; merging it auto-creates the `vX.Y.Z` git tag (`create-release-tag.yml`). See `documents/guides/versioning.md`.
+- Version bumps use `./update_version.sh X.Y.Z`, which opens a `chore/update-version-to-X.Y.Z` PR; merging it auto-creates the `vX.Y.Z` git tag (`create-release-tag.yml`). See `documents/guides/versioning.md`. Only run this when explicitly asked to cut a release — merging its PR is not easily reversible.
 
 ## Notes
 
 - API docs are generated via SpringDoc + Widdershins; refresh with the steps in `documents/guides/generate_api_docs.md` (`npx widdershins`, not installed as a dependency because it causes `npm audit` issues).
 - Known local-dev issues and their fixes are tracked in `documents/notes/known_errors.md`.
+- Root `.env` and `frontend/.env` hold real local secrets (e.g. `JWT_PRIVATE_KEY`); both are gitignored — never print, paste, or commit their contents.
