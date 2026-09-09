@@ -3,13 +3,17 @@
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 cd "$PROJECT_ROOT"
 
-# Get list of staged frontend files (.js, .ts, .jsx, .tsx)
-STAGED_FRONTEND_FILES=$(git diff --cached --name-only --relative frontend | grep -E '\.(js|ts|jsx|tsx)$' || true)
+# Get list of staged frontend files (.js, .ts, .jsx, .tsx), relative to repo root
+STAGED_FRONTEND_FILES=$(git diff --cached --name-only -- frontend | grep -E '\.(js|ts|jsx|tsx)$' || true)
 
-# Format staged frontend files with Prettier and re-stage formatted files
+# Format staged frontend files with Prettier and re-stage formatted files.
+# Run via `npm exec --prefix frontend` (not a bare `npx` from the repo root) so this
+# uses the Prettier version pinned in frontend/package.json, matching CI's
+# `cd frontend && npx prettier --check .` — a bare root-level `npx prettier` resolves
+# to whatever version happens to be cached globally and can disagree with CI.
 if [ -n "$STAGED_FRONTEND_FILES" ]; then
     for file in $STAGED_FRONTEND_FILES; do
-        npx prettier --write "$file"
+        npm exec --prefix frontend -- prettier --write "$file"
 
         if [ $? -ne 0 ]; then
             echo "Error: Prettier formatting failed for $file. Commit aborted."
