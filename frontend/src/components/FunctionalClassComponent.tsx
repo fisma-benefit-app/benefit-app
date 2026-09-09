@@ -65,7 +65,7 @@ export default function FunctionalClassComponent({
   dragHandleProps,
   onMLAToggle,
   descriptionRowsExpanded,
-  isCompactMode
+  isCompactMode,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
@@ -100,18 +100,18 @@ export default function FunctionalClassComponent({
   // Calculate total points including subcomponents
   const totalPointsWithSubComponents = component.subComponents
     ? component.subComponents.reduce(
-      (total, subComp) =>
-        total + calculateComponentPoints(subComp as TGenericComponent),
-      pointsByDegreeOfCompletion,
-    )
+        (total, subComp) =>
+          total + calculateComponentPoints(subComp as TGenericComponent),
+        pointsByDegreeOfCompletion,
+      )
     : pointsByDegreeOfCompletion;
 
   const totalFullPointsWithSubComponents = component.subComponents
     ? component.subComponents.reduce(
-      (total, subComp) =>
-        total + calculateBasePoints(subComp as TGenericComponent),
-      fullPoints,
-    )
+        (total, subComp) =>
+          total + calculateBasePoints(subComp as TGenericComponent),
+        fullPoints,
+      )
     : fullPoints;
 
   const degreeOfCompletionOptions = new Map([
@@ -390,112 +390,112 @@ export default function FunctionalClassComponent({
 
             {/* Description / Comment Section */}
             {!isCompactMode && (
-            <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md">
-              <label
-                htmlFor="description"
-                className="font-medium text-fisma-blue"
-              >
-                {translation.descriptionPlaceholder}:
-              </label>
-              <textarea
-                id="description"
-                value={component.description || ""}
-                onChange={handleComponentChange}
-                className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md"
-                rows={descriptionRowsExpanded ? 10 : 3}
-                disabled={!isLatest}
-                placeholder={translation.descriptionPlaceholder}
-              />
-            </div>
+              <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md">
+                <label
+                  htmlFor="description"
+                  className="font-medium text-fisma-blue"
+                >
+                  {translation.descriptionPlaceholder}:
+                </label>
+                <textarea
+                  id="description"
+                  value={component.description || ""}
+                  onChange={handleComponentChange}
+                  className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md"
+                  rows={descriptionRowsExpanded ? 10 : 3}
+                  disabled={!isLatest}
+                  placeholder={translation.descriptionPlaceholder}
+                />
+              </div>
             )}
 
             {/* Metadata Section */}
             {!isCompactMode && (
-            <div className="flex flex-row flex-wrap gap-3 items-center">
-              <select
-                id="className"
-                value={component.className || ""}
-                onChange={handleClassNameChange}
-                className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
-                disabled={!isLatest}
-              >
-                <option value="">{translation.classNamePlaceholder}</option>
-                {classNameOptions.map((className) => (
-                  <option key={className} value={className}>
-                    {translation.classNameOptions[className]}
-                  </option>
-                ))}
-              </select>
+              <div className="flex flex-row flex-wrap gap-3 items-center">
+                <select
+                  id="className"
+                  value={component.className || ""}
+                  onChange={handleClassNameChange}
+                  className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
+                  disabled={!isLatest}
+                >
+                  <option value="">{translation.classNamePlaceholder}</option>
+                  {classNameOptions.map((className) => (
+                    <option key={className} value={className}>
+                      {translation.classNameOptions[className]}
+                    </option>
+                  ))}
+                </select>
 
-              {component.className && (
-                <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
-                  <select
-                    id="componentType"
-                    value={component.componentType || ""}
-                    onChange={handleOptionTypeChange}
-                    className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
-                    disabled={!isLatest}
-                  >
-                    {component.className !==
-                      "Interactive end-user input service" && (
+                {component.className && (
+                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                    <select
+                      id="componentType"
+                      value={component.componentType || ""}
+                      onChange={handleOptionTypeChange}
+                      className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
+                      disabled={!isLatest}
+                    >
+                      {component.className !==
+                        "Interactive end-user input service" && (
                         <option value="">
                           {translation.componentTypePlaceholder}
                         </option>
                       )}
-                    {componentTypeOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {translation.componentTypeOptions[option]}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-            )}
-            {!isCompactMode && (
-            <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md w-full">
-              <label className="font-bold text-fisma-blue">
-                {
-                  translation.isThisFunctionalComponentAPartOfMultiLayerArchitecture
-                }
-              </label>
-              <div className="flex items-center gap-3">
-                {isMlaEligible && (
-                  <input
-                    id={`mlaCheckBox-${component.id}`}
-                    type="checkbox"
-                    className="w-4 h-4"
-                    checked={component.isMLA}
-                    disabled={!isMlaEligible || !isLatest}
-                    onChange={handleMLAChange}
-                  />
+                      {componentTypeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {translation.componentTypeOptions[option]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 )}
               </div>
+            )}
+            {!isCompactMode && (
+              <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md w-full">
+                <label className="font-bold text-fisma-blue">
+                  {
+                    translation.isThisFunctionalComponentAPartOfMultiLayerArchitecture
+                  }
+                </label>
+                <div className="flex items-center gap-3">
+                  {isMlaEligible && (
+                    <input
+                      id={`mlaCheckBox-${component.id}`}
+                      type="checkbox"
+                      className="w-4 h-4"
+                      checked={component.isMLA}
+                      disabled={!isMlaEligible || !isLatest}
+                      onChange={handleMLAChange}
+                    />
+                  )}
+                </div>
 
-              {component.isMLA && (
-                <div className="bg-gray-50 border border-gray-200 rounded p-3 mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowSubComponents(!showSubComponents)}
-                    className="text-sm text-fisma-blue hover:underline flex items-center gap-2"
-                  >
-                    {showSubComponents
-                      ? translation.hideMultiLayerInterfaces
-                      : translation.showMultiLayerInterfaces}
-                    {component.subComponents &&
-                      component.subComponents.length > 0 && (
-                        <span>({component.subComponents.length})</span>
-                      )}
-                  </button>
-                </div>
-              )}
-              {!isMlaEligible && (
-                <div className="flex items-center gap-3 text-gray-400">
-                  {" "}
-                  {translation.notAvailableForThisFunctionalComponentType}
-                </div>
-              )}
-            </div>
+                {component.isMLA && (
+                  <div className="bg-gray-50 border border-gray-200 rounded p-3 mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowSubComponents(!showSubComponents)}
+                      className="text-sm text-fisma-blue hover:underline flex items-center gap-2"
+                    >
+                      {showSubComponents
+                        ? translation.hideMultiLayerInterfaces
+                        : translation.showMultiLayerInterfaces}
+                      {component.subComponents &&
+                        component.subComponents.length > 0 && (
+                          <span>({component.subComponents.length})</span>
+                        )}
+                    </button>
+                  </div>
+                )}
+                {!isMlaEligible && (
+                  <div className="flex items-center gap-3 text-gray-400">
+                    {" "}
+                    {translation.notAvailableForThisFunctionalComponentType}
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Parameters Section */}
@@ -552,16 +552,16 @@ export default function FunctionalClassComponent({
                   {showMLATotal
                     ? totalFullPointsWithSubComponents > 0
                       ? (
-                        (totalPointsWithSubComponents /
-                          totalFullPointsWithSubComponents) *
-                        100
-                      ).toFixed(1)
+                          (totalPointsWithSubComponents /
+                            totalFullPointsWithSubComponents) *
+                          100
+                        ).toFixed(1)
                       : "0.0"
                     : fullPoints > 0
                       ? (
-                        (pointsByDegreeOfCompletion / fullPoints) *
-                        100
-                      ).toFixed(1)
+                          (pointsByDegreeOfCompletion / fullPoints) *
+                          100
+                        ).toFixed(1)
                       : "0.0"}
                   %)
                 </span>
@@ -597,8 +597,8 @@ export default function FunctionalClassComponent({
                   {pointsByDegreeOfCompletion.toFixed(2)} (
                   {fullPoints > 0
                     ? ((pointsByDegreeOfCompletion / fullPoints) * 100).toFixed(
-                      1,
-                    )
+                        1,
+                      )
                     : "0.0"}
                   %)
                 </span>

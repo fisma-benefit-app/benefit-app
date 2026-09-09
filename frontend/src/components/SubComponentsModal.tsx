@@ -14,7 +14,7 @@ export default function SubComponentsModal({
   setOpen,
   subComponents,
   parentTitle,
-  descriptionRowsExpanded
+  descriptionRowsExpanded,
 }: SubComponentsModalProps) {
   if (!open) return null;
 

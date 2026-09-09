@@ -69,7 +69,7 @@ function SortableFunctionalComponent({
   debouncedSaveProject,
   onMLAToggle,
   descriptionRowsExpanded,
-  isCompactMode
+  isCompactMode,
 }: {
   component: TGenericComponent;
   project: Project;
@@ -159,7 +159,8 @@ export default function ProjectPage() {
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
   const [collapseAll, setCollapseAll] = useState<boolean>(true);
-  const [descriptionRowsExpanded, setDescriptionRowsExpanded] = useState<boolean>(true);
+  const [descriptionRowsExpanded, setDescriptionRowsExpanded] =
+    useState<boolean>(true);
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
@@ -491,10 +492,12 @@ export default function ProjectPage() {
               (a: TGenericComponent, b: TGenericComponent) =>
                 a.orderPosition - b.orderPosition,
             )
-            .map((c: TGenericComponent, idx: number): NormalizedComponent => ({
-              ...c,
-              orderPosition: idx,
-            }));
+            .map(
+              (c: TGenericComponent, idx: number): NormalizedComponent => ({
+                ...c,
+                orderPosition: idx,
+              }),
+            );
 
         setProject({ ...projectFromDb, functionalComponents: normalized });
         setReportContactDetails(projectFromDb.reportContactDetails ?? "");
@@ -699,10 +702,10 @@ export default function ProjectPage() {
           setProject((current) =>
             current
               ? {
-                ...current,
-                reportContactDetails: savedProject.reportContactDetails,
-                reportNotes: savedProject.reportNotes,
-              }
+                  ...current,
+                  reportContactDetails: savedProject.reportContactDetails,
+                  reportNotes: savedProject.reportNotes,
+                }
               : current,
           );
         }
@@ -837,8 +840,9 @@ export default function ProjectPage() {
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
         {/* SUMMARY (on top for small screens, on right for large - now with sticky dropdown on mobile) */}
         <div
-          className={`${isSummaryMenuOpen ? "block" : "hidden"
-            } xl:block fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none`}
+          className={`${
+            isSummaryMenuOpen ? "block" : "hidden"
+          } xl:block fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none`}
         >
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
@@ -868,8 +872,8 @@ export default function ProjectPage() {
                     className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
                     onClick={toggleDescriptionRows}
                   >
-                    {descriptionRowsExpanded ?
-                      translation.collapseDescriptions
+                    {descriptionRowsExpanded
+                      ? translation.collapseDescriptions
                       : translation.expandDescriptions}
                   </button>
                 )}
@@ -879,8 +883,8 @@ export default function ProjectPage() {
                   className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
                   onClick={toggleCompactMode}
                 >
-                  {isCompactMode ?
-                    translation.disableCompactMode
+                  {isCompactMode
+                    ? translation.disableCompactMode
                     : translation.enableCompactMode}
                 </button>
               </div>
@@ -888,20 +892,22 @@ export default function ProjectPage() {
                 <div className="flex flex-col gap-2 w-full">
                   <div className="flex flex-row gap-2 w-full">
                     <button
-                      className={`w-full ${!loadingProject
-                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                        : "bg-fisma-gray"
-                        } text-white text-xs py-3 px-4`}
+                      className={`w-full ${
+                        !loadingProject
+                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                          : "bg-fisma-gray"
+                      } text-white text-xs py-3 px-4`}
                       onClick={() => saveProject()}
                       disabled={loadingProject}
                     >
                       {translation.saveProject}
                     </button>
                     <button
-                      className={`w-full ${!loadingProject
-                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                        : "bg-fisma-gray"
-                        } text-white text-xs py-3 px-4`}
+                      className={`w-full ${
+                        !loadingProject
+                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                          : "bg-fisma-gray"
+                      } text-white text-xs py-3 px-4`}
                       onClick={() => setConfirmModalOpen(true)}
                       disabled={loadingProject}
                     >
@@ -909,10 +915,11 @@ export default function ProjectPage() {
                     </button>
                   </div>
                   <button
-                    className={`w-full ${!loadingProject
-                      ? "bg-red-600 hover:bg-red-700 cursor-pointer"
-                      : "bg-fisma-gray"
-                      } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
+                    className={`w-full ${
+                      !loadingProject
+                        ? "bg-red-600 hover:bg-red-700 cursor-pointer"
+                        : "bg-fisma-gray"
+                    } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
                     onClick={handlePrintProjectSummaryPDF}
                     disabled={loadingProject}
                   >
@@ -1033,10 +1040,11 @@ export default function ProjectPage() {
               </select>
               <button
                 onClick={handleCreateFunctionalComponent}
-                className={`w-full ${isLatest || !loadingProject
-                  ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                  : "bg-fisma-gray"
-                  } text-white py-3 px-4`}
+                className={`w-full ${
+                  isLatest || !loadingProject
+                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                    : "bg-fisma-gray"
+                } text-white py-3 px-4`}
                 disabled={!isLatest || loadingProject}
               >
                 {translation.newFunctionalComponent}

@@ -68,7 +68,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     }
   };
 
-/*   const showSessionWarning = (expirationTime: number) => {
+  /*   const showSessionWarning = (expirationTime: number) => {
     const getMinutesLeft = () =>
       Math.max(0, Math.ceil((expirationTime - Date.now()) / 60000));
 
@@ -125,7 +125,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       logout();
     }, timeUntilExpiration);
 
-/*     const sessionWarningThreshhold = sessionTimeoutConfig.sessionWarningThreshhold;
+    /*     const sessionWarningThreshhold = sessionTimeoutConfig.sessionWarningThreshhold;
     const alertCountdownTick = sessionTimeoutConfig.alertCountdownTick;
     const timeUntilFirstWarning =
       timeUntilExpiration - sessionWarningThreshhold;
