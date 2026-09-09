@@ -1,0 +1,7 @@
+# Commits listed here are ignored by `git blame` (with
+# `git config blame.ignoreRevsFile .git-blame-ignore-revs`) and by GitHub's
+# web blame view automatically. Use this for large formatting-only commits
+# that would otherwise bury real authorship.
+
+# style: apply Prettier formatting to drifted files
+19bced1377b9d53cb5e382d0af525052f4630b0b
