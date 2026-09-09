@@ -50,6 +50,11 @@ tasks.named('jar') {
     enabled = false
 }
 
+// when using ./gradlew bootRun, this will set the active profile to dev
+tasks.named('bootRun') {
+    systemProperty 'spring.profiles.active', 'dev'
+}
+
 // This section causes useful test output to go to the terminal.
 test {
     testLogging {
