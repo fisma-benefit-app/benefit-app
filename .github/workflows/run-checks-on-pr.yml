@@ -115,4 +115,9 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           cd backend
+          # Tests need a syntactically valid RSA key to satisfy SecurityConfig's
+          # privateKey bean so the Spring context loads; a fresh throwaway key is
+          # sufficient since these tests mock JWT auth rather than doing real
+          # sign/verify round trips against the committed public key.
+          export JWT_PRIVATE_KEY=$(openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048)
           ./gradlew test
