@@ -25,7 +25,7 @@ spring:
       data-locations: classpath:${DATABASE_SEED_FILE:database-seed-dev.sql}
 
 jwt:
-  private.key: classpath:./jwt-keys/app.key
+  private.key: ${JWT_PRIVATE_KEY}
   public.key: classpath:./jwt-keys/app.pub
 
 # Debug Configuration
