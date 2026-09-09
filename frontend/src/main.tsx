@@ -14,18 +14,18 @@ import ErrorModal from "./components/ErrorModal.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorProvider>
-      <LanguageProvider>
-        <AlertProvider>
-          <AppUserProvider>
-            <ProjectsProvider>
+      <AppUserProvider>
+        <ProjectsProvider>
+          <LanguageProvider>
+            <AlertProvider>
               <HashRouter>
                 <App />
               </HashRouter>
               <ErrorModal />
-            </ProjectsProvider>
-          </AppUserProvider>
-        </AlertProvider>
-      </LanguageProvider>
+            </AlertProvider>
+          </LanguageProvider>
+        </ProjectsProvider>
+      </AppUserProvider>
     </ErrorProvider>
   </StrictMode>,
 );

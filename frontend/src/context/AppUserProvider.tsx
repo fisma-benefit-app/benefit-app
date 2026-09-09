@@ -1,11 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
-import { decodeJWT } from "../lib/jwtUtils";
 import { extendSession } from "../api/authorization";
 import { decodeJWT, sessionTimeoutConfig } from "../lib/jwtUtils";
-import { useAlert } from "./AlertProvider";
-import useTranslations from "../hooks/useTranslations";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,8 +16,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
-  const { showNotification, hideNotification } = useAlert();
-  const translation = useTranslations().alert;
+  //const { showNotification, hideNotification } = useAlert();
+  //const translation = useTranslations().alert;
 
   //get login data from the session storage when application is refreshed
   useEffect(() => {
@@ -66,12 +63,12 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       );
     } finally {
       clearLocalSession();
-      hideNotification("session-expiring");
+      //hideNotification("session-expiring");
       setLoadingAuth(false);
     }
   };
 
-  const showSessionWarning = (expirationTime: number) => {
+/*   const showSessionWarning = (expirationTime: number) => {
     const getMinutesLeft = () =>
       Math.max(0, Math.ceil((expirationTime - Date.now()) / 60000));
 
@@ -101,7 +98,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
         },
       },
     );
-  };
+  }; */
 
   useEffect(() => {
     if (!sessionToken) return;
@@ -128,7 +125,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       logout();
     }, timeUntilExpiration);
 
-    const sessionWarningThreshhold = sessionTimeoutConfig.sessionWarningThreshhold;
+/*     const sessionWarningThreshhold = sessionTimeoutConfig.sessionWarningThreshhold;
     const alertCountdownTick = sessionTimeoutConfig.alertCountdownTick;
     const timeUntilFirstWarning =
       timeUntilExpiration - sessionWarningThreshhold;
@@ -154,13 +151,13 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     } else {
       warningTimeoutId = setTimeout(startCountdown, timeUntilFirstWarning);
     }
-
+ */
     return () => {
       clearTimeout(timeoutId);
-      if (warningTimeoutId) clearTimeout(warningTimeoutId);
-      if (countdownIntervalId) clearInterval(countdownIntervalId);
+      //if (warningTimeoutId) clearTimeout(warningTimeoutId);
+      //if (countdownIntervalId) clearInterval(countdownIntervalId);
     };
-  }, [sessionToken, translation]);
+  }, [sessionToken]);
 
   const appUserProviderValue: AppUserContextType = {
     loadingAuth,
