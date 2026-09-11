@@ -31,7 +31,7 @@ else
 fi
 
 # Create references directory if it doesn't exist
-REFERENCES_DIR="."
+REFERENCES_DIR="../../documents/references"
 echo -n "Checking references directory... "
 if [ ! -d "$REFERENCES_DIR" ]; then
     mkdir -p "$REFERENCES_DIR"
