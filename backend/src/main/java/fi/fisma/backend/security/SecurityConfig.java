@@ -50,7 +50,6 @@ public class SecurityConfig {
   RSAPublicKey key;
 
   @Bean
-  @Profile("default")
   public RSAPrivateKey privateKey(@Value("${jwt.private.key}") String privateKey) {
     try {
       return parsePrivateKey(privateKey);
@@ -112,7 +111,6 @@ public class SecurityConfig {
   }
 
   @Bean
-  @Profile("default")
   JwtEncoder jwtEncoder(RSAPrivateKey privateKey) {
     JWK jwk = new RSAKey.Builder(this.key).privateKey(privateKey).build();
     JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));

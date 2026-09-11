@@ -1,3 +1,7 @@
+
+-- This file is used to seed the database with initial data for development purposes. It is not used by production nor testing environments.
+-- Please refer to the schema.sql file for the database schema definition.
+
 DELETE FROM  projects_app_users;
 DELETE FROM  functional_components;
 DELETE FROM  app_users;

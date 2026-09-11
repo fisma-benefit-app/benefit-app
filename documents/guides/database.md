@@ -2,9 +2,15 @@
 
 This guide explains how to connect to the Benefit App database in both local development and staging environments. It also explains how the database is seeded in different environments.
 
-Database initialization mode (always, never) and data locations are set in Heroku config vars.
-This ensures we can dynamically control database seeding in different environments.
-Default values are set for local development.
+The base backend configuration intentionally disables SQL initialization in the shared configuration file (`application.yaml`). Database seeding and initialization are therefore controlled in the dev-profile specific `application-dev.yaml`. 
+
+In production environment, seeding and schema files should NEVER be used. Schema migrations are done manually for now - this also applied to the testing environment.
+
+The current convention is:
+
+- `application.yaml`: production-safe default, with `spring.sql.init.mode: never` and no automatic schema/data loading. Do not change this.
+- `application-dev.yaml`: development-only override, with `mode: always` and `schema-dev.sql` + `database-seed-dev.sql`.
+- The dev branch uses `schema-dev.sql` file so Spring does not silently discover a generic `schema.sql`. This is intentional.
 
 ## 1. Local Database (Docker)
 
@@ -26,23 +32,36 @@ psql -h localhost -p 5433 -U <username> <database>
 
 ## 2. Production and Testing Databases (Heroku Postgres)
 
-The production and testing databases are hosted on Heroku Postgres. Database seeding is controlled via Heroku.
+The production and testing databases are hosted on Heroku Postgres. Database seeding is controlled through environment configuration, and the branch-specific safety convention is that the default shared backend file must not carry a seed- or schema-init mode set to `always`.
 
 Database migrations are manual. See (/backend/src/main/resources/migrations/). 
 
 ### Production and testing database seeding
 
-Both production (`fisma-benefit-app`) and testing (`fisma-benefit-app-testing`) apps in Heroku have config variables to control when to seed the databases and from which file:
+The repository branch currently keeps the production-safe default in the shared config:
 
-- `DATABASE_INIT_MODE`: either `always` or `never`
-  - setting the variable to `always` reseeds the database; **NOT RECOMMENDED** for production, sometimes useful for testing
-  - setting the variable to `never` prevents the database from reseeding: default option for both databases
-- `DATABASE_SEED_FILE`: the file from which the database reseeds
-  - `database-seed-production.sql` for reseeding production database
-  - `database-seed-testing.sql` for reseeding testing database
-  - The main difference in different seeding files is the user credentials used to log in to different environments
+```yaml
+spring:
+  sql:
+    init:
+      mode: never
+```
 
-Note that changing config variables in Heroku restarts the dyno.
+The development-only profile file overrides that behavior for the Docker workflow:
+
+```yaml
+spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-dev.sql
+      data-locations: classpath:database-seed-dev.sql
+```
+
+This branch intentionally removes the generic fallback `schema.sql` discovery path and uses the explicit `schema-dev.sql` name. That is a security and consistency improvement: Spring will not automatically look for a base `schema.sql` file when the dev override file declares the scheme and seed sources explicitly.
+
+The production and testing environments should therefore not point at the dev seed file for normal use. Their safe default remains the shared `mode: never` configuration, and any dev-only initialization should happen only when the `dev` profile is active locally or through the Compose environment.
+
 
 The contents of the database can also be reseeded manually. You can run the contents of each seeding file in the database directly, resulting in reseeding. See accessing database via different methods below.
 
