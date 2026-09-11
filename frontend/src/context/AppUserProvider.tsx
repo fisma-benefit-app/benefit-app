@@ -1,8 +1,10 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState, useCallback } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
 import { extendSession } from "../api/authorization";
 import { decodeJWT, sessionTimeoutConfig } from "../lib/jwtUtils";
+import { useAlert } from "./AlertProvider";
+import useTranslations from "../hooks/useTranslations";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,8 +18,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
-  //const { showNotification, hideNotification } = useAlert();
-  //const translation = useTranslations().alert;
+  const { showNotification, hideNotification } = useAlert();
+  const translation = useTranslations().alert;
 
   //get login data from the session storage when application is refreshed
   useEffect(() => {
@@ -48,7 +50,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     setLoggedIn(false);
   };
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setLoadingAuth(true);
     try {
       if (sessionToken) {
@@ -63,42 +65,53 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       );
     } finally {
       clearLocalSession();
-      //hideNotification("session-expiring");
+      hideNotification("session-expiring");
       setLoadingAuth(false);
     }
-  };
+  }, [hideNotification, sessionToken]);
 
-  /*   const showSessionWarning = (expirationTime: number) => {
-    const getMinutesLeft = () =>
-      Math.max(0, Math.ceil((expirationTime - Date.now()) / 60000));
+  const showSessionWarning = useCallback(
+    (expirationTime: number) => {
+      const getMinutesLeft = () =>
+        Math.max(0, Math.ceil((expirationTime - Date.now()) / 60000));
 
-    const updateSessionWarning = (minutesLeft: number) =>
-      translation.sessionExpirationDescription.replace(
-        "{minutes}",
-        String(minutesLeft),
-      );
+      const updateSessionWarning = (minutesLeft: number) =>
+        translation.sessionExpirationDescription.replace(
+          "{minutes}",
+          String(minutesLeft),
+        );
 
-    showNotification(
-      translation.sessionExpirationHeader,
-      updateSessionWarning(getMinutesLeft()),
-      "error",
-      "session-expiring",
-      {
-        label: translation.extendSession,
-        onClick: async () => {
-          try {
-            const renewedToken = await extendSession(sessionToken!);
-            sessionStorage.setItem("loginToken", renewedToken);
-            setSessionToken(renewedToken);
-            hideNotification("session-expiring");
-          } catch (error) {
-            console.error("Could not extend session:", error);
-            await logout();
-          }
+      showNotification(
+        translation.sessionExpirationHeader,
+        updateSessionWarning(getMinutesLeft()),
+        "error",
+        "session-expiring",
+        {
+          label: translation.extendSession,
+          onClick: async () => {
+            try {
+              const renewedToken = await extendSession(sessionToken!);
+              sessionStorage.setItem("loginToken", renewedToken);
+              setSessionToken(renewedToken);
+              hideNotification("session-expiring");
+            } catch (error) {
+              console.error("Could not extend session:", error);
+              await logout();
+            }
+          },
         },
-      },
-    );
-  }; */
+      );
+    },
+    [
+      hideNotification,
+      logout,
+      sessionToken,
+      showNotification,
+      translation.extendSession,
+      translation.sessionExpirationDescription,
+      translation.sessionExpirationHeader,
+    ],
+  );
 
   useEffect(() => {
     if (!sessionToken) return;
@@ -125,7 +138,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       logout();
     }, timeUntilExpiration);
 
-    /*     const sessionWarningThreshhold = sessionTimeoutConfig.sessionWarningThreshhold;
+    const sessionWarningThreshhold =
+      sessionTimeoutConfig.sessionWarningThreshhold;
     const alertCountdownTick = sessionTimeoutConfig.alertCountdownTick;
     const timeUntilFirstWarning =
       timeUntilExpiration - sessionWarningThreshhold;
@@ -151,13 +165,13 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     } else {
       warningTimeoutId = setTimeout(startCountdown, timeUntilFirstWarning);
     }
- */
+
     return () => {
       clearTimeout(timeoutId);
-      //if (warningTimeoutId) clearTimeout(warningTimeoutId);
-      //if (countdownIntervalId) clearInterval(countdownIntervalId);
+      if (warningTimeoutId) clearTimeout(warningTimeoutId);
+      if (countdownIntervalId) clearInterval(countdownIntervalId);
     };
-  }, [sessionToken]);
+  }, [sessionToken, logout, showSessionWarning]);
 
   const appUserProviderValue: AppUserContextType = {
     loadingAuth,
