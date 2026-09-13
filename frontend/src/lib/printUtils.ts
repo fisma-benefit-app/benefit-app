@@ -78,6 +78,92 @@ export const downloadCSV = (csvData: string, filename = "data.csv") => {
 const PDF_PAGE_WIDTH_MM = 210;
 const PDF_PAGE_HEIGHT_MM = 297;
 const PDF_CANVAS_MAX_PX = 32767;
+const KEEP_TOGETHER_CLASS = "keep-together";
+
+type KeepTogetherRange = { start: number; end: number };
+
+const getOffsetTopRelativeTo = (element: HTMLElement, root: HTMLElement) => {
+  const rootRect = root.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+  return elementRect.top - rootRect.top + root.scrollTop;
+};
+
+const rangeFromElement = (
+  block: HTMLElement,
+  root: HTMLElement,
+): KeepTogetherRange | null => {
+  const view = root.ownerDocument.defaultView;
+  const style = view?.getComputedStyle(block);
+  const marginTop = style ? Number.parseFloat(style.marginTop) || 0 : 0;
+  const marginBottom = style ? Number.parseFloat(style.marginBottom) || 0 : 0;
+  const start = getOffsetTopRelativeTo(block, root) - marginTop;
+  const end = start + block.offsetHeight + marginTop + marginBottom;
+  return end > start ? { start: Math.max(0, start), end } : null;
+};
+
+const getKeepTogetherRanges = (root: HTMLElement): KeepTogetherRange[] => {
+  const seen = new Set<HTMLElement>();
+  const ranges: KeepTogetherRange[] = [];
+
+  const add = (block: HTMLElement | null) => {
+    if (!block || seen.has(block)) return;
+    seen.add(block);
+    const range = rangeFromElement(block, root);
+    if (range) ranges.push(range);
+  };
+
+  root
+    .querySelectorAll<HTMLElement>(`.${KEEP_TOGETHER_CLASS}`)
+    .forEach((block) => add(block));
+
+  root.querySelectorAll<HTMLElement>("h2, h3").forEach((heading) => {
+    const table = heading.nextElementSibling;
+    if (table instanceof HTMLTableElement) {
+      add(heading.parentElement instanceof HTMLElement ? heading.parentElement : heading);
+    }
+  });
+
+  return ranges;
+};
+
+const toCanvasRanges = (
+  ranges: KeepTogetherRange[],
+  cssHeight: number,
+  canvasHeight: number,
+): KeepTogetherRange[] => {
+  const scaleY = canvasHeight / Math.max(cssHeight, 1);
+  return ranges.map((range) => ({
+    start: range.start * scaleY,
+    end: range.end * scaleY,
+  }));
+};
+
+const nextSliceEnd = (
+  renderedY: number,
+  pageHeightPx: number,
+  canvasHeight: number,
+  ranges: KeepTogetherRange[],
+) => {
+  let sliceEnd = Math.min(renderedY + pageHeightPx, canvasHeight);
+
+  for (const range of ranges) {
+    const rangeHeight = range.end - range.start;
+    if (rangeHeight >= pageHeightPx - 1) continue;
+    if (
+      range.start < sliceEnd &&
+      range.end > sliceEnd &&
+      range.start > renderedY
+    ) {
+      sliceEnd = Math.floor(range.start);
+    }
+  }
+
+  if (sliceEnd <= renderedY) {
+    sliceEnd = Math.min(renderedY + pageHeightPx, canvasHeight);
+  }
+
+  return sliceEnd;
+};
 
 const ensurePdfFilename = (filename: string) =>
   filename.toLowerCase().endsWith(".pdf") ? filename : `${filename}.pdf`;
@@ -136,6 +222,7 @@ const addCanvasToPdf = (
   pdf: jsPDF,
   canvas: HTMLCanvasElement,
   state: { isEmpty: boolean },
+  keepTogetherRanges: KeepTogetherRange[] = [],
 ) => {
   const pxPerMm = canvas.width / PDF_PAGE_WIDTH_MM;
   const pageHeightPx = Math.max(1, Math.floor(PDF_PAGE_HEIGHT_MM * pxPerMm));
@@ -152,7 +239,13 @@ const addCanvasToPdf = (
     }
     state.isEmpty = false;
 
-    const sliceHeight = Math.min(pageHeightPx, canvas.height - renderedY);
+    const sliceEnd = nextSliceEnd(
+      renderedY,
+      pageHeightPx,
+      canvas.height,
+      keepTogetherRanges,
+    );
+    const sliceHeight = sliceEnd - renderedY;
     pageCanvas.width = canvas.width;
     pageCanvas.height = sliceHeight;
     pageCtx.fillStyle = "#ffffff";
@@ -176,7 +269,7 @@ const addCanvasToPdf = (
       PDF_PAGE_WIDTH_MM,
       sliceHeight / pxPerMm,
     );
-    renderedY += sliceHeight;
+    renderedY = sliceEnd;
   }
 };
 
@@ -192,8 +285,15 @@ const downloadElementsAsPdf = async (
   const state = { isEmpty: true };
 
   for (const element of elements) {
+    const cssRanges = getKeepTogetherRanges(element);
+    const cssHeight = Math.max(element.scrollHeight, element.offsetHeight, 1);
     const canvas = await captureElement(element);
-    addCanvasToPdf(pdf, canvas, state);
+    addCanvasToPdf(
+      pdf,
+      canvas,
+      state,
+      toCanvasRanges(cssRanges, cssHeight, canvas.height),
+    );
   }
 
   pdf.save(ensurePdfFilename(filename));
@@ -459,6 +559,7 @@ export const generateCalculationReportPDF = async (
         font-weight: bold;
       }
       body { font-family: Arial, sans-serif; padding: 20px; }
+      .pdf-container { padding: 20px; background: #ffffff; }
       h1 { text-align: center; }
       .project-info { margin-bottom: 20px; }
       table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -488,6 +589,14 @@ export const generateCalculationReportPDF = async (
         .total-row {
           break-inside: avoid;
           page-break-before: avoid;
+        }
+        h3 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        .keep-together {
+          break-inside: avoid;
+          page-break-inside: avoid;
         }
       }
     `;
@@ -814,6 +923,7 @@ export const generateCalculationReportPDF = async (
     headers: string[],
   ) => {
     const wrapper = doc.createElement("div");
+    wrapper.className = KEEP_TOGETHER_CLASS;
     wrapper.style.marginTop = "30px";
 
     const tableTitle = createElementWithText(doc, "h3", title);
@@ -981,7 +1091,7 @@ export const generateCalculationReportPDF = async (
   doc.body.appendChild(container);
   try {
     await sizeIframeToContent(iframe, doc);
-    await downloadElementsAsPdf([doc.body], filename);
+    await downloadElementsAsPdf([container], filename);
   } finally {
     iframe.remove();
   }
