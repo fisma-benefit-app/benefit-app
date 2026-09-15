@@ -24,8 +24,8 @@
     All in one repository for the Benefit application developed in collaboration
     <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
     <br />
-    <a href="#quick-debug"><strong>Quick debug »</strong></a></br>
-    <a href="#getting-started"><strong>Installation and development »</strong></a>
+    <a href="#quick-reference"><strong>Quick reference »</strong></a></br>
+    <a href="#getting-started-with-development"><strong>Installation and development »</strong></a>
   </p>
 </div>
 
@@ -35,51 +35,24 @@
 <details>
 <summary><b>Table of Contents</b></summary>
   <ol>
-    <li>
-        <a href="#about-the-project">About the Project</a>
-    </li>
-    <li>
-        <a href="#production">Production</a>
-    </li>
-    <li>
-        <a href="#quick-debug">Quick Debug</a>
-    </li>
-    <li>
-        <a href="#running-the-app">Running the app</a>
-    </li>
-    <li>
-        <a href="#architecture">Architecture</a>
-    </li>
-    <li>
-        <a href="#fisma-11-method-overview">FiSMA Method Overview</a>
-    </li>
-    <li>
-        <a href="#built-with">Built With</a>
-    </li>   
-    <li>
-        <a href="#getting-started">Getting Started</a>
-    </li>
-    <li>
-        <a href="#usage">Usage</a>
-    </li>
-    <li>
-        <a href="#cicd">CI/CD</a>
-    </li>
-    <li>
-        <a href="#quality-assurance-and-security">Quality Assurance and Security</a>
-    </li>
-    <li>
-        <a href="#roadmap">Roadmap</a>
-    </li>
-    <li>
-        <a href="#contributing">Contributing</a>
-    </li>
-    <li>
-        <a href="#license">License</a>
-    </li>
-    <li>
-        <a href="#contact">Contact</a>
-    </li>
+    <li><a href="#about-the-project">About the Project</a></li>
+    <li><a href="#quick-reference">Quick Reference</a></li>
+    <li><a href="#service-and-environments">Service and Environments</a></li>
+    <li><a href="#deployment">Deployment</a></li>
+    <li><a href="#logs">Logs</a></li>
+    <li><a href="#caches">Caches</a></li>
+    <li><a href="#database-access">Database Access</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#fisma-11-method-overview">FiSMA Method Overview</a></li>
+    <li><a href="#built-with">Built With</a></li>
+    <li><a href="#getting-started-with-development">Getting Started with Development</a></li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#cicd">CI/CD</a></li>
+    <li><a href="#quality-assurance-and-security">Quality Assurance and Security</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
   </ol>
 </details><br>
 
@@ -97,196 +70,141 @@ There are several function point analysis methods, but in this project, the term
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- QUICK REFERENCE -->
 
+## Quick Reference
 
-## Production
+The four things people ask about most often:
 
-### Url
+| Question                    | Answer                                                                          |
+| ---------------------------- | -------------------------------------------------------------------------------- |
+| **Where is the service?**    | [https://fisma-benefit-app.github.io/benefit-app/#/login](https://fisma-benefit-app.github.io/benefit-app/#/login) — see [Service and Environments](#service-and-environments) |
+| **How do I deploy?**         | Testing deploys automatically on merge to `main`; production is manual via Heroku — see [Deployment](#deployment) |
+| **Where are the logs?**      | `heroku logs --app fisma-benefit-app --tail` — see [Logs](#logs)                 |
+| **How do I flush caches?**   | `heroku builds:cache:purge -a fisma-benefit-app` (build cache) — see [Caches](#caches) for frontend/backend/app caches too |
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-https://fisma-benefit-app.github.io/benefit-app/#/login
+<!-- SERVICE AND ENVIRONMENTS -->
 
+## Service and Environments
 
-### Deployment
+| Environment         | URL                                                              |
+| -------------------- | ----------------------------------------------------------------- |
+| Production frontend  | https://fisma-benefit-app.github.io/benefit-app/#/login          |
+| Local frontend (dev) | http://localhost:5173/benefit-app/login                          |
+| Local backend (dev)  | http://localhost:8080/actuator/health                            |
 
-We can deploy the app to two different environments: testing (staging) and production environments. Testing deployments run automatically and production deployments must be done manually. 
+Access to the repo: https://github.com/fisma-benefit-app/benefit-app
 
-Before any deployment, ensure a database backup is taken via Heroku or terminal. See [deployment guide](/documents/guides/deployment_guide.md). 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Database migrations are manual. See (/backend/src/main/resources/migrations/). 
+<!-- DEPLOYMENT -->
 
-#### Prerequisites:
+## Deployment
 
-- Heroku account with CLI installed for logging (see the [logging guide](/documents/guides/logging.md) on this if needed)
+We can deploy the app to two different environments: testing (staging) and production. Testing deployments run automatically and production deployments must be done manually.
+
+Before any deployment, ensure a database backup is taken via Heroku or terminal. See [deployment guide](/documents/guides/deployment_guide.md).
+
+Database migrations are manual. See [migrations](/backend/src/main/resources/migrations/).
+
+### Prerequisites
+
+- Heroku account with CLI installed for logging (see the [logging guide](/documents/guides/logging.md) if needed)
 - Access to repo: https://github.com/fisma-benefit-app/benefit-app
 - Database credentials available in Heroku Config Vars
-- Heroku backend URLs set up in GitHub Actions repository secrets: HEROKU_PRODUCTION_URL and HEROKU_TESTING_URL ( URL values can be found in the [backend-credentials repository](https://github.com/fisma-benefit-app/backend-credentials))
+- Heroku backend URLs set up in GitHub Actions repository secrets: `HEROKU_PRODUCTION_URL` and `HEROKU_TESTING_URL` (values can be found in the [backend-credentials repository](https://github.com/fisma-benefit-app/backend-credentials))
 
-#### Automatic deployments:
+### Automatic deployments
 
 Testing deployments run automatically after each merge to `main`. Production deployments are initiated from Heroku and then run automatically via GitHub Actions.
 
-#### Manual deployments:
+### Manual deployments
 
-- manual backend deployments to Heroku are done in Heroku dashboard
-- manual frontend deployments to GitHub Pages are done from CLI
+- Manual backend deployments to Heroku are done in the Heroku dashboard.
+- Manual frontend deployments to GitHub Pages are done from the CLI.
 
-See [deployment guide](/documents/guides/deployment_guide.md) for more instructions.
+See the [deployment guide](/documents/guides/deployment_guide.md) for more instructions.
 
-### Database Access
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Log in (if needed):
-(Do not use Git Bash for Windows)
+<!-- LOGS -->
+
+## Logs
+
+| Type of log      | Local                          | Heroku (Production)                |
+| ----------------- | ------------------------------- | ------------------------------------ |
+| Backend runtime   | Terminal (`./gradlew bootRun`) | `heroku logs --app fisma-benefit-app --tail` |
+| Frontend build    | Terminal (`npm run dev`)       | GitHub Actions build logs           |
+| Frontend runtime  | Browser DevTools console       | Browser DevTools console            |
+| Test logs         | `./gradlew test`               | CI/CD logs (GitHub Actions/Heroku)  |
+
+Log in to Heroku if needed (do not use Git Bash on Windows):
+
 ```sh
 heroku login
 ```
 
-Connect to database:
-
-```sh
-heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app
-```
-
- 
- For more details, see the [database guide](/documents/guides/database.md).
-
-
-
-### Logging
-
+Tail production logs:
 
 ```sh
 heroku logs --app fisma-benefit-app --tail
 ```
 
+For full logging information, see the [logging guide](/documents/guides/logging.md).
 
-For full logging information, see [logging guide](/documents/guides/logging.md)
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- CACHES -->
 
+## Caches
 
-### Caching
+#### Frontend
 
-Heroku keeps cached build artifacts between deploys. To purge build cache (requires Heroku Labs plugin)
+- **Browser cache & cookies**: Clear from browser settings (e.g. on Firefox: Settings → Privacy & Security → Clear browsing data).
+- **Vite pre-bundling cache**: Vite caches optimized dependencies locally. To clear:
 
-Install Heroku labs plugin:
   ```sh
-  heroku plugins:install heroku-builds
+  rm -rf node_modules/.vite
   ```
-Purge build cache:
+
+#### Backend
+
+Spring caches are not used by default, but if enabled, see the Spring Cache Reference:
+
 ```sh
-  heroku builds:cache:purge -a fisma-benefit-app
+./gradlew clean build --no-build-cache
+rm -rf ~/.gradle/caches/
 ```
 
+#### Heroku
 
-For more details, see [Caching Guide](/documents/guides/caching.md).
+Heroku keeps cached build artifacts between deploys. To purge the build cache (requires the Heroku Labs plugin):
 
-
-
-
-<!-- QUICK PRODUCTION DEBUG-->
-
-## Quick Debug
-
-
-### Running the app
-
-#### Start (build on first run or when Dockerfiles change)
-
-```bash
-docker compose up --build
+```sh
+heroku plugins:install heroku-builds
+heroku builds:cache:purge -a fisma-benefit-app
 ```
 
-#### Stop (keep DB data and caches)
-```bash 
-docker compose down
-```
+#### App-specific memoization cache
 
-#### Stop and reset EVERYTHING (DB, caches, volumes)
-```bash
-docker compose down -v
-```
+Benefit's memoization cache is used for functional point calculations in the frontend, specifically in `centralizedCalculations.ts`. To clear it, run `clearCalculationCache()` via devtools.
 
-### Opening the app
+For more details, see the [Caching Guide](/documents/guides/caching.md).
 
-- Frontend: http://localhost:5173/benefit-app/login
-- Backend: http://localhost:8080/actuator/health
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<br>
-<details>
-<summary><b>
-Development Without Docker (local backend)</b>
-</summary>
+<!-- DATABASE ACCESS -->
 
-
-1. You only need the `frontend/.env` file with VITE_API_URL pointing to your backend (`http://localhost:8080` by default).
-2. If you have previously run Docker, clean backend build dirs once to avoid permission issues:
-   ```bash
-   sudo rm -rf backend/.gradle backend/build
-   ```
-3. Make sure a Postgres DB is available:
-   - Run only Postgres via Docker:
-     ```bash
-     docker compose up db
-     ```
-   - Test DB connection:
-     ```bash
-     docker exec -it fisma_db psql -U POSTGRES_USER POSTGRES_DB
-     ```
-   - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
-4. Start backend:
-
-   ```bash
-   cd backend
-   ./gradlew bootRun
-   ```
-
-   Or build and run packaged jar:
-
-   ```bash
-   ./gradlew build
-   java -jar build/libs/backend-0.0.1-SNAPSHOT.jar
-   ```
-
-5. Start frontend:
-
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-   By default, the app runs at `http://localhost:5173`.
-
-   Default credentials for development:
-   - Username: `user`
-   - Password: `user`
-
-   </details>
-   <br>
-
-### Logging
-
-
-| Type of log      | Local                          | Heroku (Production)                |
-| ---------------- | ------------------------------ | ---------------------------------- |
-| Backend runtime  | Terminal (`./gradlew bootRun`) | `heroku logs --app fisma-benefit-app --tail`   |
-| Frontend build   | Terminal (`npm run dev`)       | GitHub Actions build logs          |
-| Frontend runtime | Browser DevTools console       | Browser DevTools console           |
-| Test logs        | `./gradlew test`               | CI/CD logs (GitHub Actions/Heroku) |  
-
-
-For more details, see the [logging guide](/documents/guides/logging.md).
-
-<br>
-
-### Database Access
+## Database Access
 
 <details>
 <summary><b>Local Database (Docker)</b></summary>
 
 <br>
 
-For development, Postgres runs inside Docker Compose. See compose.yaml in project root for the container name, user, password, and database.
+For development, Postgres runs inside Docker Compose. See `docker-compose.yaml` in the project root for the container name, user, password, and database — by default: container `fisma_db`, database `fisma_db`, user `myuser`, password `secret`, host port `5433`.
 
 #### Access via Docker
 
@@ -301,30 +219,31 @@ If you have PostgreSQL installed locally:
 ```sh
 psql -h localhost -p 5433 -U <username> <database>
 ```
-</details>
 
+</details>
 
 <details>
 <summary><b>Production and Testing databases</b></summary>
 
-<br> See Heroku's dashboard or `backend-credentials` repository for Heroku PostgreSQL database names.
+<br>
 
-
+See Heroku's dashboard or the `backend-credentials` repository for Heroku PostgreSQL database names.
 
 #### Access via Heroku CLI
 
 Log in (if needed):
+
 ```sh
 heroku login
 ```
 
-Connect to production database:
+Connect to the production database:
 
 ```sh
 heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app
 ```
 
-Connect to testing database:
+Connect to the testing database:
 
 ```sh
 heroku pg:psql HEROKU_TESTING_POSTGRES_DB_NAME --app=fisma-benefit-app-testing
@@ -336,78 +255,25 @@ Create a database backup:
 heroku pg:backups:capture --app=fisma-benefit-app
 ```
 
-Exit database shell: Ctrl + D
+Exit the database shell: `Ctrl + D`
 
-#### Access via Direct PSQL
-You can also connect using credentials from Heroku Dashboard:
+#### Access via direct psql
+
+You can also connect using credentials from the Heroku Dashboard:
 
 ```sh
 psql -h <host> -p <port> -U <username> <database>
 ```
 
-You’ll be prompted for the password.
+You'll be prompted for the password.
 
-</details> 
-<br>
- 
- For more details, see the [database guide](/documents/guides/database.md).
+</details>
 
-<br>
-
-
-
-
-### Clearing caches
-
-
-#### Frontend
-
-- **Browser cache & cookies**: Clear from browser settings (e.g. on Firefox: Settings → Privacy & Security → Clear browsing data).
-- **Vite pre-bundling cache**: Vite caches optimized dependencies locally. To clear:
-
-  ```sh
-  rm -rf node_modules/.vite
-  ```
-
-
-#### Backend
-
-Spring caches are not used by default, but if enabled, see Spring Cache Reference:
-
-  ```sh
-  ./gradlew clean build --no-build-cache
-  rm -rf ~/.gradle/caches/
-  ```
-
-
-#### Heroku
-
-
-Heroku keeps cached build artifacts between deploys. To purge build cache (requires Heroku Labs plugin)
-
-Install Heroku labs plugin:
-  ```sh
-  heroku plugins:install heroku-builds
-  ```
-Purge build cache:
-```sh
-  heroku builds:cache:purge -a fisma-benefit-app
-```
-
-
-#### App-specific memoization Cache
-
-Benefit's memoization cache is used for functional point calculations in the frontend, specifically in centralizedCalculations.ts. To clear use `clearCalculationCache()` via devtools.
-
-
-
-For more details, see the [Caching Guide](/documents/guides/caching.md).
-
+For more details, see the [database guide](/documents/guides/database.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
+<!-- ARCHITECTURE -->
 
 ## Architecture
 
@@ -421,16 +287,14 @@ For more details, see the [Caching Guide](/documents/guides/caching.md).
 <img src="./documents/img/images_for_guides/database_diagram.png" height="508" width="1290"/>
 </details><br>
 
-More information on how to access the database can found in the [database guide](/documents/guides/database.md).
+More information on how to access the database can be found in the [database guide](/documents/guides/database.md).
 
 ### API
 
 Benefit's API documentation has been created using SpringDoc and Widdershins.
-NOTE that widdershins is not installed with npm due to it causing npm audit problems. Run it with `npx widdershins`
+NOTE: widdershins is not installed with npm because it causes npm audit problems. Run it with `npx widdershins`.
 
-It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps specified in the [API guide](/documents/guides/generate_api_docs.md).
-
-
+It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps in the [API guide](/documents/guides/generate_api_docs.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -495,18 +359,16 @@ This project is built with:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- GETTING STARTED -->
 
-## Getting Started
+## Getting Started with development
 
 This guide explains how to set up the Benefit App locally for development.
 
 ### 1) Prerequisites
 
 - **Docker Desktop 4.39.0 or newer** installed (and running).
-- Or, for local-only dev (without Dockerized backend):
+- Or, for local-only dev (without a Dockerized backend):
   - a local **PostgreSQL** installation (or use only the dockerized database - see 3B)
   - **Java 21**
   - **Nodejs** and **npm** (latest LTS recommended)
@@ -535,16 +397,11 @@ cp .env.example .env
 cp frontend/.env.example frontend/.env
 ```
 
-| You can change them as you wish, but the dev environment should usually work with the default values.
+You can change the values as you wish, but the dev environment should usually work with the defaults.
 
-Before starting the backend, copy the sample environment file and fill in the required secrets locally:
-
-```bash
-cp .env.example .env
-```
 ### You must include the JWT_PRIVATE_KEY in your .env:
 
-The backend JWT signing key is supplied through the `JWT_PRIVATE_KEY` environment variable and is **not stored in the public repository**. Copy the key from **backend-credentials** file `JWT private key for local enviroment.md` and set it in the root `.env` file before starting the backend. Use the actual PEM content with real line breaks, for example:
+The backend JWT signing key is supplied through the `JWT_PRIVATE_KEY` environment variable and is **not stored in the public repository**. Copy the key from the **backend-credentials** file `JWT private key for local enviroment.md` and set it in the root `.env` file before starting the backend. Use the actual PEM content with real line breaks, for example:
 
 ```bash
 JWT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
@@ -574,13 +431,14 @@ Open:
 - Frontend: http://localhost:5173/benefit-app/login
 - Backend: http://localhost:8080/actuator/health
 
-   Default credentials for development:
-   - Username: `user`
-   - Password: `user`
+Default credentials for development:
+
+- Username: `user`
+- Password: `user`
 
 #### B) Development Without Docker (local backend)
 
-1. You only need the `frontend/.env` file with VITE_API_URL pointing to your backend (`http://localhost:8080` by default).
+1. You only need the `frontend/.env` file with `VITE_API_URL` pointing to your backend (`http://localhost:8080` by default).
 2. If you have previously run Docker, clean backend build dirs once to avoid permission issues:
    ```bash
    sudo rm -rf backend/.gradle backend/build
@@ -590,26 +448,26 @@ Open:
      ```bash
      docker compose up db
      ```
-   - Test DB connection:
+   - Test the DB connection:
      ```bash
-     docker exec -it fisma_db psql -U POSTGRES_USER POSTGRES_DB
+     docker exec -it fisma_db psql -U <username> <database>
      ```
    - Or use your own Postgres locally (check port/credentials in `backend/src/main/resources/application.yaml`).
-4. Start backend:
+4. Start the backend:
 
    ```bash
    cd backend
    ./gradlew bootRun
    ```
 
-   Or build and run packaged jar:
+   Or build and run the packaged jar:
 
    ```bash
    ./gradlew build
    java -jar build/libs/backend-0.0.1-SNAPSHOT.jar
    ```
 
-5. Start frontend:
+5. Start the frontend:
 
    ```bash
    cd frontend
@@ -620,24 +478,23 @@ Open:
    By default, the app runs at `http://localhost:5173`.
 
    Default credentials for development:
+
    - Username: `user`
    - Password: `user`
 
 ### 4) Other steps
 
-IMPORTANT! If you continue on developing this app, it is important to keep consistent formatting in your changes. Benefit app has a `pre-commit` Git hook to run all necessary formattings on each commit. To take advantage of this, run this command in your terminal:
+IMPORTANT! If you continue developing this app, it is important to keep consistent formatting in your changes. Benefit app has a `pre-commit` Git hook to run all necessary formatting on each commit. To take advantage of this, run this command in your terminal:
 
 ```sh
 git config core.hooksPath .githooks
 ```
 
-This command tells Git to look for the `pre-commit` hook from the `.githooks` folder.
-
-
+This command tells Git to look for the `pre-commit` hook in the `.githooks` folder.
 
 ### (Optional) Troubleshooting
 
-- **No seed users** → ensure backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset DB once.
+- **No seed users** → ensure the backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset the DB once.
 - **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`. On Windows with WSL2, if **Spring Boot/Gradle hot reload** does not detect Java file changes, keep the repository in the WSL filesystem (e.g. `~/Projects/benefit-app`) rather than under `/mnt/c/...`, then run Docker Compose from the WSL project directory.
 - **Java not detected / build fails** → Ensure `JAVA_HOME` points to your JDK 21 installation. Example (PowerShell):
 
@@ -658,7 +515,7 @@ This command tells Git to look for the `pre-commit` hook from the `.githooks` fo
 
 - **Database connection issues** → Double-check Docker is running, and test with `psql` as shown above. If using local Postgres, ensure the port and credentials match `application.yaml`.
 - **Switching between Docker/local backend** → Always clean `backend/.gradle` and `backend/build` before switching.
-- **Login fails with** `Error getting JWT ... Status: 404` or **Error fetching projects / JSON parse errors** → `VITE_API_URL` is likely misconfigured. Ensure it matches your backend’s URL.
+- **Login fails with** `Error getting JWT ... Status: 404` or **Error fetching projects / JSON parse errors** → `VITE_API_URL` is likely misconfigured. Ensure it matches your backend's URL.
 - `npm install` **fails (permissions)** → Remove the node_modules folder and try again:
 
   ```bash
@@ -711,7 +568,6 @@ Below are two demos of the app recorded on May 14 2025.
 
 [Click here to see demo part 2](https://github.com/user-attachments/assets/31b00e69-c9dc-461e-97cc-5a5dc96b96ba)
 
-
 #### Troubleshooting
 
 Both videos can be downloaded and watched [here](/documents/demo/).
@@ -722,42 +578,35 @@ Both videos can be downloaded and watched [here](/documents/demo/).
 
 ## CI/CD
 
-Benefit application's CI/CD pipeline includes a branching strategy and automated checks through GitHub actions.
+Benefit application's CI/CD pipeline includes a branching strategy and automated checks through GitHub Actions.
 
 ### Branching Strategy
 
-Developing the Benefit application is done using trunk-based development. Benefit application's branching strategy is currently following these guidelines:
+Developing the Benefit application is done using trunk-based development. Benefit application's branching strategy currently follows these guidelines:
 
 - `main` branch: production and testing branch
 
-All commits are merged to `main` via pull requests. These PRs go through automatic testing and when they are merged, they trigger automatic deployment to testing environment. See [deployment](#deployment) for more information.
+All commits are merged to `main` via pull requests. These PRs go through automatic testing and, when merged, trigger automatic deployment to the testing environment. See [deployment](#deployment) for more information.
 
-For full explanation of the branching strategy, see [branching strategy](./documents/guides/branching_strategy.md).
-
-### Code Quality and Collaboration
-
-Developer team minimizes errors and maintains good code quality by
-
-- merging all changes only through pull requests
-- merging only quality code (ie. pull requests passes all checks in GitHub Actions)
-- merging changes only after another team member has given the pull request a peer review and an approval
-- resolving all possible conversations, comments and/or change requests in GitHub.
+For the full explanation of the branching strategy, see the [branching strategy guide](./documents/guides/branching_strategy.md).
 
 ### GitHub Actions
 
-The Benefit application's GitHub repository features a GitHub Actions workflow which runs automated checks and tests on every pull request. Only those pull requests that pass all checks are allowed to merge. These checks are
+The Benefit application's GitHub repository features a GitHub Actions workflow which runs automated checks and tests on every pull request. Only pull requests that pass all checks are allowed to merge. These checks are:
 
 - formatting checks for frontend (Prettier) and backend (Spotless / Google Java Format)
 - backend unit tests
 
-Our automated deployments also utilize GitHub Actions workflows to deploy any merges to `main` to testing environment. See [deployment](#deployment) for more information.
+Our automated deployments also use GitHub Actions workflows to deploy any merges to `main` to the testing environment. See [deployment](#deployment) for more information.
 
 ### Code Quality and Collaboration
 
-To minimize errors and maintain quality:
+The developer team minimizes errors and maintains good code quality by:
 
-- All changes were merged via pull requests
-- Every pull request required peer review and approval from another team member
+- merging all changes only through pull requests
+- merging only quality code (i.e. pull requests pass all checks in GitHub Actions)
+- requiring peer review and approval from another team member before merging
+- resolving all conversations, comments, and/or change requests in GitHub
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -783,6 +632,8 @@ or, if you want to run a specific test class:
 
 Basic authentication is used. After successful authentication, a JWT is generated and returned. A more detailed authentication guide can be found [here](documents/guides/authentication.md). Authenticated users are authorized with the role ROLE_USER.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- ROADMAP -->
 
 ## Roadmap
@@ -801,7 +652,7 @@ Basic authentication is used. After successful authentication, a JWT is generate
 
 The project's requirement specification can be found [here](https://docs.google.com/document/d/1FXYXPMAwyoZNdxBxYVOIQPrcBr01fXAB4nvHD-Diy7w/edit?tab=t.0#heading=h.6dj02y3xjnh0). See the [open issues](https://github.com/fisma-benefit-app/benefit-app/issues) for a full list of proposed features and known issues.
 
-  <p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 
@@ -810,7 +661,7 @@ The project's requirement specification can be found [here](https://docs.google.
 If you have a suggestion to improve this project:
 
 1. Fork the project
-2. Set up the development environment ([see Getting Started](#getting-started))
+2. Set up the development environment ([see Getting Started with Development](#getting-started-with-development))
 3. Create your feature branch and set up remotes
 
    ```bash
@@ -861,7 +712,7 @@ Any contributions you make are greatly appreciated. Thanks again!
 
 Distributed under the MIT License. See [LICENSE](https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/LICENSE) for more information.
 
-  <p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
 
