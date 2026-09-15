@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,11 +27,13 @@ public class TokenController {
         @ApiResponse(responseCode = "401", description = "User not authenticated"),
         @ApiResponse(responseCode = "500", description = "Failed to encode the token")
       })
-  public ResponseEntity<?> getToken(Authentication authentication) {
-    String token = tokenService.generateToken(authentication);
+  public ResponseEntity<?> getToken(
+      Authentication authentication, @RequestParam(defaultValue = "false") boolean rememberMe) {
+    String token = tokenService.generateToken(authentication, rememberMe);
+    long expiry = rememberMe ? 2592000L : 86400L;
     return ResponseEntity.ok()
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
         .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
-        .body(new TokenResponse(token, "Bearer", 86400L));
+        .body(new TokenResponse(token, "Bearer", expiry));
   }
 }
