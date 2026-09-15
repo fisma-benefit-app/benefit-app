@@ -42,6 +42,7 @@
     <li><a href="#logs">Logs</a></li>
     <li><a href="#caches">Caches</a></li>
     <li><a href="#database-access">Database Access</a></li>
+    <li><a href="#database-initialization">Database Initialization</a></li>
     <li><a href="#architecture">Architecture</a></li>
     <li><a href="#fisma-11-method-overview">FiSMA Method Overview</a></li>
     <li><a href="#built-with">Built With</a></li>
@@ -270,6 +271,23 @@ You'll be prompted for the password.
 </details>
 
 For more details, see the [database guide](/documents/guides/database.md).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- DATABASE INITIALIZATION -->
+
+## Database Initialization
+
+Schema initialization and seeding are controlled by Spring profiles, hardcoded in [`backend/src/main/resources/application.yaml`](backend/src/main/resources/application.yaml) — not by environment variables.
+
+| Profile              | Used by                                              | `spring.sql.init.mode`      | Schema / seed files                             |
+| --------------------- | ----------------------------------------------------- | ----------------------------- | -------------------------------------------------- |
+| `default` (no profile) | Testing and Production (Heroku)                     | `never` — **do not change this** | none — schema changes only via migrations        |
+| `dev`                 | Local development (`docker compose` or `./gradlew bootRun`) | `always`                | `schema-dev.sql`, `database-seed-dev.sql`         |
+
+- The `dev` profile is activated automatically for local development: `docker-compose.yaml` sets `SPRING_PROFILES_ACTIVE=dev` for the backend container, and `./gradlew bootRun` sets it via `build.gradle`.
+- Production and testing never auto-initialize or reseed the schema; the only way schema changes reach those environments is through the manual [migrations](/backend/src/main/resources/migrations/).
+- `DATABASE_INIT_MODE` and `DATABASE_SEED_FILE` are **not** used anymore — they used to be Heroku config vars controlling this, but a missing/misconfigured var could wipe production data (since the old default was `always`, and the schema file dropped tables). The mode is now hardcoded per profile instead, so there's no env var to forget.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
