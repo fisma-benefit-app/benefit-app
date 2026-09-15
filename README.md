@@ -25,7 +25,7 @@
     <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
     <br />
     <a href="#quick-reference"><strong>Quick reference »</strong></a></br>
-    <a href="#getting-started"><strong>Installation and development »</strong></a>
+    <a href="#getting-started-with-development"><strong>Installation and development »</strong></a>
   </p>
 </div>
 
@@ -45,7 +45,7 @@
     <li><a href="#architecture">Architecture</a></li>
     <li><a href="#fisma-11-method-overview">FiSMA Method Overview</a></li>
     <li><a href="#built-with">Built With</a></li>
-    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#getting-started-with-development">Getting Started with Development</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#cicd">CI/CD</a></li>
     <li><a href="#quality-assurance-and-security">Quality Assurance and Security</a></li>
@@ -661,7 +661,7 @@ The project's requirement specification can be found [here](https://docs.google.
 If you have a suggestion to improve this project:
 
 1. Fork the project
-2. Set up the development environment ([see Getting Started](#getting-started))
+2. Set up the development environment ([see Getting Started with Development](#getting-started-with-development))
 3. Create your feature branch and set up remotes
 
    ```bash
