@@ -166,8 +166,6 @@ export default function ProjectPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [projectResponse, setProjectResponse] =
     useState<ProjectResponse | null>(null);
-  const [reportContactDetails, setReportContactDetails] = useState("");
-  const [reportNotes, setReportNotes] = useState("");
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -500,8 +498,6 @@ export default function ProjectPage() {
             );
 
         setProject({ ...projectFromDb, functionalComponents: normalized });
-        setReportContactDetails(projectFromDb.reportContactDetails ?? "");
-        setReportNotes(projectFromDb.reportNotes ?? "");
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
@@ -671,10 +667,9 @@ export default function ProjectPage() {
 
   const saveProject = async (
     showNotif: boolean = true,
-    projectToSave?: Project,
   ) => {
     isManuallySaved.current = true;
-    const currentProject = projectToSave ?? project;
+    const currentProject = project;
     if (currentProject) {
       if (showNotif) {
         showNotification(
@@ -698,17 +693,6 @@ export default function ProjectPage() {
 
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
-        if (projectToSave) {
-          setProject((current) =>
-            current
-              ? {
-                  ...current,
-                  reportContactDetails: savedProject.reportContactDetails,
-                  reportNotes: savedProject.reportNotes,
-                }
-              : current,
-          );
-        }
 
         if (showNotif) {
           updateNotification(
@@ -738,16 +722,6 @@ export default function ProjectPage() {
     } else {
       isManuallySaved.current = false;
     }
-  };
-
-  const saveReportInformation = async () => {
-    if (!project || !isLatest) return;
-
-    await saveProject(true, {
-      ...project,
-      reportContactDetails,
-      reportNotes,
-    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -840,9 +814,8 @@ export default function ProjectPage() {
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
         {/* SUMMARY (on top for small screens, on right for large - now with sticky dropdown on mobile) */}
         <div
-          className={`${
-            isSummaryMenuOpen ? "block" : "hidden"
-          } xl:block fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none`}
+          className={`${isSummaryMenuOpen ? "block" : "hidden"
+            } xl:block fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none`}
         >
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
@@ -892,22 +865,20 @@ export default function ProjectPage() {
                 <div className="flex flex-col gap-2 w-full">
                   <div className="flex flex-row gap-2 w-full">
                     <button
-                      className={`w-full ${
-                        !loadingProject
-                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                          : "bg-fisma-gray"
-                      } text-white text-xs py-3 px-4`}
+                      className={`w-full ${!loadingProject
+                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                        : "bg-fisma-gray"
+                        } text-white text-xs py-3 px-4`}
                       onClick={() => saveProject()}
                       disabled={loadingProject}
                     >
                       {translation.saveProject}
                     </button>
                     <button
-                      className={`w-full ${
-                        !loadingProject
-                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                          : "bg-fisma-gray"
-                      } text-white text-xs py-3 px-4`}
+                      className={`w-full ${!loadingProject
+                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                        : "bg-fisma-gray"
+                        } text-white text-xs py-3 px-4`}
                       onClick={() => setConfirmModalOpen(true)}
                       disabled={loadingProject}
                     >
@@ -915,11 +886,10 @@ export default function ProjectPage() {
                     </button>
                   </div>
                   <button
-                    className={`w-full ${
-                      !loadingProject
-                        ? "bg-red-600 hover:bg-red-700 cursor-pointer"
-                        : "bg-fisma-gray"
-                    } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
+                    className={`w-full ${!loadingProject
+                      ? "bg-red-600 hover:bg-red-700 cursor-pointer"
+                      : "bg-fisma-gray"
+                      } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
                     onClick={handlePrintProjectSummaryPDF}
                     disabled={loadingProject}
                   >
@@ -980,9 +950,19 @@ export default function ProjectPage() {
                 </label>
                 <textarea
                   id="report-contact-details"
-                  value={reportContactDetails}
+                  value={project?.reportContactDetails ?? ""}
                   onChange={(event) => {
-                    setReportContactDetails(event.target.value);
+                    const value = event.target.value;
+                    setProject((prev) => {
+                      if (!prev) return prev;
+                      const updated = { ...prev, reportContactDetails: value };
+                      projectRef.current = updated;
+                      return updated;
+                    });
+
+                    if (isLatest) {
+                      debouncedSaveProject();
+                    }
                   }}
                   className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
                   rows={3}
@@ -1000,23 +980,26 @@ export default function ProjectPage() {
                 </label>
                 <textarea
                   id="report-calculation-notes"
-                  value={reportNotes}
+                  value={project?.reportNotes ?? ""}
                   onChange={(event) => {
-                    setReportNotes(event.target.value);
+                    const value = event.target.value;
+
+                    setProject((prev) => {
+                      if (!prev) return prev;
+                      const updated = { ...prev, reportNotes: value };
+                      projectRef.current = updated;
+                      return updated;
+                    });
+
+                    if (isLatest) {
+                      debouncedSaveProject();
+                    }
                   }}
                   className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
                   rows={5}
                   maxLength={5000}
                   disabled={!isLatest || loadingProject}
                 />
-                <button
-                  type="button"
-                  className="mt-2 bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white text-xs py-2 px-4"
-                  onClick={saveReportInformation}
-                  disabled={!isLatest || loadingProject}
-                >
-                  {translation.saveReportInformation}
-                </button>
               </div>
 
               <label
@@ -1040,11 +1023,10 @@ export default function ProjectPage() {
               </select>
               <button
                 onClick={handleCreateFunctionalComponent}
-                className={`w-full ${
-                  isLatest || !loadingProject
-                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                    : "bg-fisma-gray"
-                } text-white py-3 px-4`}
+                className={`w-full ${isLatest || !loadingProject
+                  ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                  : "bg-fisma-gray"
+                  } text-white py-3 px-4`}
                 disabled={!isLatest || loadingProject}
               >
                 {translation.newFunctionalComponent}
