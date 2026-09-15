@@ -11,8 +11,8 @@
 
 <br />
 <div align="center">
-  <a href="https://www.fisma.fi/in-english/">
-    <img src="https://www.fisma.fi/wp-content/uploads/2022/03/cropped-Fisma_logo.png" alt="FiSMA shield" width="200">
+  <a href="https://www.fisma.fi/">
+    <img src="https://www.fisma.fi/images/cropped-Fisma_logo.png" alt="FiSMA shield" width="200">
   </a>
   <a href="https://www.haaga-helia.fi/en">
     <img src="https://www.haaga-helia.fi/themes/custom/hh/logo.png" alt="Haaga-Helia shield" width="200">
@@ -39,14 +39,17 @@
         <a href="#about-the-project">About the Project</a>
     </li>
     <li>
-    <a href="#production">Production</a>
+        <a href="#production">Production</a>
+    </li>
     <li>
-    <a href="#quick-debug">Quick Debug</a>
+        <a href="#quick-debug">Quick Debug</a>
+    </li>
     <li>
         <a href="#running-the-app">Running the app</a>
     </li>
     <li>
-    <a href="#architecture">Architecture</a>
+        <a href="#architecture">Architecture</a>
+    </li>
     <li>
         <a href="#fisma-11-method-overview">FiSMA Method Overview</a>
     </li>
@@ -288,7 +291,7 @@ For development, Postgres runs inside Docker Compose. See compose.yaml in projec
 #### Access via Docker
 
 ```sh
-docker exec -it benefit-app-postgres-1 psql -U <username> <database>
+docker exec -it fisma_db psql -U <username> <database>
 ```
 
 #### Access via local psql
@@ -496,7 +499,7 @@ This project is built with:
 
 <!-- GETTING STARTED -->
 
-## Setting up Development Environment
+## Getting Started
 
 This guide explains how to set up the Benefit App locally for development.
 
@@ -887,25 +890,25 @@ Project Link: [https://github.com/fisma-benefit-app/benefit-app](https://github.
 [back-end-shield]: https://img.shields.io/badge/BackEnd-000000?style=for-the-badge
 [database-shield]: https://img.shields.io/badge/Database-000000?style=for-the-badge
 [tools-shield]: https://img.shields.io/badge/Tools-000000?style=for-the-badge
-[docker-shield]: https://img.shields.io/badge/docker-257bd6?style=for-the-badge&shield=docker&shieldColor=white
+[docker-shield]: https://img.shields.io/badge/docker-257bd6?style=for-the-badge&logo=docker&logoColor=white
 [docker-url]: https://www.docker.com/
-[figma-shield]: https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&shield=figma&shieldColor=white
+[figma-shield]: https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white
 [figma-url]: https://www.figma.com/
-[github-shield]: https://img.shields.io/badge/GitHub-%23121011.svg?shield=github&shieldColor=white&style=for-the-badge
+[github-shield]: https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white&style=for-the-badge
 [github-url]: https://github.com/
-[github-actions-shield]: https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&shield=githubactions&shieldColor=white
+[github-actions-shield]: https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white
 [github-actions-url]: https://github.com/features/actions
-[gradle-shield]: https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&shield=Gradle&shieldColor=white
+[gradle-shield]: https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=Gradle&logoColor=white
 [gradle-url]: https://gradle.org/
-[java-shield]: https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&shield=openjdk&shieldColor=white
+[java-shield]: https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white
 [java-url]: https://www.java.com/en/
-[postgres-shield]: https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&shield=postgresql&shieldColor=white
+[postgres-shield]: https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white
 [postgres-url]: https://www.postgresql.org/
-[react-shield]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&shield=react&shieldColor=%2361DAFB
+[react-shield]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
 [react-url]: https://react.dev/
-[spring-shield]: https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&shield=springboot&shieldColor=white
+[spring-shield]: https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white
 [spring-url]: https://spring.io/
-[typescript-shield]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&shield=typescript&shieldColor=white
+[typescript-shield]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
 [typescript-url]: https://www.typescriptlang.org/
-[vs-code-shield]: https://custom-icon-badges.demolab.com/badge/Visual%20Studio%20Code-0078d7.svg?shield=vsc&shieldColor=white&style=for-the-badge
+[vs-code-shield]: https://custom-icon-badges.demolab.com/badge/Visual%20Studio%20Code-0078d7.svg?logo=vsc&logoColor=white&style=for-the-badge
 [vs-code-url]: https://code.visualstudio.com/
