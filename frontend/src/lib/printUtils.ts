@@ -119,7 +119,11 @@ const getKeepTogetherRanges = (root: HTMLElement): KeepTogetherRange[] => {
   root.querySelectorAll<HTMLElement>("h2, h3").forEach((heading) => {
     const table = heading.nextElementSibling;
     if (table instanceof HTMLTableElement) {
-      add(heading.parentElement instanceof HTMLElement ? heading.parentElement : heading);
+      add(
+        heading.parentElement instanceof HTMLElement
+          ? heading.parentElement
+          : heading,
+      );
     }
   });
 
@@ -609,6 +613,47 @@ export const generateCalculationReportPDF = async (
     "h1",
     `${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}`,
   );
+  // Check language
+  const isFinnish =
+    printUtilsTranslation.projectReport?.toLowerCase().includes("raportti") ||
+    printUtilsTranslation.projectReport?.toLowerCase().includes("projektin");
+
+  // 1. Calculate the total FP score
+  const currentTotalFP = calculateTotalPoints(allCurrentComponents);
+
+  // 2. Create Ingress
+  const ingressContainer = doc.createElement("div");
+  ingressContainer.className = "ingress";
+  ingressContainer.style.marginBottom = "20px";
+
+  // 3. Text content
+  const ingressLines = isFinnish
+    ? [
+        `${project.projectName}-järjestelmän toimintoluettelo ja toiminnallinen laajuus lisätiedoilla`,
+        dateLocalizer(new Date().toISOString()),
+        `Kokonaislaajuus ${currentTotalFP.toFixed(2)} FP`,
+        "Laskennassa käytössä FiSMA 1.1 toimintopisteet ISO/IEC 29881:2010",
+        "Valmistumisaste on ajankohdan hetkellä olevien toiminnallisuuksien valmistumisaste, ei siis toiminnon määritysten mukaisen lopullisen valmistumisen aste.",
+        "Sinisellä värillä korostettu muuttuneet",
+      ]
+    : [
+        `Function list and functional size of the ${project.projectName} system with additional information`,
+        dateLocalizer(new Date().toISOString()),
+        `Total size ${currentTotalFP.toFixed(2)} FP`,
+        "Calculation uses FiSMA 1.1 function points ISO/IEC 29881:2010",
+        "The degree of completion reflects the status of functionalities at the current time, not the final completion according to the specifications.",
+        "Changed values are highlighted in blue",
+      ];
+
+  // 4. Insert into pdf file
+  ingressLines.forEach((text) => {
+    const p = doc.createElement("p");
+    p.textContent = text;
+    if (text.includes("Kokonaislaajuus") || text.includes("Total size")) {
+      p.style.fontWeight = "bold";
+    }
+    ingressContainer.appendChild(p);
+  });
 
   const projectInfo = doc.createElement("div");
   projectInfo.className = "project-info";
@@ -956,6 +1001,7 @@ export const generateCalculationReportPDF = async (
   };
 
   container.appendChild(heading);
+  container.appendChild(ingressContainer);
   container.appendChild(projectInfo);
   container.appendChild(table);
 
@@ -963,9 +1009,6 @@ export const generateCalculationReportPDF = async (
   const actualLayerPoints = calculateProjectPointsByLayer(project);
   const possibleLayerPoints =
     calculatePossiblePointsByLayer(allCurrentComponents);
-  const isFinnish =
-    printUtilsTranslation.projectReport?.toLowerCase().includes("raportti") ||
-    printUtilsTranslation.projectReport?.toLowerCase().includes("projektin");
 
   const uiLayerLabel = isFinnish
     ? "Käyttöliittymäkerros (UI)"
