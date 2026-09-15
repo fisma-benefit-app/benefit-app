@@ -17,7 +17,7 @@ import { decodeJWT } from "../lib/jwtUtils";
 export default function LoginForm() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  //const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -32,16 +32,18 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const loginToken = await fetchJWT(username, password);
+      const loginToken = await fetchJWT(username, password, rememberMe);
 
       // Decode JWT to extract user ID
       const decodedToken = decodeJWT(loginToken);
       const userId = decodedToken?.userId;
+      // "Remember me" checkbox
+      const storage = rememberMe ? localStorage : sessionStorage;
 
-      sessionStorage.setItem("loginToken", loginToken);
-      sessionStorage.setItem("userInfo", username);
+      storage.setItem("loginToken", loginToken);
+      storage.setItem("userInfo", username);
       if (userId != null) {
-        sessionStorage.setItem("userId", userId.toString());
+        storage.setItem("userId", userId.toString());
       }
 
       setSessionToken(loginToken);
@@ -137,7 +139,17 @@ export default function LoginForm() {
             )}
           </button>
         </div>
-
+        <div className="flex justify-between items-center mb-4 text-white">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="mr-2 cursor-pointer accent-fisma-dark-blue rounded"
+            />
+            {translation.rememberMe}
+          </label>
+        </div>
         <button
           type="submit"
           className="w-full min-h-[42px] p-2 text-white bg-fisma-dark-blue hover:brightness-70 flex justify-center items-center cursor-pointer"

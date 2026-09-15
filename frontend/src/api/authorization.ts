@@ -2,8 +2,12 @@ import { networkingErrorMessages } from "../lib/networkingErrorMessages";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const fetchJWT = async (username: string, password: string) => {
-  const fetchURL = `${API_URL}/token`;
+const fetchJWT = async (
+  username: string,
+  password: string,
+  rememberMe: boolean,
+) => {
+  const fetchURL = `${API_URL}/token?rememberMe=${rememberMe}`;
   const headers = {
     //Encode user info in Base64 which is expected by the endpoint
     Authorization: `Basic ${btoa(`${username}:${password}`)}`,
@@ -38,8 +42,8 @@ const fetchJWT = async (username: string, password: string) => {
   }
 };
 
-const extendSession = async (sessionToken: string) => {
-  const fetchURL = `${API_URL}/token`;
+const extendSession = async (sessionToken: string, rememberMe: boolean) => {
+  const fetchURL = `${API_URL}/token?rememberMe=${rememberMe}`;
   const response = await fetch(fetchURL, {
     method: "POST",
     headers: { Authorization: sessionToken },
