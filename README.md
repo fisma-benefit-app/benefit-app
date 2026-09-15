@@ -417,6 +417,44 @@ cp frontend/.env.example frontend/.env
 
 You can change the values as you wish, but the dev environment should usually work with the defaults.
 
+<details>
+<summary><b>Environment variable reference</b></summary>
+
+<br>
+
+**Root `.env`:**
+
+| Variable                  | Default                                         | Purpose                                  |
+| --------------------------- | -------------------------------------------------- | ------------------------------------------- |
+| `JWT_PRIVATE_KEY`         | *(none — required, see below)*                  | Backend JWT signing key                  |
+| `POSTGRES_DB`              | `fisma_db`                                       | Local database name                      |
+| `POSTGRES_USER`            | `myuser`                                         | Local database user                      |
+| `POSTGRES_PASSWORD`        | `secret`                                         | Local database password                  |
+| `HOST_DB_PORT`             | `5433`                                           | Host port mapped to Postgres             |
+| `HOST_BACKEND_PORT`        | `8080`                                           | Host port mapped to the backend          |
+| `HOST_FRONTEND_PORT`       | `5173`                                           | Host port mapped to the frontend         |
+| `SPRING_DATASOURCE_URL`    | `jdbc:postgresql://db:5432/${POSTGRES_DB}`       | JDBC URL used inside Docker              |
+| `SPRING_DATASOURCE_USERNAME` | `${POSTGRES_USER}`                             | Datasource username                      |
+| `SPRING_DATASOURCE_PASSWORD` | `${POSTGRES_PASSWORD}`                         | Datasource password                      |
+| `CHOKIDAR_USEPOLLING`      | `true`                                           | File-watch polling (needed for Docker hot reload) |
+| `VITE_PORT`                | `${HOST_FRONTEND_PORT}`                          | Port Vite listens on inside Docker       |
+| `API_DEBUG`                | `always`                                         | Enables debug error details; use `never` in production |
+| `API_DEBUG_LEVEL`          | `debug`                                          | Spring security log level; use `info` in production |
+
+**`frontend/.env`:**
+
+| Variable          | Default                    | Purpose                                    |
+| ------------------- | ----------------------------- | --------------------------------------------- |
+| `VITE_API_URL`    | `http://localhost:8080`    | Backend URL the frontend calls              |
+| `VITE_PORT`       | `5173`                      | Local dev server port                       |
+| `CHOKIDAR_USEPOLLING` | `true`                   | File-watch polling                          |
+| `VITE_BASE_PATH`  | `/benefit-app/`             | Base path the app is served from            |
+
+See `.env.example` and `frontend/.env.example` for the source of truth — this table is a convenience summary and may drift from them over time.
+
+</details>
+<br>
+
 ### You must include the JWT_PRIVATE_KEY in your .env:
 
 The backend JWT signing key is supplied through the `JWT_PRIVATE_KEY` environment variable and is **not stored in the public repository**. Copy the key from the **backend-credentials** file `JWT private key for local enviroment.md` and set it in the root `.env` file before starting the backend. Use the actual PEM content with real line breaks, for example:
@@ -512,7 +550,12 @@ This command tells Git to look for the `pre-commit` hook in the `.githooks` fold
 
 ### (Optional) Troubleshooting
 
-- **No seed users** → ensure the backend has `spring.sql.init.mode=always` in `application.yaml` or `SPRING_SQL_INIT_MODE=always` in Docker Compose, then reset the DB once.
+<details>
+<summary><b>Click to expand troubleshooting tips</b></summary>
+
+<br>
+
+- **No seed users** → confirm the `dev` Spring profile is active (see [Database Initialization](#database-initialization)) — Docker Compose and `./gradlew bootRun` set this automatically. Then reset the DB once.
 - **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`. On Windows with WSL2, if **Spring Boot/Gradle hot reload** does not detect Java file changes, keep the repository in the WSL filesystem (e.g. `~/Projects/benefit-app`) rather than under `/mnt/c/...`, then run Docker Compose from the WSL project directory.
 - **Java not detected / build fails** → Ensure `JAVA_HOME` points to your JDK 21 installation. Example (PowerShell):
 
@@ -543,10 +586,19 @@ This command tells Git to look for the `pre-commit` hook in the `.githooks` fold
 
 #### See also: [List of known errors](/documents/notes/known_errors.md).
 
+</details>
+
 ### (Optional) Notes
+
+<details>
+<summary><b>Click to expand notes</b></summary>
+
+<br>
 
 - Change host ports in `.env` if 5173/8080/5433 are taken.
 - Use a DB GUI (e.g., DBeaver) with host `localhost`, port `5433`, db `fisma_db`, user `myuser`, pass `secret`.
+
+</details>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
