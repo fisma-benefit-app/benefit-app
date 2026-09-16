@@ -35,6 +35,13 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       sessionStorage.getItem("userId") || localStorage.getItem("userId");
 
     if (loginToken && userInfo) {
+      const decoded = decodeJWT(loginToken);
+      if (!decoded || !decoded?.exp) {
+        logout();
+        console.warn("Could not decode token or no exp claim");
+        return;
+      }
+
       setSessionToken(loginToken);
       setAppUser({
         id: userId ? parseInt(userId) : undefined,
@@ -137,7 +144,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     if (!sessionToken) return;
 
     const decoded = decodeJWT(sessionToken);
-    if (!decoded?.exp) {
+    if (!decoded || !decoded?.exp) {
+      logout();
       console.warn("Could not decode token or no exp claim");
       return;
     }
