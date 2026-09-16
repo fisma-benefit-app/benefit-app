@@ -8,10 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface FunctionalComponentRepository extends JpaRepository<FunctionalComponent, Long> {
-  @Query("SELECT fc FROM FunctionalComponent fc WHERE fc.id = :id AND fc.deletedAt IS NULL")
+  @Query(
+      "SELECT fc FROM FunctionalComponent fc WHERE fc.id = :id AND fc.deletedAt IS NULL AND fc.project.id = :projectId")
   Optional<FunctionalComponent> findByIdActive(@Param("id") Long id);
 
-  @Query("SELECT fc FROM FunctionalComponent fc WHERE fc.deletedAt IS NULL")
+  @Query(
+      "SELECT fc FROM FunctionalComponent fc WHERE fc.deletedAt IS NULL AND fc.project.id = :projectId")
   List<FunctionalComponent> findAllActive();
 
   @Query(
