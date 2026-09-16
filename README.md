@@ -25,7 +25,7 @@
     <br /> between FiSMA ry and Haaga-Helia University of Applied Sciences.
     <br />
     <a href="#quick-reference"><strong>Quick reference »</strong></a></br>
-    <a href="#getting-started-with-development"><strong>Installation and development »</strong></a>
+    <a href="#setting-up-development-environment"><strong>Installation and development »</strong></a>
   </p>
 </div>
 
@@ -46,7 +46,7 @@
     <li><a href="#architecture">Architecture</a></li>
     <li><a href="#fisma-11-method-overview">FiSMA Method Overview</a></li>
     <li><a href="#built-with">Built With</a></li>
-    <li><a href="#getting-started-with-development">Getting Started with Development</a></li>
+    <li><a href="#setting-up-development-environment">Setting up Development Environment</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#cicd">CI/CD</a></li>
     <li><a href="#quality-assurance-and-security">Quality Assurance and Security</a></li>
@@ -75,14 +75,15 @@ There are several function point analysis methods, but in this project, the term
 
 ## Quick Reference
 
-The four things people ask about most often:
+The things people ask about most often:
 
 | Question                    | Answer                                                                          |
 | ---------------------------- | -------------------------------------------------------------------------------- |
 | **Where is the service?**    | [https://fisma-benefit-app.github.io/benefit-app/#/login](https://fisma-benefit-app.github.io/benefit-app/#/login) — see [Service and Environments](#service-and-environments) |
-| **How do I deploy?**         | Testing deploys automatically on merge to `main`; production is manual via Heroku — see [Deployment](#deployment) |
-| **Where are the logs?**      | `heroku logs --app fisma-benefit-app --tail` — see [Logs](#logs)                 |
-| **How do I flush caches?**   | `heroku builds:cache:purge -a fisma-benefit-app` (build cache) — see [Caches](#caches) for frontend/backend/app caches too |
+| **How do I get my changes to production?** | Merge your PR to `main` (auto-deploys to testing). For production: Heroku dashboard → `fisma-benefit-app` app → Deploy tab → select `main` → Deploy Branch. This triggers GitHub Actions to roll the frontend out too — see [Deployment](#deployment) |
+| **Where are the logs?**      | See [Logs](#logs) — location differs by backend/frontend and local/production     |
+| **How do I flush caches?**   | See [Caches](#caches) — covers frontend, backend, Heroku build cache, and the app's own calculation cache |
+| **Something's wrong with the production database?** | Back it up first: `heroku pg:backups:capture --app=fisma-benefit-app`. Connect: `heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app` — see [Database Access](#database-access) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -93,6 +94,7 @@ The four things people ask about most often:
 | Environment         | URL                                                              |
 | -------------------- | ----------------------------------------------------------------- |
 | Production frontend  | https://fisma-benefit-app.github.io/benefit-app/#/login          |
+| Testing frontend     | https://fisma-benefit-app.github.io/benefit-app/testing/#/login  |
 | Local frontend (dev) | http://localhost:5173/benefit-app/login                          |
 | Local backend (dev)  | http://localhost:8080/actuator/health                            |
 
@@ -309,10 +311,9 @@ More information on how to access the database can be found in the [database gui
 
 ### API
 
-Benefit's API documentation has been created using SpringDoc and Widdershins.
-NOTE: widdershins is not installed with npm because it causes npm audit problems. Run it with `npx widdershins`.
+Benefit's API documentation is generated from the backend's live OpenAPI spec (SpringDoc) using Widdershins and Doctoc, run via `npx` (not installed as dependencies, since that causes `npm audit` problems).
 
-It can be viewed [here](/documents/references/api.md) and can be refreshed by following the steps in the [API guide](/documents/guides/generate_api_docs.md).
+It can be viewed [here](/documents/references/api.md). It is **not** regenerated automatically — refresh it after any API change by running `backend/scripts/generate_api_docs.sh` against a running local backend, following the [API guide](/documents/guides/generate_api_docs.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -379,7 +380,7 @@ This project is built with:
 
 <!-- GETTING STARTED -->
 
-## Getting Started with development
+## Setting up development environment
 
 This guide explains how to set up the Benefit App locally for development.
 
@@ -731,7 +732,7 @@ The project's requirement specification can be found [here](https://docs.google.
 If you have a suggestion to improve this project:
 
 1. Fork the project
-2. Set up the development environment ([see Getting Started with Development](#getting-started-with-development))
+2. Set up the development environment ([see Setting up Development Environment](#setting-up-development-environment))
 3. Create your feature branch and set up remotes
 
    ```bash
