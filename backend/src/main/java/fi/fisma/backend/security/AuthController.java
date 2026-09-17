@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,5 +52,17 @@ public class AuthController {
       } catch (JwtException e) {
       }
     }
+  }
+
+  @GetMapping("/validateJWT")
+  @Operation(
+      summary = "Validate JWT",
+      description = "Dummy endpoint called by frontend to check JWT validity",
+      responses = {
+        @ApiResponse(responseCode = "200", description = "Token is valid"),
+        @ApiResponse(responseCode = "401", description = "Token is invalid, expired, or revoked")
+      })
+  public ResponseEntity<Void> validate(Authentication authentication) {
+    return ResponseEntity.ok().build();
   }
 }

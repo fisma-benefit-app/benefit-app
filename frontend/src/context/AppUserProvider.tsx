@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState, useCallback } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
-import { extendSession } from "../api/authorization";
+import { extendSession, validateJWT } from "../api/authorization";
 import { decodeJWT, sessionTimeoutConfig } from "../lib/jwtUtils";
 import { useAlert } from "./AlertProvider";
 import useTranslations from "../hooks/useTranslations";
@@ -21,38 +21,6 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
   const { showNotification, hideNotification } = useAlert();
   const translation = useTranslations().alert;
-
-  //get login data from the storage when application is refreshed
-  useEffect(() => {
-    setLoadingAuth(true);
-    // get from sessionStorage first; if it's not there, then search in localStorage.
-    const loginToken =
-      sessionStorage.getItem("loginToken") ||
-      localStorage.getItem("loginToken");
-    const userInfo =
-      sessionStorage.getItem("userInfo") || localStorage.getItem("userInfo");
-    const userId =
-      sessionStorage.getItem("userId") || localStorage.getItem("userId");
-
-    if (loginToken && userInfo) {
-      const decoded = decodeJWT(loginToken);
-      if (!decoded || !decoded?.exp) {
-        logout();
-        console.warn("Could not decode token or no exp claim");
-        return;
-      }
-
-      setSessionToken(loginToken);
-      setAppUser({
-        id: userId ? parseInt(userId) : undefined,
-        username: userInfo,
-      });
-      setLoggedIn(true);
-    }
-
-    //need to track that items from sessionstorage are retrieved and state update for loggedIn is finished
-    setLoadingAuth(false);
-  }, []);
 
   const clearLocalSession = () => {
     sessionStorage.removeItem("loginToken");
@@ -87,6 +55,45 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       setLoadingAuth(false);
     }
   }, [hideNotification, sessionToken]);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      //need to track that items from sessionstorage are retrieved and state update for loggedIn is finished
+      setLoadingAuth(true);
+      const loginToken =
+        sessionStorage.getItem("loginToken") ||
+        localStorage.getItem("loginToken");
+      const userInfo =
+        sessionStorage.getItem("userInfo") || localStorage.getItem("userInfo");
+      const userId =
+        sessionStorage.getItem("userId") || localStorage.getItem("userId");
+
+      if (loginToken && userInfo) {
+        const decoded = decodeJWT(loginToken);
+        if (!decoded || !decoded?.exp) {
+          await logout();
+          console.warn("Could not decode token or no exp claim");
+          return;
+        }
+
+        const jwtValid = await validateJWT(loginToken);
+
+        if (!jwtValid) {
+          clearLocalSession();
+        } else {
+          setSessionToken(loginToken);
+          setAppUser({
+            id: userId ? parseInt(userId) : undefined,
+            username: userInfo,
+          });
+          setLoggedIn(true);
+        }
+      }
+      setLoadingAuth(false);
+    }
+
+    restoreSession();
+  }, []);
 
   const showSessionWarning = useCallback(
     (expirationTime: number) => {
@@ -207,7 +214,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       }, alertCountdownTick);
     };
 
-    let cancelWarningTimeout = () => {};
+    let cancelWarningTimeout = () => { };
 
     if (timeUntilFirstWarning <= 0) {
       startCountdown();
