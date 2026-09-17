@@ -61,4 +61,29 @@ const extendSession = async (sessionToken: string, rememberMe: boolean) => {
   return token;
 };
 
-export { extendSession, fetchJWT };
+const validateJWT = async (sessionToken: string): Promise<boolean | null> => {
+  const fetchURL = `${API_URL}/auth/validateJWT`;
+  const headers = { Authorization: sessionToken };
+
+  try {
+    const response = await fetch(fetchURL, { method: "GET", headers });
+
+    if (response.ok) {
+      return true;
+    }
+
+    if (response.status === 401) {
+      return false;
+    }
+
+    console.error(
+      `Unexpected status validating session: ${response.status}`,
+    );
+    return null;
+  } catch (error) {
+    console.error("Session validation request failed:", error);
+    return null;
+  }
+};
+
+export { extendSession, fetchJWT, validateJWT };
