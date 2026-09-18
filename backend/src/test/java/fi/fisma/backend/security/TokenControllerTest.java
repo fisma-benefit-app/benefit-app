@@ -13,10 +13,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest({TokenController.class})
+@ActiveProfiles("test")
 @Import({
   SecurityConfig.class,
   UserDetailsServiceImpl.class,
@@ -30,6 +32,7 @@ class TokenControllerTest {
   @MockitoBean AppUserRepository appUserRepository;
   @MockitoBean TokenService tokenService;
   @MockitoBean TokenBlacklistService blacklistService;
+  @MockitoBean LoginAttemptThrottleService loginAttemptThrottleService;
 
   private final JwtRequestPostProcessor jwtAuth =
       org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
