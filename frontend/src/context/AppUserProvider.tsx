@@ -78,7 +78,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
         const jwtValid = await validateJWT(loginToken);
 
-        if (!jwtValid) {
+        if (jwtValid === false) {
           clearLocalSession();
         } else {
           setSessionToken(loginToken);
@@ -90,7 +90,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
         }
       }
       setLoadingAuth(false);
-    }
+    };
 
     restoreSession();
   }, []);
@@ -214,7 +214,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       }, alertCountdownTick);
     };
 
-    let cancelWarningTimeout = () => { };
+    let cancelWarningTimeout = () => {};
 
     if (timeUntilFirstWarning <= 0) {
       startCountdown();
