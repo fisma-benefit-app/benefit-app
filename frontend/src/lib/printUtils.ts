@@ -555,6 +555,13 @@ export const generateCalculationReportPDF = async (
 
   const style = doc.createElement("style");
   style.textContent = `
+      th, td {
+        border: 1px solid #000;
+        padding: 10px;
+        text-align: left;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
       .project-data {
         font-weight: normal;
       }
@@ -567,7 +574,6 @@ export const generateCalculationReportPDF = async (
       h1 { text-align: center; }
       .project-info { margin-bottom: 20px; }
       table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-      th, td { border: 1px solid #000; padding: 5px; text-align: left; }
       th { background-color: #f2f2f2; }
       .total-row { font-weight: bold; background-color: #ddd; }
       .subcomponent-row td {
