@@ -12,6 +12,7 @@ import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.CommentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import fi.fisma.backend.security.JwtRevocationFilter;
+import fi.fisma.backend.security.LoginAttemptThrottleService;
 import fi.fisma.backend.security.SecurityConfig;
 import fi.fisma.backend.security.TokenBlacklistService;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
@@ -23,10 +24,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest(CommentController.class)
+@ActiveProfiles("test")
 @Import({SecurityConfig.class, UserDetailsServiceImpl.class, JwtRevocationFilter.class})
 class CommentControllerTest {
 
@@ -38,6 +41,7 @@ class CommentControllerTest {
   @MockitoBean ProjectRepository projectRepository;
   @MockitoBean AppUserRepository appUserRepository;
   @MockitoBean TokenBlacklistService blacklistService;
+  @MockitoBean LoginAttemptThrottleService loginAttemptThrottleService;
 
   private final JwtRequestPostProcessor jwtAuth =
       org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors

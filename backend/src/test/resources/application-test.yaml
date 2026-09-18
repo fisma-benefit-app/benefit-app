@@ -6,3 +6,35 @@ spring:
     url: jdbc:postgresql://localhost:${HOST_DB_PORT:5433}/fisma_db
     username: ${SPRING_DATASOURCE_USERNAME:myuser}
     password: ${SPRING_DATASOURCE_PASSWORD:secret}
+
+jwt:
+  private.key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCmhFVvfTo8MJQp
+    rp0GgQvdatq8vKH5NLMlEgstTPtCY4+1k+w+RvBgelGBYSUgOaLwrYxfsJ2/jt+s
+    c9gJxzJDZVcdUYxDs6PM9IclhzXBEejs6ipHrFOBWz+yAHWHZPHFgsN+ToKWMPnk
+    amHPjj38tAzc03KAJylmDjonvlYKQGoyUA+kHXxlgeJAtO2BoIM4xbl20H7GiYUY
+    pEYav26bT3mo4g4KlMoqHDiDE71tXRjJ+keSZWxNP3PeQL+7iC2PhMRxB54S3NnA
+    QPAGg04BoHKQ9Y72OJCgbfc9RGPRp1Z2TyG8bwcgtFDTZd2xRnuGxYJZeKxoEOxJ
+    A0MiCB+ZAgMBAAECggEABS4hiK7F1jceRNwW+N7TqaqE7er7kJWGuGTpToCryF++
+    I5Eof+XhEH9KdDkh2IplrhF+e0BmIYSmVk0V4w5i9LaWxGWHDljstzGPcSfVqkRb
+    KxOioRXHu0LfDM1eDdcI4z+zXGvA1qWxzUNQXttqXkD6E9yYHhiAMMz8gV2dSGnp
+    TVZqUmDeviDLNGRiZ9KHyzSgGDyWo+7yuw0abNbQMASze3LmeuXo67olrun1+sIO
+    F1+LAsm5nH1cZFxJSc+reunq4zr52PUjiNIEnRQQ8HeeJQctIXX48iibG/zBgm+F
+    iyNFripA3uQ3sJK8uLL0Pd8TZUIlcJ5SvoHTSp6UaQKBgQDfy3z+bGePZaJLdjNv
+    RCUzD2n9yoM0eSwWJQvlNbkGXDg++DW8iq2mxrdBuR/4dJo3Cvu1fhOMkOqaTXk1
+    d+gMvXYkTOlrEWPRxMcGcB+9Yvx1oPkUojZiy8O2AknW5WNd0HN/5C93XupSagaG
+    dwFLNPjRwVFJIqkxefHRx9VsUwKBgQC+er/SybexjsX1EPlIEiuNhSsaI8DMrDFA
+    fjBGu/xiRABwdoOYJGSf5JddN2NoxIWzaM2NasQjKWZeS+92nRuSQdWk+CMv2ZH7
+    VKH2jwVW5Mk6lWoM21QYnnpH4tmD1UiLX+REzA1BkAeMMyAYQ+dzN4ROaVnTuxA3
+    XVYGquBm4wKBgE8dIJLQv8txom4K2yP6cywZxt5xOPDT5UHu1sWwuDgHYdrg5B5C
+    6CCNHzuctjCfB+VtfI4sg7ytfkIOIUtFmELot1sd1WaEP0VoyvL7sDzDQXxT67nf
+    nlpOrmEpbfEKJpaDmlEb2avZYfzAfo4Kg+qST2PXc2TnW+ihs1r1yf0BAoGAe0Mf
+    4x4aO1KzE7WaO2NWv8wPamj8mPZNIPkH8J4x4r0ys5Rd8BSM8VOSCAaR0/hotQL7
+    EaqnpkFiN19YZR+h+fGUeZ8B1jMrXsMT1GQVBngjKEAMUqmUMCJN6zsHm2JoAZla
+    NJL/eQ/lcnqbKFi47Dxe6AcQ1A1XnxxNUR8+/BUCgYBbBwYJZOht2XTTmhfzXw+W
+    ak97I98P1GsVmLlk4Wwj5V+sSwkZMWPO2HqZBTEcrjN01ky2U5dkqvIrT12jtVTh
+    7kWtVa8hWB9T1c2qsToY/J/EE+jkya+axO/WpSX28b1ln3T+6f5IK/RXOxtMqJlh
+    ejOC9P55K2X0oI7l08IyYQ==
+    -----END PRIVATE KEY-----
+  public.key: classpath:jwt-keys-test/app-public.pem
