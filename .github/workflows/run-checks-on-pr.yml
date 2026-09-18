@@ -5,26 +5,59 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-be-formatting-check:
-    name: Run BE formatting check
+  # Skips the expensive step in each job below when its side (backend/
+  # frontend) didn't change, but keeps every job actually running --
+  # gating happens on `if:` per step, not on the job itself. A job that's
+  # skipped outright reports a "skipped" conclusion, and GitHub's required
+  # status checks don't treat "skipped" as passing, which would block
+  # merging once the (currently disabled) ruleset requiring these checks
+  # is re-enabled.
+  detect-changes:
+    name: Detect changed paths
     runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  run-be-formatting-check:
+    name: Run BE formatting check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+
+    steps:
+      - name: Checkout code
+        if: needs.detect-changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
+
       - name: Set up JDK 21
+        if: needs.detect-changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: "temurin"
 
       - name: Grant Gradle execute permissions
+        if: needs.detect-changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           cd backend
           chmod +x ./gradlew
 
       - name: Run Spotless check
+        if: needs.detect-changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           cd backend
           ./gradlew spotlessCheck
@@ -32,22 +65,27 @@ jobs:
   run-fe-formatting-check:
     name: Run FE formatting check
     runs-on: ubuntu-latest
+    needs: detect-changes
 
     steps:
       - name: Checkout code
+        if: needs.detect-changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v4
 
       - name: Set up Node.js
+        if: needs.detect-changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-node@v3
         with:
           node-version: "20"
 
       - name: Install dependencies
+        if: needs.detect-changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           cd frontend
           npm install
 
       - name: Run Prettier check
+        if: needs.detect-changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           cd frontend
           npx prettier --check .
@@ -55,22 +93,27 @@ jobs:
   run-fe-linting-check:
     name: Run FE linting check
     runs-on: ubuntu-latest
+    needs: detect-changes
 
     steps:
       - name: Checkout code
+        if: needs.detect-changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v4
 
       - name: Set up Node.js
+        if: needs.detect-changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-node@v3
         with:
           node-version: "20"
 
       - name: Install dependencies
+        if: needs.detect-changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           cd frontend
           npm install
 
       - name: Run ESLint
+        if: needs.detect-changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           cd frontend
           npx eslint .
@@ -78,6 +121,10 @@ jobs:
   run-backend-tests:
     name: Run backend tests
     runs-on: ubuntu-latest
+    needs: detect-changes
+    # `services:` still boots Postgres even on a frontend-only PR -- there's
+    # no way to gate a service container by `if:`. Only the actual test run
+    # below is skipped.
     services:
       postgres:
         image: postgres:latest
@@ -95,20 +142,24 @@ jobs:
 
     steps:
       - name: Checkout code
+        if: needs.detect-changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
+        if: needs.detect-changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: "temurin"
 
       - name: Grant Gradle execute permissions
+        if: needs.detect-changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           cd backend
           chmod +x ./gradlew
 
       - name: Run backend tests
+        if: needs.detect-changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/${{ secrets.DB_NAME }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
