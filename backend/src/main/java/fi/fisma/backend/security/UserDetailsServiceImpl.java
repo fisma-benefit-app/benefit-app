@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,9 +18,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
   private final AppUserRepository appUserRepository;
+  private final LoginAttemptThrottleService loginAttemptThrottleService;
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+    if (loginAttemptThrottleService.isBlocked(username)) {
+      throw new LockedException(
+          "Too many failed login attempts for user " + username + ". Please try again later.");
+    }
+
     AppUser appUser =
         this.appUserRepository
             .findByUsernameActive(username)

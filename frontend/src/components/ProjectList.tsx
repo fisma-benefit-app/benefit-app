@@ -21,11 +21,7 @@ import useProjects from "../hooks/useProjects.tsx";
 import useCommitSha from "../hooks/useCommitSha";
 
 type SortKey =
-  | "projectName"
-  | "version"
-  | "createdAt"
-  | "versionCreatedAt"
-  | "updatedAt";
+  "projectName" | "version" | "createdAt" | "versionCreatedAt" | "updatedAt";
 
 type SortDirection = "asc" | "desc";
 
