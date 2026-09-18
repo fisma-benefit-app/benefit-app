@@ -75,69 +75,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Function to get the latest workflow run ID for GitHub Pages build after deployment started
-          get_pages_workflow_run() {
-            # Use the deployment creation time as a reference
-            DEPLOYMENT_CREATED_AT="${{ github.event.deployment.created_at }}"
-            curl -s \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/runs" | \
-            jq --arg created_at "$DEPLOYMENT_CREATED_AT" '
-              .workflow_runs[]
-              | select(.name == "pages build and deployment" and (.created_at >= $created_at))
-              | .id
-            ' | head -n 1
-          }
-
-          # Get the initial run ID
+          # Give the Pages workflow run a moment to appear before we look for it.
           echo "Waiting for GitHub Pages deployment workflow to start..."
+          sleep 20
 
-          # Wait for a short period to allow the workflow to begin after deployment
-          INITIAL_WAIT_SECONDS=20
-          sleep $INITIAL_WAIT_SECONDS
+          # Take the earliest "pages build and deployment" run created at or
+          # after this deployment started, not the newest overall -- this job
+          # triggers a second Pages deploy (testing) right after this one, so
+          # "newest" can match the wrong run once both are in flight.
+          RUN_ID=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "pages-build-deployment" \
+            --json databaseId,createdAt \
+            --jq '[.[] | select(.createdAt >= "'"${{ github.event.deployment.created_at }}"'")] | sort_by(.createdAt) | .[0].databaseId')
 
-          RUN_ID=$(get_pages_workflow_run)
-
-          # Validate RUN_ID
-          if [ -z "$RUN_ID" ]; then
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
             echo "Error: Could not find a GitHub Pages deployment workflow run. The workflow may not have started yet or the API call failed."
             exit 1
           fi
 
-          # Wait for workflow to complete (max 5 minutes)
-          TIMEOUT_SECONDS=300  # Timeout duration in seconds (5 minutes) to allow sufficient time for deployment
-
-          START_TIME=$(date +%s)
-          CHECK_INTERVAL_SECONDS=5
-
-          while true; do
-            CURRENT_TIME=$(date +%s)
-            ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
-            
-            if [ $ELAPSED_TIME -gt $TIMEOUT_SECONDS ]; then
-              echo "Timeout waiting for GitHub Pages deployment"
-              exit 1
-            fi
-            
-            # Get workflow status
-            STATUS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-                    "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID" | \
-                    jq -r '.conclusion')
-            
-            # Check workflow status
-            if [ "$STATUS" = "success" ]; then
-              echo "GitHub Pages deployment completed with status ${STATUS}"
-              break
-            elif [ "$STATUS" = "failure" ] || [ "$STATUS" = "cancelled" ]; then
-              echo "GitHub Pages deployment failed with status ${STATUS}"
-              exit 1
-            fi
-            
-            echo "Waiting for GitHub Pages deployment workflow to complete..."
-            sleep $CHECK_INTERVAL_SECONDS
-          done
+          echo "Watching GitHub Pages deployment run $RUN_ID..."
+          gh run watch "$RUN_ID" --repo "${{ github.repository }}" --exit-status
 
       # FE deployment to production resets testing environment,
       # so we deploy FE testing again after production deployment
