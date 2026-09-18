@@ -174,8 +174,7 @@ const createMLASubComponent = (
       | "Interface service to other applications"
       | "Interface service from other applications";
     componentType:
-      | "messages to other applications"
-      | "messages from other applications";
+      "messages to other applications" | "messages from other applications";
     subComponentType: "B-UI" | "UI-B" | "B-D" | "D-B";
     readingReferences: number | null;
     writingReferences: number | null;
