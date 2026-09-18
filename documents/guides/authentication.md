@@ -158,3 +158,10 @@ After logout:
 
 **Note:**  
 This approach provides immediate logout and token invalidation, even though JWTs are stateless by default. The backend remains stateless except for the blacklist, which is kept in memory and cleaned regularly.
+
+## Testing the flow with Postman
+
+For a step-by-step example of logging in through Postman and testing protected endpoints, see [postman_authentication.md](postman_authentication.md).
+
+
+
