@@ -18,8 +18,9 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
   }
 
-  @ExceptionHandler(IllegalStateException.class)
-  public ResponseEntity<String> handleIllegalStateException(IllegalStateException exception) {
+  @ExceptionHandler(java.lang.IllegalStateException.class)
+  public ResponseEntity<String> handleIllegalStateException(
+      java.lang.IllegalStateException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
   }
 }

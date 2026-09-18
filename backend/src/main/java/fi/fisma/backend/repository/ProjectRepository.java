@@ -16,16 +16,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
           """
         SELECT p.*
         FROM projects p
-        WHERE p.deleted_at IS NULL
-        """,
-      nativeQuery = true)
-  List<Project> findAllActive();
-
-  @Query(
-      value =
-          """
-        SELECT p.*
-        FROM projects p
         JOIN projects_app_users pau ON p.id = pau.project_id
         JOIN app_users u ON pau.app_user_id = u.id
         WHERE p.id = :projectId

@@ -13,9 +13,7 @@ public class LoginAttemptThrottleService {
   private final Map<String, LoginAttemptRecord> attempts = new ConcurrentHashMap<>();
 
   public boolean isBlocked(String username) {
-    System.out.println("CHECK key=[" + username + "]");
     var record = attempts.get(username);
-    System.out.println("isBlocked check for [" + username + "] record=" + record);
     if (record == null) {
       return false;
     }
@@ -29,13 +27,11 @@ public class LoginAttemptThrottleService {
   }
 
   public boolean recordFailure(String username) {
-    System.out.println("RECORD key=[" + username + "]");
     var now = Instant.now();
     var existing = attempts.getOrDefault(username, new LoginAttemptRecord(0, now));
 
     var updatedCount = existing.count() + 1;
     attempts.put(username, new LoginAttemptRecord(updatedCount, now));
-    System.out.println("recordFailure for [" + username + "] newCount=" + updatedCount);
     return updatedCount >= MAX_ATTEMPTS;
   }
 
