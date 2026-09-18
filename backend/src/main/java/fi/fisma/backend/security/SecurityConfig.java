@@ -112,29 +112,6 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
-  // @Bean
-  // public AuthenticationManager authenticationManager() {
-  //   var authProvider =
-  //       new DaoAuthenticationProvider(userDetailsService) {
-  //         @Override
-  //         protected void additionalAuthenticationChecks(
-  //             org.springframework.security.core.userdetails.UserDetails userDetails,
-  //             UsernamePasswordAuthenticationToken authentication) {
-  //           System.out.println("CUSTOM PROVIDER HIT for " + userDetails.getUsername());
-  //           try {
-  //             super.additionalAuthenticationChecks(userDetails, authentication);
-  //             loginAttemptThrottleService.reset(userDetails.getUsername());
-  //           } catch (BadCredentialsException exception) {
-  //             loginAttemptThrottleService.recordFailure(userDetails.getUsername());
-  //             throw exception;
-  //           }
-  //         }
-  //       };
-  //   authProvider.setPasswordEncoder(passwordEncoder());
-  //   authProvider.setHideUserNotFoundExceptions(false);
-  //   return new ProviderManager(authProvider);
-  // }
-
   @Bean
   public DaoAuthenticationProvider authenticationProvider() {
     var authProvider =
@@ -143,7 +120,6 @@ public class SecurityConfig {
           protected void additionalAuthenticationChecks(
               org.springframework.security.core.userdetails.UserDetails userDetails,
               UsernamePasswordAuthenticationToken authentication) {
-            System.out.println("CUSTOM PROVIDER HIT for " + userDetails.getUsername());
             try {
               super.additionalAuthenticationChecks(userDetails, authentication);
               loginAttemptThrottleService.reset(userDetails.getUsername());

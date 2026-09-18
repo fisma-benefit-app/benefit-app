@@ -11,9 +11,6 @@ public interface FunctionalComponentRepository extends JpaRepository<FunctionalC
   @Query("SELECT fc FROM FunctionalComponent fc WHERE fc.id = :id AND fc.deletedAt IS NULL")
   Optional<FunctionalComponent> findByIdActive(@Param("id") Long id);
 
-  @Query("SELECT fc FROM FunctionalComponent fc WHERE fc.deletedAt IS NULL")
-  List<FunctionalComponent> findAllActive();
-
   @Query(
       """
         SELECT fc FROM FunctionalComponent fc
@@ -22,14 +19,6 @@ public interface FunctionalComponentRepository extends JpaRepository<FunctionalC
         ORDER BY fc.orderPosition
         """)
   List<FunctionalComponent> findAllByProjectIdActive(@Param("projectId") Long projectId);
-
-  @Query(
-      """
-        SELECT fc FROM FunctionalComponent fc
-        WHERE fc.previousFCId = :previousId
-        AND fc.deletedAt IS NULL
-        """)
-  Optional<FunctionalComponent> findByPreviousIdActive(@Param("previousId") Long previousId);
 
   List<FunctionalComponent> findByParentFCIdAndDeletedAtIsNull(Long parentId);
 }

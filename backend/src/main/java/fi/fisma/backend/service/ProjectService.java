@@ -6,7 +6,6 @@ import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.exception.EntityNotFoundException;
-import fi.fisma.backend.exception.IllegalStateException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.FunctionalComponentMapper;
 import fi.fisma.backend.mapper.ProjectMapper;
