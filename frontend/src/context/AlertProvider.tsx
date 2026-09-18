@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleCheck,
@@ -44,27 +50,39 @@ const AlertContext = createContext<AlertContextType | null>(null);
 export function AlertProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const showNotification = (
-    title: string,
-    message: string,
-    type: NotificationType = "info",
-    id: string = `${Date.now()}`, // default unique id if not given
-    action?: Notification["action"],
-  ) => {
-    setNotifications((prev) => {
-      const existing = prev.find((n) => n.id === id);
-      if (existing) {
-        // Update existing instead of adding
-        return prev.map((n) =>
-          n.id === id
-            ? { ...n, title, message, type, isVisible: true, action }
-            : n,
-        );
-      }
-      // Add new
-      return [...prev, { id, title, message, type, isVisible: true, action }];
-    });
-  };
+  const showNotification = useCallback(
+    (
+      title: string,
+      message: string,
+      type: NotificationType = "info",
+      id: string = `${Date.now()}`, // default unique id if not given
+      action?: Notification["action"],
+    ) => {
+      setNotifications((prev) => {
+        const existing = prev.find((n) => n.id === id);
+        if (existing) {
+          // Update existing instead of adding
+          return prev.map((n) =>
+            n.id === id
+              ? { ...n, title, message, type, isVisible: true, action }
+              : n,
+          );
+        }
+        // Add new
+        return [...prev, { id, title, message, type, isVisible: true, action }];
+      });
+    },
+    [],
+  );
+
+  const hideNotification = useCallback((id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isVisible: false } : n)),
+    );
+    setTimeout(() => {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    }, 300);
+  }, []);
 
   const updateNotification = (
     id: string,
@@ -82,15 +100,6 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
     if (type !== "error" && type !== "loading") {
       setTimeout(() => hideNotification(id), 5000);
     }
-  };
-
-  const hideNotification = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isVisible: false } : n)),
-    );
-    setTimeout(() => {
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-    }, 300);
   };
 
   const NotificationContainer = () => (

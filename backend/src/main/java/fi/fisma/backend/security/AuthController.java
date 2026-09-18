@@ -5,9 +5,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,5 +52,17 @@ public class AuthController {
       } catch (JwtException e) {
       }
     }
+  }
+
+  @GetMapping("/validateJWT")
+  @Operation(
+      summary = "Validate JWT",
+      description = "Dummy endpoint called by frontend to check JWT validity",
+      responses = {
+        @ApiResponse(responseCode = "200", description = "Token is valid"),
+        @ApiResponse(responseCode = "401", description = "Token is invalid, expired, or revoked")
+      })
+  public ResponseEntity<Void> validate(Authentication authentication) {
+    return ResponseEntity.ok().build();
   }
 }

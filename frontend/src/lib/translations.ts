@@ -219,7 +219,6 @@ export const translations = {
       calculationDate: "Measurement Date:",
       reportContactDetails: "Report contact details",
       reportNotes: "Report calculation notes",
-      saveReportInformation: "Save report information",
       cannotEditOrSaveArchivedVersion: "Cannot edit or save archived version",
       expandAll: "Expand all",
       collapseAll: "Collapse all",
@@ -526,7 +525,6 @@ export const translations = {
       calculationDate: "Laskennan päivämäärä.",
       reportContactDetails: "Raportin yhteystiedot",
       reportNotes: "Raportin laskentamuistiinpanot",
-      saveReportInformation: "Tallenna raportin tiedot",
       cannotEditOrSaveArchivedVersion:
         "Arkistoitua versiota ei voi muokata tai tallentaa",
       expandAll: "Laajenna kaikki",
