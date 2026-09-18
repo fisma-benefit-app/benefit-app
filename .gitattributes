@@ -1,0 +1,23 @@
+# Normalize line endings across OSes (this repo has been edited from both
+# Windows and Linux/macOS without any policy, causing recurring local CRLF
+# drift on text files — see chore/normalize-line-endings-and-exec-bits PR).
+* text=auto eol=lf
+
+# Scripts must stay LF or they break on Linux (CRLF in the shebang line
+# causes "bad interpreter: No such file or directory").
+*.sh text eol=lf
+gradlew text eol=lf
+
+# Windows batch files are expected to stay CRLF.
+*.bat text eol=crlf
+
+# Binary assets: never touch line endings or attempt text conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.mp4 binary
+*.jar binary
+*.pptx binary
+*.pem binary
+*.pub binary

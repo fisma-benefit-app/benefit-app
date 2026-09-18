@@ -3,8 +3,21 @@
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 cd "$PROJECT_ROOT"
 
-# Get list of staged frontend files (.js, .ts, .jsx, .tsx), relative to repo root
-STAGED_FRONTEND_FILES=$(git diff --cached --name-only -- frontend | grep -E '\.(js|ts|jsx|tsx)$' || true)
+# Guard against the executable bit silently dropping off critical scripts.
+# Seen on this repo from cross-OS checkouts: gradlew losing +x breaks the
+# Docker backend container ("Permission denied") and the Spotless step
+# below, which shells out to it directly.
+for script in backend/gradlew update_version.sh; do
+    if [ ! -x "$script" ]; then
+        echo "Error: $script is not executable. Run: chmod +x $script"
+        exit 1
+    fi
+done
+
+# Get list of staged frontend files (.js, .ts, .jsx, .tsx), relative to repo root.
+# --diff-filter=d excludes deleted files: Prettier can't format a file that no
+# longer exists on disk, and there's nothing to re-stage for it anyway.
+STAGED_FRONTEND_FILES=$(git diff --cached --name-only --diff-filter=d -- frontend | grep -E '\.(js|ts|jsx|tsx)$' || true)
 
 # Format staged frontend files with Prettier and re-stage formatted files.
 # Run via `npm exec --prefix frontend` (not a bare `npx` from the repo root) so this
@@ -24,8 +37,8 @@ if [ -n "$STAGED_FRONTEND_FILES" ]; then
     done
 fi
 
-# Get list of staged backend files (.java)
-STAGED_BACKEND_FILES=$(git diff --cached --name-only --relative backend | grep -E '\.java$' || true)
+# Get list of staged backend files (.java). Same --diff-filter=d as above.
+STAGED_BACKEND_FILES=$(git diff --cached --name-only --diff-filter=d --relative backend | grep -E '\.java$' || true)
 
 # Format staged backend files with Spotless and re-stage formatted files
 if [ -n "$STAGED_BACKEND_FILES" ]; then

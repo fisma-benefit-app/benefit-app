@@ -4,9 +4,9 @@ This guide explains the login functionality of the Benefit app. It introduces ke
 
 ## A) User Accounts Database
 
-The user account database is defined in the SQL files located in `benefit-app/backend/src/main/resources/`.
+The user account database is defined in the SQL files located in `benefit-app/backend/src/main/resources/`. These files are used for local development purposes (Spring profile "dev" is used). Any migrations to 'testing' or 'production' evironments are done manually.
 
-- `schema.sql` defines the structure of the app_user table. Example (line 3):
+- `schema-dev.sql` defines the structure of the app_user table. Example (line 3):
 
 ```sql
 create table if not exists app_user (
@@ -18,13 +18,11 @@ create table if not exists app_user (
 
 Image: Creating app_user table in schema.sql.
 
-- `data.sql` provides initial seed data for the app_user table. Example (line 6):
+- `database-seed-dev` provides initial seed data for the app_user table. Example (line 6):
 
 ```sql
 insert into app_user (id, username, password) values (...);
 ```
-
-![app user table in the data sql-file]../img/images_for_guides/data_sql_app_user_table.png)
 
 ## B) Handling User Accounts in Java
 
