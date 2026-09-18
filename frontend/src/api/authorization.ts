@@ -19,6 +19,8 @@ const fetchJWT = async (
     if (!response.ok) {
       if (response.status === 401) {
         throw new Error(networkingErrorMessages.UNAUTHORIZED);
+      } else if (response.status === 429) {
+        throw new Error("Too many login attempts!");
       }
       throw new Error(
         `Error getting JWT in fetchJWT! Status: ${response.status}`,

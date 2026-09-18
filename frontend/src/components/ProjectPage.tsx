@@ -490,12 +490,10 @@ export default function ProjectPage() {
               (a: TGenericComponent, b: TGenericComponent) =>
                 a.orderPosition - b.orderPosition,
             )
-            .map(
-              (c: TGenericComponent, idx: number): NormalizedComponent => ({
-                ...c,
-                orderPosition: idx,
-              }),
-            );
+            .map((c: TGenericComponent, idx: number): NormalizedComponent => ({
+              ...c,
+              orderPosition: idx,
+            }));
 
         setProject({ ...projectFromDb, functionalComponents: normalized });
       } catch (err) {

@@ -78,7 +78,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
         const jwtValid = await validateJWT(loginToken);
 
-        if (!jwtValid) {
+        if (jwtValid === false) {
           clearLocalSession();
         } else {
           setSessionToken(loginToken);
