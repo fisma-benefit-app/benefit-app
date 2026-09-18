@@ -118,7 +118,7 @@ public class FunctionalComponentMapper {
               // Only process parent-level components (not subComponents)
               if (fc.getParentFCId() == null) {
                 if (fc.getId() != null) {
-                  return updateExistingComponent(fc);
+                  return updateExistingComponent(project, fc);
                 }
                 return createNewComponent(fc, project);
               }
@@ -128,22 +128,25 @@ public class FunctionalComponentMapper {
         .collect(Collectors.toSet());
   }
 
-  private FunctionalComponent updateExistingComponent(FunctionalComponentRequest fc) {
+  private FunctionalComponent updateExistingComponent(
+      Project project, FunctionalComponentRequest fc) {
     return functionalComponentRepository
-        .findByIdActive(fc.getId())
+        .findByIdActive(fc.getId(), project.getId())
         .map(
             existing -> {
-              updateComponentFields(existing, fc);
+              updateComponentFields(existing, fc, project);
               return existing;
             })
-        .orElseThrow(() -> new EntityNotFoundException("Component not found: " + fc.getId()));
+        .orElseThrow(
+            () -> new EntityNotFoundException("Component not found with the id: " + fc.getId()));
   }
 
   private FunctionalComponent createNewComponent(FunctionalComponentRequest fc, Project project) {
     return toEntity(fc, project);
   }
 
-  private void updateComponentFields(FunctionalComponent existing, FunctionalComponentRequest fc) {
+  private void updateComponentFields(
+      FunctionalComponent existing, FunctionalComponentRequest fc, Project project) {
     existing.setTitle(fc.getTitle());
     existing.setDescription(fc.getDescription());
     existing.setClassName(fc.getClassName());
@@ -175,15 +178,24 @@ public class FunctionalComponentMapper {
         FunctionalComponent subComp;
 
         if (subReq.getId() != null) {
-          // Try to find and update existing sub-component
+          // Existing sub-components must belong to the same project and to this exact parent.
           subComp =
               functionalComponentRepository
-                  .findByIdActive(subReq.getId())
-                  .orElseGet(() -> createSubComponent(subReq, existing));
+                  .findByIdActive(subReq.getId(), project.getId())
+                  .orElseThrow(
+                      () ->
+                          new EntityNotFoundException(
+                              "Component not found with the id: " + subReq.getId()));
 
-          if (subComp.getId() != null) {
-            updateSubComponentFields(subComp, subReq, existing);
+          if (!existing.getId().equals(subComp.getParentFCId())) {
+            throw new EntityNotFoundException(
+                "Subcomponent "
+                    + subReq.getId()
+                    + " is not attached to parent component "
+                    + existing.getId());
           }
+
+          updateSubComponentFields(subComp, subReq, existing);
         } else {
           // Create new sub-component
           subComp = createSubComponent(subReq, existing);

@@ -78,7 +78,7 @@ public class FunctionalComponentService {
     var project = projectService.findProjectForUser(projectId, username);
     var component =
         functionalComponentRepository
-            .findByIdActive(componentId)
+            .findByIdActive(componentId, projectId)
             .orElseThrow(() -> new EntityNotFoundException("Component not found"));
 
     // Ensure the component belongs to the specified project
