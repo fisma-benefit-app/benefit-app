@@ -77,13 +77,13 @@ There are several function point analysis methods, but in this project, the term
 
 The things people ask about most often:
 
-| Question                    | Answer                                                                          |
-| ---------------------------- | -------------------------------------------------------------------------------- |
-| **Where is the service?**    | [https://fisma-benefit-app.github.io/benefit-app/#/login](https://fisma-benefit-app.github.io/benefit-app/#/login) — see [Service and Environments](#service-and-environments) |
-| **How do I get my changes to production?** | Merge your PR to `main` (auto-deploys to testing). For production: Heroku dashboard → `fisma-benefit-app` app → Deploy tab → select `main` → Deploy Branch. This triggers GitHub Actions to roll the frontend out too — see [Deployment](#deployment) |
-| **Where are the logs?**      | See [Logs](#logs) — location differs by backend/frontend and local/production     |
-| **How do I flush caches?**   | See [Caches](#caches) — covers frontend, backend, Heroku build cache, and the app's own calculation cache |
-| **Something's wrong with the production database?** | Back it up first: `heroku pg:backups:capture --app=fisma-benefit-app`. Connect: `heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app` — see [Database Access](#database-access) |
+| Question                                            | Answer                                                                                                                                                                                                                                                |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Where is the service?**                           | [https://fisma-benefit-app.github.io/benefit-app/#/login](https://fisma-benefit-app.github.io/benefit-app/#/login) — see [Service and Environments](#service-and-environments)                                                                        |
+| **How do I get my changes to production?**          | Merge your PR to `main` (auto-deploys to testing). For production: Heroku dashboard → `fisma-benefit-app` app → Deploy tab → select `main` → Deploy Branch. This triggers GitHub Actions to roll the frontend out too — see [Deployment](#deployment) |
+| **Where are the logs?**                             | See [Logs](#logs) — location differs by backend/frontend and local/production                                                                                                                                                                         |
+| **How do I flush caches?**                          | See [Caches](#caches) — covers frontend, backend, Heroku build cache, and the app's own calculation cache                                                                                                                                             |
+| **Something's wrong with the production database?** | Back it up first: `heroku pg:backups:capture --app=fisma-benefit-app`. Connect: `heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app` — see [Database Access](#database-access)                                                 |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -91,12 +91,12 @@ The things people ask about most often:
 
 ## Service and Environments
 
-| Environment         | URL                                                              |
-| -------------------- | ----------------------------------------------------------------- |
-| Production frontend  | https://fisma-benefit-app.github.io/benefit-app/#/login          |
-| Testing frontend     | https://fisma-benefit-app.github.io/benefit-app/testing/#/login  |
-| Local frontend (dev) | http://localhost:5173/benefit-app/login                          |
-| Local backend (dev)  | http://localhost:8080/actuator/health                            |
+| Environment          | URL                                                             |
+| -------------------- | --------------------------------------------------------------- |
+| Production frontend  | https://fisma-benefit-app.github.io/benefit-app/#/login         |
+| Testing frontend     | https://fisma-benefit-app.github.io/benefit-app/testing/#/login |
+| Local frontend (dev) | http://localhost:5173/benefit-app/login                         |
+| Local backend (dev)  | http://localhost:8080/actuator/health                           |
 
 Access to the repo: https://github.com/fisma-benefit-app/benefit-app
 
@@ -136,12 +136,12 @@ See the [deployment guide](/documents/guides/deployment_guide.md) for more instr
 
 ## Logs
 
-| Type of log      | Local                          | Heroku (Production)                |
-| ----------------- | ------------------------------- | ------------------------------------ |
-| Backend runtime   | Terminal (`./gradlew bootRun`) | `heroku logs --app fisma-benefit-app --tail` |
-| Frontend build    | Terminal (`npm run dev`)       | GitHub Actions build logs           |
-| Frontend runtime  | Browser DevTools console       | Browser DevTools console            |
-| Test logs         | `./gradlew test`               | CI/CD logs (GitHub Actions/Heroku)  |
+| Type of log      | Local                          | Heroku (Production)                          |
+| ---------------- | ------------------------------ | -------------------------------------------- |
+| Backend runtime  | Terminal (`./gradlew bootRun`) | `heroku logs --app fisma-benefit-app --tail` |
+| Frontend build   | Terminal (`npm run dev`)       | GitHub Actions build logs                    |
+| Frontend runtime | Browser DevTools console       | Browser DevTools console                     |
+| Test logs        | `./gradlew test`               | CI/CD logs (GitHub Actions/Heroku)           |
 
 Log in to Heroku if needed (do not use Git Bash on Windows):
 
@@ -282,10 +282,10 @@ For more details, see the [database guide](/documents/guides/database.md).
 
 Schema initialization and seeding are controlled by Spring profiles, hardcoded in [`backend/src/main/resources/application.yaml`](backend/src/main/resources/application.yaml) — not by environment variables.
 
-| Profile              | Used by                                              | `spring.sql.init.mode`      | Schema / seed files                             |
-| --------------------- | ----------------------------------------------------- | ----------------------------- | -------------------------------------------------- |
-| `default` (no profile) | Testing and Production (Heroku)                     | `never` — **do not change this** | none — schema changes only via migrations        |
-| `dev`                 | Local development (`docker compose` or `./gradlew bootRun`) | `always`                | `schema-dev.sql`, `database-seed-dev.sql`         |
+| Profile                | Used by                                                     | `spring.sql.init.mode`           | Schema / seed files                       |
+| ---------------------- | ----------------------------------------------------------- | -------------------------------- | ----------------------------------------- |
+| `default` (no profile) | Testing and Production (Heroku)                             | `never` — **do not change this** | none — schema changes only via migrations |
+| `dev`                  | Local development (`docker compose` or `./gradlew bootRun`) | `always`                         | `schema-dev.sql`, `database-seed-dev.sql` |
 
 - The `dev` profile is activated automatically for local development: `docker-compose.yaml` sets `SPRING_PROFILES_ACTIVE=dev` for the backend container, and `./gradlew bootRun` sets it via `build.gradle`.
 - Production and testing never auto-initialize or reseed the schema; the only way schema changes reach those environments is through the manual [migrations](/backend/src/main/resources/migrations/).
@@ -425,31 +425,31 @@ You can change the values as you wish, but the dev environment should usually wo
 
 **Root `.env`:**
 
-| Variable                  | Default                                         | Purpose                                  |
-| --------------------------- | -------------------------------------------------- | ------------------------------------------- |
-| `JWT_PRIVATE_KEY`         | *(none — required, see below)*                  | Backend JWT signing key                  |
-| `POSTGRES_DB`              | `fisma_db`                                       | Local database name                      |
-| `POSTGRES_USER`            | `myuser`                                         | Local database user                      |
-| `POSTGRES_PASSWORD`        | `secret`                                         | Local database password                  |
-| `HOST_DB_PORT`             | `5433`                                           | Host port mapped to Postgres             |
-| `HOST_BACKEND_PORT`        | `8080`                                           | Host port mapped to the backend          |
-| `HOST_FRONTEND_PORT`       | `5173`                                           | Host port mapped to the frontend         |
-| `SPRING_DATASOURCE_URL`    | `jdbc:postgresql://db:5432/${POSTGRES_DB}`       | JDBC URL used inside Docker              |
-| `SPRING_DATASOURCE_USERNAME` | `${POSTGRES_USER}`                             | Datasource username                      |
-| `SPRING_DATASOURCE_PASSWORD` | `${POSTGRES_PASSWORD}`                         | Datasource password                      |
-| `CHOKIDAR_USEPOLLING`      | `true`                                           | File-watch polling (needed for Docker hot reload) |
-| `VITE_PORT`                | `${HOST_FRONTEND_PORT}`                          | Port Vite listens on inside Docker       |
-| `API_DEBUG`                | `always`                                         | Enables debug error details; use `never` in production |
-| `API_DEBUG_LEVEL`          | `debug`                                          | Spring security log level; use `info` in production |
+| Variable                     | Default                                    | Purpose                                                |
+| ---------------------------- | ------------------------------------------ | ------------------------------------------------------ |
+| `JWT_PRIVATE_KEY`            | _(none — required, see below)_             | Backend JWT signing key                                |
+| `POSTGRES_DB`                | `fisma_db`                                 | Local database name                                    |
+| `POSTGRES_USER`              | `myuser`                                   | Local database user                                    |
+| `POSTGRES_PASSWORD`          | `secret`                                   | Local database password                                |
+| `HOST_DB_PORT`               | `5433`                                     | Host port mapped to Postgres                           |
+| `HOST_BACKEND_PORT`          | `8080`                                     | Host port mapped to the backend                        |
+| `HOST_FRONTEND_PORT`         | `5173`                                     | Host port mapped to the frontend                       |
+| `SPRING_DATASOURCE_URL`      | `jdbc:postgresql://db:5432/${POSTGRES_DB}` | JDBC URL used inside Docker                            |
+| `SPRING_DATASOURCE_USERNAME` | `${POSTGRES_USER}`                         | Datasource username                                    |
+| `SPRING_DATASOURCE_PASSWORD` | `${POSTGRES_PASSWORD}`                     | Datasource password                                    |
+| `CHOKIDAR_USEPOLLING`        | `true`                                     | File-watch polling (needed for Docker hot reload)      |
+| `VITE_PORT`                  | `${HOST_FRONTEND_PORT}`                    | Port Vite listens on inside Docker                     |
+| `API_DEBUG`                  | `always`                                   | Enables debug error details; use `never` in production |
+| `API_DEBUG_LEVEL`            | `debug`                                    | Spring security log level; use `info` in production    |
 
 **`frontend/.env`:**
 
-| Variable          | Default                    | Purpose                                    |
-| ------------------- | ----------------------------- | --------------------------------------------- |
-| `VITE_API_URL`    | `http://localhost:8080`    | Backend URL the frontend calls              |
-| `VITE_PORT`       | `5173`                      | Local dev server port                       |
-| `CHOKIDAR_USEPOLLING` | `true`                   | File-watch polling                          |
-| `VITE_BASE_PATH`  | `/benefit-app/`             | Base path the app is served from            |
+| Variable              | Default                 | Purpose                          |
+| --------------------- | ----------------------- | -------------------------------- |
+| `VITE_API_URL`        | `http://localhost:8080` | Backend URL the frontend calls   |
+| `VITE_PORT`           | `5173`                  | Local dev server port            |
+| `CHOKIDAR_USEPOLLING` | `true`                  | File-watch polling               |
+| `VITE_BASE_PATH`      | `/benefit-app/`         | Base path the app is served from |
 
 See `.env.example` and `frontend/.env.example` for the source of truth — this table is a convenience summary and may drift from them over time.
 
@@ -535,7 +535,6 @@ Default credentials for development:
    By default, the app runs at `http://localhost:5173`.
 
    Default credentials for development:
-
    - Username: `user`
    - Password: `user`
 

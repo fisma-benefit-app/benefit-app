@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -17,10 +18,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-// import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,7 +33,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -45,6 +45,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final UserDetailsServiceImpl userDetailsService;
+  private final LoginAttemptThrottleService loginAttemptThrottleService;
 
   @Value("${jwt.public.key}")
   RSAPublicKey key;
@@ -61,7 +62,7 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http, JwtRevocationFilter jwtRevocationFilter) throws Exception {
-    // @formatter:off
+
     http.csrf((csrf) -> csrf.ignoringRequestMatchers("/token", "/auth/logout"))
         .addFilterBefore(jwtRevocationFilter, SecurityContextHolderFilter.class)
         .authorizeHttpRequests(
@@ -80,15 +81,28 @@ public class SecurityConfig {
                     .anyRequest()
                     .authenticated())
         .cors(Customizer.withDefaults())
-        .httpBasic(Customizer.withDefaults())
+        .httpBasic(
+            basic ->
+                basic.authenticationEntryPoint(
+                    (request, response, exception) -> {
+                      if (isLockedException(exception)) {
+                        response.setStatus(429);
+                        response.setContentType("application/json");
+                        response
+                            .getWriter()
+                            .write(
+                                "{\"error\":\"Too many failed login attempts. Please try again later.\"}");
+                        return;
+                      }
+                      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                      response.setContentType("application/json");
+                      response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                    }))
         .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
         .sessionManagement(
             (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(
-            (exceptions) ->
-                exceptions
-                    .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
+            (exceptions) -> exceptions.accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
     // @formatter:on
     return http.build();
   }
@@ -98,11 +112,56 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  // @Bean
+  // public AuthenticationManager authenticationManager() {
+  //   var authProvider =
+  //       new DaoAuthenticationProvider(userDetailsService) {
+  //         @Override
+  //         protected void additionalAuthenticationChecks(
+  //             org.springframework.security.core.userdetails.UserDetails userDetails,
+  //             UsernamePasswordAuthenticationToken authentication) {
+  //           System.out.println("CUSTOM PROVIDER HIT for " + userDetails.getUsername());
+  //           try {
+  //             super.additionalAuthenticationChecks(userDetails, authentication);
+  //             loginAttemptThrottleService.reset(userDetails.getUsername());
+  //           } catch (BadCredentialsException exception) {
+  //             loginAttemptThrottleService.recordFailure(userDetails.getUsername());
+  //             throw exception;
+  //           }
+  //         }
+  //       };
+  //   authProvider.setPasswordEncoder(passwordEncoder());
+  //   authProvider.setHideUserNotFoundExceptions(false);
+  //   return new ProviderManager(authProvider);
+  // }
+
   @Bean
-  public AuthenticationManager authenticationManager() {
-    var authProvider = new DaoAuthenticationProvider(userDetailsService);
+  public DaoAuthenticationProvider authenticationProvider() {
+    var authProvider =
+        new DaoAuthenticationProvider(userDetailsService) {
+          @Override
+          protected void additionalAuthenticationChecks(
+              org.springframework.security.core.userdetails.UserDetails userDetails,
+              UsernamePasswordAuthenticationToken authentication) {
+            System.out.println("CUSTOM PROVIDER HIT for " + userDetails.getUsername());
+            try {
+              super.additionalAuthenticationChecks(userDetails, authentication);
+              loginAttemptThrottleService.reset(userDetails.getUsername());
+            } catch (BadCredentialsException exception) {
+              if (loginAttemptThrottleService.recordFailure(userDetails.getUsername())) {
+                throw new LockedException(
+                    "Too many failed login attempts for user "
+                        + userDetails.getUsername()
+                        + ". Please try again later.",
+                    exception);
+              }
+              throw exception;
+            }
+          }
+        };
     authProvider.setPasswordEncoder(passwordEncoder());
-    return new ProviderManager(authProvider);
+    authProvider.setHideUserNotFoundExceptions(false);
+    return authProvider;
   }
 
   @Bean
@@ -135,6 +194,17 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
+  }
+
+  private boolean isLockedException(Exception exception) {
+    Throwable current = exception;
+    while (current != null) {
+      if (current instanceof org.springframework.security.authentication.LockedException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   private RSAPrivateKey parsePrivateKey(String privateKeyStr) throws Exception {

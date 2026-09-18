@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { fetchJWT } from "../api/authorization";
 import useAppUser from "../hooks/useAppUser";
@@ -20,6 +20,7 @@ export default function LoginForm() {
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const loginInProgress = useRef(false);
 
   const { setSessionToken, setLoggedIn, setAppUser, loggedIn } = useAppUser();
   const { showError } = useError();
@@ -29,6 +30,9 @@ export default function LoginForm() {
 
   const login = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (loginInProgress.current) return;
+
+    loginInProgress.current = true;
     setLoading(true);
 
     try {
@@ -56,13 +60,14 @@ export default function LoginForm() {
         showError(
           errorMessageTranslation[
             err.message as keyof typeof errorMessageTranslation
-          ],
+          ] ?? err.message,
         );
       } else {
         console.error("Unknown error");
         showError(translation.errorMessage);
       }
     } finally {
+      loginInProgress.current = false;
       setLoading(false);
     }
   };
