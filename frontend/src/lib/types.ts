@@ -196,7 +196,10 @@ export type ComponentType =
   | "other manipulation routines";
 
 export type CalculationParameter =
-  "dataElements" | "writingReferences" | "readingReferences" | "operations";
+  | "dataElements"
+  | "writingReferences"
+  | "readingReferences"
+  | "operations";
 
 export type VersionJson = {
   sha?: string;
