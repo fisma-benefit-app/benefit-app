@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { fetchJWT } from "../api/authorization";
 import useAppUser from "../hooks/useAppUser";
@@ -17,9 +17,10 @@ import { decodeJWT } from "../lib/jwtUtils";
 export default function LoginForm() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  //const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const loginInProgress = useRef(false);
 
   const { setSessionToken, setLoggedIn, setAppUser, loggedIn } = useAppUser();
   const { showError } = useError();
@@ -29,19 +30,24 @@ export default function LoginForm() {
 
   const login = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (loginInProgress.current) return;
+
+    loginInProgress.current = true;
     setLoading(true);
 
     try {
-      const loginToken = await fetchJWT(username, password);
+      const loginToken = await fetchJWT(username, password, rememberMe);
 
       // Decode JWT to extract user ID
       const decodedToken = decodeJWT(loginToken);
       const userId = decodedToken?.userId;
+      // "Remember me" checkbox
+      const storage = rememberMe ? localStorage : sessionStorage;
 
-      sessionStorage.setItem("loginToken", loginToken);
-      sessionStorage.setItem("userInfo", username);
+      storage.setItem("loginToken", loginToken);
+      storage.setItem("userInfo", username);
       if (userId != null) {
-        sessionStorage.setItem("userId", userId.toString());
+        storage.setItem("userId", userId.toString());
       }
 
       setSessionToken(loginToken);
@@ -54,13 +60,14 @@ export default function LoginForm() {
         showError(
           errorMessageTranslation[
             err.message as keyof typeof errorMessageTranslation
-          ],
+          ] ?? err.message,
         );
       } else {
         console.error("Unknown error");
         showError(translation.errorMessage);
       }
     } finally {
+      loginInProgress.current = false;
       setLoading(false);
     }
   };
@@ -137,7 +144,17 @@ export default function LoginForm() {
             )}
           </button>
         </div>
-
+        <div className="flex justify-between items-center mb-4 text-white">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="mr-2 cursor-pointer accent-fisma-dark-blue rounded"
+            />
+            {translation.rememberMe}
+          </label>
+        </div>
         <button
           type="submit"
           className="w-full min-h-[42px] p-2 text-white bg-fisma-dark-blue hover:brightness-70 flex justify-center items-center cursor-pointer"

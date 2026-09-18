@@ -1,35 +1,28 @@
-# How to Generate API Documentation (NEEDS REVIEW)
+# How to Generate API Documentation
 
-widdershins is no longer installed via npm due to it causing problems with npm audit.
-It should be run with npx or something else so it won't be installed and thus add vulnerable packages to the project.
+Widdershins and Doctoc are **not** installed as npm dependencies (a global/local install of Widdershins causes `npm audit` problems), so both are always run through `npx`, which fetches and runs them on demand without adding them to the project.
 
 ## Prerequisites
 
-- Your Spring Boot project is running (see [Getting Started](../../README.md#getting-started))
-- Node.js installed on your system
+- Your Spring Boot project is running (see [Setting up Development Environment](../../README.md#setting-up-development-environment))
+- Node.js (and therefore `npx`) installed on your system
 
 ## Generate api.md using script
 
-- From the `documents/references/` folder, make `generate_api_docs.sh` executable:
+The script lives in `backend/scripts/generate_api_docs.sh`. Make it executable and run it:
 
 ```bash
-cd ./documents/references
+cd backend/scripts
 chmod +x generate_api_docs.sh
-```
-
-- Run the script:
-
-```bash
 ./generate_api_docs.sh
 ```
 
 - This
-  - Checks if backend is running and Node.js is installed
-  - Creates a `references` directory if it doesn't exist
-  - Downloads `api-docs.yaml`
-  - Installs Widdershins and Doctoc
-  - Creates markdown documentation using Widdershins
-  - Creates table of contents using Doctoc
+  - Checks if the backend is running and Node.js is installed
+  - Creates the `documents/references/` directory if it doesn't exist
+  - Downloads `api-docs.yaml` from the running backend
+  - Generates `api.md` with `npx widdershins`
+  - Adds a table of contents with `npx doctoc`
 
 ## Generate api.md manually
 
@@ -38,18 +31,12 @@ chmod +x generate_api_docs.sh
 1. Open your browser at http://localhost:8080/v3/api-docs.yaml
 2. Save the file as `documents/references/api-docs.yaml` (overwrite it if it already exists)
 
-### Step 2: Install Widdershins and Doctoc (one-time)
-
-```bash
-npm install -g widdershins doctoc
-```
-
-### Step 3: Generate Markdown Docs
+### Step 2: Generate Markdown Docs
 
 From the `documents/references/` folder, run:
 
 ```bash
-widdershins api-docs.yaml -o api.md --summary true --expandBody true --code true --omitHeader true
+npx --yes widdershins api-docs.yaml -o api.md --summary true --expandBody true --code true --omitHeader true
 ```
 
 This creates `documents/references/api.md` with:
@@ -58,12 +45,12 @@ This creates `documents/references/api.md` with:
 - [x] Expanded request/response bodies
 - [x] No code samples or header
 
-### Step 4: Add or Update the Table of Contents
+### Step 3: Add or Update the Table of Contents
 
 From the `documents/references/` folder, run:
 
 ```bash
-doctoc api.md --maxlevel 2
+npx --yes doctoc api.md --maxlevel 2
 ```
 
 This command scans all headings in `api.md` and inserts (or updates) a clickable Table of Contents at the top of the file. Level 3 headings are not included for readability.
@@ -71,5 +58,5 @@ This command scans all headings in `api.md` and inserts (or updates) a clickable
 ## Troubleshooting
 
 - `401 Unauthorized`: Ensure `/v3/api-docs.yaml` is not blocked in the `SecurityFilterChain` method in `backend/security/SecurityConfig.java`.
-- `widdershins: command not found`: Re-install with `npm install -g widdershins`.
-- `doctoc: command not found`: Re-install with `npm install -g doctoc`.
+- `npx: command not found`: Install/reinstall Node.js — `npx` ships with `npm`.
+- Slightly different heading anchors/TOC layout after regenerating: this is normal — newer Widdershins/Doctoc releases (fetched fresh by `npx` each run) can tweak anchor slugs and nesting slightly. Re-run `npx --yes doctoc api.md --maxlevel 2` after any manual edits to `api.md` to keep the TOC in sync.

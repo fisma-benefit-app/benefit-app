@@ -39,7 +39,8 @@ class TokenControllerTest {
   @Test
   void shouldGenerateTokenSuccessfully() {
     String fakeToken = "jwt-token-123";
-    given(tokenService.generateToken(any(Authentication.class))).willReturn(fakeToken);
+    given(tokenService.generateToken(any(Authentication.class), any(Boolean.class)))
+        .willReturn(fakeToken);
 
     var response = mockMvc.post().uri("/token").with(jwtAuth).exchange();
 
@@ -58,5 +59,18 @@ class TokenControllerTest {
     assertThat(response).bodyJson().extractingPath("$.token").isEqualTo(fakeToken);
     assertThat(response).bodyJson().extractingPath("$.tokenType").isEqualTo("Bearer");
     assertThat(response).bodyJson().extractingPath("$.expiresIn").isEqualTo(86400);
+  }
+
+  @Test
+  void shouldGenerateRememberMeTokenSuccessfully() {
+    String fakeToken = "remember-me-jwt-token-123";
+    given(tokenService.generateToken(any(Authentication.class), any(Boolean.class)))
+        .willReturn(fakeToken);
+
+    var response = mockMvc.post().uri("/token?rememberMe=true").with(jwtAuth).exchange();
+
+    assertThat(response).hasStatus(HttpStatus.OK);
+    assertThat(response).bodyJson().extractingPath("$.token").isEqualTo(fakeToken);
+    assertThat(response).bodyJson().extractingPath("$.expiresIn").isEqualTo(2592000);
   }
 }

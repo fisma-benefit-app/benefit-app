@@ -9,5 +9,5 @@ public record TokenResponse(
             example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
         String token,
     @Schema(description = "Type of token, usually 'Bearer'", example = "Bearer") String tokenType,
-    @Schema(description = "Time in seconds until the token expires", example = "86400")
+    @Schema(description = "Time in seconds until the token expires", example = "2592000")
         long expiresIn) {}

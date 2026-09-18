@@ -1,13 +1,11 @@
 #!/bin/bash
 
-
-# NOTE that widdershins is no longer installed with npm due to it causing problems with npm audit.
-# This script will probably fail. widdershins should be run with npx or something else without installing it
+# NOTE: widdershins and doctoc are intentionally not installed as dependencies
+# (they cause npm audit problems), so this script runs them via npx instead.
 
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Check if backend is running
@@ -50,28 +48,20 @@ else
     exit 1
 fi
 
-# Install global npm packages if needed
-for package in widdershins doctoc; do
-    echo -n "Checking $package installation... "
-    if command -v $package > /dev/null; then
-        echo -e "${GREEN}✓${NC}"
-    else
-        echo -e "${YELLOW}installing...${NC}"
-        npm install -g $package
-        if [ $? -eq 0 ]; then
-            echo -e "${GREEN}✓${NC}"
-        else
-            echo -e "${RED}✗${NC}"
-            echo "Failed to install $package"
-            exit 1
-        fi
-    fi
-done
+# Check Node.js/npm can reach the registry for npx (no global install needed)
+echo -n "Checking npx... "
+if command -v npx > /dev/null; then
+    echo -e "${GREEN}✓${NC}"
+else
+    echo -e "${RED}✗${NC}"
+    echo "npx not found (should ship with Node.js/npm)"
+    exit 1
+fi
 
-# Generate markdown documentation
+# Generate markdown documentation (widdershins/doctoc run via npx, not installed globally)
 cd "$REFERENCES_DIR" || exit 1
 echo "Generating API documentation..."
-if widdershins api-docs.yaml -o api.md --summary true --expandBody true --code true --omitHeader true; then
+if npx --yes widdershins api-docs.yaml -o api.md --summary true --expandBody true --code true --omitHeader true; then
     echo -e "${GREEN}✓ Generated API documentation${NC}"
 else
     echo -e "${RED}✗ Failed to generate API documentation${NC}"
@@ -80,7 +70,7 @@ fi
 
 # Add table of contents
 echo "Adding table of contents..."
-if doctoc api.md --maxlevel 2; then
+if npx --yes doctoc api.md --maxlevel 2; then
     echo -e "${GREEN}✓ Added table of contents${NC}"
 else
     echo -e "${RED}✗ Failed to add table of contents${NC}"

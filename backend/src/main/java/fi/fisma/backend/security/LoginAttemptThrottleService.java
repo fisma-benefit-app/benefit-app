@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginAttemptThrottleService {
   private static final int MAX_ATTEMPTS = 5;
-  private static final long WINDOW_SECONDS = 300; // 300
+  private static final long WINDOW_SECONDS = 60; // 300
 
   private final Map<String, LoginAttemptRecord> attempts = new ConcurrentHashMap<>();
 
@@ -28,7 +28,7 @@ public class LoginAttemptThrottleService {
     return record.count() >= MAX_ATTEMPTS;
   }
 
-  public void recordFailure(String username) {
+  public boolean recordFailure(String username) {
     System.out.println("RECORD key=[" + username + "]");
     var now = Instant.now();
     var existing = attempts.getOrDefault(username, new LoginAttemptRecord(0, now));
@@ -36,6 +36,7 @@ public class LoginAttemptThrottleService {
     var updatedCount = existing.count() + 1;
     attempts.put(username, new LoginAttemptRecord(updatedCount, now));
     System.out.println("recordFailure for [" + username + "] newCount=" + updatedCount);
+    return updatedCount >= MAX_ATTEMPTS;
   }
 
   public void reset(String username) {

@@ -4,7 +4,7 @@ This guide explains how to run the Benefit App locally using Docker. It covers b
 
 ## 1. Prerequisites
 
-**New here?** See the project [README](../../README.md/#getting-started) to get started!
+**New here?** See the project [README](../../README.md#setting-up-development-environment) to get started!
 
 - [Docker Desktop](https://docs.docker.com/desktop/) installed and running.
 

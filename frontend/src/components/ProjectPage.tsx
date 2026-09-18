@@ -166,8 +166,6 @@ export default function ProjectPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [projectResponse, setProjectResponse] =
     useState<ProjectResponse | null>(null);
-  const [reportContactDetails, setReportContactDetails] = useState("");
-  const [reportNotes, setReportNotes] = useState("");
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -492,16 +490,12 @@ export default function ProjectPage() {
               (a: TGenericComponent, b: TGenericComponent) =>
                 a.orderPosition - b.orderPosition,
             )
-            .map(
-              (c: TGenericComponent, idx: number): NormalizedComponent => ({
-                ...c,
-                orderPosition: idx,
-              }),
-            );
+            .map((c: TGenericComponent, idx: number): NormalizedComponent => ({
+              ...c,
+              orderPosition: idx,
+            }));
 
         setProject({ ...projectFromDb, functionalComponents: normalized });
-        setReportContactDetails(projectFromDb.reportContactDetails ?? "");
-        setReportNotes(projectFromDb.reportNotes ?? "");
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
@@ -669,12 +663,9 @@ export default function ProjectPage() {
     }
   };
 
-  const saveProject = async (
-    showNotif: boolean = true,
-    projectToSave?: Project,
-  ) => {
+  const saveProject = async (showNotif: boolean = true) => {
     isManuallySaved.current = true;
-    const currentProject = projectToSave ?? project;
+    const currentProject = project;
     if (currentProject) {
       if (showNotif) {
         showNotification(
@@ -698,17 +689,6 @@ export default function ProjectPage() {
 
         const savedProject = await updateProject(sessionToken, editedProject);
         setProjectResponse(savedProject);
-        if (projectToSave) {
-          setProject((current) =>
-            current
-              ? {
-                  ...current,
-                  reportContactDetails: savedProject.reportContactDetails,
-                  reportNotes: savedProject.reportNotes,
-                }
-              : current,
-          );
-        }
 
         if (showNotif) {
           updateNotification(
@@ -738,16 +718,6 @@ export default function ProjectPage() {
     } else {
       isManuallySaved.current = false;
     }
-  };
-
-  const saveReportInformation = async () => {
-    if (!project || !isLatest) return;
-
-    await saveProject(true, {
-      ...project,
-      reportContactDetails,
-      reportNotes,
-    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -980,9 +950,19 @@ export default function ProjectPage() {
                 </label>
                 <textarea
                   id="report-contact-details"
-                  value={reportContactDetails}
+                  value={project?.reportContactDetails ?? ""}
                   onChange={(event) => {
-                    setReportContactDetails(event.target.value);
+                    const value = event.target.value;
+                    setProject((prev) => {
+                      if (!prev) return prev;
+                      const updated = { ...prev, reportContactDetails: value };
+                      projectRef.current = updated;
+                      return updated;
+                    });
+
+                    if (isLatest) {
+                      debouncedSaveProject();
+                    }
                   }}
                   className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
                   rows={3}
@@ -1000,23 +980,26 @@ export default function ProjectPage() {
                 </label>
                 <textarea
                   id="report-calculation-notes"
-                  value={reportNotes}
+                  value={project?.reportNotes ?? ""}
                   onChange={(event) => {
-                    setReportNotes(event.target.value);
+                    const value = event.target.value;
+
+                    setProject((prev) => {
+                      if (!prev) return prev;
+                      const updated = { ...prev, reportNotes: value };
+                      projectRef.current = updated;
+                      return updated;
+                    });
+
+                    if (isLatest) {
+                      debouncedSaveProject();
+                    }
                   }}
                   className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
                   rows={5}
                   maxLength={5000}
                   disabled={!isLatest || loadingProject}
                 />
-                <button
-                  type="button"
-                  className="mt-2 bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer text-white text-xs py-2 px-4"
-                  onClick={saveReportInformation}
-                  disabled={!isLatest || loadingProject}
-                >
-                  {translation.saveReportInformation}
-                </button>
               </div>
 
               <label

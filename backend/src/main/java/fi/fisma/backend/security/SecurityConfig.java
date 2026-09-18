@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -60,13 +61,9 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(
-      HttpSecurity http,
-      JwtRevocationFilter jwtRevocationFilter,
-      DaoAuthenticationProvider authenticationProvider)
-      throws Exception {
+      HttpSecurity http, JwtRevocationFilter jwtRevocationFilter) throws Exception {
 
     http.csrf((csrf) -> csrf.ignoringRequestMatchers("/token", "/auth/logout"))
-        .authenticationProvider(authenticationProvider) // <-- correct API
         .addFilterBefore(jwtRevocationFilter, SecurityContextHolderFilter.class)
         .authorizeHttpRequests(
             (authorize) ->
@@ -151,7 +148,13 @@ public class SecurityConfig {
               super.additionalAuthenticationChecks(userDetails, authentication);
               loginAttemptThrottleService.reset(userDetails.getUsername());
             } catch (BadCredentialsException exception) {
-              loginAttemptThrottleService.recordFailure(userDetails.getUsername());
+              if (loginAttemptThrottleService.recordFailure(userDetails.getUsername())) {
+                throw new LockedException(
+                    "Too many failed login attempts for user "
+                        + userDetails.getUsername()
+                        + ". Please try again later.",
+                    exception);
+              }
               throw exception;
             }
           }

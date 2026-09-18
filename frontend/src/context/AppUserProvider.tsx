@@ -1,12 +1,13 @@
 import { ReactNode, useEffect, useState, useCallback } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
-import { extendSession } from "../api/authorization";
+import { extendSession, validateJWT } from "../api/authorization";
 import { decodeJWT, sessionTimeoutConfig } from "../lib/jwtUtils";
 import { useAlert } from "./AlertProvider";
 import useTranslations from "../hooks/useTranslations";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const MAX_TIMEOUT_DELAY = 2_147_483_647;
 
 type AppUserProviderProps = {
   children: ReactNode;
@@ -21,30 +22,15 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const { showNotification, hideNotification } = useAlert();
   const translation = useTranslations().alert;
 
-  //get login data from the session storage when application is refreshed
-  useEffect(() => {
-    setLoadingAuth(true);
-    const loginToken = sessionStorage.getItem("loginToken");
-    const userInfo = sessionStorage.getItem("userInfo");
-    const userId = sessionStorage.getItem("userId");
-
-    if (loginToken && userInfo) {
-      setSessionToken(loginToken);
-      setAppUser({
-        id: userId ? parseInt(userId) : undefined,
-        username: userInfo,
-      });
-      setLoggedIn(true);
-    }
-
-    //need to track that items from sessionstorage are retrieved and state update for loggedIn is finished
-    setLoadingAuth(false);
-  }, []);
-
   const clearLocalSession = () => {
     sessionStorage.removeItem("loginToken");
     sessionStorage.removeItem("userInfo");
     sessionStorage.removeItem("userId");
+
+    localStorage.removeItem("loginToken");
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("userId");
+
     setSessionToken(null);
     setAppUser(null);
     setLoggedIn(false);
@@ -70,6 +56,45 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     }
   }, [hideNotification, sessionToken]);
 
+  useEffect(() => {
+    const restoreSession = async () => {
+      //need to track that items from sessionstorage are retrieved and state update for loggedIn is finished
+      setLoadingAuth(true);
+      const loginToken =
+        sessionStorage.getItem("loginToken") ||
+        localStorage.getItem("loginToken");
+      const userInfo =
+        sessionStorage.getItem("userInfo") || localStorage.getItem("userInfo");
+      const userId =
+        sessionStorage.getItem("userId") || localStorage.getItem("userId");
+
+      if (loginToken && userInfo) {
+        const decoded = decodeJWT(loginToken);
+        if (!decoded || !decoded?.exp) {
+          await logout();
+          console.warn("Could not decode token or no exp claim");
+          return;
+        }
+
+        const jwtValid = await validateJWT(loginToken);
+
+        if (!jwtValid) {
+          clearLocalSession();
+        } else {
+          setSessionToken(loginToken);
+          setAppUser({
+            id: userId ? parseInt(userId) : undefined,
+            username: userInfo,
+          });
+          setLoggedIn(true);
+        }
+      }
+      setLoadingAuth(false);
+    };
+
+    restoreSession();
+  }, []);
+
   const showSessionWarning = useCallback(
     (expirationTime: number) => {
       const getMinutesLeft = () =>
@@ -90,8 +115,17 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
           label: translation.extendSession,
           onClick: async () => {
             try {
-              const renewedToken = await extendSession(sessionToken!);
-              sessionStorage.setItem("loginToken", renewedToken);
+              const rememberMe = localStorage.getItem("loginToken") !== null;
+              const renewedToken = await extendSession(
+                sessionToken!,
+                rememberMe,
+              );
+
+              if (localStorage.getItem("loginToken")) {
+                localStorage.setItem("loginToken", renewedToken);
+              } else {
+                sessionStorage.setItem("loginToken", renewedToken);
+              }
               setSessionToken(renewedToken);
               hideNotification("session-expiring");
             } catch (error) {
@@ -117,7 +151,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     if (!sessionToken) return;
 
     const decoded = decodeJWT(sessionToken);
-    if (!decoded?.exp) {
+    if (!decoded || !decoded?.exp) {
+      logout();
       console.warn("Could not decode token or no exp claim");
       return;
     }
@@ -134,9 +169,30 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       `Setting auto-logout timeout for ${timeUntilExpiration}ms (${(timeUntilExpiration / 1000).toFixed(2)}s)`,
     );
 
-    const timeoutId = setTimeout(() => {
-      logout();
-    }, timeUntilExpiration);
+    const scheduleUntil = (deadline: number, callback: () => void) => {
+      let timeoutId: number | undefined;
+
+      const scheduleNext = () => {
+        const remaining = deadline - Date.now();
+        if (remaining <= 0) {
+          callback();
+          return;
+        }
+
+        timeoutId = window.setTimeout(
+          scheduleNext,
+          Math.min(remaining, MAX_TIMEOUT_DELAY),
+        );
+      };
+
+      scheduleNext();
+
+      return () => {
+        if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      };
+    };
+
+    const cancelLogoutTimeout = scheduleUntil(expirationTime, logout);
 
     const sessionWarningThreshhold =
       sessionTimeoutConfig.sessionWarningThreshhold;
@@ -158,17 +214,20 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       }, alertCountdownTick);
     };
 
-    let warningTimeoutId: number | undefined;
+    let cancelWarningTimeout = () => {};
 
     if (timeUntilFirstWarning <= 0) {
       startCountdown();
     } else {
-      warningTimeoutId = setTimeout(startCountdown, timeUntilFirstWarning);
+      cancelWarningTimeout = scheduleUntil(
+        expirationTime - sessionWarningThreshhold,
+        startCountdown,
+      );
     }
 
     return () => {
-      clearTimeout(timeoutId);
-      if (warningTimeoutId) clearTimeout(warningTimeoutId);
+      cancelLogoutTimeout();
+      cancelWarningTimeout();
       if (countdownIntervalId) clearInterval(countdownIntervalId);
     };
   }, [sessionToken, logout, showSessionWarning]);
