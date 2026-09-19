@@ -12,6 +12,7 @@ import {
   calculatePossiblePointsByLayer,
   calculateMLALayerDetails,
   calculateMLAMessageCounts,
+  calculateExternalInterfaceDetails,
 } from "./centralizedCalculations.ts";
 
 export const convertToCSV = (
@@ -1267,6 +1268,16 @@ export const generateOverviewPDF = async (
   };
   const layers = calculateMLALayerDetails(project.functionalComponents);
   const messages = calculateMLAMessageCounts(project.functionalComponents);
+  const externalInterfaces = calculateExternalInterfaceDetails(
+    project.functionalComponents,
+  );
+  const externalInterfacePoints =
+    externalInterfaces.toOtherApplications.points +
+    externalInterfaces.fromOtherApplications.points;
+  const externalInterfaceCount =
+    externalInterfaces.toOtherApplications.count +
+    externalInterfaces.fromOtherApplications.count;
+  const businessOnlyPoints = layers.business.points - externalInterfacePoints;
   const reportDate = project.calculationDate
     ? project.calculationDate.split("-").reverse().join(".")
     : "";
@@ -1278,6 +1289,7 @@ export const generateOverviewPDF = async (
           uiLayer: "Käyttöliittymäkerros",
           businessLayer: "Välikerros",
           databaseLayer: "Tietovarastokerros",
+          externalLayer: "Ulkoiset sovellukset",
           interfaces: "liittymää",
           functions: "toimintoa",
           concepts: "käsitettä",
@@ -1305,6 +1317,7 @@ export const generateOverviewPDF = async (
           uiLayer: "User interface layer",
           businessLayer: "Business layer",
           databaseLayer: "Data storage layer",
+          externalLayer: "External applications",
           interfaces: "interfaces",
           functions: "functions",
           concepts: "concepts",
@@ -1443,7 +1456,7 @@ export const generateOverviewPDF = async (
     .architecture {
       text-align: center;
       margin: 4mm auto 2mm;
-      max-width: 145mm;
+      max-width: 130mm;
     }
 
     .architecture-total {
@@ -1454,7 +1467,7 @@ export const generateOverviewPDF = async (
 
     .architecture-grid {
       display: grid;
-      grid-template-columns: 35mm 1fr 35mm;
+      grid-template-columns: 68mm 26mm 34mm;
       grid-template-rows: 30mm 18mm 35mm 18mm 38mm;
       align-items: center;
       justify-items: center;
@@ -1478,23 +1491,61 @@ export const generateOverviewPDF = async (
     }
 
     .layer-ui {
-      grid-column: 2;
+      grid-column: 1;
       grid-row: 1;
       border-radius: 8mm;
     }
 
     .layer-business {
-      grid-column: 2;
+      grid-column: 1;
       grid-row: 3;
       width: 68mm;
       min-height: 35mm;
     }
 
     .layer-database {
-      grid-column: 2;
+      grid-column: 1;
       grid-row: 5;
       border-radius: 50% / 15%;
       min-height: 38mm;
+    }
+
+    .layer-external {
+      grid-column: 3;
+      grid-row: 3;
+      width: 30mm;
+      min-height: 26mm;
+      padding: 3mm;
+      font-size: 9px;
+      border-radius: 4mm;
+    }
+
+    .layer-external strong {
+      font-size: 12px;
+    }
+
+    .junction-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6mm;
+    }
+
+    .junction-row-ui-business {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .junction-row-business-database {
+      grid-column: 1;
+      grid-row: 4;
+    }
+
+    .junction-row-business-external {
+      grid-column: 2;
+      grid-row: 3;
+      flex-direction: column;
+      gap: 3mm;
     }
 
     .junction {
@@ -1506,53 +1557,38 @@ export const generateOverviewPDF = async (
       position: relative;
     }
 
+    .junction-narrow {
+      width: 16mm;
+      padding: 1.5mm;
+    }
+
     .junction::after {
       content: "";
       position: absolute;
       border: 6mm solid transparent;
     }
 
-    .junction-up {
-      grid-column: 2;
-      grid-row: 2;
-    }
-
-    .junction-up::after {
-      border-bottom-color: #5b8cc5;
-      top: -12mm;
-      left: 8mm;
-    }
-
-    .junction-down {
-      grid-column: 2;
-      grid-row: 4;
-    }
-
-    .junction-down::after {
+    .junction-arrow-down::after {
       border-top-color: #5b8cc5;
       bottom: -12mm;
       left: 8mm;
     }
 
-    .junction-left {
-      grid-column: 1;
-      grid-row: 3;
+    .junction-arrow-up::after {
+      border-bottom-color: #5b8cc5;
+      top: -12mm;
+      left: 8mm;
     }
 
-    .junction-left::after {
+    .junction-arrow-right::after {
       border-left-color: #5b8cc5;
-      right: -12mm;
+      right: -9mm;
       top: 2mm;
     }
 
-    .junction-right {
-      grid-column: 3;
-      grid-row: 3;
-    }
-
-    .junction-right::after {
+    .junction-arrow-left::after {
       border-right-color: #5b8cc5;
-      left: -12mm;
+      left: -9mm;
       top: 2mm;
     }
 
@@ -1613,26 +1649,43 @@ export const generateOverviewPDF = async (
           <span>${layers.ui.count} ${labels.functions}</span>
         </div>
 
-        <div class="junction junction-up">
-          ${messages.uiToBusiness + messages.businessToUi} ${labels.interfaces}
-        </div>
-
-        <div class="junction junction-left">
-          ${messages.uiToBusiness} ${labels.interfaces}<br>${language === "fi" ? "sisään" : "in"}
+        <div class="junction-row junction-row-ui-business">
+          <div class="junction junction-arrow-down">
+            ${messages.uiToBusiness} ${labels.interfaces}<br>${language === "fi" ? "sisään" : "in"}
+          </div>
+          <div class="junction junction-arrow-up">
+            ${messages.businessToUi} ${labels.interfaces}<br>${language === "fi" ? "ulos" : "out"}
+          </div>
         </div>
 
         <div class="layer layer-business">
           ${labels.businessLayer}
-          <strong>${layers.business.points.toFixed(2)} ${pointUnit}</strong>
+          <strong>${businessOnlyPoints.toFixed(2)} ${pointUnit}</strong>
           <span>${language === "fi" ? "Algoritmiset toiminnot" : "Algorithmic activities"}</span>
         </div>
 
-        <div class="junction junction-right">
-          ${messages.businessToUi} ${labels.interfaces}<br>${language === "fi" ? "ulos" : "out"}
+        <div class="junction-row junction-row-business-external">
+          <div class="junction junction-narrow junction-arrow-right">
+            ${externalInterfaces.toOtherApplications.count}<br>${language === "fi" ? "ulos" : "out"}
+          </div>
+          <div class="junction junction-narrow junction-arrow-left">
+            ${externalInterfaces.fromOtherApplications.count}<br>${language === "fi" ? "sisään" : "in"}
+          </div>
         </div>
 
-        <div class="junction junction-down">
-          ${messages.businessToDatabase + messages.databaseToBusiness} ${labels.interfaces}
+        <div class="layer layer-external">
+          ${labels.externalLayer}
+          <strong>${externalInterfacePoints.toFixed(2)} ${pointUnit}</strong>
+          <span>${externalInterfaceCount} ${labels.interfaces}</span>
+        </div>
+
+        <div class="junction-row junction-row-business-database">
+          <div class="junction junction-arrow-down">
+            ${messages.businessToDatabase} ${labels.interfaces}<br>${language === "fi" ? "ulos" : "out"}
+          </div>
+          <div class="junction junction-arrow-up">
+            ${messages.databaseToBusiness} ${labels.interfaces}<br>${language === "fi" ? "sisään" : "in"}
+          </div>
         </div>
 
         <div class="layer layer-database">
