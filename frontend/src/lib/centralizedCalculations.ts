@@ -529,6 +529,39 @@ export const calculateMLAMessageCounts = (
 };
 
 /**
+ * Calculate counts and points for components that interface directly with
+ * other (external) applications, separate from the UI/business/database
+ * interfaces above. These components have no subComponents of their own,
+ * so each qualifying component counts as one interface.
+ */
+export const calculateExternalInterfaceDetails = (
+  components: TGenericComponent[],
+): {
+  toOtherApplications: { count: number; points: number };
+  fromOtherApplications: { count: number; points: number };
+} => {
+  const details = {
+    toOtherApplications: { count: 0, points: 0 },
+    fromOtherApplications: { count: 0, points: 0 },
+  };
+
+  for (const component of components) {
+    if (component.className === "Interface service to other applications") {
+      details.toOtherApplications.count++;
+      details.toOtherApplications.points += calculateComponentPoints(component);
+    } else if (
+      component.className === "Interface service from other applications"
+    ) {
+      details.fromOtherApplications.count++;
+      details.fromOtherApplications.points +=
+        calculateComponentPoints(component);
+    }
+  }
+
+  return details;
+};
+
+/**
  * Check if project has any MLA components
  */
 export const hasMLAComponents = (components: TGenericComponent[]): boolean => {
