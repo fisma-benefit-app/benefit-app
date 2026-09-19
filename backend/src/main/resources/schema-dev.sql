@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS functional_components
     data_elements           BIGINT,
     reading_references      BIGINT,
     writing_references      BIGINT,
-    functional_multiplier   BIGINT,
+    functional_multiplier   BIGINT CHECK (functional_multiplier >= 1),
     operations              BIGINT,
     degree_of_completion    DECIMAL,
     previous_fc_id          BIGINT,
