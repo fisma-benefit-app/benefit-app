@@ -129,6 +129,10 @@ const createNewProjectVersion = async (
   };
 
   // Map Project -> ProjectRequest
+  // Note: ProjectService.createProjectVersion (backend) ignores this payload's
+  // functionalComponents/previousFCId entirely — it rebuilds the new version's components
+  // straight from the original project and computes previousFCId itself. The mapping below is
+  // sent but has no effect; kept in sync with the request shape for clarity, not correctness.
   const projectRequest: ProjectRequest = {
     projectName: previousProject.projectName,
     version: previousProject.version + 1,
