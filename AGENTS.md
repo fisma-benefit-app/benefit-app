@@ -80,7 +80,7 @@ Keep business logic in `service/`, not in controllers or repositories — that d
 - `components/` — page/feature components (`ProjectPage`, `ProjectList`, `FunctionalClassComponent`, `FunctionalPointSummary`, modals, etc.)
 - `context/` + `hooks/` — global state via React Context: `AppUserContext`/`useAppUser` (auth/session, persisted to `sessionStorage`) and `ProjectsContext`/`useProjects` (all projects, CRUD). See `documents/references/state_management.md` for the full data-flow diagram and patterns (debounced auto-save via a ref to avoid stale closures, `isLatest` gating on edits, orderPosition normalization on fetch).
 - `api/` — fetch wrappers per resource (`project.ts`, `comments.ts`, `authorization.ts`, `profile.ts`)
-- `lib/` — `centralizedCalculations.ts` (memoized FP calculations — the single source of truth for point math, see `documents/references/centralized_calculations.md`; clear its cache via `clearCalculationCache()` in devtools if calculations look stale), `calculations.ts`, `types.ts`, `printUtils.ts` (CSV/PDF export), `jwtUtils.ts`, `translations.ts`, `fc-constants.ts`/`fc-service-functions.ts` (functional component class/type config)
+- `lib/` — `centralizedCalculations.ts` (the single source of truth for point math, see `documents/references/centralized_calculations.md`), `calculations.ts`, `types.ts`, `printUtils.ts` (CSV/PDF export), `jwtUtils.ts`, `translations.ts`, `fc-constants.ts`/`fc-service-functions.ts` (functional component class/type config)
 
 **Project versioning**: projects sharing a `projectName` are versions of each other; only the latest version is editable (`checkIfLatestVersion`), and archiving a project creates a new version rather than overwriting the old one.
 

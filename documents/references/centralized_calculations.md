@@ -2,14 +2,12 @@
 
 ## Overview
 
-The `centralizedCalculations.ts` file provides a unified, performant approach to handling all functional point calculations across the application. This system consolidates previously scattered calculation logic and adds performance optimizations through memoization.
+The `centralizedCalculations.ts` file provides a unified, performant approach to handling all functional point calculations across the application. This system consolidates previously scattered calculation logic into one place.
 
 ## Key Benefits
 
 ### 🚀 Performance Optimizations
 
-- **Memoization**: Expensive calculations are cached using component-specific keys
-- **Batch Operations**: Efficient bulk calculation methods for multiple components
 - **Optimized Iterations**: Uses `Set` for unique value operations and optimized loops
 
 ### 🧹 Code Organization
@@ -21,8 +19,6 @@ The `centralizedCalculations.ts` file provides a unified, performant approach to
 ### 🔧 Easy Maintenance
 
 - **Centralized Updates**: Changes to calculation logic only need to be made in one place
-- **Cache Management**: Built-in cache clearing and monitoring capabilities
-- **Validation Helpers**: Functions to check component calculation readiness
 
 ## Key Functions
 
@@ -53,18 +49,6 @@ getGroupedComponents(components: TGenericComponent[])
 
 // Get components with calculated points for export
 calculateComponentsWithPoints(components: TGenericComponent[])
-
-// Validation helpers
-hasValidCalculationParams(component: TGenericComponent): boolean
-getCalculableComponents(components: TGenericComponent[]): TGenericComponent[]
-```
-
-### Performance Management
-
-```typescript
-// Cache management
-clearCalculationCache(): void
-getCacheSize(): number
 ```
 
 ## Migration Impact
@@ -78,7 +62,6 @@ getCacheSize(): number
 ### Performance Improvements
 
 - **Reduced Redundancy**: Eliminated duplicate calculation logic across multiple files
-- **Memoization Cache**: Calculations are cached and reused for identical component states
 - **Optimized Grouping**: Uses `Set` operations for better performance when grouping components
 
 ## Usage Examples
@@ -111,21 +94,6 @@ const possibleTotal = calculateTotalPossiblePoints(
 const completionPercentage = (currentTotal / possibleTotal) * 100;
 ```
 
-### Bulk Operations
-
-```typescript
-import {
-  calculateTotalPoints,
-  batchCalculateComponentPoints,
-} from "../lib/centralizedCalculations";
-
-// Calculate total for all components
-const totalPoints = calculateTotalPoints(project.functionalComponents);
-
-// Get individual points for all components efficiently
-const allPoints = batchCalculateComponentPoints(project.functionalComponents);
-```
-
 ### Export with Points
 
 ```typescript
@@ -136,18 +104,6 @@ const componentsWithPoints = calculateComponentsWithPoints(
 );
 downloadCSV(componentsWithPoints);
 ```
-
-## Cache Strategy
-
-The memoization system uses component-specific keys that include:
-
-- Component ID
-- Class name
-- Component type
-- All calculation parameters (dataElements, readingReferences, etc.)
-- Degree of completion
-
-This ensures calculations are only re-computed when actual component data changes.
 
 ## Future Enhancements
 

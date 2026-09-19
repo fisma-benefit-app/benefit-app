@@ -4,21 +4,13 @@ This guide describes what caches there are and how to clear them at different la
 
 ## Caches Used
 
-Benefit uses two caches by default and also implements an app-specific cache for memoization in the frontend.
+Benefit uses two caches by default.
 
 ### Pre-bundling and build caches
 
 By default, Vite and Heroku caches are used. The Vite cache is used for pre-bundling dependencies in the frontend, while Heroku caches build artifacts between deploys.
 
 Spring cache can be enabled if needed, but is disabled by default. It caches backend build artifacts when enabled.
-
-### App-specific Memoization Cache
-
-Benefit's memoization cache is used for functional point calculations in the frontend, specifically in [`centralizedCalculations.ts`](../../frontend/src/lib/centralizedCalculations.ts). It caches component-specific keys to make calculations more lightweight.
-
-The keys are based on functional component ID, name, type, degree of completion, and all calculation parameters. When used, recalculation happens only when data changes within the functional components, thus improving speed and decreasing the amount of data transfer needed.
-
-The cache is monitored and cleared with the functions `getCacheSize()` and `clearCalculationCache()` respectively. These can be used via devtools for debugging if needed.
 
 ## Clearing Cache
 
@@ -56,7 +48,3 @@ Docs: [Gradle Build Cache](https://docs.gradle.org/current/userguide/build_cache
   ```
 
 Docs: [Heroku Build Cache](https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache)
-
-### 4. Memoization Cache
-
-- **Benefit's memoization cache**: Use `clearCalculationCache()` via devtools.

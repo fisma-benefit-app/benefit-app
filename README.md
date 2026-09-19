@@ -190,10 +190,6 @@ heroku plugins:install heroku-builds
 heroku builds:cache:purge -a fisma-benefit-app
 ```
 
-#### App-specific memoization cache
-
-Benefit's memoization cache is used for functional point calculations in the frontend, specifically in `centralizedCalculations.ts`. To clear it, run `clearCalculationCache()` via devtools.
-
 For more details, see the [Caching Guide](/documents/guides/caching.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
