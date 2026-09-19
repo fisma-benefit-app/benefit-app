@@ -4,10 +4,8 @@ import {
   ComponentType,
   TGenericComponent,
 } from "../lib/types";
-import {
-  downloadProjectComponentsCsv,
-  generateCalculationReportPDF,
-} from "../lib/printUtils";
+import { downloadProjectComponentsCsv } from "../lib/csvExportUtils";
+import { generateCalculationReportPDF } from "../lib/calculationReportUtils";
 import {
   calculateTotalPossiblePoints,
   getGroupedComponents,
