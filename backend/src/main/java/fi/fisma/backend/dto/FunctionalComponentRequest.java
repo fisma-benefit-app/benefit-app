@@ -65,7 +65,10 @@ public class FunctionalComponentRequest {
       maximum = "1")
   private Double degreeOfCompletion;
 
-  @Schema(description = "ID of the previous functional component for ordering", example = "123")
+  @Schema(
+      description =
+          "ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.",
+      example = "123")
   private Long previousFCId;
 
   @NotNull(message = "Order position is required")

@@ -159,7 +159,7 @@ Updates an existing project if the authenticated user owns it
 |»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
 |»» operations|body|integer(int32)|false|Number of operations|
 |»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|»» previousFCId|body|integer(int64)|false|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
 |»» isMLA|body|boolean|true|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
 |»» parentFCId|body|integer(int64)|false|ID of the parent functional component, if part of multi-layer architecture|
@@ -273,7 +273,7 @@ Status Code **200**
 |»» functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
 |»» operations|integer(int32)|false|none|Number of operations|
 |»» degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|»» previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
+|»» previousFCId|integer(int64)|false|none|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
 |»» orderPosition|integer(int32)|false|none|Position in the component list|
 |»» isMLA|boolean|false|none|Whether the functional component is part of multi-layer architecture (MLA)|
 |»» parentFCId|integer(int64)|false|none|ID of the parent functional component, if part of multi-layer architecture (MLA)|
@@ -313,7 +313,7 @@ Status Code **500**
 |»» functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
 |»» operations|integer(int32)|false|none|Number of operations|
 |»» degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|»» previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
+|»» previousFCId|integer(int64)|false|none|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
 |»» orderPosition|integer(int32)|false|none|Position in the component list|
 |»» isMLA|boolean|false|none|Whether the functional component is part of multi-layer architecture (MLA)|
 |»» parentFCId|integer(int64)|false|none|ID of the parent functional component, if part of multi-layer architecture (MLA)|
@@ -395,7 +395,7 @@ Creates a new project for the authenticated user
 |»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
 |»» operations|body|integer(int32)|false|Number of operations|
 |»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|»» previousFCId|body|integer(int64)|false|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
 |»» isMLA|body|boolean|true|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
 |»» parentFCId|body|integer(int64)|false|ID of the parent functional component, if part of multi-layer architecture|
@@ -494,7 +494,7 @@ Creates a new version of an existing project
 |»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
 |»» operations|body|integer(int32)|false|Number of operations|
 |»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|»» previousFCId|body|integer(int64)|false|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
 |»» orderPosition|body|integer(int32)|true|Position in the component list|
 |»» isMLA|body|boolean|true|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
 |»» parentFCId|body|integer(int64)|false|ID of the parent functional component, if part of multi-layer architecture|
@@ -799,7 +799,7 @@ Creates a new functional component in the specified project
 |» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
 |» operations|body|integer(int32)|false|Number of operations|
 |» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|» previousFCId|body|integer(int64)|false|ID of the previous functional component for ordering|
+|» previousFCId|body|integer(int64)|false|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
 |» orderPosition|body|integer(int32)|true|Position in the component list|
 |» isMLA|body|boolean|true|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
 |» parentFCId|body|integer(int64)|false|ID of the parent functional component, if part of multi-layer architecture|
@@ -1157,7 +1157,7 @@ Request object for creating or updating functional components within a project
 |functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
 |operations|integer(int32)|false|none|Number of operations|
 |degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
+|previousFCId|integer(int64)|false|none|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
 |orderPosition|integer(int32)|true|none|Position in the component list|
 |isMLA|boolean|true|none|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
 |parentFCId|integer(int64)|false|none|ID of the parent functional component, if part of multi-layer architecture|
@@ -1305,7 +1305,7 @@ Response object containing details on functional components within a project
 |functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
 |operations|integer(int32)|false|none|Number of operations|
 |degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|previousFCId|integer(int64)|false|none|ID of the previous functional component for ordering|
+|previousFCId|integer(int64)|false|none|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
 |orderPosition|integer(int32)|false|none|Position in the component list|
 |isMLA|boolean|false|none|Whether the functional component is part of multi-layer architecture (MLA)|
 |parentFCId|integer(int64)|false|none|ID of the parent functional component, if part of multi-layer architecture (MLA)|

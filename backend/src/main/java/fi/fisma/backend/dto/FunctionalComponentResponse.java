@@ -30,7 +30,10 @@ public record FunctionalComponentResponse(
             minimum = "0",
             maximum = "1")
         Double degreeOfCompletion,
-    @Schema(description = "ID of the previous functional component for ordering", example = "123")
+    @Schema(
+            description =
+                "ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.",
+            example = "123")
         Long previousFCId,
     @Schema(description = "Position in the component list", example = "1", minimum = "0")
         Integer orderPosition,
