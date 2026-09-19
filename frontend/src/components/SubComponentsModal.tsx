@@ -14,7 +14,7 @@ export default function SubComponentsModal({
   setOpen,
   subComponents,
   parentTitle,
-  descriptionRowsExpanded,
+  //descriptionRowsExpanded,
 }: SubComponentsModalProps) {
   if (!open) return null;
 
@@ -67,6 +67,7 @@ export default function SubComponentsModal({
                     onMLAToggle={() => {}}
                     dragHandleProps={{}}
                     descriptionRowsExpanded
+                    isCompactMode={false}
                   />
                 </div>
               </div>

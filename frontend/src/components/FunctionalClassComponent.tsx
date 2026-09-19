@@ -2,8 +2,8 @@ import {
   faCaretDown,
   faCaretUp,
   faTrash,
-  faLayerGroup,
-  faGripVertical,
+  //faLayerGroup,
+  //faGripVertical,
   faArrowsRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
