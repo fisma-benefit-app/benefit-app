@@ -24,7 +24,7 @@ export const decodeJWT = (token: string): JWTPayload | null => {
     const decodedPayload = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
 
     return JSON.parse(decodedPayload) as JWTPayload;
-  } catch (error) {
+  } catch {
     console.error("Error decoding JWT: Invalid or malformed token.");
     return null;
   }

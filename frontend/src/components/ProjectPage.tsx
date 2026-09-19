@@ -9,7 +9,7 @@ import {
   createFunctionalComponent,
   deleteFunctionalComponent,
 } from "../api/project.ts";
-import { generateOverviewPDF } from "../lib/printUtils.ts";
+import { generateOverviewPDF } from "../lib/overviewReportUtils.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
@@ -173,7 +173,7 @@ export default function ProjectPage() {
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
-  const [projectResponse, setProjectResponse] =
+  const [, setProjectResponse] =
     useState<ProjectResponse | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
@@ -201,22 +201,6 @@ export default function ProjectPage() {
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const commitSha = useCommitSha("-");
-
-  const loadComments = async (projectId: number) => {
-    if (!sessionToken) return;
-    setCommentsLoading(true);
-    try {
-      const projectComments = await fetchProjectComments(
-        sessionToken,
-        projectId,
-      );
-      setComments(projectComments);
-    } catch (error) {
-      console.error("Failed to load project comments", error);
-    } finally {
-      setCommentsLoading(false);
-    }
-  };
 
   const handleCreateComment = async () => {
     if (!project || !commentText.trim()) return;
@@ -380,10 +364,25 @@ export default function ProjectPage() {
   }, [project]);
 
   useEffect(() => {
-    if (project?.id) {
-      loadComments(project.id);
-    }
-  }, [project?.id]);
+    if (!project?.id || !sessionToken) return;
+
+    const loadProjectComments = async () => {
+      setCommentsLoading(true);
+      try {
+        const projectComments = await fetchProjectComments(
+          sessionToken,
+          project.id,
+        );
+        setComments(projectComments);
+      } catch (error) {
+        console.error("Failed to load project comments", error);
+      } finally {
+        setCommentsLoading(false);
+      }
+    };
+
+    loadProjectComments();
+  }, [project?.id, sessionToken]);
 
   // Debounced auto-save function
   const debouncedSaveProject = useDebounce(async () => {

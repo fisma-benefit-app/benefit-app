@@ -21,9 +21,9 @@ const Header = () => {
     appUser,
     loggedIn,
     logout,
-    setLoggedIn,
-    setSessionToken,
-    setAppUser,
+    // setLoggedIn,
+    // setSessionToken,
+    // setAppUser,
   } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);

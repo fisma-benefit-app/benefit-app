@@ -192,7 +192,7 @@ const createNewProjectVersion = async (
     }
 
     return newProjectId;
-  } catch (error) {
+  } catch {
     throw new Error(`Invalid Location header: ${location}`);
   }
 };
