@@ -1152,31 +1152,16 @@ export const generateOverviewPDF = async (
   language: "fi" | "en" = "fi",
   classNameTranslation: Record<string, string> = {},
   componentTypeTranslation: Record<string, string> = {},
-  comments: CommentResponse[] = [],
-  commentsTitle: string = "",
 ): Promise<void> => {
   const allComponents = getAllComponents(project.functionalComponents);
   const previousComponents = previousProject
     ? getAllComponents(previousProject.functionalComponents)
     : [];
-  const previousById = new Map(
-    previousComponents.map((component) => [component.id, component]),
-  );
   const formatNumber = (value: number) => value.toFixed(2);
   const delta = (current: number, previous?: number) => {
     if (previous === undefined || current === previous) return "";
     const difference = current - previous;
     return ` <span class="delta">(${difference >= 0 ? "+" : ""}${formatNumber(difference)})</span>`;
-  };
-  const value = (
-    current: string | number | null | undefined,
-    previous?: string | number | null,
-  ) => {
-    const currentText = current == null ? "" : String(current);
-    const previousText = previous == null ? "" : String(previous);
-    return currentText === previousText
-      ? escapeHtmlForSummary(currentText)
-      : `<strong class="changed">${escapeHtmlForSummary(currentText)}</strong>`;
   };
   const pointValue = (component: TGenericComponent) =>
     calculateComponentPoints(component);
@@ -1221,27 +1206,6 @@ export const generateOverviewPDF = async (
       );
     });
   }
-  const componentRows = allComponents
-    .map((component) => {
-      const previous = component.previousFCId
-        ? previousById.get(component.previousFCId)
-        : undefined;
-      const componentPointValue = currentPoints.get(component.id)!;
-      const previousPointValue = previous
-        ? previousPoints.get(previous.id)
-        : undefined;
-      return `<tr>
-      <td>${value(component.title, previous?.title)}</td>
-      <td>${value(classNameTranslation[component.className] || component.className, previous?.className ? classNameTranslation[previous.className] || previous.className : previous?.className)}</td>
-      <td>${value(componentTypeTranslation[component.componentType || ""] || component.componentType, previous?.componentType ? componentTypeTranslation[previous.componentType] || previous.componentType : previous?.componentType)}</td>
-      <td>${value(component.dataElements, previous?.dataElements)}</td>
-      <td>${value(component.readingReferences, previous?.readingReferences)}</td>
-      <td>${value(component.writingReferences, previous?.writingReferences)}</td>
-      <td>${formatNumber(componentPointValue)}${delta(componentPointValue, previousPointValue)}</td>
-      <td>${value(component.degreeOfCompletion, previous?.degreeOfCompletion)}</td>
-    </tr>`;
-    })
-    .join("");
   const grouped = (key: "className" | "componentType") => {
     const groups = new Map<string, TGenericComponent[]>();
     allComponents.forEach((component) => {
@@ -1281,21 +1245,14 @@ export const generateOverviewPDF = async (
           interfaces: "liittymää",
           functions: "toimintoa",
           concepts: "käsitettä",
-          actions: "Toiminnot",
-          feature: "Toiminnon nimi",
           functionClass: "Toimintoluokka",
           functionType: "Toimintotyyppi",
-          dataElements: "Tietoelementit",
-          readingReferences: "Lukuviittaukset",
-          writingReferences: "Kirjoitusviittaukset",
           actionPoints: "Toimintopisteet",
-          completion: "Valmistumisaste",
           aggregates: "Koosteet ja tärkeät muutokset",
           classAggregate: "Toimintoluokat",
           typeAggregate: "Toimintotyypit",
           count: "Lukumäärä",
           explanation: "Laskennan selitys ja tärkeät muutokset",
-          noFunctions: "Ei laskettavia toimintoja",
           changed:
             "Muuttuneet arvot on korostettu. Suluissa oleva luku kertoo eron edelliseen versioon.",
         }
@@ -1308,38 +1265,20 @@ export const generateOverviewPDF = async (
           interfaces: "interfaces",
           functions: "functions",
           concepts: "concepts",
-          actions: "Activities",
-          feature: "Feature name",
           functionClass: "Function class",
           functionType: "Function type",
-          dataElements: "Data elements",
-          readingReferences: "Reading references",
-          writingReferences: "Writing references",
           actionPoints: "Action points",
-          completion: "Degree of completion",
           aggregates: "Aggregates and important changes",
           classAggregate: "Function classes",
           typeAggregate: "Function types",
           count: "Count",
           explanation: "Calculation explanation and important changes",
-          noFunctions: "No calculable activities",
           changed:
             "Changed values are highlighted. The number in parentheses shows the difference from the previous version.",
         };
   const pointUnit = language === "fi" ? "TP" : "FP";
   const year = project.calculationDate?.slice(0, 4) || new Date().getFullYear();
   const filename = `${project.projectName}-Toiminnallisen-laajuuden-yhteenveto-${project.version}-${year}.pdf`;
-  const commentsHtml =
-    comments.length > 0
-      ? `<h3>${escapeHtmlForSummary(commentsTitle)}</h3><div class="comments">${comments
-          .map(
-            (comment) =>
-              `<div class="comment-item"><div class="comment-text">${escapeHtmlForSummary(
-                comment.text,
-              )}</div></div>`,
-          )
-          .join("")}</div>`
-      : "";
 
   const html = `<!doctype html>
 <html lang="${language}">
@@ -1560,22 +1499,6 @@ export const generateOverviewPDF = async (
       font-size: 9px;
     }
 
-    .comments {
-      margin-top: 2mm;
-    }
-
-    .comment-item {
-      margin: 0 0 3mm;
-      padding: 3mm;
-      background: #f9f9f9;
-      border-left: 3px solid #25205f;
-    }
-
-    .comment-text {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
     @media print {
       body {
         print-color-adjust: exact;
@@ -1642,25 +1565,6 @@ export const generateOverviewPDF = async (
         </div>
       </div>
     </div>
-
-    <h3>${labels.actions}</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>${labels.feature}</th>
-          <th>${labels.functionClass}</th>
-          <th>${labels.functionType}</th>
-          <th>${labels.dataElements}</th>
-          <th>${labels.readingReferences}</th>
-          <th>${labels.writingReferences}</th>
-          <th>${labels.actionPoints}</th>
-          <th>${labels.completion}</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${componentRows || `<tr><td colspan="8">${labels.noFunctions}</td></tr>`}
-      </tbody>
-    </table>
   </section>
 
   <section class="page">
@@ -1696,7 +1600,6 @@ export const generateOverviewPDF = async (
 
     <h3>${labels.explanation}</h3>
     <div class="notes">${escapeHtmlForSummary(project.reportNotes)}</div>
-    ${commentsHtml}
     <p class="small">${labels.changed}</p>
   </section>
 
