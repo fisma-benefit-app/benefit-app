@@ -102,6 +102,8 @@ export const translations = {
     functionalClassComponent: {
       collapseExpand: "Collapse/Expand component",
       delete: "Delete component",
+      moveToTop: "Move to top",
+      moveToBottom: "Move to bottom",
       toggleMLAInterfaces: "Show/Hide multi-layer interfaces",
       //creates an object where keys and their values are the same
       classNameOptions: Object.fromEntries(
@@ -219,6 +221,7 @@ export const translations = {
       collapseDescriptions: "Collapse descriptions",
       enableCompactMode: "Compact View",
       disableCompactMode: "Full View",
+      searchComponentsPlaceholder: "Search components by title",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
@@ -399,6 +402,8 @@ export const translations = {
     functionalClassComponent: {
       collapseExpand: "Pienennä/laajenna komponentti",
       delete: "Poista komponentti",
+      moveToTop: "Siirrä alkuun",
+      moveToBottom: "Siirrä loppuun",
       toggleMLAInterfaces: "Näytä/piilota monikerrosliittymät",
       classNameOptions: {
         "Interactive end-user navigation and query service":
@@ -519,6 +524,7 @@ export const translations = {
       collapseDescriptions: "Pienennä kuvaukset",
       enableCompactMode: "Tiivis näkymä",
       disableCompactMode: "Kokonaisnäkymä",
+      searchComponentsPlaceholder: "Hae komponentteja otsikon perusteella",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",

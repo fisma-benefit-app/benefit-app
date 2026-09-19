@@ -49,6 +49,8 @@ import { useAlert } from "../context/AlertProvider.tsx";
 import {
   createSubComponents,
   updateSubComponents,
+  moveComponentToTop,
+  moveComponentToBottom,
 } from "../lib/fc-service-functions.ts";
 import {
   fetchProjectComments,
@@ -70,6 +72,8 @@ function SortableFunctionalComponent({
   onMLAToggle,
   descriptionRowsExpanded,
   isCompactMode,
+  onMoveToTop,
+  onMoveToBottom,
 }: {
   component: TGenericComponent;
   project: Project;
@@ -85,6 +89,8 @@ function SortableFunctionalComponent({
   onMLAToggle: (componentId: number, newMLAValue: boolean) => void;
   descriptionRowsExpanded: boolean;
   isCompactMode: boolean;
+  onMoveToTop: (componentId: number) => void;
+  onMoveToBottom: (componentId: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: component.id });
@@ -109,6 +115,8 @@ function SortableFunctionalComponent({
         onMLAToggle={onMLAToggle}
         descriptionRowsExpanded={descriptionRowsExpanded}
         isCompactMode={isCompactMode}
+        onMoveToTop={onMoveToTop}
+        onMoveToBottom={onMoveToBottom}
       />
     </div>
   );
@@ -159,6 +167,7 @@ export default function ProjectPage() {
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
   const [collapseAll, setCollapseAll] = useState<boolean>(true);
+  const [componentSearchQuery, setComponentSearchQuery] = useState<string>("");
   const [descriptionRowsExpanded, setDescriptionRowsExpanded] =
     useState<boolean>(true);
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
@@ -346,6 +355,16 @@ export default function ProjectPage() {
     ? sortFunctionalComponents(project.functionalComponents)
     : [];
 
+  // components visible in the grid: full list, narrowed by the search query
+  const visibleComponents =
+    componentSearchQuery.trim() === ""
+      ? sortedComponents
+      : sortedComponents.filter((component) =>
+          (component.title || "")
+            .toLowerCase()
+            .includes(componentSearchQuery.trim().toLowerCase()),
+        );
+
   // Alert functionality
   const { showNotification, updateNotification } = useAlert();
 
@@ -518,6 +537,7 @@ export default function ProjectPage() {
 
     isManuallySaved.current = true;
     setLoadingProject(true);
+    setComponentSearchQuery("");
 
     if (project) {
       const newFunctionalComponent: TGenericComponentNoId = {
@@ -741,6 +761,34 @@ export default function ProjectPage() {
       orderPosition: index,
     }));
 
+    setProject({ ...project, functionalComponents: reOrdered });
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
+  };
+
+  const handleMoveToTop = (componentId: number) => {
+    if (!project) return;
+
+    const reOrdered = moveComponentToTop(
+      project.functionalComponents,
+      componentId,
+    );
+    setProject({ ...project, functionalComponents: reOrdered });
+
+    if (isLatest) {
+      debouncedSaveProject();
+    }
+  };
+
+  const handleMoveToBottom = (componentId: number) => {
+    if (!project) return;
+
+    const reOrdered = moveComponentToBottom(
+      project.functionalComponents,
+      componentId,
+    );
     setProject({ ...project, functionalComponents: reOrdered });
 
     if (isLatest) {
@@ -1173,45 +1221,58 @@ export default function ProjectPage() {
         {/* FUNCTIONAL COMPONENTS (below on mobile, left on large screens) */}
         <div className="flex-1 xl:pr-5 xl:order-1">
           {project ? (
-            <DndContext
-              collisionDetection={closestCenter}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={sortedComponents.map((c) => c.id)}
-                strategy={rectSortingStrategy}
+            <>
+              {sortedComponents.length > 0 && (
+                <input
+                  type="text"
+                  placeholder={translation.searchComponentsPlaceholder}
+                  className="mb-4 p-2 border-2 border-gray-400 w-full"
+                  value={componentSearchQuery}
+                  onChange={(e) => setComponentSearchQuery(e.target.value)}
+                />
+              )}
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
               >
-                <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-                  {sortedComponents?.map((component) => (
-                    <SortableFunctionalComponent
-                      key={component.id}
-                      component={component}
-                      project={project}
-                      setProject={setProject}
-                      setProjectResponse={setProjectResponse}
-                      deleteFunctionalComponent={
-                        handleDeleteFunctionalComponent
-                      }
-                      isLatest={isLatest}
-                      collapsed={getComponentCollapseState(component.id)}
-                      onCollapseChange={updateComponentCollapseState}
-                      debouncedSaveProject={debouncedSaveProject}
-                      onMLAToggle={handleMLAToggle}
-                      descriptionRowsExpanded={descriptionRowsExpanded}
-                      isCompactMode={isCompactMode}
-                    />
-                  ))}
-                </div>
+                <SortableContext
+                  items={visibleComponents.map((c) => c.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+                    {visibleComponents?.map((component) => (
+                      <SortableFunctionalComponent
+                        key={component.id}
+                        component={component}
+                        project={project}
+                        setProject={setProject}
+                        setProjectResponse={setProjectResponse}
+                        deleteFunctionalComponent={
+                          handleDeleteFunctionalComponent
+                        }
+                        isLatest={isLatest}
+                        collapsed={getComponentCollapseState(component.id)}
+                        onCollapseChange={updateComponentCollapseState}
+                        debouncedSaveProject={debouncedSaveProject}
+                        onMLAToggle={handleMLAToggle}
+                        descriptionRowsExpanded={descriptionRowsExpanded}
+                        isCompactMode={isCompactMode}
+                        onMoveToTop={handleMoveToTop}
+                        onMoveToBottom={handleMoveToBottom}
+                      />
+                    ))}
+                  </div>
 
-                {sortedComponents.length === 0 && (
-                  <p className="text-gray-500 p-4">
-                    {translation.noFunctionalComponents}
-                  </p>
-                )}
-                <div ref={bottomRef} />
-              </SortableContext>
-            </DndContext>
+                  {sortedComponents.length === 0 && (
+                    <p className="text-gray-500 p-4">
+                      {translation.noFunctionalComponents}
+                    </p>
+                  )}
+                  <div ref={bottomRef} />
+                </SortableContext>
+              </DndContext>
+            </>
           ) : error ? (
             <p>{error}</p>
           ) : (
