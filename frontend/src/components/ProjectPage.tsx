@@ -164,8 +164,7 @@ export default function ProjectPage() {
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
-  const [, setProjectResponse] =
-    useState<ProjectResponse | null>(null);
+  const [, setProjectResponse] = useState<ProjectResponse | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
