@@ -1,11 +1,16 @@
 import useAppUser from "../hooks/useAppUser";
 import { useState, FormEvent, useRef, useEffect, ChangeEvent } from "react";
-import { createProject, fetchAllProjects, updateProject, fetchProject } from "../api/project.ts";
+import {
+  createProject,
+  fetchAllProjects,
+  updateProject,
+  fetchProject,
+} from "../api/project.ts";
 import { useNavigate } from "react-router";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
 import DotLoadingSpinner from "./DotLoadingSpinner.tsx";
-import { parseCsvFile, parseEuropeanNumber  } from "../lib/csvImportUtils.ts";
+import { parseCsvFile, parseEuropeanNumber } from "../lib/csvImportUtils.ts";
 import { TGenericComponent, TGenericComponentNoId } from "../lib/types";
 import { createSubComponents } from "../lib/fc-service-functions.ts";
 
@@ -34,7 +39,10 @@ export default function NewProjectModal({
   const [showError, setShowError] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const translation = useTranslations().newProjectModal as Record<string, string>;
+  const translation = useTranslations().newProjectModal as Record<
+    string,
+    string
+  >;
 
   useEffect(() => {
     if (open) {
@@ -97,13 +105,17 @@ export default function NewProjectModal({
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (!file.name.endsWith(".csv")) {
-        displayError(translation.invalidFileFormat || "Please select a .csv file");
+        displayError(
+          translation.invalidFileFormat || "Please select a .csv file",
+        );
         e.target.value = ""; // Reset input
         return;
       }
       setSelectedFile(file);
       // Suggest project's name from the file's name
-      const suggestedName = file.name.replace(/\.csv$/i, "").replace(/-v\d+$/i, "");
+      const suggestedName = file.name
+        .replace(/\.csv$/i, "")
+        .replace(/-v\d+$/i, "");
       setName(suggestedName);
     }
   };
@@ -121,7 +133,9 @@ export default function NewProjectModal({
     );
 
     if (!name.trim() || nameTaken) {
-      displayError(nameTaken ? translation.nameTakenError : translation.noNameError);
+      displayError(
+        nameTaken ? translation.nameTakenError : translation.noNameError,
+      );
       setLoading(false);
       return;
     }
@@ -132,7 +146,9 @@ export default function NewProjectModal({
       const csvData = await parseCsvFile(selectedFile);
 
       if (csvData.length === 0) {
-        throw new Error(translation.emptyCsvFile || "CSV file is empty or invalid.");
+        throw new Error(
+          translation.emptyCsvFile || "CSV file is empty or invalid.",
+        );
       }
 
       // 1. Create an empty project on the backend to get its ID
@@ -157,7 +173,7 @@ export default function NewProjectModal({
           (!row["subComponentType"] || row["subComponentType"].trim() === "")
         );
       });
-      
+
       // Khai báo kiểu tường minh, nói không với any
       const functionalComponentsPayload: ImportedParentPayload[] = [];
       const usedChildRowIndexes = new Set<number>();
@@ -170,58 +186,85 @@ export default function NewProjectModal({
 
         // Find and map the actual sub-component rows for Multi-layered Architecture (MLA)
         let subComponentsPayload: TGenericComponentNoId[] = [];
-        
-        if (parentRow["subComponents"] && parentRow["subComponents"].trim() !== "") {
-          const subTitles = parentRow["subComponents"].split(",").map((s: string) => s.trim());
-          
-          subComponentsPayload = subTitles.map((subTitle: string) => {
-            const childRowIndex = csvData.findIndex(
-              (row, rowIndex) =>
-                !usedChildRowIndexes.has(rowIndex) &&
-                row["Title"]?.trim() === subTitle,
-            );
 
-            if (childRowIndex !== -1) {
-              usedChildRowIndexes.add(childRowIndex);
-              const childRow = csvData[childRowIndex];
+        if (
+          parentRow["subComponents"] &&
+          parentRow["subComponents"].trim() !== ""
+        ) {
+          const subTitles = parentRow["subComponents"]
+            .split(",")
+            .map((s: string) => s.trim());
 
-              return {
-                id: null,
-                title: childRow["Title"].trim(),
-                description: childRow["Description/Comments"] ? childRow["Description/Comments"].trim() : null,
-                className: childRow["Class Name"] ? childRow["Class Name"].trim() : null,
-                componentType: childRow["Component Type"] ? childRow["Component Type"].trim() : null,
-                dataElements: parseInt(childRow["Data Elements"]) || 0,
-                readingReferences: parseInt(childRow["Reading References"]) || 0,
-                writingReferences: parseInt(childRow["Writing References"]) || 0,
-                operations: parseInt(childRow["Operations"]) || 0,
-                degreeOfCompletion: parseEuropeanNumber(childRow["Degree Of Completion"]),
-                functionalMultiplier: 1,
-                previousFCId: null,
-                orderPosition: 0,
-                isMLA: false,
-                parentFCId: null,
-                subComponentType: childRow["subComponentType"] ? childRow["subComponentType"].trim() : null,
-                isReadonly: true,
-                subComponents: []
-              };
-            }
-            return null;
-          }).filter(Boolean) as TGenericComponentNoId[];
+          subComponentsPayload = subTitles
+            .map((subTitle: string) => {
+              const childRowIndex = csvData.findIndex(
+                (row, rowIndex) =>
+                  !usedChildRowIndexes.has(rowIndex) &&
+                  row["Title"]?.trim() === subTitle,
+              );
+
+              if (childRowIndex !== -1) {
+                usedChildRowIndexes.add(childRowIndex);
+                const childRow = csvData[childRowIndex];
+
+                return {
+                  id: null,
+                  title: childRow["Title"].trim(),
+                  description: childRow["Description/Comments"]
+                    ? childRow["Description/Comments"].trim()
+                    : null,
+                  className: childRow["Class Name"]
+                    ? childRow["Class Name"].trim()
+                    : null,
+                  componentType: childRow["Component Type"]
+                    ? childRow["Component Type"].trim()
+                    : null,
+                  dataElements: parseInt(childRow["Data Elements"]) || 0,
+                  readingReferences:
+                    parseInt(childRow["Reading References"]) || 0,
+                  writingReferences:
+                    parseInt(childRow["Writing References"]) || 0,
+                  operations: parseInt(childRow["Operations"]) || 0,
+                  degreeOfCompletion: parseEuropeanNumber(
+                    childRow["Degree Of Completion"],
+                  ),
+                  functionalMultiplier: 1,
+                  previousFCId: null,
+                  orderPosition: 0,
+                  isMLA: false,
+                  parentFCId: null,
+                  subComponentType: childRow["subComponentType"]
+                    ? childRow["subComponentType"].trim()
+                    : null,
+                  isReadonly: true,
+                  subComponents: [],
+                };
+              }
+              return null;
+            })
+            .filter(Boolean) as TGenericComponentNoId[];
         }
 
         // Build the parent component object mapping to the backend's expected structure
         const parentComponent = {
           id: null,
           title: parentRow["Title"].trim(),
-          description: parentRow["Description/Comments"] ? parentRow["Description/Comments"].trim() : null,
-          className: parentRow["Class Name"] ? parentRow["Class Name"].trim() : null,
-          componentType: parentRow["Component Type"] ? parentRow["Component Type"].trim() : null,
+          description: parentRow["Description/Comments"]
+            ? parentRow["Description/Comments"].trim()
+            : null,
+          className: parentRow["Class Name"]
+            ? parentRow["Class Name"].trim()
+            : null,
+          componentType: parentRow["Component Type"]
+            ? parentRow["Component Type"].trim()
+            : null,
           dataElements: parseInt(parentRow["Data Elements"]) || 0,
           readingReferences: parseInt(parentRow["Reading References"]) || 0,
           writingReferences: parseInt(parentRow["Writing References"]) || 0,
           operations: parseInt(parentRow["Operations"]) || 0,
-          degreeOfCompletion: parseEuropeanNumber(parentRow["Degree Of Completion"]),
+          degreeOfCompletion: parseEuropeanNumber(
+            parentRow["Degree Of Completion"],
+          ),
           functionalMultiplier: 1,
           previousFCId: null,
           orderPosition: 0,
@@ -229,7 +272,7 @@ export default function NewProjectModal({
           parentFCId: null,
           subComponentType: null,
           isReadonly: false,
-          subComponents: subComponentsPayload
+          subComponents: subComponentsPayload,
         } as TGenericComponentNoId & {
           subComponents: TGenericComponentNoId[];
         };
@@ -281,8 +324,8 @@ export default function NewProjectModal({
             id: savedParent.id,
             subComponents: importedParent.subComponents.map(
               (subComponent: TGenericComponentNoId) => ({
-              ...subComponent,
-              parentFCId: savedParent.id,
+                ...subComponent,
+                parentFCId: savedParent.id,
               }),
             ),
           };
@@ -294,13 +337,14 @@ export default function NewProjectModal({
         functionalComponents: payloadWithParentIds,
       });
 
-      console.log(`Successfully imported project with full MLA structure. Project ID: ${idOfNewProject}`);
+      console.log(
+        `Successfully imported project with full MLA structure. Project ID: ${idOfNewProject}`,
+      );
 
       // 5. Refresh project list and navigate to the new project view
       await fetchAllProjects(sessionToken).then(setProjects);
       navigate(`project/${idOfNewProject}`);
       handleClose();
-
     } catch (err) {
       if (err instanceof Error && err.message === "Unauthorized!") {
         await logout();
@@ -324,7 +368,8 @@ export default function NewProjectModal({
       <div className="bg-fisma-blue p-4 shadow-2xl lg w-96">
         <h2 className="text-white text-2xl font-bold text-center bg-fisma-dark-blue mb-4 -mx-4 -mt-4 px-4 py-2">
           {view === "selection" && (translation.header || "New Project")}
-          {view === "create" && (translation.createNew || "Create Blank Project")}
+          {view === "create" &&
+            (translation.createNew || "Create Blank Project")}
           {view === "import" && (translation.importCsv || "Import from CSV")}
         </h2>
 
@@ -391,7 +436,7 @@ export default function NewProjectModal({
                 type="button"
                 disabled={loading}
                 onClick={() => {
-                  setView("selection")
+                  setView("selection");
                 }}
                 className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
               >
@@ -410,7 +455,6 @@ export default function NewProjectModal({
 
         {view === "import" && (
           <form onSubmit={handleImport} className="flex flex-col gap-4">
-
             <div className="flex flex-col gap-2 p-4 border-2 border-dashed border-fisma-dark-blue bg-white">
               <label className="text-sm font-bold text-fisma-dark-blue">
                 {translation.chooseCsvFile || "Choose CSV File:"}
@@ -454,7 +498,7 @@ export default function NewProjectModal({
               <button
                 type="submit"
                 disabled={loading || !selectedFile}
-                className={`w-1/2 text-white p-2 ${!selectedFile ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-700 hover:brightness-70'}`}
+                className={`w-1/2 text-white p-2 ${!selectedFile ? "bg-gray-400 cursor-not-allowed" : "bg-green-700 hover:brightness-70"}`}
               >
                 {translation.import || "Import"}
               </button>
