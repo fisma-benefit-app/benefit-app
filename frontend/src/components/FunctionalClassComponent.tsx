@@ -5,6 +5,8 @@ import {
   faLayerGroup,
   faGripVertical,
   faArrowsRotate,
+  faAnglesUp,
+  faAnglesDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, useEffect } from "react";
@@ -51,6 +53,8 @@ type FunctionalClassComponentProps = {
   onMLAToggle: (componentId: number, newValue: boolean) => void;
   descriptionRowsExpanded: boolean;
   isCompactMode: boolean;
+  onMoveToTop: (componentId: number) => void;
+  onMoveToBottom: (componentId: number) => void;
 };
 
 export default function FunctionalClassComponent({
@@ -66,6 +70,8 @@ export default function FunctionalClassComponent({
   onMLAToggle,
   descriptionRowsExpanded,
   isCompactMode,
+  onMoveToTop,
+  onMoveToBottom,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
@@ -294,7 +300,7 @@ export default function FunctionalClassComponent({
         onSubmit={(e) => e.preventDefault()}
         className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 w-full p-4 rounded-lg"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
           {/* Drag handle */}
           <div
             {...dragHandleProps}
@@ -315,6 +321,30 @@ export default function FunctionalClassComponent({
 
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
             <div className="flex gap-2 items-center">
+              {!isCompactMode && (
+                <>
+                  {/* Move to top button */}
+                  <button
+                    type="button"
+                    className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
+                    onClick={() => onMoveToTop(component.id)}
+                    disabled={!isLatest}
+                    title={translation.moveToTop}
+                  >
+                    <FontAwesomeIcon icon={faAnglesUp} />
+                  </button>
+                  {/* Move to bottom button */}
+                  <button
+                    type="button"
+                    className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
+                    onClick={() => onMoveToBottom(component.id)}
+                    disabled={!isLatest}
+                    title={translation.moveToBottom}
+                  >
+                    <FontAwesomeIcon icon={faAnglesDown} />
+                  </button>
+                </>
+              )}
               {/* Collapse button */}
               <button
                 type="button"
