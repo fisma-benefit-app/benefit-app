@@ -9,6 +9,7 @@ import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -166,28 +167,34 @@ public class FunctionalComponentMapper {
 
     // Handle subComponents
     if (fc.getSubComponents() != null && !fc.getSubComponents().isEmpty()) {
-      // Mark existing subComponents for removal by clearing the list
-      // Orphan removal will handle deletion
-      existing.getSubComponents().clear();
-
-      // Save parent first to ensure it has an ID
-      functionalComponentRepository.save(existing);
+      // Index the currently-attached sub-components by id. We look these up from the
+      // already-loaded collection rather than clearing it and re-querying the repository:
+      // subComponents has orphanRemoval = true, so removing an entity from the collection
+      // schedules a hard delete. Re-querying it afterwards (even within the same transaction)
+      // can trigger a Hibernate auto-flush that runs that delete first, making a sub-component
+      // that's only being updated look like it "doesn't exist" anymore.
+      Map<Long, FunctionalComponent> existingSubsById =
+          existing.getSubComponents().stream()
+              .filter(sub -> sub.getId() != null)
+              .collect(Collectors.toMap(FunctionalComponent::getId, sub -> sub));
 
       // Process each sub-component from the request
+      List<FunctionalComponent> updatedSubComponents = new ArrayList<>();
       for (FunctionalComponentRequest subReq : fc.getSubComponents()) {
         FunctionalComponent subComp;
 
         if (subReq.getId() != null) {
           // Existing sub-components must belong to the same project and to this exact parent.
-          subComp =
-              functionalComponentRepository
-                  .findByIdActive(subReq.getId(), project.getId())
-                  .orElseThrow(
-                      () ->
-                          new EntityNotFoundException(
-                              "Component not found with the id: " + subReq.getId()));
+          subComp = existingSubsById.get(subReq.getId());
 
-          if (!existing.getId().equals(subComp.getParentFCId())) {
+          if (subComp == null) {
+            functionalComponentRepository
+                .findByIdActive(subReq.getId(), project.getId())
+                .orElseThrow(
+                    () ->
+                        new EntityNotFoundException(
+                            "Component not found with the id: " + subReq.getId()));
+
             throw new EntityNotFoundException(
                 "Subcomponent "
                     + subReq.getId()
@@ -201,9 +208,14 @@ public class FunctionalComponentMapper {
           subComp = createSubComponent(subReq, existing);
         }
 
-        // Add to parent's subComponents list
-        existing.getSubComponents().add(subComp);
+        updatedSubComponents.add(subComp);
       }
+
+      // Replace the collection in one step so sub-components that are still referenced by the
+      // request are never briefly absent from it; only ones dropped from the request are
+      // orphan-removed.
+      existing.getSubComponents().clear();
+      existing.getSubComponents().addAll(updatedSubComponents);
     } else if (existing.getSubComponents() != null && !existing.getSubComponents().isEmpty()) {
       // If no subComponents in request but parent had some, clear them
       existing.getSubComponents().clear();
