@@ -22,6 +22,7 @@ import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
 import { useState } from "react";
+import ComponentClassIcons from "./ComponentClassIcons.tsx";
 
 type FunctionalClassComponentProps = {
   project: Project;
@@ -175,6 +176,11 @@ export const FunctionalPointSummary = ({
                       <span className="text-blue-600 pr-2">
                         {componentCount}
                       </span>{" "}
+                      <ComponentClassIcons
+                        componentClass={group.className as ClassName}
+                        componentType={null}
+                        size="sm"
+                      />{" "}
                       {
                         translation.functionalClassComponent.classNameOptions[
                           group.className as ClassName
@@ -272,6 +278,11 @@ export const FunctionalPointSummary = ({
                           <span className="text-blue-600 pr-2">
                             {componentCount}
                           </span>{" "}
+                          <ComponentClassIcons
+                            componentClass={group.className as ClassName}
+                            componentType={null}
+                            size="sm"
+                          />{" "}
                           {
                             translation.functionalClassComponent
                               .classNameOptions[group.className as ClassName]

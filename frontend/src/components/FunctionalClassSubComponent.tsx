@@ -1,5 +1,6 @@
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
+import ComponentClassIcons from "./ComponentClassIcons.tsx";
 import {
   getComponentTypeOptions,
   getInputFields,
@@ -39,6 +40,11 @@ export default function FunctionalClassSubComponent({
 
           {/* Name Section */}
           <div className="flex flex-row flex-wrap gap-2 items-center">
+            <ComponentClassIcons
+              componentClass={component.className}
+              componentType={component.componentType}
+              size="sm"
+            />
             <div className="flex flex-col gap-2 items-center">
               <h3 className="text-lg font-semibold text-gray-800">
                 {component.title}
