@@ -34,6 +34,7 @@ import {
   TGenericComponent,
 } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
+import ComponentClassIcons from "./ComponentClassIcons.tsx";
 import SubComponentsModal from "./SubComponentsModal.tsx";
 import FunctionalClassSubComponent from "./FunctionalClassSubComponent.tsx";
 
@@ -308,7 +309,11 @@ export default function FunctionalClassComponent({
           >
             ::
           </div>
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 min-w-[200px] flex items-center gap-2">
+            <ComponentClassIcons
+              componentClass={component.className}
+              componentType={component.componentType}
+            />
             <input
               className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
               id="title"
