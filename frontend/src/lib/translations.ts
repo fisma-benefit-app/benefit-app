@@ -8,6 +8,8 @@ export const translations = {
       SERVICE_UNAVAILABLE:
         "Cannot reach server. Please ensure the service is running.",
       UNAUTHORIZED: "Invalid username or password.",
+      TOO_MANY_LOGIN_ATTEMPTS:
+        "Too many failed login attempts. Please try again in one minute.",
     },
     scrollToTop: {
       tooltip: "Scroll to top",
@@ -308,6 +310,8 @@ export const translations = {
       SERVICE_UNAVAILABLE:
         "Palvelinta ei tavoiteta. Varmista, että palvelu on käynnissä.",
       UNAUTHORIZED: "Virheellinen käyttäjätunnus tai salasana.",
+      TOO_MANY_LOGIN_ATTEMPTS:
+        "Liian monta epäonnistunutta kirjautumisyritystä. Yritä uudelleen minuutin kuluttua.",
     },
     scrollToTop: {
       tooltip: "Siirry ylös",
