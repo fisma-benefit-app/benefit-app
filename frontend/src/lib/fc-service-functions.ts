@@ -207,37 +207,3 @@ export const recalculateWritingReferences = (
 
   return subComp.writingReferences;
 };
-
-export const moveComponentToTop = (
-  components: TGenericComponent[],
-  componentId: number,
-): TGenericComponent[] => {
-  const sorted = components
-    .slice()
-    .sort((a, b) => a.orderPosition - b.orderPosition);
-
-  const index = sorted.findIndex((c) => c.id === componentId);
-  if (index === -1) return components;
-
-  const [moved] = sorted.splice(index, 1);
-  sorted.unshift(moved);
-
-  return sorted.map((c, idx) => ({ ...c, orderPosition: idx }));
-};
-
-export const moveComponentToBottom = (
-  components: TGenericComponent[],
-  componentId: number,
-): TGenericComponent[] => {
-  const sorted = components
-    .slice()
-    .sort((a, b) => a.orderPosition - b.orderPosition);
-
-  const index = sorted.findIndex((c) => c.id === componentId);
-  if (index === -1) return components;
-
-  const [moved] = sorted.splice(index, 1);
-  sorted.push(moved);
-
-  return sorted.map((c, idx) => ({ ...c, orderPosition: idx }));
-};
