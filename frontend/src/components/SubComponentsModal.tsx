@@ -65,7 +65,6 @@ export default function SubComponentsModal({
                     onCollapseChange={() => {}}
                     debouncedSaveProject={() => {}}
                     onMLAToggle={() => {}}
-                    dragHandleProps={{}}
                     descriptionRowsExpanded
                     isCompactMode={false}
                   />

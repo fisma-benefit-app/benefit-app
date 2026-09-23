@@ -207,3 +207,28 @@ export const recalculateWritingReferences = (
 
   return subComp.writingReferences;
 };
+
+// Moves every component in `componentIds` so that they sit, in their current
+// relative order, at `insertIndex` of the sorted list (the index is measured
+// against the list before the move, i.e. "in front of the component that is
+// currently at insertIndex").
+export const moveComponentsToIndex = (
+  components: TGenericComponent[],
+  componentIds: Set<number>,
+  insertIndex: number,
+): TGenericComponent[] => {
+  const sorted = components
+    .slice()
+    .sort((a, b) => a.orderPosition - b.orderPosition);
+
+  const moved = sorted.filter((c) => componentIds.has(c.id));
+  if (moved.length === 0) return components;
+
+  const remaining = sorted.filter((c) => !componentIds.has(c.id));
+  const movedBeforeIndex = sorted
+    .slice(0, insertIndex)
+    .filter((c) => componentIds.has(c.id)).length;
+  remaining.splice(insertIndex - movedBeforeIndex, 0, ...moved);
+
+  return remaining.map((c, idx) => ({ ...c, orderPosition: idx }));
+};
