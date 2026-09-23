@@ -18,7 +18,9 @@ import {
   TGenericComponent,
 } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
-import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
+import DraggableFunctionalComponent from "./DraggableFunctionalComponent.tsx";
+import ComponentDragPreview from "./ComponentDragPreview.tsx";
+import useComponentReorder from "../hooks/useComponentReorder.ts";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import CreateCurrentDate from "../api/date.ts";
@@ -32,19 +34,7 @@ import DatePicker from "react-datepicker";
 import { format } from "date-fns";
 import { enUS, fi } from "date-fns/locale";
 
-// dnd-kit imports
-import {
-  DndContext,
-  closestCenter,
-  DragEndEvent,
-  DragStartEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  rectSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { useAlert } from "../context/AlertProvider.tsx";
 import {
   createSubComponents,
@@ -56,66 +46,6 @@ import {
   updateProjectComment,
   deleteProjectComment,
 } from "../api/comments.ts";
-
-function SortableFunctionalComponent({
-  component,
-  project,
-  setProject,
-  setProjectResponse,
-  deleteFunctionalComponent,
-  isLatest,
-  collapsed,
-  onCollapseChange,
-  debouncedSaveProject,
-  onMLAToggle,
-  descriptionRowsExpanded,
-  isCompactMode,
-  componentSearchQueryEmpty,
-}: {
-  component: TGenericComponent;
-  project: Project;
-  setProject: React.Dispatch<React.SetStateAction<Project | null>>;
-  setProjectResponse: React.Dispatch<
-    React.SetStateAction<ProjectResponse | null>
-  >;
-  deleteFunctionalComponent: (id: number) => Promise<void>;
-  isLatest: boolean;
-  collapsed: boolean;
-  onCollapseChange: (componentId: number, collapsed: boolean) => void;
-  debouncedSaveProject: () => void;
-  onMLAToggle: (componentId: number, newMLAValue: boolean) => void;
-  descriptionRowsExpanded: boolean;
-  isCompactMode: boolean;
-  componentSearchQueryEmpty: boolean;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: component.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      <FunctionalClassComponent
-        project={project}
-        setProject={setProject}
-        setProjectResponse={setProjectResponse}
-        component={component}
-        deleteFunctionalComponent={deleteFunctionalComponent}
-        isLatest={isLatest}
-        collapsed={collapsed}
-        onCollapseChange={onCollapseChange}
-        debouncedSaveProject={debouncedSaveProject}
-        dragHandleProps={{ ...attributes, ...listeners }}
-        onMLAToggle={onMLAToggle}
-        descriptionRowsExpanded={descriptionRowsExpanded}
-        isCompactMode={isCompactMode}
-        componentSearchQueryEmpty={componentSearchQueryEmpty}
-      />
-    </div>
-  );
-}
 
 // Debounce hook for auto-saving projects
 function useDebounce<T extends (...args: unknown[]) => void>(
@@ -437,6 +367,20 @@ export default function ProjectPage() {
     }
   }, 5000); // Auto-save every 5 seconds
 
+  // drag-to-reorder of the component grid
+  const reorder = useComponentReorder({
+    sortedComponents,
+    visibleComponents,
+    onReorder: (reordered) => {
+      setProject((prev) =>
+        prev ? { ...prev, functionalComponents: reordered } : prev,
+      );
+      if (isLatest) {
+        debouncedSaveProject();
+      }
+    },
+  });
+
   // Collapse state management for preventing components collapsing during auto-save
   const [componentCollapseStates, setComponentCollapseStates] = useState<
     Map<number, boolean>
@@ -473,12 +417,6 @@ export default function ProjectPage() {
       setCollapseAll(false);
     }
   }, [isCompactMode]);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const componentId = Number(event.active.id);
-    if (!Number.isFinite(componentId)) return;
-    updateComponentCollapseState(componentId, true);
-  };
 
   //keyboard shortcut for toggling between compact and full view
   useEffect(() => {
@@ -752,34 +690,6 @@ export default function ProjectPage() {
       }
     } else {
       isManuallySaved.current = false;
-    }
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!project || !over || active.id === over.id) return;
-
-    const sorted = project.functionalComponents
-      .slice()
-      .sort((a, b) => a.orderPosition - b.orderPosition);
-
-    const oldIndex = sorted.findIndex((c) => c.id === active.id);
-    const newIndex = sorted.findIndex((c) => c.id === over.id);
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const updated = [...sorted];
-    const [moved] = updated.splice(oldIndex, 1);
-    updated.splice(newIndex, 0, moved);
-
-    const reOrdered = updated.map((c, index) => ({
-      ...c,
-      orderPosition: index,
-    }));
-
-    setProject({ ...project, functionalComponents: reOrdered });
-
-    if (isLatest) {
-      debouncedSaveProject();
     }
   };
 
@@ -1218,45 +1128,51 @@ export default function ProjectPage() {
                   onChange={(e) => setComponentSearchQuery(e.target.value)}
                 />
               )}
-              <DndContext
-                collisionDetection={closestCenter}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={visibleComponents.map((c) => c.id)}
-                  strategy={rectSortingStrategy}
+              <DndContext {...reorder.dndContextProps}>
+                <div
+                  ref={reorder.gridRef}
+                  className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4"
                 >
-                  <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-                    {visibleComponents?.map((component) => (
-                      <SortableFunctionalComponent
-                        key={component.id}
-                        component={component}
-                        project={project}
-                        setProject={setProject}
-                        setProjectResponse={setProjectResponse}
-                        deleteFunctionalComponent={
-                          handleDeleteFunctionalComponent
-                        }
-                        isLatest={isLatest}
-                        collapsed={getComponentCollapseState(component.id)}
-                        onCollapseChange={updateComponentCollapseState}
-                        debouncedSaveProject={debouncedSaveProject}
-                        onMLAToggle={handleMLAToggle}
-                        descriptionRowsExpanded={descriptionRowsExpanded}
-                        isCompactMode={isCompactMode}
-                        componentSearchQueryEmpty={componentSearchQueryEmpty}
-                      />
-                    ))}
-                  </div>
+                  {visibleComponents.map((component) => (
+                    <DraggableFunctionalComponent
+                      key={component.id}
+                      component={component}
+                      project={project}
+                      setProject={setProject}
+                      setProjectResponse={setProjectResponse}
+                      deleteFunctionalComponent={
+                        handleDeleteFunctionalComponent
+                      }
+                      isLatest={isLatest}
+                      collapsed={getComponentCollapseState(component.id)}
+                      onCollapseChange={updateComponentCollapseState}
+                      debouncedSaveProject={debouncedSaveProject}
+                      onMLAToggle={handleMLAToggle}
+                      descriptionRowsExpanded={descriptionRowsExpanded}
+                      isCompactMode={isCompactMode}
+                      componentSearchQueryEmpty={componentSearchQueryEmpty}
+                      isBeingDragged={reorder.draggedIds.includes(component.id)}
+                      dropIndicator={reorder.dropIndicatorFor(component.id)}
+                      registerCard={reorder.registerCard}
+                    />
+                  ))}
+                </div>
 
-                  {sortedComponents.length === 0 && (
-                    <p className="text-gray-500 p-4">
-                      {translation.noFunctionalComponents}
-                    </p>
+                {sortedComponents.length === 0 && (
+                  <p className="text-gray-500 p-4">
+                    {translation.noFunctionalComponents}
+                  </p>
+                )}
+                <div ref={bottomRef} />
+                <DragOverlay dropAnimation={null}>
+                  {reorder.isDragging && (
+                    <ComponentDragPreview
+                      component={sortedComponents.find(
+                        (c) => c.id === reorder.draggedIds[0],
+                      )}
+                    />
                   )}
-                  <div ref={bottomRef} />
-                </SortableContext>
+                </DragOverlay>
               </DndContext>
             </>
           ) : error ? (
