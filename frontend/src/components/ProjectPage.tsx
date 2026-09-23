@@ -22,6 +22,7 @@ import DraggableFunctionalComponent, {
   COMPONENT_GRID_CLASSES,
 } from "./DraggableFunctionalComponent.tsx";
 import ComponentDragPreview from "./ComponentDragPreview.tsx";
+import ComponentSelectionBar from "./ComponentSelectionBar.tsx";
 import useComponentReorder from "../hooks/useComponentReorder.ts";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
@@ -369,10 +370,14 @@ export default function ProjectPage() {
     }
   }, 5000); // Auto-save every 5 seconds
 
-  // drag-to-reorder of the component grid
+  // multi-select and drag reordering of the component grid
   const reorder = useComponentReorder({
     sortedComponents,
     visibleComponents,
+    // archived versions can't be reordered, and while searching the drop
+    // position in the filtered list would be ambiguous
+    enabled: isLatest && componentSearchQueryEmpty,
+    resetKey: selectedProjectId,
     onReorder: (reordered) => {
       setProject((prev) =>
         prev ? { ...prev, functionalComponents: reordered } : prev,
@@ -382,6 +387,8 @@ export default function ProjectPage() {
       }
     },
   });
+  const canReorder = isLatest && componentSearchQueryEmpty;
+  const isPlacingSelected = canReorder && reorder.selectedCount > 0;
 
   // Collapse state management for preventing components collapsing during auto-save
   const [componentCollapseStates, setComponentCollapseStates] = useState<
@@ -1130,6 +1137,12 @@ export default function ProjectPage() {
                   onChange={(e) => setComponentSearchQuery(e.target.value)}
                 />
               )}
+              {isPlacingSelected && (
+                <ComponentSelectionBar
+                  count={reorder.selectedCount}
+                  onClear={reorder.clearSelection}
+                />
+              )}
               <DndContext {...reorder.dndContextProps}>
                 <div ref={reorder.gridRef} className={COMPONENT_GRID_CLASSES}>
                   {visibleComponents.map((component) => (
@@ -1149,9 +1162,13 @@ export default function ProjectPage() {
                       onMLAToggle={handleMLAToggle}
                       descriptionRowsExpanded={descriptionRowsExpanded}
                       isCompactMode={isCompactMode}
-                      // archived versions can't be reordered, and while
-                      // searching the drop position would be ambiguous
-                      dragDisabled={!isLatest || !componentSearchQueryEmpty}
+                      selected={reorder.selectedIds.has(component.id)}
+                      onCardClick={
+                        canReorder
+                          ? (e) => reorder.handleCardClick(component.id, e)
+                          : undefined
+                      }
+                      dragDisabled={!canReorder}
                       isBeingDragged={reorder.draggedIds.includes(component.id)}
                       dropIndicator={reorder.dropIndicatorFor(component.id)}
                       registerCard={reorder.registerCard}
@@ -1164,7 +1181,10 @@ export default function ProjectPage() {
                     {translation.noFunctionalComponents}
                   </p>
                 )}
-                <div ref={bottomRef} />
+                <div
+                  ref={bottomRef}
+                  className={isPlacingSelected ? "h-24" : ""}
+                />
                 <DragOverlay dropAnimation={null}>
                   {reorder.isDragging && (
                     <ComponentDragPreview

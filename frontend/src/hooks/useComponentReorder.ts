@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import type {
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 import {
   DragStartEvent,
   PointerSensor,
@@ -12,7 +15,7 @@ import { moveComponentsToIndex } from "../lib/fc-service-functions.ts";
 export type GapSide = "before" | "after";
 
 // Elements inside a card that keep their own click/drag behaviour: they
-// don't start dragging the card.
+// neither toggle the card's selection nor start dragging the card.
 const CARD_CONTROLS =
   "input, textarea, select, button, a, label, [contenteditable='true']";
 
@@ -31,22 +34,96 @@ class CardPointerSensor extends PointerSensor {
 }
 
 /**
- * Drag-to-reorder for the component grid, modelled on GitHub Projects: cards
- * don't reflow mid-drag; the drop position is computed from the pointer and
- * exposed as dropIndicatorFor() so the grid can draw a line in the gap.
+ * Multi-select + reorder for the component grid, modelled on GitHub Projects:
+ * - click toggles a card, Shift+click adds the range from the last clicked
+ *   card; Esc or clearSelection() empties it. Editing elsewhere keeps it.
+ * - dragging: cards don't reflow mid-drag; the drop position is computed
+ *   from the pointer and exposed as dropIndicatorFor() so the grid can draw
+ *   a line in the gap.
  */
 export default function useComponentReorder({
   sortedComponents,
   visibleComponents,
   onReorder,
+  enabled,
+  resetKey,
 }: {
   // full list in display order, and the part of it the search leaves visible
   sortedComponents: TGenericComponent[];
   visibleComponents: TGenericComponent[];
   onReorder: (reordered: TGenericComponent[]) => void;
+  // false turns selecting off (and clears it), e.g. while searching
+  enabled: boolean;
+  // the selection is cleared whenever this changes, e.g. the open project
+  resetKey: unknown;
 }) {
+  // --- Selection ---
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const anchorId = useRef<number | null>(null);
+
+  // only count selections that still exist (a selected component may be deleted)
+  const selectedCount = sortedComponents.filter((c) =>
+    selectedIds.has(c.id),
+  ).length;
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+    anchorId.current = null;
+  }, [resetKey, enabled]);
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    anchorId.current = null;
+  };
+
+  // Escape does the same as the "Clear selection" button, wherever focus is
+  useEffect(() => {
+    if (selectedIds.size === 0) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedIds(new Set());
+        anchorId.current = null;
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedIds]);
+
+  // swallows the click the browser fires when a drag is released
+  const justDragged = useRef(false);
+
+  const handleCardClick = (componentId: number, e: ReactMouseEvent) => {
+    if (!enabled || justDragged.current) return;
+    // clicks on the card's own controls keep doing their job
+    if ((e.target as Element).closest(CARD_CONTROLS)) return;
+
+    const anchor = anchorId.current;
+    if (e.shiftKey && anchor !== null) {
+      const ids = visibleComponents.map((c) => c.id);
+      const from = ids.indexOf(anchor);
+      const to = ids.indexOf(componentId);
+      if (from !== -1) {
+        const range = ids.slice(Math.min(from, to), Math.max(from, to) + 1);
+        setSelectedIds((prev) => new Set([...prev, ...range]));
+        return;
+      }
+    }
+
+    anchorId.current = componentId;
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(componentId)) {
+        next.delete(componentId);
+      } else {
+        next.add(componentId);
+      }
+      return next;
+    });
+  };
+
+  // --- Dragging ---
   const sensors = useSensors(
-    // small threshold so a click on a card doesn't start a drag
+    // small threshold so a plain click on a card selects it instead
     useSensor(CardPointerSensor, { activationConstraint: { distance: 5 } }),
   );
   const [draggedIds, setDraggedIds] = useState<number[]>([]);
@@ -150,6 +227,10 @@ export default function useComponentReorder({
   const onDragCancel = () => {
     setDraggedIds([]);
     setDropTarget(null);
+    justDragged.current = true;
+    setTimeout(() => {
+      justDragged.current = false;
+    }, 0);
   };
 
   const onDragEnd = () => {
@@ -166,6 +247,10 @@ export default function useComponentReorder({
   };
 
   return {
+    selectedIds,
+    selectedCount,
+    clearSelection,
+    handleCardClick,
     dndContextProps: { sensors, onDragStart, onDragEnd, onDragCancel },
     gridRef,
     registerCard,

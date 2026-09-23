@@ -52,6 +52,9 @@ type FunctionalClassComponentProps = {
   onMLAToggle: (componentId: number, newValue: boolean) => void;
   descriptionRowsExpanded: boolean;
   isCompactMode: boolean;
+  selected?: boolean;
+  // selection clicks on the card (click toggles, Shift+click adds a range)
+  onCardClick?: (e: React.MouseEvent<HTMLFormElement>) => void;
   // dnd-kit listeners making the card body the drag handle
   dragListeners?: DraggableSyntheticListeners;
 };
@@ -68,6 +71,8 @@ export default function FunctionalClassComponent({
   onMLAToggle,
   descriptionRowsExpanded,
   isCompactMode,
+  selected = false,
+  onCardClick,
   dragListeners,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
@@ -296,7 +301,12 @@ export default function FunctionalClassComponent({
       <form
         {...dragListeners}
         onSubmit={(e) => e.preventDefault()}
-        className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 w-full p-4 rounded-lg"
+        onClick={onCardClick}
+        // stop Shift+click range selection from also selecting page text
+        onMouseDown={(e) => {
+          if (onCardClick && e.shiftKey) e.preventDefault();
+        }}
+        className={`flex flex-col gap-4 border-2 ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"} bg-gray-200 w-full p-4 rounded-lg`}
       >
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
           <div className="flex-1 min-w-[200px] flex items-center gap-2">
