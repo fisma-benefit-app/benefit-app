@@ -14,6 +14,9 @@ import {
   TGenericComponent,
 } from "./types.ts";
 
+// Must match the @Size limit on FunctionalComponent.description in the backend.
+export const DESCRIPTION_MAX_LENGTH = 10000;
+
 export const componentClassFields = [
   {
     className: "Interactive end-user navigation and query service",

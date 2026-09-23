@@ -20,7 +20,7 @@ public class FunctionalComponentRequest {
   @Schema(description = "Title of the functional component", example = "Create User Account")
   private String title;
 
-  @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+  @Size(max = 10000, message = "Description cannot exceed 10000 characters")
   @Schema(
       description = "Detailed description of the functional component",
       example = "Handles user account creation process")
