@@ -9,7 +9,10 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, useEffect } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
-import { classNameOptions } from "../lib/fc-constants.ts";
+import {
+  classNameOptions,
+  DESCRIPTION_MAX_LENGTH,
+} from "../lib/fc-constants.ts";
 import {
   getComponentTypeOptions,
   getInputFields,
@@ -96,6 +99,7 @@ export default function FunctionalClassComponent({
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
   const translation = useTranslations().functionalClassComponent;
+  const descriptionLength = component.description?.length ?? 0;
 
   const componentTypeOptions = getComponentTypeOptions(component.className);
   const inputFields = getInputFields(component.className);
@@ -414,9 +418,21 @@ export default function FunctionalClassComponent({
                   onChange={handleComponentChange}
                   className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md"
                   rows={descriptionRowsExpanded ? 10 : 3}
+                  maxLength={DESCRIPTION_MAX_LENGTH}
                   disabled={!isLatest}
                   placeholder={translation.descriptionPlaceholder}
                 />
+                <p
+                  className={`text-xs text-right ${
+                    descriptionLength >= DESCRIPTION_MAX_LENGTH
+                      ? "text-red-600 font-medium"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {descriptionLength >= DESCRIPTION_MAX_LENGTH &&
+                    `${translation.descriptionMaxLengthReached}: `}
+                  {descriptionLength} / {DESCRIPTION_MAX_LENGTH}
+                </p>
               </div>
             )}
 

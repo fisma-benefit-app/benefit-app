@@ -233,7 +233,9 @@ const updateProject = async (
     isReadonly: false,
     subComponents: fc.subComponents
       ? fc.subComponents.map((subComp) => ({
-          id: subComp.id,
+          // createSubComponents assigns negative temporary IDs to not-yet-saved sub-components;
+          // the backend only creates a sub-component when its id is null.
+          id: subComp.id > 0 ? subComp.id : undefined,
           title: subComp.title,
           description: subComp.description,
           className: subComp.className,

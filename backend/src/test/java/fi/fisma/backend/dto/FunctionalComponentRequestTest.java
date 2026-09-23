@@ -3,6 +3,8 @@ package fi.fisma.backend.dto;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import fi.fisma.backend.setup.StandaloneSetup;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,9 @@ import org.springframework.boot.test.json.JacksonTester;
 
 @JsonTest
 class FunctionalComponentRequestTest {
+
+  private static final Validator validator =
+      Validation.buildDefaultValidatorFactory().getValidator();
 
   @Autowired private JacksonTester<FunctionalComponentRequest> json;
 
@@ -57,5 +62,22 @@ class FunctionalComponentRequestTest {
     assertThat(dto.getDegreeOfCompletion()).isEqualTo(0.75);
     assertThat(dto.getTitle()).isEqualTo("Create User Account");
     assertThat(dto.getDescription()).isEqualTo("Handles user account creation process");
+  }
+
+  @Test
+  void testDescriptionOfMaxLengthIsValid() {
+    dto.setDescription("a".repeat(10000));
+
+    assertThat(validator.validateProperty(dto, "description")).isEmpty();
+  }
+
+  @Test
+  void testDescriptionOverMaxLengthIsInvalid() {
+    dto.setDescription("a".repeat(10001));
+
+    assertThat(validator.validateProperty(dto, "description"))
+        .singleElement()
+        .extracting(violation -> violation.getMessage())
+        .isEqualTo("Description cannot exceed 10000 characters");
   }
 }
