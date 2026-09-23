@@ -40,6 +40,7 @@ class CardPointerSensor extends PointerSensor {
  * - dragging a selected card carries the whole selection. Cards don't reflow
  *   mid-drag; the drop position is computed from the pointer and exposed as
  *   dropIndicatorFor() so the grid can draw a line in the gap.
+ * - placeSelected() moves the selection to a gap without dragging.
  */
 export default function useComponentReorder({
   sortedComponents,
@@ -119,6 +120,13 @@ export default function useComponentReorder({
       }
       return next;
     });
+  };
+
+  const moveTo = (ids: Set<number>, insertIndex: number) =>
+    onReorder(moveComponentsToIndex(sortedComponents, ids, insertIndex));
+
+  const placeSelected = (insertIndex: number) => {
+    if (selectedCount > 0) moveTo(selectedIds, insertIndex);
   };
 
   // --- Dragging ---
@@ -241,13 +249,7 @@ export default function useComponentReorder({
 
   const onDragEnd = () => {
     if (dropTarget && dropWouldMove) {
-      onReorder(
-        moveComponentsToIndex(
-          sortedComponents,
-          new Set(draggedIds),
-          insertIndexOf(dropTarget),
-        ),
-      );
+      moveTo(new Set(draggedIds), insertIndexOf(dropTarget));
     }
     onDragCancel();
   };
@@ -257,6 +259,7 @@ export default function useComponentReorder({
     selectedCount,
     clearSelection,
     handleCardClick,
+    placeSelected,
     dndContextProps: { sensors, onDragStart, onDragEnd, onDragCancel },
     gridRef,
     registerCard,

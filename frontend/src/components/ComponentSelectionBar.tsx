@@ -14,9 +14,12 @@ export default function ComponentSelectionBar({
 
   return (
     <div className="fixed bottom-4 left-4 right-20 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-max sm:max-w-[calc(100vw-12rem)] z-40 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border-2 border-fisma-blue bg-blue-50 p-3 text-sm shadow-lg">
-      <strong>
-        {count} {translation.componentsSelected}
-      </strong>
+      <span>
+        <strong>
+          {count} {translation.componentsSelected}
+        </strong>{" "}
+        — {translation.clickGapToMove}
+      </span>
       <button
         type="button"
         className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-1 px-3 cursor-pointer"

@@ -370,7 +370,7 @@ export default function ProjectPage() {
     }
   }, 5000); // Auto-save every 5 seconds
 
-  // multi-select and drag reordering of the component grid
+  // multi-select, drag and click-to-place reordering of the component grid
   const reorder = useComponentReorder({
     sortedComponents,
     visibleComponents,
@@ -1145,35 +1145,49 @@ export default function ProjectPage() {
               )}
               <DndContext {...reorder.dndContextProps}>
                 <div ref={reorder.gridRef} className={COMPONENT_GRID_CLASSES}>
-                  {visibleComponents.map((component) => (
-                    <DraggableFunctionalComponent
-                      key={component.id}
-                      component={component}
-                      project={project}
-                      setProject={setProject}
-                      setProjectResponse={setProjectResponse}
-                      deleteFunctionalComponent={
-                        handleDeleteFunctionalComponent
-                      }
-                      isLatest={isLatest}
-                      collapsed={getComponentCollapseState(component.id)}
-                      onCollapseChange={updateComponentCollapseState}
-                      debouncedSaveProject={debouncedSaveProject}
-                      onMLAToggle={handleMLAToggle}
-                      descriptionRowsExpanded={descriptionRowsExpanded}
-                      isCompactMode={isCompactMode}
-                      selected={reorder.selectedIds.has(component.id)}
-                      onCardClick={
-                        canReorder
-                          ? (e) => reorder.handleCardClick(component.id, e)
-                          : undefined
-                      }
-                      dragDisabled={!canReorder}
-                      isBeingDragged={reorder.draggedIds.includes(component.id)}
-                      dropIndicator={reorder.dropIndicatorFor(component.id)}
-                      registerCard={reorder.registerCard}
-                    />
-                  ))}
+                  {visibleComponents.map((component, visibleIndex) => {
+                    const fullIndex = sortedComponents.indexOf(component);
+                    const isLastVisible =
+                      visibleIndex === visibleComponents.length - 1;
+                    const showSlots = isPlacingSelected && !reorder.isDragging;
+                    return (
+                      <DraggableFunctionalComponent
+                        key={component.id}
+                        component={component}
+                        project={project}
+                        setProject={setProject}
+                        setProjectResponse={setProjectResponse}
+                        deleteFunctionalComponent={
+                          handleDeleteFunctionalComponent
+                        }
+                        isLatest={isLatest}
+                        collapsed={getComponentCollapseState(component.id)}
+                        onCollapseChange={updateComponentCollapseState}
+                        debouncedSaveProject={debouncedSaveProject}
+                        onMLAToggle={handleMLAToggle}
+                        descriptionRowsExpanded={descriptionRowsExpanded}
+                        isCompactMode={isCompactMode}
+                        selected={reorder.selectedIds.has(component.id)}
+                        onCardClick={
+                          canReorder
+                            ? (e) => reorder.handleCardClick(component.id, e)
+                            : undefined
+                        }
+                        dragDisabled={!canReorder}
+                        isBeingDragged={reorder.draggedIds.includes(
+                          component.id,
+                        )}
+                        dropIndicator={reorder.dropIndicatorFor(component.id)}
+                        registerCard={reorder.registerCard}
+                        placementSlots={{
+                          before: showSlots ? fullIndex : null,
+                          after:
+                            showSlots && isLastVisible ? fullIndex + 1 : null,
+                        }}
+                        onPlace={reorder.placeSelected}
+                      />
+                    );
+                  })}
                 </div>
 
                 {sortedComponents.length === 0 && (
