@@ -222,6 +222,12 @@ export const translations = {
       enableCompactMode: "Compact View",
       disableCompactMode: "Full View",
       searchComponentsPlaceholder: "Search components by title",
+      componentsSelected: "selected",
+      clearSelection: "Clear selection",
+      componentsLabel: "components",
+      clickGapToMove:
+        "Drag a selected component, or click a highlighted gap, to move them. Shift+click selects a range.",
+      moveSelectedHere: "Move selected components here",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
@@ -525,6 +531,12 @@ export const translations = {
       enableCompactMode: "Tiivis näkymä",
       disableCompactMode: "Kokonaisnäkymä",
       searchComponentsPlaceholder: "Hae komponentteja otsikon perusteella",
+      componentsSelected: "valittu",
+      clearSelection: "Tyhjennä valinta",
+      componentsLabel: "komponenttia",
+      clickGapToMove:
+        "Siirrä valitut raahaamalla tai klikkaamalla korostettua väliä. Shift+klikkaus valitsee välin.",
+      moveSelectedHere: "Siirrä valitut komponentit tähän",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",
