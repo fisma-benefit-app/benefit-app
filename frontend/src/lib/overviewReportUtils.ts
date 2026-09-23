@@ -90,7 +90,28 @@ export const generateOverviewPDF = async (
           (sum, component) => sum + currentPoints.get(component.id)!,
           0,
         );
-        return `<tr><td>${escapeHtmlForSummary(name)}</td><td>${components.length}</td><td>${formatNumber(total)}${delta(total, previousGroupTotal)}</td></tr>`;
+        const incomingCount = components.filter(
+          (component) =>
+            component.className === "Interface service from other applications",
+        ).length;
+        const outgoingCount = components.filter(
+          (component) =>
+            component.className === "Interface service to other applications",
+        ).length;
+        return `<tr>
+          <td>
+            ${escapeHtmlForSummary(name)}
+          </td>
+          <td>
+            ${incomingCount}
+          </td>
+          <td>
+            ${outgoingCount}
+          </td>
+          <td>
+            ${formatNumber(total)}${delta(total, previousGroupTotal)}
+          </td>
+        </tr>`;
       })
       .join("");
   };
@@ -102,7 +123,7 @@ export const generateOverviewPDF = async (
   const externalInterfacePoints =
     externalInterfaces.toOtherApplications.points +
     externalInterfaces.fromOtherApplications.points;
-  const externalInterfaceCount =
+  const externalInterfaceCount = // is this still neccessary
     externalInterfaces.toOtherApplications.count +
     externalInterfaces.fromOtherApplications.count;
   const businessOnlyPoints = layers.business.points - externalInterfacePoints;
@@ -127,7 +148,8 @@ export const generateOverviewPDF = async (
           aggregates: "Koosteet ja tärkeät muutokset",
           classAggregate: "Toimintoluokat",
           typeAggregate: "Toimintotyypit",
-          count: "Lukumäärä",
+          inCount: "Saapuvien määrä",
+          outCount: "Lähtevien määrä",
           explanation: "Laskennan selitys ja tärkeät muutokset",
           changed:
             "Muuttuneet arvot on korostettu. Suluissa oleva luku kertoo eron edelliseen versioon.",
@@ -148,7 +170,8 @@ export const generateOverviewPDF = async (
           aggregates: "Aggregates and important changes",
           classAggregate: "Function classes",
           typeAggregate: "Function types",
-          count: "Count",
+          inCount: "Incoming",
+          outCount: "Out going",
           explanation: "Calculation explanation and important changes",
           changed:
             "Changed values are highlighted. The number in parentheses shows the difference from the previous version.",
@@ -492,7 +515,8 @@ export const generateOverviewPDF = async (
       <thead>
         <tr>
           <th>${labels.functionClass}</th>
-          <th>${labels.count}</th>
+          <th>${labels.inCount}</th>
+          <th>${labels.outCount}</th>
           <th>${labels.actionPoints}</th>
         </tr>
       </thead>
@@ -506,7 +530,8 @@ export const generateOverviewPDF = async (
       <thead>
         <tr>
           <th>${labels.functionType}</th>
-          <th>${labels.count}</th>
+          <th>${labels.inCount}</th>
+          <th>${labels.outCount}</th>
           <th>${labels.actionPoints}</th>
         </tr>
       </thead>
