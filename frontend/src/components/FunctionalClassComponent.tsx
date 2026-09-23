@@ -56,6 +56,7 @@ type FunctionalClassComponentProps = {
   isCompactMode: boolean;
   onMoveToTop: (componentId: number) => void;
   onMoveToBottom: (componentId: number) => void;
+  componentSearchQueryEmpty: boolean;
 };
 
 export default function FunctionalClassComponent({
@@ -73,6 +74,7 @@ export default function FunctionalClassComponent({
   isCompactMode,
   onMoveToTop,
   onMoveToBottom,
+  componentSearchQueryEmpty,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
@@ -302,13 +304,15 @@ export default function FunctionalClassComponent({
         className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 w-full p-4 rounded-lg"
       >
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
-          {/* Drag handle */}
-          <div
-            {...dragHandleProps}
-            className="cursor-grab bg-fisma-gray text-white py-2 px-2"
-          >
-            ::
-          </div>
+          {/* Drag handle, only if user is viewing all components */}
+          {componentSearchQueryEmpty && (
+            <div
+              {...dragHandleProps}
+              className="cursor-grab bg-fisma-gray text-white py-2 px-2"
+            >
+              ::
+            </div>
+          )}
           <div className="flex-1 min-w-[200px] flex items-center gap-2">
             <ComponentClassIcons
               componentClass={component.className}

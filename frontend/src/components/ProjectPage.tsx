@@ -74,6 +74,7 @@ function SortableFunctionalComponent({
   isCompactMode,
   onMoveToTop,
   onMoveToBottom,
+  componentSearchQueryEmpty,
 }: {
   component: TGenericComponent;
   project: Project;
@@ -91,6 +92,7 @@ function SortableFunctionalComponent({
   isCompactMode: boolean;
   onMoveToTop: (componentId: number) => void;
   onMoveToBottom: (componentId: number) => void;
+  componentSearchQueryEmpty: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: component.id });
@@ -117,6 +119,7 @@ function SortableFunctionalComponent({
         isCompactMode={isCompactMode}
         onMoveToTop={onMoveToTop}
         onMoveToBottom={onMoveToBottom}
+        componentSearchQueryEmpty={componentSearchQueryEmpty}
       />
     </div>
   );
@@ -339,14 +342,15 @@ export default function ProjectPage() {
     : [];
 
   // components visible in the grid: full list, narrowed by the search query
-  const visibleComponents =
-    componentSearchQuery.trim() === ""
-      ? sortedComponents
-      : sortedComponents.filter((component) =>
-          (component.title || "")
-            .toLowerCase()
-            .includes(componentSearchQuery.trim().toLowerCase()),
-        );
+  const componentSearchQueryEmpty = componentSearchQuery.trim() === "";
+
+  const visibleComponents = componentSearchQueryEmpty
+    ? sortedComponents
+    : sortedComponents.filter((component) =>
+        (component.title || "")
+          .toLowerCase()
+          .includes(componentSearchQuery.trim().toLowerCase()),
+      );
 
   // Alert functionality
   const { showNotification, updateNotification } = useAlert();
@@ -1258,6 +1262,7 @@ export default function ProjectPage() {
                         isCompactMode={isCompactMode}
                         onMoveToTop={handleMoveToTop}
                         onMoveToBottom={handleMoveToBottom}
+                        componentSearchQueryEmpty={componentSearchQueryEmpty}
                       />
                     ))}
                   </div>
