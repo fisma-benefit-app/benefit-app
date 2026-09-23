@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState, useRef } from "react";
+import { ChangeEvent, useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -472,7 +472,7 @@ export default function ProjectPage() {
     setDescriptionRowsExpanded((prev) => !prev);
   };
 
-  const toggleCompactMode = () => {
+  const toggleCompactMode = useCallback(() => {
     if (isCompactMode) {
       setIsCompactMode(false);
       setCollapseAll(true);
@@ -480,13 +480,34 @@ export default function ProjectPage() {
       setIsCompactMode(true);
       setCollapseAll(false);
     }
-  };
+  }, [isCompactMode]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const componentId = Number(event.active.id);
     if (!Number.isFinite(componentId)) return;
     updateComponentCollapseState(componentId, true);
   };
+
+  //keyboard shortcut for toggling between compact and full view
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+
+      //guard against toggling view when typing in an input/textarea field or using keyboard shortcuts
+      const isTyping =
+        target.tagName === "INPUT" || target.tagName === "TEXTAREA";
+      if (isTyping) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        toggleCompactMode();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleCompactMode]);
 
   useEffect(() => {
     const getProject = async () => {
