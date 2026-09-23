@@ -37,9 +37,9 @@ class CardPointerSensor extends PointerSensor {
  * Multi-select + reorder for the component grid, modelled on GitHub Projects:
  * - click toggles a card, Shift+click adds the range from the last clicked
  *   card; Esc or clearSelection() empties it. Editing elsewhere keeps it.
- * - dragging: cards don't reflow mid-drag; the drop position is computed
- *   from the pointer and exposed as dropIndicatorFor() so the grid can draw
- *   a line in the gap.
+ * - dragging a selected card carries the whole selection. Cards don't reflow
+ *   mid-drag; the drop position is computed from the pointer and exposed as
+ *   dropIndicatorFor() so the grid can draw a line in the gap.
  */
 export default function useComponentReorder({
   sortedComponents,
@@ -217,7 +217,13 @@ export default function useComponentReorder({
   const onDragStart = (event: DragStartEvent) => {
     const componentId = Number(event.active.id);
     if (!Number.isFinite(componentId)) return;
-    setDraggedIds([componentId]);
+    // dragging a selected card carries the whole selection along
+    // (grabbed card first, so the drag preview shows it)
+    setDraggedIds(
+      selectedIds.has(componentId)
+        ? [componentId, ...[...selectedIds].filter((id) => id !== componentId)]
+        : [componentId],
+    );
     const activator = event.activatorEvent;
     if (activator instanceof MouseEvent) {
       updateDropTarget(activator.clientX, activator.clientY);

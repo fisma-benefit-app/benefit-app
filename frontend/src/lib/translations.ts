@@ -224,6 +224,7 @@ export const translations = {
       searchComponentsPlaceholder: "Search components by title",
       componentsSelected: "selected",
       clearSelection: "Clear selection",
+      componentsLabel: "components",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
@@ -529,6 +530,7 @@ export const translations = {
       searchComponentsPlaceholder: "Hae komponentteja otsikon perusteella",
       componentsSelected: "valittu",
       clearSelection: "Tyhjennä valinta",
+      componentsLabel: "komponenttia",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",

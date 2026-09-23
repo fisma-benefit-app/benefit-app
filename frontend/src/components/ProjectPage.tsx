@@ -1191,6 +1191,7 @@ export default function ProjectPage() {
                       component={sortedComponents.find(
                         (c) => c.id === reorder.draggedIds[0],
                       )}
+                      count={reorder.draggedIds.length}
                     />
                   )}
                 </DragOverlay>
