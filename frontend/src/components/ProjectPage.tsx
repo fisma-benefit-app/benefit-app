@@ -49,8 +49,6 @@ import { useAlert } from "../context/AlertProvider.tsx";
 import {
   createSubComponents,
   updateSubComponents,
-  moveComponentToTop,
-  moveComponentToBottom,
 } from "../lib/fc-service-functions.ts";
 import {
   fetchProjectComments,
@@ -72,8 +70,6 @@ function SortableFunctionalComponent({
   onMLAToggle,
   descriptionRowsExpanded,
   isCompactMode,
-  onMoveToTop,
-  onMoveToBottom,
   componentSearchQueryEmpty,
 }: {
   component: TGenericComponent;
@@ -90,8 +86,6 @@ function SortableFunctionalComponent({
   onMLAToggle: (componentId: number, newMLAValue: boolean) => void;
   descriptionRowsExpanded: boolean;
   isCompactMode: boolean;
-  onMoveToTop: (componentId: number) => void;
-  onMoveToBottom: (componentId: number) => void;
   componentSearchQueryEmpty: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -117,8 +111,6 @@ function SortableFunctionalComponent({
         onMLAToggle={onMLAToggle}
         descriptionRowsExpanded={descriptionRowsExpanded}
         isCompactMode={isCompactMode}
-        onMoveToTop={onMoveToTop}
-        onMoveToBottom={onMoveToBottom}
         componentSearchQueryEmpty={componentSearchQueryEmpty}
       />
     </div>
@@ -770,34 +762,6 @@ export default function ProjectPage() {
     }
   };
 
-  const handleMoveToTop = (componentId: number) => {
-    if (!project) return;
-
-    const reOrdered = moveComponentToTop(
-      project.functionalComponents,
-      componentId,
-    );
-    setProject({ ...project, functionalComponents: reOrdered });
-
-    if (isLatest) {
-      debouncedSaveProject();
-    }
-  };
-
-  const handleMoveToBottom = (componentId: number) => {
-    if (!project) return;
-
-    const reOrdered = moveComponentToBottom(
-      project.functionalComponents,
-      componentId,
-    );
-    setProject({ ...project, functionalComponents: reOrdered });
-
-    if (isLatest) {
-      debouncedSaveProject();
-    }
-  };
-
   const saveProjectVersion = async () => {
     if (project) {
       isManuallySaved.current = true;
@@ -1260,8 +1224,6 @@ export default function ProjectPage() {
                         onMLAToggle={handleMLAToggle}
                         descriptionRowsExpanded={descriptionRowsExpanded}
                         isCompactMode={isCompactMode}
-                        onMoveToTop={handleMoveToTop}
-                        onMoveToBottom={handleMoveToBottom}
                         componentSearchQueryEmpty={componentSearchQueryEmpty}
                       />
                     ))}

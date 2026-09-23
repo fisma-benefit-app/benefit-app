@@ -5,8 +5,6 @@ import {
   //faLayerGroup,
   //faGripVertical,
   faArrowsRotate,
-  faAnglesUp,
-  faAnglesDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, useEffect } from "react";
@@ -54,8 +52,6 @@ type FunctionalClassComponentProps = {
   onMLAToggle: (componentId: number, newValue: boolean) => void;
   descriptionRowsExpanded: boolean;
   isCompactMode: boolean;
-  onMoveToTop: (componentId: number) => void;
-  onMoveToBottom: (componentId: number) => void;
   componentSearchQueryEmpty: boolean;
 };
 
@@ -72,8 +68,6 @@ export default function FunctionalClassComponent({
   onMLAToggle,
   descriptionRowsExpanded,
   isCompactMode,
-  onMoveToTop,
-  onMoveToBottom,
   componentSearchQueryEmpty,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
@@ -330,30 +324,6 @@ export default function FunctionalClassComponent({
 
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
             <div className="flex gap-2 items-center">
-              {!isCompactMode && (
-                <>
-                  {/* Move to top button */}
-                  <button
-                    type="button"
-                    className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
-                    onClick={() => onMoveToTop(component.id)}
-                    disabled={!isLatest}
-                    title={translation.moveToTop}
-                  >
-                    <FontAwesomeIcon icon={faAnglesUp} />
-                  </button>
-                  {/* Move to bottom button */}
-                  <button
-                    type="button"
-                    className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
-                    onClick={() => onMoveToBottom(component.id)}
-                    disabled={!isLatest}
-                    title={translation.moveToBottom}
-                  >
-                    <FontAwesomeIcon icon={faAnglesDown} />
-                  </button>
-                </>
-              )}
               {/* Collapse button */}
               <button
                 type="button"

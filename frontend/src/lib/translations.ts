@@ -104,8 +104,6 @@ export const translations = {
     functionalClassComponent: {
       collapseExpand: "Collapse/Expand component",
       delete: "Delete component",
-      moveToTop: "Move to top",
-      moveToBottom: "Move to bottom",
       toggleMLAInterfaces: "Show/Hide multi-layer interfaces",
       //creates an object where keys and their values are the same
       classNameOptions: Object.fromEntries(
@@ -406,8 +404,6 @@ export const translations = {
     functionalClassComponent: {
       collapseExpand: "Pienennä/laajenna komponentti",
       delete: "Poista komponentti",
-      moveToTop: "Siirrä alkuun",
-      moveToBottom: "Siirrä loppuun",
       toggleMLAInterfaces: "Näytä/piilota monikerrosliittymät",
       classNameOptions: {
         "Interactive end-user navigation and query service":
