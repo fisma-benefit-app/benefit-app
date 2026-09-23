@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import {
   DragStartEvent,
   PointerSensor,
@@ -9,6 +10,25 @@ import { TGenericComponent } from "../lib/types.ts";
 import { moveComponentsToIndex } from "../lib/fc-service-functions.ts";
 
 export type GapSide = "before" | "after";
+
+// Elements inside a card that keep their own click/drag behaviour: they
+// don't start dragging the card.
+const CARD_CONTROLS =
+  "input, textarea, select, button, a, label, [contenteditable='true']";
+
+// The whole card is the drag handle, except for its controls, so text can
+// still be selected in inputs and buttons still click normally.
+class CardPointerSensor extends PointerSensor {
+  static activators = [
+    {
+      eventName: "onPointerDown" as const,
+      handler: ({ nativeEvent: event }: ReactPointerEvent) =>
+        event.isPrimary &&
+        event.button === 0 &&
+        !(event.target as Element).closest(CARD_CONTROLS),
+    },
+  ];
+}
 
 /**
  * Drag-to-reorder for the component grid, modelled on GitHub Projects: cards
@@ -25,7 +45,10 @@ export default function useComponentReorder({
   visibleComponents: TGenericComponent[];
   onReorder: (reordered: TGenericComponent[]) => void;
 }) {
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    // small threshold so a click on a card doesn't start a drag
+    useSensor(CardPointerSensor, { activationConstraint: { distance: 5 } }),
+  );
   const [draggedIds, setDraggedIds] = useState<number[]>([]);
   const [dropTarget, setDropTarget] = useState<{
     id: number;

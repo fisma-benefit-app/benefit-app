@@ -24,21 +24,24 @@ function DropIndicator({ side }: { side: GapSide }) {
   );
 }
 
-// A component card in the project grid: draggable (not sortable, so cards
-// stay put mid-drag), with the drop line drawn in the gap next to it.
+// A component card in the project grid: draggable by its body (not sortable,
+// so cards stay put mid-drag), with the drop line drawn in the gap next to it.
 export default function DraggableFunctionalComponent({
+  dragDisabled,
   isBeingDragged,
   dropIndicator,
   registerCard,
   ...cardProps
 }: ComponentProps<typeof FunctionalClassComponent> & {
+  dragDisabled: boolean;
   isBeingDragged: boolean;
   dropIndicator: GapSide | null;
   registerCard: (componentId: number, el: HTMLDivElement | null) => void;
 }) {
   const componentId = cardProps.component.id;
-  const { attributes, listeners, setNodeRef } = useDraggable({
+  const { listeners, setNodeRef } = useDraggable({
     id: componentId,
+    disabled: dragDisabled,
   });
 
   return (
@@ -50,10 +53,9 @@ export default function DraggableFunctionalComponent({
       className={`relative transition-opacity ${isBeingDragged ? "opacity-40" : ""}`}
     >
       {dropIndicator && <DropIndicator side={dropIndicator} />}
-      <FunctionalClassComponent
-        {...cardProps}
-        dragHandleProps={{ ...attributes, ...listeners }}
-      />
+      {/* listeners go on the card's form only, not this wrapper: the card's
+          modals render inside the wrapper and must not start a drag */}
+      <FunctionalClassComponent {...cardProps} dragListeners={listeners} />
     </div>
   );
 }

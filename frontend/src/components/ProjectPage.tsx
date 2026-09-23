@@ -1150,7 +1150,9 @@ export default function ProjectPage() {
                       onMLAToggle={handleMLAToggle}
                       descriptionRowsExpanded={descriptionRowsExpanded}
                       isCompactMode={isCompactMode}
-                      componentSearchQueryEmpty={componentSearchQueryEmpty}
+                      // archived versions can't be reordered, and while
+                      // searching the drop position would be ambiguous
+                      dragDisabled={!isLatest || !componentSearchQueryEmpty}
                       isBeingDragged={reorder.draggedIds.includes(component.id)}
                       dropIndicator={reorder.dropIndicatorFor(component.id)}
                       registerCard={reorder.registerCard}

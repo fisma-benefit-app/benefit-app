@@ -34,6 +34,7 @@ import {
 import ConfirmModal from "./ConfirmModal.tsx";
 import ComponentClassIcons from "./ComponentClassIcons.tsx";
 import SubComponentsModal from "./SubComponentsModal.tsx";
+import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import FunctionalClassSubComponent from "./FunctionalClassSubComponent.tsx";
 
 type FunctionalClassComponentProps = {
@@ -47,12 +48,12 @@ type FunctionalClassComponentProps = {
   isLatest: boolean;
   collapsed: boolean;
   onCollapseChange: (componentId: number, collapsed: boolean) => void;
-  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
   debouncedSaveProject: () => void;
   onMLAToggle: (componentId: number, newValue: boolean) => void;
   descriptionRowsExpanded: boolean;
   isCompactMode: boolean;
-  componentSearchQueryEmpty: boolean;
+  // dnd-kit listeners making the card body the drag handle
+  dragListeners?: DraggableSyntheticListeners;
 };
 
 export default function FunctionalClassComponent({
@@ -64,11 +65,10 @@ export default function FunctionalClassComponent({
   collapsed,
   onCollapseChange,
   debouncedSaveProject,
-  dragHandleProps,
   onMLAToggle,
   descriptionRowsExpanded,
   isCompactMode,
-  componentSearchQueryEmpty,
+  dragListeners,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
@@ -294,19 +294,11 @@ export default function FunctionalClassComponent({
   return (
     <>
       <form
+        {...dragListeners}
         onSubmit={(e) => e.preventDefault()}
         className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 w-full p-4 rounded-lg"
       >
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
-          {/* Drag handle, only if user is viewing all components */}
-          {componentSearchQueryEmpty && (
-            <div
-              {...dragHandleProps}
-              className="cursor-grab bg-fisma-gray text-white py-2 px-2"
-            >
-              ::
-            </div>
-          )}
           <div className="flex-1 min-w-[200px] flex items-center gap-2">
             <ComponentClassIcons
               componentClass={component.className}
