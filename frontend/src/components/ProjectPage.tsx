@@ -18,7 +18,9 @@ import {
   TGenericComponent,
 } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
-import DraggableFunctionalComponent from "./DraggableFunctionalComponent.tsx";
+import DraggableFunctionalComponent, {
+  COMPONENT_GRID_CLASSES,
+} from "./DraggableFunctionalComponent.tsx";
 import ComponentDragPreview from "./ComponentDragPreview.tsx";
 import useComponentReorder from "../hooks/useComponentReorder.ts";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
@@ -1129,10 +1131,7 @@ export default function ProjectPage() {
                 />
               )}
               <DndContext {...reorder.dndContextProps}>
-                <div
-                  ref={reorder.gridRef}
-                  className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4"
-                >
+                <div ref={reorder.gridRef} className={COMPONENT_GRID_CLASSES}>
                   {visibleComponents.map((component) => (
                     <DraggableFunctionalComponent
                       key={component.id}

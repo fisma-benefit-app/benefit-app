@@ -3,9 +3,14 @@ import { useDraggable } from "@dnd-kit/core";
 import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
 import type { GapSide } from "../hooks/useComponentReorder.ts";
 
+// Layout of the grid these cards sit in. Defined here, next to GAP_POSITION,
+// because the drop line is positioned to sit exactly in this grid's gap:
+// change the gap size or the xl column switch in both places.
+export const COMPONENT_GRID_CLASSES =
+  "grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4";
+
 // Where the gap next to a card is: above/below in the single-column layout,
-// left/right once the grid goes multi-column (xl). Sized to the grid's gap-4,
-// so keep in sync with the grid classes in ProjectPage.
+// left/right once the grid goes multi-column (xl). Sized to the gap-4 above.
 const GAP_POSITION: Record<GapSide, string> = {
   before:
     "inset-x-0 -top-4 h-4 xl:inset-x-auto xl:inset-y-0 xl:-left-4 xl:h-auto xl:w-4",
