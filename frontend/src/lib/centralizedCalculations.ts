@@ -395,6 +395,14 @@ export const calculateComponentsWithPoints = (
   return components.map((component) => ({
     ...component,
     functionalPoints: calculateComponentPoints(component).toFixed(2),
+    subComponents: component.subComponents
+      ? component.subComponents.map((sub) => ({
+          ...sub,
+          functionalPoints: calculateComponentPoints(
+            sub as TGenericComponent,
+          ).toFixed(2),
+        }))
+      : component.subComponents,
   }));
 };
 
