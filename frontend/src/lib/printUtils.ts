@@ -196,8 +196,8 @@ const addCanvasToPdf = (
       sliceHeight,
     );
     pdf.addImage(
-      pageCanvas.toDataURL("image/png"),
-      "PNG",
+      pageCanvas.toDataURL("image/jpeg", 0.85),
+      "JPEG",
       0,
       0,
       PDF_PAGE_WIDTH_MM,
