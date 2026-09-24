@@ -178,9 +178,20 @@ const withTimeout = <T,>(promise: Promise<T>, ms: number, message: string): Prom
 // "Unable to find iframe window" if that iframe's contentWindow isn't ready yet - a known race in
 // html2canvas itself (not specific to our markup), not consistently reproducible. One retry after
 // a short delay is the accepted workaround.
+
+// 3x a CSS pixel is roughly 288 DPI-equivalent - crisp on a 4K/high-DPI display (and when a
+// viewer zooms into the PDF a bit), not just at 100% zoom on a standard display. Verified: text
+// that was visibly soft when magnified at the old scale of 2 is clean and sharp at the same
+// magnification here. Only affordable file-size-wise because pages are JPEG, not PNG (see
+// addCanvasToPdf below) - the same jump at scale 2 with lossless PNG is what produced 70MB+ PDFs
+// for larger projects. WebP was tried too (better compression than JPEG at equal quality) but PDF
+// has no native WebP image filter, so jsPDF just decodes and re-encodes it as JPEG anyway - not
+// worth the extra lossy compression pass for no benefit.
+const CAPTURE_SCALE = 3;
+
 const captureElement = async (element: HTMLElement) => {
   const scale = Math.min(
-    2,
+    CAPTURE_SCALE,
     PDF_CANVAS_MAX_PX / Math.max(element.scrollHeight, 1),
   );
   const options = {
@@ -250,6 +261,10 @@ const addCanvasToPdf = (
       sliceHeight,
     );
     pdf.addImage(
+      // PDF has no native WebP image filter (only JPEG/JPEG2000/CCITT fax/Flate), so jsPDF can't
+      // actually embed a WebP page as-is - it silently decodes and re-encodes it as JPEG
+      // internally, which just means paying for two lossy compression passes for nothing. Encode
+      // straight to JPEG.
       pageCanvas.toDataURL("image/jpeg", 0.85),
       "JPEG",
       0,
