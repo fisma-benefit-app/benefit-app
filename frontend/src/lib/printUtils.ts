@@ -122,36 +122,31 @@ const waitForNextPaint = () =>
     });
   });
 
-export const createHiddenIframe = (): {
-  iframe: HTMLIFrameElement;
-  doc: Document;
+// A hidden, shadow-DOM-isolated host in the main document, used instead of a hidden iframe to
+// build report content for html2canvas to capture. html2canvas itself clones whatever it captures
+// into its own temporary iframe to measure styles - that's a normal, well-supported case. Doing
+// the same from inside a hidden iframe of our own meant html2canvas's iframe was nested inside
+// ours, and that double nesting is unreliable in Firefox: html2canvas's clone can fail to pick up
+// a contentWindow for its iframe, or hang indefinitely waiting on it, well past a single retry (see
+// git history for this file). The shadow root gives the same style isolation (report CSS can't
+// leak onto the app, app CSS can't leak into the report) without a second browsing context.
+export const createHiddenContainer = (): {
+  host: HTMLDivElement;
+  root: ShadowRoot;
 } => {
-  const iframe = document.createElement("iframe");
-  iframe.setAttribute("aria-hidden", "true");
-  iframe.tabIndex = -1;
-  iframe.style.cssText =
-    "position:fixed;left:-10000px;top:0;width:210mm;height:297mm;border:0;pointer-events:none;background:#ffffff;";
-  document.body.appendChild(iframe);
-  const doc = iframe.contentDocument;
-  if (!doc) {
-    iframe.remove();
-    throw new Error("Could not create PDF document");
-  }
-  return { iframe, doc };
+  const host = document.createElement("div");
+  host.setAttribute("aria-hidden", "true");
+  host.style.cssText =
+    "position:fixed;left:-10000px;top:0;width:210mm;pointer-events:none;background:#ffffff;";
+  document.body.appendChild(host);
+  const root = host.attachShadow({ mode: "open" });
+  return { host, root };
 };
 
-export const sizeIframeToContent = async (
-  iframe: HTMLIFrameElement,
-  doc: Document,
-) => {
-  const contentHeight = Math.max(
-    doc.documentElement.scrollHeight,
-    doc.body?.scrollHeight ?? 0,
-  );
-  iframe.style.height = `${Math.max(contentHeight, 1)}px`;
+export const waitForContentReady = async () => {
   await waitForNextPaint();
-  if (doc.fonts?.ready) {
-    await doc.fonts.ready;
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
   }
 };
 
@@ -297,20 +292,34 @@ export const downloadHtmlAsPdf = async (
   filename: string,
   pageSelector?: string,
 ) => {
-  const { iframe, doc } = createHiddenIframe();
+  const { host, root } = createHiddenContainer();
   try {
-    doc.open();
-    doc.write(html);
-    doc.close();
-    await sizeIframeToContent(iframe, doc);
+    // DOMParser, not an iframe's doc.write: parsing a full document string this way never creates
+    // a browsing context at all, so there's nothing for html2canvas's own iframe to nest inside.
+    const parsed = new DOMParser().parseFromString(html, "text/html");
+    parsed.querySelectorAll("style").forEach((styleEl) => {
+      root.appendChild(document.importNode(styleEl, true));
+    });
+
+    // A real <body> element (not a <div>), so the report's own `body { ... }` CSS selector still
+    // matches it - html elements can be created and placed anywhere via the DOM API even though
+    // the HTML parser itself only allows one, as the child of <html>.
+    const body = document.createElement("body");
+    body.lang = parsed.documentElement.lang;
+    Array.from(parsed.body.childNodes).forEach((node) => {
+      body.appendChild(document.importNode(node, true));
+    });
+    root.appendChild(body);
+
+    await waitForContentReady();
 
     const pages = pageSelector
-      ? Array.from(doc.querySelectorAll<HTMLElement>(pageSelector))
+      ? Array.from(root.querySelectorAll<HTMLElement>(pageSelector))
       : [];
-    const targets = pages.length > 0 ? pages : [doc.body];
+    const targets = pages.length > 0 ? pages : [body];
     await downloadElementsAsPdf(targets, filename);
   } finally {
-    iframe.remove();
+    host.remove();
   }
 };
 
