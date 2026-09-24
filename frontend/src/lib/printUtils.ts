@@ -158,7 +158,11 @@ const CAPTURE_TIMEOUT_MS = 20000;
 // never settles at all (no error, no timeout of its own), unlike the occasional immediate
 // rejection this same wrapper also retries below. Race it against a timeout so a browser where
 // this hangs fails with a message the user can see instead of silently never finishing.
-const withTimeout = <T,>(promise: Promise<T>, ms: number, message: string): Promise<T> =>
+const withTimeout = <T>(
+  promise: Promise<T>,
+  ms: number,
+  message: string,
+): Promise<T> =>
   new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(message)), ms);
     promise.then(
@@ -212,7 +216,11 @@ const MAX_CHUNK_CSS_HEIGHT = Math.max(
   Math.floor((PDF_CANVAS_MAX_PX * 0.95) / CAPTURE_SCALE),
 );
 
-const captureElement = async (element: HTMLElement, y: number, height: number) => {
+const captureElement = async (
+  element: HTMLElement,
+  y: number,
+  height: number,
+) => {
   const options = {
     scale: CAPTURE_SCALE,
     y,
@@ -277,7 +285,9 @@ const addCanvasToPdf = (
     // How much of the *current* PDF page this slice may fill: the whole page for the very
     // first slice ever (isEmpty, using the page new jsPDF() already starts with), otherwise
     // whatever's left on the page chunks before this one have already partially filled.
-    const availableMm = state.isEmpty ? PDF_PAGE_HEIGHT_MM : state.pageRemainingMm;
+    const availableMm = state.isEmpty
+      ? PDF_PAGE_HEIGHT_MM
+      : state.pageRemainingMm;
     const availablePx = Math.max(1, Math.floor(availableMm * pxPerMm));
 
     const sliceEnd = nextSliceEnd(
