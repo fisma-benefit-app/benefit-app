@@ -238,14 +238,30 @@ const captureElement = async (element: HTMLElement, y: number, height: number) =
   }
 };
 
+type PdfLayoutState = {
+  isEmpty: boolean;
+  // How much vertical space (mm) is left on the current PDF page. Only meaningful once
+  // isEmpty is false. Lets addCanvasToPdf be called more than once per logical page (once
+  // per capture chunk - see MAX_CHUNK_CSS_HEIGHT) without starting a new PDF page at every
+  // chunk boundary: later chunks of the *same* element continue filling wherever the
+  // previous chunk left off, rather than each chunk always starting its own fresh page.
+  pageRemainingMm: number;
+};
+
+// Called once a full element has been fully written (all its chunks placed), for the case where
+// each *element* in `elements` (e.g. each overview-report `.page`) is meant to start its own PDF
+// page - as opposed to chunks of a single element, which should flow onto the current page.
+const forceNewPageNext = (state: PdfLayoutState) => {
+  state.pageRemainingMm = 0;
+};
+
 const addCanvasToPdf = (
   pdf: jsPDF,
   canvas: HTMLCanvasElement,
-  state: { isEmpty: boolean },
+  state: PdfLayoutState,
   keepTogetherRanges: KeepTogetherRange[] = [],
 ) => {
   const pxPerMm = canvas.width / PDF_PAGE_WIDTH_MM;
-  const pageHeightPx = Math.max(1, Math.floor(PDF_PAGE_HEIGHT_MM * pxPerMm));
   const pageCanvas = document.createElement("canvas");
   const pageCtx = pageCanvas.getContext("2d");
   if (!pageCtx) {
@@ -254,18 +270,26 @@ const addCanvasToPdf = (
 
   let renderedY = 0;
   while (renderedY < canvas.height) {
-    if (!state.isEmpty) {
+    if (!state.isEmpty && state.pageRemainingMm <= 0) {
       pdf.addPage();
+      state.pageRemainingMm = PDF_PAGE_HEIGHT_MM;
     }
-    state.isEmpty = false;
+    // How much of the *current* PDF page this slice may fill: the whole page for the very
+    // first slice ever (isEmpty, using the page new jsPDF() already starts with), otherwise
+    // whatever's left on the page chunks before this one have already partially filled.
+    const availableMm = state.isEmpty ? PDF_PAGE_HEIGHT_MM : state.pageRemainingMm;
+    const availablePx = Math.max(1, Math.floor(availableMm * pxPerMm));
 
     const sliceEnd = nextSliceEnd(
       renderedY,
-      pageHeightPx,
+      availablePx,
       canvas.height,
       keepTogetherRanges,
     );
     const sliceHeight = sliceEnd - renderedY;
+    const sliceHeightMm = sliceHeight / pxPerMm;
+    const yMm = PDF_PAGE_HEIGHT_MM - availableMm;
+
     pageCanvas.width = canvas.width;
     pageCanvas.height = sliceHeight;
     pageCtx.fillStyle = "#ffffff";
@@ -289,10 +313,13 @@ const addCanvasToPdf = (
       pageCanvas.toDataURL("image/jpeg", 0.85),
       "JPEG",
       0,
-      0,
+      yMm,
       PDF_PAGE_WIDTH_MM,
-      sliceHeight / pxPerMm,
+      sliceHeightMm,
     );
+
+    state.isEmpty = false;
+    state.pageRemainingMm = availableMm - sliceHeightMm;
     renderedY = sliceEnd;
   }
 };
@@ -306,7 +333,7 @@ export const downloadElementsAsPdf = async (
     unit: "mm",
     format: "a4",
   });
-  const state = { isEmpty: true };
+  const state: PdfLayoutState = { isEmpty: true, pageRemainingMm: 0 };
 
   for (const element of elements) {
     const cssRanges = getKeepTogetherRanges(element);
@@ -338,6 +365,9 @@ export const downloadElementsAsPdf = async (
       );
       chunkStart += chunkCssHeight;
     }
+    // Each *element* (e.g. each overview-report `.page`) still starts its own PDF page, same as
+    // before chunking existed - only chunks *within* one element's capture should flow together.
+    forceNewPageNext(state);
   }
 
   downloadBlob(pdf.output("blob"), ensurePdfFilename(filename));
