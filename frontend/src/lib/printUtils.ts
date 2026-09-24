@@ -189,13 +189,34 @@ const withTimeout = <T,>(promise: Promise<T>, ms: number, message: string): Prom
 // worth the extra lossy compression pass for no benefit.
 const CAPTURE_SCALE = 3;
 
-const captureElement = async (element: HTMLElement) => {
-  const scale = Math.min(
-    CAPTURE_SCALE,
-    PDF_CANVAS_MAX_PX / Math.max(element.scrollHeight, 1),
-  );
+// The largest vertical window of the element (in CSS px) that can be captured in one html2canvas
+// call without the resulting canvas exceeding the browser's max canvas dimension at CAPTURE_SCALE.
+// 5% headroom under the true ceiling to absorb rounding.
+//
+// This is what downloadElementsAsPdf uses to split a tall element into multiple capture calls
+// (captureElementChunks below) instead of capturing it in one shot. The calculation report builds
+// its *entire* multi-page content as a single element and only slices the resulting canvas into
+// pages afterwards (see addCanvasToPdf), unlike the overview report, which captures each already
+// page-sized `.page` element separately. For a small project that one giant capture stays under
+// the canvas size ceiling and CAPTURE_SCALE applies in full; for a large one it doesn't, and
+// captureElement used to silently divide the scale down to whatever fit - down to a fraction of a
+// CSS pixel for a large enough report, i.e. far blurrier than even the old scale of 2, with no
+// error or indication anywhere that it had happened. Confirmed directly: a 300-component project's
+// calculation report page images were 617px wide (effective scale ~0.78) despite CAPTURE_SCALE
+// being 3, while the same project's overview report stayed at the full scale throughout, since its
+// captured elements are always page-sized regardless of the project's total size. Chunking the
+// capture keeps every element's effective scale at the full CAPTURE_SCALE regardless of how much
+// content it holds.
+const MAX_CHUNK_CSS_HEIGHT = Math.max(
+  1,
+  Math.floor((PDF_CANVAS_MAX_PX * 0.95) / CAPTURE_SCALE),
+);
+
+const captureElement = async (element: HTMLElement, y: number, height: number) => {
   const options = {
-    scale: Number.isFinite(scale) && scale > 0 ? scale : 1,
+    scale: CAPTURE_SCALE,
+    y,
+    height,
     useCORS: true,
     logging: false,
     backgroundColor: "#ffffff",
@@ -290,13 +311,33 @@ export const downloadElementsAsPdf = async (
   for (const element of elements) {
     const cssRanges = getKeepTogetherRanges(element);
     const cssHeight = Math.max(element.scrollHeight, element.offsetHeight, 1);
-    const canvas = await captureElement(element);
-    addCanvasToPdf(
-      pdf,
-      canvas,
-      state,
-      toCanvasRanges(cssRanges, cssHeight, canvas.height),
-    );
+
+    let chunkStart = 0;
+    while (chunkStart < cssHeight) {
+      const chunkCssHeight = Math.min(
+        MAX_CHUNK_CSS_HEIGHT,
+        cssHeight - chunkStart,
+      );
+      const canvas = await captureElement(element, chunkStart, chunkCssHeight);
+      // Keep-together ranges are in the whole element's CSS-px coordinate space; re-window them
+      // to this chunk's own [0, chunkCssHeight) before converting to this chunk's canvas space.
+      const chunkRanges = cssRanges
+        .filter(
+          (range) =>
+            range.end > chunkStart && range.start < chunkStart + chunkCssHeight,
+        )
+        .map((range) => ({
+          start: Math.max(0, range.start - chunkStart),
+          end: Math.min(chunkCssHeight, range.end - chunkStart),
+        }));
+      addCanvasToPdf(
+        pdf,
+        canvas,
+        state,
+        toCanvasRanges(chunkRanges, chunkCssHeight, canvas.height),
+      );
+      chunkStart += chunkCssHeight;
+    }
   }
 
   downloadBlob(pdf.output("blob"), ensurePdfFilename(filename));
