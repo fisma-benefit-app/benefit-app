@@ -99,6 +99,22 @@ const nextSliceEnd = (
 const ensurePdfFilename = (filename: string) =>
   filename.toLowerCase().endsWith(".pdf") ? filename : `${filename}.pdf`;
 
+// jsPDF's own pdf.save() builds a detached <a download> and dispatches a synthetic click on it
+// without ever attaching it to the document. Chrome accepts that; Firefox silently ignores a
+// download click on an element that was never in the DOM. Downloading the blob ourselves, through
+// an anchor that's actually attached, works the same way in both.
+const downloadBlob = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.rel = "noopener";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 40000);
+};
+
 const waitForNextPaint = () =>
   new Promise<void>((resolve) => {
     requestAnimationFrame(() => {
@@ -159,7 +175,7 @@ const captureElement = async (element: HTMLElement) => {
   };
   try {
     return await html2canvas(element, options);
-  } catch (error) {
+  } catch {
     await sleep(300);
     return html2canvas(element, options);
   }
@@ -243,7 +259,7 @@ export const downloadElementsAsPdf = async (
     );
   }
 
-  pdf.save(ensurePdfFilename(filename));
+  downloadBlob(pdf.output("blob"), ensurePdfFilename(filename));
 };
 
 export const downloadHtmlAsPdf = async (
