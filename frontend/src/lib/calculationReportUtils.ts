@@ -105,8 +105,7 @@ export const generateCalculationReportPDF = async (
         color: blue;
         font-weight: bold;
       }
-      body { font-family: Arial, sans-serif; padding: 20px; }
-      .pdf-container { padding: 20px; background: #ffffff; }
+      .pdf-container { font-family: Arial, sans-serif; padding: 20px; background: #ffffff; }
       h1 { text-align: center; }
       .project-info { margin-bottom: 20px; }
       table { width: 100%; border-collapse: collapse; margin-top: 20px; }
