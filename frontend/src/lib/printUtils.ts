@@ -139,17 +139,30 @@ export const sizeIframeToContent = async (
   }
 };
 
-const captureElement = (element: HTMLElement) => {
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// html2canvas clones the target into a temporary same-origin iframe of its own (separate from
+// the hidden iframe this file uses) to measure styles accurately, and occasionally rejects with
+// "Unable to find iframe window" if that iframe's contentWindow isn't ready yet - a known race in
+// html2canvas itself (not specific to our markup), not consistently reproducible. One retry after
+// a short delay is the accepted workaround.
+const captureElement = async (element: HTMLElement) => {
   const scale = Math.min(
     2,
     PDF_CANVAS_MAX_PX / Math.max(element.scrollHeight, 1),
   );
-  return html2canvas(element, {
+  const options = {
     scale: Number.isFinite(scale) && scale > 0 ? scale : 1,
     useCORS: true,
     logging: false,
     backgroundColor: "#ffffff",
-  });
+  };
+  try {
+    return await html2canvas(element, options);
+  } catch (error) {
+    await sleep(300);
+    return html2canvas(element, options);
+  }
 };
 
 const addCanvasToPdf = (
