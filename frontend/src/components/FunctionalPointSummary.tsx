@@ -76,7 +76,6 @@ export const FunctionalPointSummary = ({
     : null;
 
   const handleExportPdf = async () => {
-    await saveProject(false); // Save before exporting
     try {
       await generateCalculationReportPDF(
         project,
