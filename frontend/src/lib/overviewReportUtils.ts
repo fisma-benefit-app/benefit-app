@@ -202,8 +202,15 @@ export const generateOverviewPDF = async (
     }
 
     .page {
-      height:273mm;
-      padding:0 12mm;
+      /* min-height, not height: a fixed height doesn't clip overflowing content in the browser,
+         but element.scrollHeight (which drives how tall html2canvas captures this element) never
+         grows past a fixed height either, so any page whose content is taller than 273mm was
+         silently cut off. min-height still fills a page that has little content. */
+      min-height:273mm;
+      /* Small bottom buffer: html2canvas measures this element's fractional (subpixel) rendered
+         height and rounds it, so the very last pixel row of content can be clipped. A gap of
+         real blank space at the bottom means anything lost to that rounding is blank, not text. */
+      padding:0 12mm 4mm;
       break-after:page;
       position:relative;
       box-sizing:border-box;
@@ -428,7 +435,7 @@ export const generateOverviewPDF = async (
       }
 
       .page {
-        height: 273mm;
+        min-height: 273mm;
       }
     }
   </style>

@@ -21,6 +21,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
+import { useAlert } from "../context/AlertProvider.tsx";
 import { useState } from "react";
 import ComponentClassIcons from "./ComponentClassIcons.tsx";
 
@@ -37,6 +38,7 @@ export const FunctionalPointSummary = ({
 }: FunctionalClassComponentProps) => {
   const translation = useTranslations();
   const { sortedProjects, returnLatestOrPreviousVersion } = useProjects();
+  const { showNotification } = useAlert();
   const [activeTab, setActiveTab] = useState<"calculations" | "mla">(
     "calculations",
   );
@@ -74,7 +76,6 @@ export const FunctionalPointSummary = ({
     : null;
 
   const handleExportPdf = async () => {
-    await saveProject(false); // Save before exporting
     try {
       await generateCalculationReportPDF(
         project,
@@ -85,6 +86,11 @@ export const FunctionalPointSummary = ({
       );
     } catch (error) {
       console.error("Failed to generate PDF", error);
+      showNotification(
+        translation.alert.error,
+        translation.alert.pdfExportFailed,
+        "error",
+      );
     }
   };
 

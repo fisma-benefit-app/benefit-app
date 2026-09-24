@@ -271,6 +271,7 @@ export const translations = {
       deleting: "Deleting...",
       deleteSuccessful: "Functional component deleted",
       deleteFailed: "Failed to delete functional component",
+      pdfExportFailed: "Failed to generate the PDF report. Please try again.",
       sessionExpirationDescription:
         "You will be logged out in {minutes} minute(s)",
       sessionExpirationHeader: "Session",
@@ -581,6 +582,7 @@ export const translations = {
       deleting: "Poistetaan...",
       deleteSuccessful: "Toiminnallinen komponentti poistettu",
       deleteFailed: "Toiminnallisen komponentin poistaminen epäonnistui",
+      pdfExportFailed: "PDF-raportin luonti epäonnistui. Yritä uudelleen.",
       sessionExpirationHeader: "Istunto",
       sessionExpirationDescription:
         "Sinut kirjataan ulos {minutes} minuutin kuluttua",
