@@ -157,6 +157,27 @@ export const sizeIframeToContent = async (
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const CAPTURE_TIMEOUT_MS = 20000;
+
+// html2canvas can hang indefinitely instead of resolving or rejecting - seen in Firefox, where it
+// never settles at all (no error, no timeout of its own), unlike the occasional immediate
+// rejection this same wrapper also retries below. Race it against a timeout so a browser where
+// this hangs fails with a message the user can see instead of silently never finishing.
+const withTimeout = <T,>(promise: Promise<T>, ms: number, message: string): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+
 // html2canvas clones the target into a temporary same-origin iframe of its own (separate from
 // the hidden iframe this file uses) to measure styles accurately, and occasionally rejects with
 // "Unable to find iframe window" if that iframe's contentWindow isn't ready yet - a known race in
@@ -173,11 +194,20 @@ const captureElement = async (element: HTMLElement) => {
     logging: false,
     backgroundColor: "#ffffff",
   };
+  const timeoutMessage = "Timed out capturing PDF page content";
   try {
-    return await html2canvas(element, options);
+    return await withTimeout(
+      html2canvas(element, options),
+      CAPTURE_TIMEOUT_MS,
+      timeoutMessage,
+    );
   } catch {
     await sleep(300);
-    return html2canvas(element, options);
+    return withTimeout(
+      html2canvas(element, options),
+      CAPTURE_TIMEOUT_MS,
+      timeoutMessage,
+    );
   }
 };
 
