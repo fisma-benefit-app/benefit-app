@@ -238,7 +238,7 @@ Set these in the root `.env` (see `.env.example`). Compose refuses to start and 
 - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
 - `JWT_PRIVATE_KEY` from the `backend-credentials` repo
 - `VITE_API_URL`, the backend URL **as the browser sees it**, e.g. `http://<server-ip>:8080`. It is baked into the frontend at build time, so rebuild (`--build`) after changing it.
-- `CORS_ALLOWED_ORIGINS`, the exact origin the frontend is opened from, e.g. `http://<server-ip>` (no trailing slash). Otherwise the browser blocks every API call.
+- `CORS_ALLOWED_ORIGINS`, the exact origin the frontend is opened from, e.g. `http://<server-ip>` (scheme, host and port only, no path). Otherwise the browser blocks every API call.
 
 Open ports 80 and 8080 in the UpCloud firewall. The Vite dev server port 5173 isn't used here.
 
