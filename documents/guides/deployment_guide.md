@@ -225,11 +225,13 @@ docker compose -f docker-compose.prod.yaml up -d --build
 
 Always pass `-f docker-compose.prod.yaml`. Plain `docker compose up` uses `docker-compose.yaml`, the **local dev** stack: it runs Gradle and the Vite dev server inside the containers, bind-mounts the source and reseeds the database on every start. Pointing that file at the production Dockerfiles fails with `npm: not found` (from nginx's `/docker-entrypoint.sh`) and Gradle's `Cannot find a Java installation … languageVersion=21`.
 
+> **Warning:** this stack serves everything over plain HTTP. Login sends the username and password (HTTP Basic) and every API call carries a JWT, so both cross the network unencrypted. It's fine for a test server, but before real users log in, put a TLS reverse proxy (e.g. Caddy) in front and use its `https://` addresses for `VITE_API_URL` and `CORS_ALLOWED_ORIGINS`.
+
 The production stack:
 
 - **db** – Postgres, published on `127.0.0.1:${HOST_DB_PORT}` only. Docker-published ports bypass `ufw`, so this is the only thing keeping the database off the internet.
 - **backend** – the jar from `backend/Dockerfile`, on port `${HOST_BACKEND_PORT:-8080}`, default profile. It never creates the schema or seeds data.
-- **frontend** – the built bundle served by nginx on port `${HOST_HTTP_PORT:-80}`, with SPA fallback so reloading a page doesn't 404.
+- **frontend** – the built bundle served by nginx on port `${HOST_HTTP_PORT:-80}`, from the root path `/`.
 
 Set these in the root `.env` (see `.env.example`). Compose refuses to start and names the variable if one is missing:
 
@@ -237,7 +239,6 @@ Set these in the root `.env` (see `.env.example`). Compose refuses to start and 
 - `JWT_PRIVATE_KEY` from the `backend-credentials` repo
 - `VITE_API_URL`, the backend URL **as the browser sees it**, e.g. `http://<server-ip>:8080`. It is baked into the frontend at build time, so rebuild (`--build`) after changing it.
 - `CORS_ALLOWED_ORIGINS`, the exact origin the frontend is opened from, e.g. `http://<server-ip>` (no trailing slash). Otherwise the browser blocks every API call.
-- `VITE_BASE_PATH` (optional, default `/`)
 
 Open ports 80 and 8080 in the UpCloud firewall. The Vite dev server port 5173 isn't used here.
 

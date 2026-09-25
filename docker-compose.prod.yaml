@@ -3,6 +3,12 @@
 # Unlike docker-compose.yaml (local dev), this runs the images as built: no
 # command overrides, no source bind mounts, and the default profile, which
 # never creates the schema or seeds data. Values come from the root .env.
+#
+# WARNING: everything is served over plain HTTP. Login sends the username and
+# password (HTTP Basic) and every API call carries a JWT, so both cross the
+# network unencrypted. Before real users log in on a public server, put a TLS
+# reverse proxy (e.g. Caddy) in front and point VITE_API_URL and
+# CORS_ALLOWED_ORIGINS at its https:// addresses.
 
 name: fisma-prod
 
@@ -54,7 +60,6 @@ services:
         # The browser calls the API directly, so this must be the backend's
         # public address, e.g. http://<server-ip>:8080.
         VITE_API_URL: ${VITE_API_URL:?set VITE_API_URL in .env to the backend's public URL, e.g. http://<server-ip>:8080}
-        VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
     container_name: fisma_prod_frontend
     restart: unless-stopped
     ports:
