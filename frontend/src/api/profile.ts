@@ -50,41 +50,6 @@ const getUserById = async (
 };
 
 /**
- * Create new user
- * POST /appusers
- */
-const createAppUser = async (
-  userRequest: AppUserRequest,
-): Promise<AppUserSummary> => {
-  if (!userRequest.username || !userRequest.password) {
-    throw new Error("Username and password are required!");
-  }
-
-  const fetchURL = `${API_URL}/appusers`;
-  const headers = {
-    "Content-Type": "application/json",
-  };
-
-  const response = await fetch(fetchURL, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(userRequest),
-  });
-
-  if (!response.ok) {
-    if (response.status === 400) {
-      throw new Error("Invalid user data!");
-    } else {
-      throw new Error(
-        `Error creating user in createAppUser! Status: ${response.status}`,
-      );
-    }
-  }
-
-  return response.json();
-};
-
-/**
  * Update user
  * PUT /appusers/{id}
  */
@@ -212,10 +177,4 @@ const changePassword = async (
   return response.text();
 };
 
-export {
-  getUserById,
-  createAppUser,
-  updateAppUser,
-  deleteAppUser,
-  changePassword,
-};
+export { getUserById, updateAppUser, deleteAppUser, changePassword };
