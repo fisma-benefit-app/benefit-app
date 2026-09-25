@@ -36,6 +36,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      # Where the browser opens the frontend, e.g. http://<server-ip>. Without it
+      # the backend only accepts the GitHub Pages and localhost:5173 origins.
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?set CORS_ALLOWED_ORIGINS in .env to the frontend's public origin, e.g. http://<server-ip>}
       API_DEBUG: never
       API_DEBUG_LEVEL: info
     ports:
