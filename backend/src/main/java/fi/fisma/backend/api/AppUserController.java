@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -30,15 +29,6 @@ public class AppUserController {
   public ResponseEntity<AppUserSummary> getByUserId(
       @PathVariable Long id, Authentication authentication) {
     return ResponseEntity.ok(appUserService.findById(id, authentication));
-  }
-
-  @PostMapping
-  @Operation(summary = "Create new user", description = "Creates a new user account")
-  @ApiResponse(responseCode = "201", description = "User created successfully")
-  @ApiResponse(responseCode = "400", description = "Invalid user data")
-  public ResponseEntity<AppUserSummary> createAppUser(@Valid @RequestBody AppUserRequest request) {
-    var newUser = appUserService.createAppUser(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
   }
 
   @PutMapping("/{id}")

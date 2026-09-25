@@ -63,6 +63,27 @@ class AppUserControllerTest {
   }
 
   @Test
+  void createUserEndpointDoesNotExist() {
+    var response =
+        mockMvcTester
+            .post()
+            .uri("/appusers")
+            .with(jwtAuth)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                {
+                  "username": "new-user",
+                  "password": "newPass123"
+                }
+                """)
+            .exchange();
+
+    assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+    verify(appUserRepository, never()).save(any());
+  }
+
+  @Test
   void testDeleteAppUser() {
     doNothing().when(appUserService).deleteAppUser(any(Long.class), any(Authentication.class));
 

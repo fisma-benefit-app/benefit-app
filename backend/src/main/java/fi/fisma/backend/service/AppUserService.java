@@ -47,30 +47,6 @@ public class AppUserService {
   }
 
   /**
-   * Creates a new user account.
-   *
-   * @param request User creation request
-   * @return Created user response
-   * @throws IllegalArgumentException if username already exists
-   */
-  @Transactional
-  public AppUserSummary createAppUser(AppUserRequest request) {
-    if (appUserRepository.findByUsernameActive(request.getUsername()).isPresent()) {
-      throw new IllegalArgumentException("Username already exists: " + request.getUsername());
-    }
-
-    validatePasswordRequirements(request.getPassword());
-
-    var newUser =
-        new AppUser(
-            null, request.getUsername(), passwordEncoder.encode(request.getPassword()), null);
-
-    var savedUser = appUserRepository.save(newUser);
-
-    return mapToSummary(savedUser);
-  }
-
-  /**
    * Updates an existing user's information.
    *
    * @param id ID of the user to update
