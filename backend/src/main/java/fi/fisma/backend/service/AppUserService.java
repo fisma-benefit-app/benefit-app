@@ -77,7 +77,7 @@ public class AppUserService {
    * @param request Updated user information
    * @return Updated user response
    * @throws EntityNotFoundException if user not found
-   * @throws IllegalArgumentException if new username already exists
+   * @throws UnauthorizedException if the request tries to change the username
    */
   @Transactional
   public AppUserSummary updateAppUser(
@@ -92,15 +92,14 @@ public class AppUserService {
             .findByIdActive(id)
             .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
 
-    // Check if new username is taken by another user
-    if (!user.getUsername().equals(request.getUsername())
-        && appUserRepository.findByUsernameActive(request.getUsername()).isPresent()) {
-      throw new IllegalArgumentException("Username already exists: " + request.getUsername());
+    // JWTs identify users by username (the `sub` claim), so a rename would free the old name
+    // for someone else while tokens issued under it stay valid. See issue #723.
+    if (!user.getUsername().equals(request.getUsername())) {
+      throw new UnauthorizedException("Changing the username is not allowed");
     }
 
     validatePasswordRequirements(request.getPassword());
 
-    user.setUsername(request.getUsername());
     user.setPassword(passwordEncoder.encode(request.getPassword()));
 
     var updatedUser = appUserRepository.save(user);
