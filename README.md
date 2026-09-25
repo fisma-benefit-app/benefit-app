@@ -283,7 +283,8 @@ Schema initialization and seeding are controlled by Spring profiles, hardcoded i
 | `default` (no profile) | Testing and Production (Heroku)                             | `never` — **do not change this** | none — schema changes only via migrations |
 | `dev`                  | Local development (`docker compose` or `./gradlew bootRun`) | `always`                         | `schema-dev.sql`, `database-seed-dev.sql` |
 
-- The `dev` profile is activated automatically for local development: `docker-compose.yaml` sets `SPRING_PROFILES_ACTIVE=dev` for the backend container, and `./gradlew bootRun` sets it via `build.gradle`.
+- The `dev` profile is activated automatically for local development: `docker-compose.yaml` sets `SPRING_PROFILES_ACTIVE=dev` for the backend container, and `./gradlew bootRun` uses it by default via `build.gradle`. To run `bootRun` without seeding, set another profile explicitly, e.g. `SPRING_PROFILES_ACTIVE=default ./gradlew bootRun`.
+- The `dev` seed deletes all rows before reseeding, so the backend **refuses to start with the `dev` profile unless the database is local** (`localhost`, `127.0.0.1`, `::1` or the Compose service `db`). The check is in `DevProfileDatabaseGuard`. To connect a local backend to a remote database, use a profile other than `dev`.
 - Production and testing never auto-initialize or reseed the schema; the only way schema changes reach those environments is through the manual [migrations](/backend/src/main/resources/migrations/).
 - `DATABASE_INIT_MODE` and `DATABASE_SEED_FILE` are **not** used anymore — they used to be Heroku config vars controlling this, but a missing/misconfigured var could wipe production data (since the old default was `always`, and the schema file dropped tables). The mode is now hardcoded per profile instead, so there's no env var to forget.
 
@@ -551,7 +552,8 @@ This command tells Git to look for the `pre-commit` hook in the `.githooks` fold
 
 <br>
 
-- **No seed users** → confirm the `dev` Spring profile is active (see [Database Initialization](#database-initialization)) — Docker Compose and `./gradlew bootRun` set this automatically. Then reset the DB once.
+- **No seed users** → confirm the `dev` Spring profile is active (see [Database Initialization](#database-initialization)) — Docker Compose and `./gradlew bootRun` set this automatically, unless `SPRING_PROFILES_ACTIVE` is set to something else in your shell. Then reset the DB once.
+- **"Refusing to start: the 'dev' profile deletes and reseeds the database"** → `SPRING_DATASOURCE_URL` points to a non-local database. Point it back at the local DB, or run without the `dev` profile (see [Database Initialization](#database-initialization)).
 - **Hot reload flaky in Docker** → keep `CHOKIDAR_USEPOLLING=true`. On Windows with WSL2, if **Spring Boot/Gradle hot reload** does not detect Java file changes, keep the repository in the WSL filesystem (e.g. `~/Projects/benefit-app`) rather than under `/mnt/c/...`, then run Docker Compose from the WSL project directory.
 - **Java not detected / build fails** → Ensure `JAVA_HOME` points to your JDK 21 installation. Example (PowerShell):
 

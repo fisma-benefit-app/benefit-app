@@ -21,7 +21,7 @@ docker compose down -v
 
 Frontend: http://localhost:5173/benefit-app/login · Backend: http://localhost:8080/actuator/health · Dev login: `user` / `user`
 
-Without Docker: run only the DB via `docker compose up db`, then `cd backend && ./gradlew bootRun` and `cd frontend && npm install && npm run dev`. The backend requires `JWT_PRIVATE_KEY` set in the root `.env` (from the private `backend-credentials` repo) — it is not in this repository.
+Without Docker: run only the DB via `docker compose up db`, then `cd backend && ./gradlew bootRun` and `cd frontend && npm install && npm run dev`. `bootRun` defaults to the `dev` profile, which deletes and reseeds the database; the backend refuses to start under `dev` against a non-local database, and `SPRING_PROFILES_ACTIVE=default ./gradlew bootRun` runs without seeding. The backend requires `JWT_PRIVATE_KEY` set in the root `.env` (from the private `backend-credentials` repo) — it is not in this repository.
 
 ### Backend (`backend/`)
 
