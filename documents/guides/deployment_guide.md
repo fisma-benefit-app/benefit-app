@@ -225,22 +225,21 @@ docker compose -f docker-compose.prod.yaml up -d --build
 
 Always pass `-f docker-compose.prod.yaml`. Plain `docker compose up` uses `docker-compose.yaml`, the **local dev** stack: it runs Gradle and the Vite dev server inside the containers, bind-mounts the source and reseeds the database on every start. Pointing that file at the production Dockerfiles fails with `npm: not found` (from nginx's `/docker-entrypoint.sh`) and Gradle's `Cannot find a Java installation … languageVersion=21`.
 
-> **Warning:** this stack serves everything over plain HTTP. Login sends the username and password (HTTP Basic) and every API call carries a JWT, so both cross the network unencrypted. It's fine for a test server, but before real users log in, put a TLS reverse proxy (e.g. Caddy) in front and use its `https://` addresses for `VITE_API_URL` and `CORS_ALLOWED_ORIGINS`.
+> **Warning:** this stack serves everything over plain HTTP. Login sends the username and password (HTTP Basic) and every API call carries a JWT, so both cross the network unencrypted. It's fine for a test server, but before real users log in, put a TLS reverse proxy (e.g. Caddy) in front of port 80 and set `CORS_ALLOWED_ORIGINS` to its `https://` address.
 
 The production stack:
 
 - **db** – Postgres, published on `127.0.0.1:${HOST_DB_PORT}` only. Docker-published ports bypass `ufw`, so this is the only thing keeping the database off the internet.
-- **backend** – the jar from `backend/Dockerfile`, on port `${HOST_BACKEND_PORT:-8080}`, default profile. It never creates the schema or seeds data.
-- **frontend** – the built bundle served by nginx on port `${HOST_HTTP_PORT:-80}`, from the root path `/`.
+- **backend** – the jar from `backend/Dockerfile`, default profile, published on `127.0.0.1:${HOST_BACKEND_PORT:-8080}` only (for health checks on the server). It never creates the schema or seeds data.
+- **frontend** – the built bundle served by nginx on port `${HOST_HTTP_PORT:-80}`, from the root path `/`. nginx also forwards `/api/` to the backend (`/api/token` → `/token`), so the browser only ever talks to port 80. The bundle calls the relative URL `/api`, so it doesn't need to know the server's address.
 
 Set these in the root `.env` (see `.env.example`). Compose refuses to start and names the variable if one is missing:
 
 - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
 - `JWT_PRIVATE_KEY` from the `backend-credentials` repo
-- `VITE_API_URL`, the backend URL **as the browser sees it**, e.g. `http://<server-ip>:8080`. It is baked into the frontend at build time, so rebuild (`--build`) after changing it.
-- `CORS_ALLOWED_ORIGINS`, the exact origin the frontend is opened from, e.g. `http://<server-ip>` (scheme, host and port only, no path). Otherwise the browser blocks every API call.
+- `CORS_ALLOWED_ORIGINS`, the exact origin the frontend is opened from, e.g. `http://<server-ip>` (scheme, host and port only, no path). The API calls go through nginx, but the backend still checks the browser's `Origin`, so without it login fails with `403`.
 
-Open ports 80 and 8080 in the UpCloud firewall. The Vite dev server port 5173 isn't used here.
+Only port 80 (and 22 for SSH) has to be open in the UpCloud firewall. The backend's 8080 and the Vite dev server's 5173 aren't used from outside.
 
 Things to know:
 
@@ -276,10 +275,10 @@ If the backend container won't run, run the jar on the host and keep the databas
    SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:${HOST_DB_PORT:-5433}/$POSTGRES_DB SPRING_DATASOURCE_USERNAME=$POSTGRES_USER SPRING_DATASOURCE_PASSWORD=$POSTGRES_PASSWORD API_DEBUG=never nohup java -jar build/libs/backend-*.jar > backend.log 2>&1 &
    ```
 
-5. Start the frontend without the backend container (`--no-deps`), which would otherwise compete for port 8080:
+5. Start the frontend without the backend container (`--no-deps`), which would otherwise compete for port 8080. nginx forwards `/api/` to the backend container by default, so point `BACKEND_UPSTREAM` at the jar on the host instead. Containers reach the host at the gateway address of Docker's `bridge` network (usually `172.17.0.1`):
 
    ```bash
-   cd .. && docker compose -f docker-compose.prod.yaml up -d --build --no-deps frontend
+   cd .. && BACKEND_UPSTREAM=$(docker network inspect bridge -f '{{(index .IPAM.Config 0).Gateway}}'):8080 docker compose -f docker-compose.prod.yaml up -d --build --no-deps frontend
    ```
 
 Prefer the jar over `./gradlew bootRun` here: `bootRun` keeps Gradle in memory next to the app and loads the development tools. If you do use it, never set `SPRING_PROFILES_ACTIVE=dev` on a server. That profile deletes every row and reseeds test accounts, and the dev-profile safety check can't tell a database on the same server from one on a laptop.
