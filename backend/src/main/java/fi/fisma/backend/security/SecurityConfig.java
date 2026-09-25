@@ -15,7 +15,10 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,8 +51,16 @@ public class SecurityConfig {
   private final UserDetailsServiceImpl userDetailsService;
   private final LoginAttemptThrottleService loginAttemptThrottleService;
 
+  private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
+  /** An origin as browsers send it: scheme, host and optional port, with no path. */
+  private static final Pattern ORIGIN = Pattern.compile("https?://[^/\\s]+");
+
   @Value("${jwt.public.key}")
   RSAPublicKey key;
+
+  @Value("${cors.allowed-origins}")
+  List<String> allowedOrigins;
 
   @Bean
   public RSAPrivateKey privateKey(@Value("${jwt.private.key}") String privateKey) {
@@ -160,8 +171,8 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(
-        List.of("https://fisma-benefit-app.github.io", "http://localhost:5173"));
+    configuration.setAllowedOrigins(validateAllowedOrigins(allowedOrigins));
+    log.info("CORS allowed origins: {}", allowedOrigins);
     configuration.setAllowedMethods(
         Arrays.asList(
             HttpMethod.GET.name(),
@@ -175,6 +186,25 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
+  }
+
+  /**
+   * Rejects origins that could never match a browser's {@code Origin} header, such as {@code
+   * http://1.2.3.4/} with a trailing slash. Those would otherwise start fine and then fail every
+   * request with a CORS error in the browser only.
+   */
+  static List<String> validateAllowedOrigins(List<String> origins) {
+    List<String> invalid =
+        origins.stream().filter(origin -> !ORIGIN.matcher(origin).matches()).toList();
+    if (origins.isEmpty() || !invalid.isEmpty()) {
+      throw new InvalidConfigurationException(
+          "CORS_ALLOWED_ORIGINS contains invalid origins: " + invalid + ".",
+          "Set CORS_ALLOWED_ORIGINS to a comma-separated list of the exact origins the frontend is"
+              + " opened from: scheme, host and port, with no path or trailing slash, e.g."
+              + " http://203.0.113.10,http://localhost:5173. '*' isn't allowed because requests"
+              + " carry credentials.");
+    }
+    return origins;
   }
 
   private boolean isLockedException(Exception exception) {
