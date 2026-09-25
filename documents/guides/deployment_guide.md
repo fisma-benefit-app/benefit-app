@@ -248,6 +248,42 @@ Things to know:
 - On a 1 GB server the Gradle build can run out of memory. Add swap before building if it gets killed.
 - Building on the host instead of in Docker needs the **JDK** (`openjdk-21-jdk-headless`). The JRE alone gives the same `Cannot find a Java installation` error.
 
+### Fallback: backend outside Docker
+
+If the backend container won't run, run the jar on the host and keep the database and frontend in Docker. From the repository root on the server:
+
+1. Start only the database. Use the production file, because its database is published on `127.0.0.1` only; the dev file publishes it to the internet. Compose checks the whole file, so `.env` still needs every value listed above.
+
+   ```bash
+   docker compose -f docker-compose.prod.yaml up -d db
+   ```
+
+2. Build the jar (needs the JDK, see above):
+
+   ```bash
+   cd backend && ./gradlew bootJar
+   ```
+
+3. Load `.env` into the shell. Java doesn't read it by itself.
+
+   ```bash
+   set -a && source ../.env && set +a
+   ```
+
+4. Start the backend. The inline values override `.env`, whose `SPRING_DATASOURCE_URL` points at the Compose hostname `db`, which only exists inside Docker.
+
+   ```bash
+   SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:${HOST_DB_PORT:-5433}/$POSTGRES_DB SPRING_DATASOURCE_USERNAME=$POSTGRES_USER SPRING_DATASOURCE_PASSWORD=$POSTGRES_PASSWORD API_DEBUG=never nohup java -jar build/libs/backend-*.jar > backend.log 2>&1 &
+   ```
+
+5. Start the frontend without the backend container (`--no-deps`), which would otherwise compete for port 8080:
+
+   ```bash
+   cd .. && docker compose -f docker-compose.prod.yaml up -d --build --no-deps frontend
+   ```
+
+Prefer the jar over `./gradlew bootRun` here: `bootRun` keeps Gradle in memory next to the app and loads the development tools. If you do use it, never set `SPRING_PROFILES_ACTIVE=dev` on a server. That profile deletes every row and reseeds test accounts, and the dev-profile safety check can't tell a database on the same server from one on a laptop.
+
 ## Important notes
 
 - Always backup the database before backend deployment
