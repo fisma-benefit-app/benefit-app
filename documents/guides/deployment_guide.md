@@ -215,6 +215,37 @@ These run:
 - Access production frontend at: https://fisma-benefit-app.github.io/benefit-app/
 - Access testing frontend at: https://fisma-benefit-app.github.io/benefit-app/testing/
 
+## Self-hosted server with Docker
+
+For a server of your own (e.g. UpCloud) instead of Heroku and GitHub Pages, run the whole stack from `docker-compose.prod.yaml`:
+
+```bash
+docker compose -f docker-compose.prod.yaml up -d --build
+```
+
+Always pass `-f docker-compose.prod.yaml`. Plain `docker compose up` uses `docker-compose.yaml`, the **local dev** stack: it runs Gradle and the Vite dev server inside the containers, bind-mounts the source and reseeds the database on every start. Pointing that file at the production Dockerfiles fails with `npm: not found` (from nginx's `/docker-entrypoint.sh`) and Gradle's `Cannot find a Java installation … languageVersion=21`.
+
+The production stack:
+
+- **db** – Postgres, published on `127.0.0.1:${HOST_DB_PORT}` only. Docker-published ports bypass `ufw`, so this is the only thing keeping the database off the internet.
+- **backend** – the jar from `backend/Dockerfile`, on port `${HOST_BACKEND_PORT:-8080}`, default profile. It never creates the schema or seeds data.
+- **frontend** – the built bundle served by nginx on port `${HOST_HTTP_PORT:-80}`, with SPA fallback so reloading a page doesn't 404.
+
+Set these in the root `.env` (see `.env.example`). Compose refuses to start and names the variable if one is missing:
+
+- `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
+- `JWT_PRIVATE_KEY` from the `backend-credentials` repo
+- `VITE_API_URL`, the backend URL **as the browser sees it**, e.g. `http://<server-ip>:8080`. It is baked into the frontend at build time, so rebuild (`--build`) after changing it.
+- `VITE_BASE_PATH` (optional, default `/`)
+
+Open ports 80 and 8080 in the UpCloud firewall. The Vite dev server port 5173 isn't used here.
+
+Things to know:
+
+- A new database volume starts **empty**. The backend doesn't create tables, so load the schema and migrations by hand (see the [database guide](./database.md)) before logging in.
+- On a 1 GB server the Gradle build can run out of memory. Add swap before building if it gets killed.
+- Building on the host instead of in Docker needs the **JDK** (`openjdk-21-jdk-headless`). The JRE alone gives the same `Cannot find a Java installation` error.
+
 ## Important notes
 
 - Always backup the database before backend deployment

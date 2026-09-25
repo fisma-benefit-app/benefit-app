@@ -1,0 +1,63 @@
+# Production-style stack for a self-hosted server (e.g. UpCloud).
+#   docker compose -f docker-compose.prod.yaml up -d --build
+# Unlike docker-compose.yaml (local dev), this runs the images as built: no
+# command overrides, no source bind mounts, and the default profile, which
+# never creates the schema or seeds data. Values come from the root .env.
+
+name: fisma-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fisma_prod_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    # Bound to localhost only: Docker-published ports bypass ufw, so a plain
+    # "5433:5432" would expose the database to the internet.
+    ports:
+      - "127.0.0.1:${HOST_DB_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    container_name: fisma_prod_backend
+    restart: unless-stopped
+    environment:
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:?set JWT_PRIVATE_KEY in .env (from the backend-credentials repo)}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      API_DEBUG: never
+      API_DEBUG_LEVEL: info
+    ports:
+      - "${HOST_BACKEND_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # The browser calls the API directly, so this must be the backend's
+        # public address, e.g. http://<server-ip>:8080.
+        VITE_API_URL: ${VITE_API_URL:?set VITE_API_URL in .env to the backend's public URL, e.g. http://<server-ip>:8080}
+        VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
+    container_name: fisma_prod_frontend
+    restart: unless-stopped
+    ports:
+      - "${HOST_HTTP_PORT:-80}:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
