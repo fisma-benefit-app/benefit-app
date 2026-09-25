@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+fi.fisma.backend.config.DevProfileDatabaseGuard

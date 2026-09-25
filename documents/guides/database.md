@@ -62,6 +62,8 @@ This branch intentionally removes the generic fallback `schema.sql` discovery pa
 
 The production and testing environments should therefore not point at the dev seed file for normal use. Their safe default remains the shared `mode: never` configuration, and any dev-only initialization should happen only when the `dev` profile is active locally or through the Compose environment.
 
+As a safety net, `DevProfileDatabaseGuard` stops the backend from starting when the `dev` profile is active and `spring.datasource.url` points anywhere other than a local database (`localhost`, `127.0.0.1`, `::1` or the Compose service `db`). This protects the testing and production databases if their URL ends up in `.env` by mistake. To run a local backend against a remote database on purpose, use another profile: `SPRING_PROFILES_ACTIVE=default ./gradlew bootRun`.
+
 
 The contents of the database can also be reseeded manually. You can run the contents of each seeding file in the database directly, resulting in reseeding. See accessing database via different methods below.
 
