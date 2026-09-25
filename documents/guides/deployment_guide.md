@@ -217,7 +217,7 @@ These run:
 
 ## Self-hosted server with Docker
 
-For a server of your own (e.g. UpCloud) instead of Heroku and GitHub Pages, run the whole stack from `docker-compose.prod.yaml`:
+For a server of your own (e.g. UpCloud) instead of Heroku and GitHub Pages, run the whole stack from `docker-compose.prod.yaml`. For a step-by-step walkthrough from an empty server to a working login, see the [UpCloud deployment guide](./upcloud_deployment.md).
 
 ```bash
 docker compose -f docker-compose.prod.yaml up -d --build
@@ -243,7 +243,7 @@ Only port 80 (and 22 for SSH) has to be open in the UpCloud firewall. The backen
 
 Things to know:
 
-- A new database volume starts **empty**. The backend doesn't create tables, so load the schema and migrations by hand (see the [database guide](./database.md)) before logging in.
+- A new database volume starts **empty**. The backend doesn't create tables or the first user. Load `schema-dev.sql` without its `DROP TABLE` line (it already includes every migration) and insert the first user by hand, as in [step 5 of the UpCloud guide](./upcloud_deployment.md#5-create-the-database-schema-and-first-user).
 - On a 1 GB server the Gradle build can run out of memory. Add swap before building if it gets killed.
 - Building on the host instead of in Docker needs the **JDK** (`openjdk-21-jdk-headless`). The JRE alone gives the same `Cannot find a Java installation` error.
 
