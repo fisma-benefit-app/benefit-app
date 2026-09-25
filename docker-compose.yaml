@@ -1,3 +1,6 @@
+# Local development stack. Required values come from the root .env (copy
+# .env.example); compose stops and names any that are missing. For a server
+# deployment use docker-compose.prod.yaml instead.
 name: fisma-dev
 
 services:
@@ -5,11 +8,11 @@ services:
     image: postgres:16-alpine
     container_name: fisma_db
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env (see .env.example)}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env (see .env.example)}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env (see .env.example)}
     ports:
-      - "${HOST_DB_PORT}:5432"
+      - "${HOST_DB_PORT:?set HOST_DB_PORT in .env (see .env.example)}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -28,17 +31,19 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       API_DEBUG: ${API_DEBUG}
       API_DEBUG_LEVEL: ${API_DEBUG_LEVEL}
+      # Not required here: the backend refuses to start without it and says how
+      # to fix it, and checking it in compose would block `up db` and `down`.
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DOCKER_COMPOSE_FILE: /workspace/compose.yaml
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:?set SPRING_DATASOURCE_URL in .env (see .env.example)}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:?set SPRING_DATASOURCE_USERNAME in .env (see .env.example)}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?set SPRING_DATASOURCE_PASSWORD in .env (see .env.example)}
       GRADLE_USER_HOME: /gradle-cache
       SPRING_DEVTOOLS_RESTART_POLL_INTERVAL: "2s"
       SPRING_DEVTOOLS_RESTART_QUIET_PERIOD: "1s"
     ports:
-      - "${HOST_BACKEND_PORT}:8080"
+      - "${HOST_BACKEND_PORT:?set HOST_BACKEND_PORT in .env (see .env.example)}:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -55,9 +60,9 @@ services:
     working_dir: /workspace
     environment:
       CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
-      VITE_PORT: ${VITE_PORT}
+      VITE_PORT: ${VITE_PORT:?set VITE_PORT in .env (see .env.example)}
     ports:
-      - "${HOST_FRONTEND_PORT}:${HOST_FRONTEND_PORT}"
+      - "${HOST_FRONTEND_PORT:?set HOST_FRONTEND_PORT in .env (see .env.example)}:${HOST_FRONTEND_PORT}"
     depends_on:
       - backend
     volumes:

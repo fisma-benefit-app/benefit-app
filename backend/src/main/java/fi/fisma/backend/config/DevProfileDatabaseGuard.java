@@ -32,12 +32,13 @@ public class DevProfileDatabaseGuard implements EnvironmentPostProcessor, Ordere
     String url = environment.getProperty("spring.datasource.url");
     String host = hostOf(url);
     if (host == null || !LOCAL_HOSTS.contains(host)) {
-      throw new IllegalStateException(
+      throw new InvalidConfigurationException(
           "Refusing to start: the 'dev' profile deletes and reseeds the database, but"
               + " spring.datasource.url points to '"
               + host
-              + "', which is not a local database. Use a local database, or run without the 'dev'"
-              + " profile (e.g. SPRING_PROFILES_ACTIVE=default ./gradlew bootRun).");
+              + "', which is not a local database.",
+          "Use a local database, or run without the 'dev' profile (e.g."
+              + " SPRING_PROFILES_ACTIVE=default ./gradlew bootRun).");
     }
   }
 
