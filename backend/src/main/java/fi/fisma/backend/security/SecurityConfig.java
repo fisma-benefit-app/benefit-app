@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import fi.fisma.backend.config.InvalidConfigurationException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
@@ -55,7 +56,11 @@ public class SecurityConfig {
     try {
       return parsePrivateKey(privateKey);
     } catch (Exception exception) {
-      throw new IllegalStateException("JWT_PRIVATE_KEY is not a valid RSA private key", exception);
+      throw new InvalidConfigurationException(
+          "JWT_PRIVATE_KEY is not a valid RSA private key (" + exception + ").",
+          "Copy the whole PKCS#8 PEM (-----BEGIN PRIVATE KEY----- ... -----END PRIVATE KEY-----)"
+              + " from the backend-credentials repository, quoted, with its line breaks.",
+          exception);
     }
   }
 
