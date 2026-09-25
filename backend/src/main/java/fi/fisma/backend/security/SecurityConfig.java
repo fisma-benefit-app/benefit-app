@@ -53,8 +53,11 @@ public class SecurityConfig {
 
   private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
-  /** An origin as browsers send it: scheme, host and optional port, with no path. */
-  private static final Pattern ORIGIN = Pattern.compile("https?://[^/\\s]+");
+  /**
+   * Scheme, host and optional port. Spring strips a trailing slash itself, so that's allowed, but a
+   * path never matches a browser's {@code Origin} header.
+   */
+  private static final Pattern ORIGIN = Pattern.compile("https?://[^/\\s]+/?");
 
   @Value("${jwt.public.key}")
   RSAPublicKey key;
@@ -190,17 +193,23 @@ public class SecurityConfig {
 
   /**
    * Rejects origins that could never match a browser's {@code Origin} header, such as {@code
-   * http://1.2.3.4/} with a trailing slash. Those would otherwise start fine and then fail every
-   * request with a CORS error in the browser only.
+   * https://fisma-benefit-app.github.io/benefit-app} with a path. Those would otherwise start fine
+   * and then fail every request with a CORS error in the browser only.
    */
   static List<String> validateAllowedOrigins(List<String> origins) {
+    if (origins.isEmpty()) {
+      throw new InvalidConfigurationException(
+          "CORS_ALLOWED_ORIGINS is set but empty.",
+          "Set it to the origins the frontend is opened from, e.g."
+              + " http://203.0.113.10,http://localhost:5173, or unset it to use the defaults.");
+    }
     List<String> invalid =
         origins.stream().filter(origin -> !ORIGIN.matcher(origin).matches()).toList();
-    if (origins.isEmpty() || !invalid.isEmpty()) {
+    if (!invalid.isEmpty()) {
       throw new InvalidConfigurationException(
           "CORS_ALLOWED_ORIGINS contains invalid origins: " + invalid + ".",
           "Set CORS_ALLOWED_ORIGINS to a comma-separated list of the exact origins the frontend is"
-              + " opened from: scheme, host and port, with no path or trailing slash, e.g."
+              + " opened from: scheme, host and optional port, with no path, e.g."
               + " http://203.0.113.10,http://localhost:5173. '*' isn't allowed because requests"
               + " carry credentials.");
     }

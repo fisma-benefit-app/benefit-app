@@ -18,6 +18,7 @@ class CorsAllowedOriginsTest {
             "https://fisma-benefit-app.github.io",
             "http://localhost:5173",
             "http://203.0.113.10",
+            "http://203.0.113.10/",
             "http://[::1]:8080");
 
     assertThat(SecurityConfig.validateAllowedOrigins(origins)).isEqualTo(origins);
@@ -26,8 +27,8 @@ class CorsAllowedOriginsTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "http://203.0.113.10/",
         "https://fisma-benefit-app.github.io/benefit-app",
+        "https://fisma-benefit-app.github.io/benefit-app/",
         "203.0.113.10:5173",
         "*",
         ""
@@ -42,6 +43,7 @@ class CorsAllowedOriginsTest {
   @Test
   void rejectsEmptyList() {
     assertThatThrownBy(() -> SecurityConfig.validateAllowedOrigins(List.of()))
-        .isInstanceOf(InvalidConfigurationException.class);
+        .isInstanceOf(InvalidConfigurationException.class)
+        .hasMessageContaining("CORS_ALLOWED_ORIGINS is set but empty");
   }
 }
