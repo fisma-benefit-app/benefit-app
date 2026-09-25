@@ -21,12 +21,12 @@ docker compose down -v
 
 Frontend: http://localhost:5173/benefit-app/login · Backend: http://localhost:8080/actuator/health · Dev login: `user` / `user`
 
-Without Docker: run only the DB via `docker compose up db`, then `cd backend && ./gradlew bootRun` and `cd frontend && npm install && npm run dev`. `bootRun` defaults to the `dev` profile, which deletes and reseeds the database; the backend refuses to start under `dev` against a non-local database, and `SPRING_PROFILES_ACTIVE=default ./gradlew bootRun` runs without seeding. The backend requires `JWT_PRIVATE_KEY` set in the root `.env` (from the private `backend-credentials` repo) — it is not in this repository.
+Without Docker: run only the DB via `docker compose up db`, then `cd backend && SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun` and `cd frontend && npm install && npm run dev`. Plain `./gradlew bootRun` uses the default profile and never seeds; the `dev` profile deletes and reseeds the database, and the backend refuses to start under `dev` against a non-local database. The backend requires `JWT_PRIVATE_KEY` set in the root `.env` (from the private `backend-credentials` repo) — it is not in this repository.
 
 ### Backend (`backend/`)
 
 ```bash
-./gradlew bootRun                                    # run
+./gradlew bootRun                                    # run (default profile, no seeding)
 ./gradlew build                                       # build
 ./gradlew test                                        # run all tests (needs Postgres — `docker compose up db` first)
 ./gradlew test --tests fi.fisma.backend.YourTestClass # run a single test class

@@ -50,12 +50,6 @@ tasks.named('jar') {
     enabled = false
 }
 
-// ./gradlew bootRun uses the dev profile unless SPRING_PROFILES_ACTIVE is set,
-// e.g. SPRING_PROFILES_ACTIVE=default ./gradlew bootRun to skip seeding.
-tasks.named('bootRun') {
-    systemProperty 'spring.profiles.active', System.getenv('SPRING_PROFILES_ACTIVE') ?: 'dev'
-}
-
 // This section causes useful test output to go to the terminal.
 test {
     testLogging {

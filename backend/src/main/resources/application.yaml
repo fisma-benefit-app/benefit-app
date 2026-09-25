@@ -4,7 +4,6 @@ spring:
 
   # These values are variables for Heroku deployment for the backend's database. Consult deployment documentation on how to use them during deployment.
   # If you wish to use a different database during development, change the values to your db's appropriate credentials (see below).
-  # Leaving them as-is and running the application locally will use compose.yaml from the project root to start the db with docker.
   #datasource:
   #username: ${SPRING_DATASOURCE_USERNAME}
   #password: ${SPRING_DATASOURCE_PASSWORD}
@@ -15,6 +14,12 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/fisma_db}
     username: ${SPRING_DATASOURCE_USERNAME:myuser}
     password: ${SPRING_DATASOURCE_PASSWORD:secret}
+
+  # Spring Boot's Docker Compose integration (a dev-only dependency) stays off unless asked for;
+  # docker-compose.yaml starts the database itself.
+  docker:
+    compose:
+      enabled: ${SPRING_DOCKER_COMPOSE_ENABLED:false}
 
   # DO NOT CHANGE THIS. If you need to change the database initialization mode, do so in application-dev.yaml. This is set to never to prevent accidental database seeding in production.
   # For dev-profile, it is set to always in application-dev.yaml to allow for database seeding.
@@ -53,7 +58,3 @@ management:
     web:
       exposure:
         include: health, info
-
-docker:
-  compose:
-    enabled: ${SPRING_DOCKER_COMPOSE_ENABLED:false}

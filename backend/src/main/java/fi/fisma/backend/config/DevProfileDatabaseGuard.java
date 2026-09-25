@@ -13,9 +13,10 @@ import org.springframework.core.env.Profiles;
  * points to a non-local database.
  *
  * <p>The {@code dev} profile runs {@code database-seed-dev.sql}, which deletes every row from the
- * main tables before reseeding. Both {@code docker compose up} and {@code ./gradlew bootRun} use
- * that profile, so a testing or production URL in {@code .env} would wipe that database. This check
- * runs before any database connection is opened. Registered in {@code META-INF/spring.factories}.
+ * main tables before reseeding. {@code docker compose up} uses that profile, as does {@code
+ * ./gradlew bootRun} when {@code SPRING_PROFILES_ACTIVE=dev} is set, so a testing or production URL
+ * in {@code .env} would wipe that database. This check runs before any database connection is
+ * opened. Registered in {@code META-INF/spring.factories}.
  */
 public class DevProfileDatabaseGuard implements EnvironmentPostProcessor, Ordered {
 
