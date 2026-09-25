@@ -31,7 +31,9 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       API_DEBUG: ${API_DEBUG}
       API_DEBUG_LEVEL: ${API_DEBUG_LEVEL}
-      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:?set JWT_PRIVATE_KEY in .env (from the backend-credentials repo)}
+      # Not required here: the backend refuses to start without it and says how
+      # to fix it, and checking it in compose would block `up db` and `down`.
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DOCKER_COMPOSE_FILE: /workspace/compose.yaml
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:?set SPRING_DATASOURCE_URL in .env (see .env.example)}
