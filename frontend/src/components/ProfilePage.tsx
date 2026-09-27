@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useAppUser from "../hooks/useAppUser";
 import useTranslations from "../hooks/useTranslations";
-import { useAlert } from "../context/AlertProvider";
+import { useAlert } from "../hooks/useAlert";
 import { changePassword, deleteAppUser } from "../api/profile";
 import { useNavigate } from "react-router";
 import ConfirmModal from "./ConfirmModal";
