@@ -205,7 +205,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     const startCountdown = () => {
       showSessionWarning(expirationTime);
 
-      countdownIntervalId = setInterval(() => {
+      countdownIntervalId = window.setInterval(() => {
         if (expirationTime - Date.now() <= 0) {
           if (countdownIntervalId) clearInterval(countdownIntervalId);
           return;
