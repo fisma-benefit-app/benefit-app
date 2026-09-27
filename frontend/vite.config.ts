@@ -36,9 +36,5 @@ export default defineConfig(({ mode }) => {
         usePolling: env.CHOKIDAR_USEPOLLING === "true",
       },
     },
-    define: {
-      // make env available in the client code if needed
-      "import.meta.env.VITE_API_URL": JSON.stringify(env.VITE_API_URL),
-    },
   };
 });
