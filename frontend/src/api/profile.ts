@@ -15,41 +15,6 @@ export interface PasswordChangeRequest {
 }
 
 /**
- * Get user by ID
- * GET /appusers/{id}
- */
-const getUserById = async (
-  sessionToken: string | null,
-  userId: number,
-): Promise<AppUserSummary> => {
-  if (!sessionToken)
-    throw new Error("User needs to be logged in to fetch user information!");
-  if (!userId) throw new Error("Request needs the id of the user!");
-
-  const fetchURL = `${API_URL}/appusers/${userId}`;
-  const headers = {
-    Authorization: sessionToken,
-  };
-
-  const response = await fetch(fetchURL, { method: "GET", headers });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error("Unauthorized!");
-    } else if (response.status === 404) {
-      throw new Error("User not found!");
-    } else {
-      throw new Error(
-        `Error fetching user in getUserById! Status: ${response.status}`,
-      );
-    }
-  }
-
-  const user = await response.json();
-  return user;
-};
-
-/**
  * Update user
  * PUT /appusers/{id}
  */
@@ -177,4 +142,4 @@ const changePassword = async (
   return response.text();
 };
 
-export { getUserById, updateAppUser, deleteAppUser, changePassword };
+export { updateAppUser, deleteAppUser, changePassword };

@@ -34,7 +34,7 @@ type FunctionalClassComponentProps = {
 
 export const FunctionalPointSummary = ({
   project,
-  saveProject, // Add this
+  saveProject,
 }: FunctionalClassComponentProps) => {
   const translation = useTranslations();
   const { sortedProjects, returnLatestOrPreviousVersion } = useProjects();

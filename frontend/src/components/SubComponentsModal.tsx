@@ -59,7 +59,6 @@ export default function SubComponentsModal({
                     deleteFunctionalComponent={async () => {}} // Disabled
                     project={{ functionalComponents: [] } as unknown as Project}
                     setProject={() => {}}
-                    setProjectResponse={() => {}}
                     isLatest={false} // Makes it readonly
                     collapsed={false}
                     onCollapseChange={() => {}}

@@ -1,4 +1,4 @@
-import { TGenericComponentKeys } from "./printUtils";
+import { getAllComponents } from "./printUtils";
 
 import {
   calculateTotalPoints,
@@ -121,12 +121,7 @@ export const encodeSummaryRowForCSV = (
   functionalPoints?: number,
   totalPoints?: number,
 ) => {
-  // Dynamically generate empty fields for all TGenericComponent keys except summary fields
   const summaryRow: Record<string, string | undefined> = {};
-
-  TGenericComponentKeys.forEach((key) => {
-    summaryRow[key] = "";
-  });
   summaryRow["functionalPoints"] = functionalPoints?.toFixed(2);
   summaryRow["totalPossiblePoints"] = totalPoints?.toFixed(2);
 
@@ -146,15 +141,7 @@ export const downloadProjectComponentsCsv = async (
     ),
   };
 
-  const allComponentsForTotals: TGenericComponent[] = [];
-
-  for (const c of project.functionalComponents) {
-    allComponentsForTotals.push(c);
-
-    if (Array.isArray(c.subComponents)) {
-      allComponentsForTotals.push(...c.subComponents);
-    }
-  }
+  const allComponentsForTotals = getAllComponents(project.functionalComponents);
 
   const functionalPoints = calculateTotalPoints(allComponentsForTotals);
   const totalPoints = calculateTotalPossiblePoints(allComponentsForTotals);

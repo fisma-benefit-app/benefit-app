@@ -15,23 +15,17 @@ import ConfirmModal from "./ConfirmModal";
 import useLanguage from "../hooks/useLanguage";
 import useTranslations from "../hooks/useTranslations";
 
+const showTestVersion = /localhost|testing/.test(window.location.href);
+
 const Header = () => {
   const navigate = useNavigate();
-  const {
-    appUser,
-    loggedIn,
-    logout,
-    // setLoggedIn,
-    // setSessionToken,
-    // setAppUser,
-  } = useAppUser();
+  const { appUser, loggedIn, logout } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [showTestVersion, setShowTestVersion] = useState(false);
 
   const translation = useTranslations().header;
 
@@ -53,11 +47,6 @@ const Header = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const url = window.location.href;
-    setShowTestVersion(url.includes("localhost") || url.includes("testing"));
   }, []);
 
   // Close mobile menu when navigating
