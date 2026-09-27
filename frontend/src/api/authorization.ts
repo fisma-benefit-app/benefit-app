@@ -44,8 +44,8 @@ const fetchJWT = async (
   }
 };
 
-const extendSession = async (sessionToken: string, rememberMe: boolean) => {
-  const fetchURL = `${API_URL}/token?rememberMe=${rememberMe}`;
+const extendSession = async (sessionToken: string) => {
+  const fetchURL = `${API_URL}/token`;
   const response = await fetch(fetchURL, {
     method: "POST",
     headers: { Authorization: sessionToken },

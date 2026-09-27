@@ -115,11 +115,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
           label: translation.extendSession,
           onClick: async () => {
             try {
-              const rememberMe = localStorage.getItem("loginToken") !== null;
-              const renewedToken = await extendSession(
-                sessionToken!,
-                rememberMe,
-              );
+              const renewedToken = await extendSession(sessionToken!);
 
               if (localStorage.getItem("loginToken")) {
                 localStorage.setItem("loginToken", renewedToken);
