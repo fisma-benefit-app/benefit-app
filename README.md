@@ -666,6 +666,8 @@ For the full explanation of the branching strategy, see the [branching strategy 
 The Benefit application's GitHub repository features a GitHub Actions workflow which runs automated checks and tests on every pull request. Only pull requests that pass all checks are allowed to merge. These checks are:
 
 - formatting checks for frontend (Prettier) and backend (Spotless / Google Java Format)
+- frontend linting (ESLint), which fails on any warning
+- frontend type check (TypeScript, `tsc -b`)
 - backend unit tests
 
 Our automated deployments also use GitHub Actions workflows to deploy any merges to `main` to the testing environment. See [deployment](#deployment) for more information.
@@ -751,12 +753,14 @@ If you have a suggestion to improve this project:
    - Follow our coding standards
    - Add tests if applicable
    - Update documentation as needed
-5. Run formatting and tests
+5. Run formatting, checks and tests
 
    ```bash
    # Frontend
    cd frontend
    npx prettier . --write
+   npx eslint . --max-warnings 0
+   npx tsc -b
 
    # Backend
    cd backend
