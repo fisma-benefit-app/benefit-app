@@ -31,7 +31,6 @@ import {
   ClassName,
   ComponentType,
   Project,
-  ProjectResponse,
   TGenericComponent,
 } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
@@ -45,9 +44,6 @@ type FunctionalClassComponentProps = {
   deleteFunctionalComponent: (componentId: number) => Promise<void>;
   project: Project;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
-  setProjectResponse: React.Dispatch<
-    React.SetStateAction<ProjectResponse | null>
-  >;
   isLatest: boolean;
   collapsed: boolean;
   onCollapseChange: (componentId: number, collapsed: boolean) => void;

@@ -419,12 +419,6 @@ export const downloadHtmlAsPdf = async (
   }
 };
 
-export const TGenericComponentKeys: (keyof TGenericComponent)[] = Object.keys(
-  {} as TGenericComponent,
-).filter(
-  (k) => !["functionalPoints", "totalPossiblePoints"].includes(k),
-) as (keyof TGenericComponent)[];
-
 // Localizes the date to a readable form
 export const dateLocalizer = (insertedDate: string) => {
   return new Date(insertedDate)

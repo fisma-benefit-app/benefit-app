@@ -13,7 +13,6 @@ import { generateOverviewPDF } from "../lib/overviewReportUtils.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
-  ProjectResponse,
   TGenericComponentNoId,
   TGenericComponent,
 } from "../lib/types.ts";
@@ -26,7 +25,6 @@ import ComponentSelectionBar from "./ComponentSelectionBar.tsx";
 import useComponentReorder from "../hooks/useComponentReorder.ts";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
-import CreateCurrentDate from "../api/date.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
@@ -101,7 +99,6 @@ export default function ProjectPage() {
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
-  const [, setProjectResponse] = useState<ProjectResponse | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -127,7 +124,7 @@ export default function ProjectPage() {
   const { language } = useLanguage();
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const commitSha = useCommitSha("-");
+  const commitSha = useCommitSha();
 
   const handleCreateComment = async () => {
     if (!project || !commentText.trim()) return;
@@ -345,7 +342,6 @@ export default function ProjectPage() {
       const editedProject = {
         ...currentProject,
         functionalComponents: normalized,
-        updatedAt: CreateCurrentDate(),
       };
 
       await updateProject(sessionToken, editedProject);
@@ -666,11 +662,9 @@ export default function ProjectPage() {
         const editedProject = {
           ...currentProject,
           functionalComponents: normalized,
-          updatedAt: CreateCurrentDate(),
         };
 
-        const savedProject = await updateProject(sessionToken, editedProject);
-        setProjectResponse(savedProject);
+        await updateProject(sessionToken, editedProject);
 
         if (showNotif) {
           updateNotification(
@@ -1156,7 +1150,6 @@ export default function ProjectPage() {
                         component={component}
                         project={project}
                         setProject={setProject}
-                        setProjectResponse={setProjectResponse}
                         deleteFunctionalComponent={
                           handleDeleteFunctionalComponent
                         }
