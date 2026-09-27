@@ -34,8 +34,6 @@ services:
       # Not required here: the backend refuses to start without it and says how
       # to fix it, and checking it in compose would block `up db` and `down`.
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
-      SPRING_DOCKER_COMPOSE_ENABLED: "false"
-      SPRING_DOCKER_COMPOSE_FILE: /workspace/compose.yaml
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:?set SPRING_DATASOURCE_URL in .env (see .env.example)}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:?set SPRING_DATASOURCE_USERNAME in .env (see .env.example)}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?set SPRING_DATASOURCE_PASSWORD in .env (see .env.example)}
