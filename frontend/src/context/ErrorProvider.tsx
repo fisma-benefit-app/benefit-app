@@ -1,14 +1,5 @@
-import { createContext, useState, ReactNode } from "react";
-
-export interface ErrorContextType {
-  error: string | null;
-  showError: (message: string) => void;
-  clearError: () => void;
-}
-
-export const ErrorContext = createContext<ErrorContextType | undefined>(
-  undefined,
-);
+import { useState, ReactNode } from "react";
+import { ErrorContext } from "./ErrorContext";
 
 export const ErrorProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);

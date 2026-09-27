@@ -21,7 +21,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
-import { useAlert } from "../context/AlertProvider.tsx";
+import { useAlert } from "../hooks/useAlert.ts";
 import { useState } from "react";
 import ComponentClassIcons from "./ComponentClassIcons.tsx";
 

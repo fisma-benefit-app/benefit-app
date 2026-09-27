@@ -36,7 +36,7 @@ import { format } from "date-fns";
 import { enUS, fi } from "date-fns/locale";
 
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-import { useAlert } from "../context/AlertProvider.tsx";
+import { useAlert } from "../hooks/useAlert.ts";
 import {
   createSubComponents,
   updateSubComponents,
