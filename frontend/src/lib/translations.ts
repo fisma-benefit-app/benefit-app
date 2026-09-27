@@ -289,15 +289,6 @@ export const translations = {
       passwordMinLength: "Password must be at least 6 characters",
       passwordUpdated: "Password updated successfully",
       passwordUpdateFailed: "Failed to update password",
-      updateUsername: "Update Username",
-      newUsername: "New Username",
-      currentPasswordForUsername: "Current Password (required)",
-      updateUsernameButton: "Update Username",
-      usernameEmpty: "Username cannot be empty",
-      usernamePasswordRequired: "Password is required to update username",
-      userIdNotFound: "User ID not found. Please try logging in again.",
-      usernameUpdated: "Username updated successfully",
-      usernameUpdateFailed: "Failed to update username",
       deleteAccount: "Delete Account",
       deleteAccountDangerZone: "DANGER! This action is irreversible.",
       deleteAccountWarning:
@@ -600,17 +591,6 @@ export const translations = {
       passwordMinLength: "Salasanan on oltava vähintään 6 merkkiä pitkä",
       passwordUpdated: "Salasana päivitetty onnistuneesti",
       passwordUpdateFailed: "Salasanan päivitys epäonnistui",
-      updateUsername: "Päivitä käyttäjänimi",
-      newUsername: "Uusi käyttäjänimi",
-      currentPasswordForUsername: "Nykyinen salasana (vaaditaan)",
-      updateUsernameButton: "Päivitä käyttäjänimi",
-      usernameEmpty: "Käyttäjänimi ei voi olla tyhjä",
-      usernamePasswordRequired:
-        "Salasana vaaditaan käyttäjänimen päivittämiseksi",
-      userIdNotFound:
-        "Käyttäjätunnusta ei löydy. Ole hyvä ja kirjaudu sisään uudelleen.",
-      usernameUpdated: "Käyttäjänimi päivitetty onnistuneesti",
-      usernameUpdateFailed: "Käyttäjänimen päivitys epäonnistui",
       deleteAccount: "Poista tili",
       deleteAccountDangerZone: "VAARA! Tätä toimintoa ei voi perua.",
       deleteAccountWarning:

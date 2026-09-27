@@ -1,65 +1,8 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-export interface AppUserSummary {
-  id: number;
-  username: string;
-}
-
-export interface AppUserRequest {
-  username: string;
-  password: string;
-}
-
 export interface PasswordChangeRequest {
   newPassword: string;
 }
-
-/**
- * Update user
- * PUT /appusers/{id}
- */
-const updateAppUser = async (
-  sessionToken: string | null,
-  userId: number,
-  userRequest: AppUserRequest,
-): Promise<AppUserSummary> => {
-  if (!sessionToken)
-    throw new Error("User needs to be logged in to update user!");
-  if (!userId) throw new Error("Request needs the id of the user!");
-  if (!userRequest.username || !userRequest.password) {
-    throw new Error("Username and password are required!");
-  }
-
-  const fetchURL = `${API_URL}/appusers/${userId}`;
-  const headers = {
-    Authorization: sessionToken,
-    "Content-Type": "application/json",
-  };
-
-  const response = await fetch(fetchURL, {
-    method: "PUT",
-    headers,
-    body: JSON.stringify(userRequest),
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error("Unauthorized!");
-    } else if (response.status === 404) {
-      throw new Error("User not found!");
-    } else if (response.status === 500) {
-      throw new Error(
-        "Failed to update user due to database constraint violation or internal error!",
-      );
-    } else {
-      throw new Error(
-        `Error updating user in updateAppUser! Status: ${response.status}`,
-      );
-    }
-  }
-
-  return response.json();
-};
 
 /**
  * Delete user account
@@ -142,4 +85,4 @@ const changePassword = async (
   return response.text();
 };
 
-export { updateAppUser, deleteAppUser, changePassword };
+export { deleteAppUser, changePassword };

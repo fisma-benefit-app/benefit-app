@@ -44,6 +44,8 @@ npx tsc -b                  # type-check (not `tsc --noEmit`: the root tsconfig.
 npx prettier . --write      # format
 npm run build:testing        # build for testing env (needs frontend/.env)
 npm run build:production     # build for production env
+npm run format:check         # check formatting, like CI does
+npm run knip                 # find unused files, exports and dependencies (needs frontend/.env; not run in CI)
 ```
 
 There is no frontend test suite (no test runner installed, no `*.test.ts(x)`/`*.spec.ts(x)` files) — don't invent an `npm test` command. Frontend correctness currently relies on TypeScript (`tsc -b`), ESLint, Prettier, `run-checks-on-pr.yml`, and manual verification.
