@@ -2,34 +2,13 @@ name: Run Checks on PR
 
 on:
   pull_request:
+  # PR runs can only restore caches saved on their own PR or on main, so
+  # running on main keeps the Gradle/npm caches warm for new PRs.
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  run-be-formatting-check:
-    name: Run BE formatting check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v6
-        with:
-          java-version: "21"
-          distribution: "temurin"
-          cache: "gradle"
-
-      - name: Grant Gradle execute permissions
-        run: |
-          cd backend
-          chmod +x ./gradlew
-
-      - name: Run Spotless check
-        run: |
-          cd backend
-          ./gradlew spotlessCheck
-
   run-fe-formatting-check:
     name: Run FE formatting check
     runs-on: ubuntu-latest
@@ -108,11 +87,14 @@ jobs:
           npx tsc -b
 
   run-backend-tests:
-    name: Run backend tests
+    # Spotless runs here rather than in its own job: both jobs share one
+    # setup-java cache key, and the faster Spotless job would save a cache
+    # without the Spring dependencies.
+    name: Run BE formatting check and tests
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:16-alpine
         env:
           POSTGRES_DB: ${{ secrets.DB_NAME }}
           POSTGRES_USER: ${{ secrets.DB_USER }}
@@ -121,9 +103,9 @@ jobs:
           - 5433:5432
         options: >-
           --health-cmd pg_isready
-          --health-interval=10s
+          --health-interval=2s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=15
 
     steps:
       - name: Checkout code
@@ -141,7 +123,7 @@ jobs:
           cd backend
           chmod +x ./gradlew
 
-      - name: Run backend tests
+      - name: Run Spotless check and backend tests
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/${{ secrets.DB_NAME }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
@@ -153,4 +135,4 @@ jobs:
           # sufficient since these tests mock JWT auth rather than doing real
           # sign/verify round trips against the committed public key.
           export JWT_PRIVATE_KEY=$(openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048)
-          ./gradlew test
+          ./gradlew spotlessCheck test --continue
