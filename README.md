@@ -470,8 +470,9 @@ Keep the key in your local `.env` only; do not commit it to the repository.
 #### A) Full Dockerized Setup
 
 ```bash
-# start (build on first run or when Dockerfiles change)
-docker compose up --build
+# start (build on first run or when Dockerfiles/package.json change;
+# -V refreshes the node_modules volume so new npm deps show up)
+docker compose up --build -V
 
 # stop (keep DB data and caches)
 docker compose down
