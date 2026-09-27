@@ -11,8 +11,9 @@ Benefit is a function point analysis tool (FiSMA 1.1 method / ISO/IEC 29881) bui
 ### Running the app locally
 
 ```bash
-# Full Dockerized setup (build on first run or when Dockerfiles change)
-docker compose up --build
+# Full Dockerized setup (build on first run or when Dockerfiles/package.json change;
+# -V refreshes the node_modules volume so new npm deps show up)
+docker compose up --build -V
 
 # Stop (keep DB data/caches) / stop and wipe everything
 docker compose down
