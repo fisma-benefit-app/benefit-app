@@ -39,10 +39,4 @@ public class AppUser {
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
-
-  public AppUser(String username, String password, LocalDateTime deletedAt) {
-    this.username = username;
-    this.password = password;
-    this.deletedAt = deletedAt;
-  }
 }

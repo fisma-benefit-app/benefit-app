@@ -8,9 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-  @Query("SELECT p FROM Project p WHERE p.id = :id AND p.deletedAt IS NULL")
-  Optional<Project> findByIdActive(@Param("id") Long id);
-
   @Query(
       value =
           """
