@@ -678,6 +678,7 @@ The developer team minimizes errors and maintains good code quality by:
 - merging only quality code (i.e. pull requests pass all checks in GitHub Actions)
 - requiring peer review and approval from another team member before merging
 - resolving all conversations, comments, and/or change requests in GitHub
+- checking for unused files, exports and dependencies with [Knip](https://knip.dev) before opening a pull request. Run `npm run knip` in `frontend/` (it needs `frontend/.env`, like the build). Knip isn't part of the GitHub Actions checks yet.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
