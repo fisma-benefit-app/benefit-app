@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState, useRef } from "react";
+import { ChangeEvent, useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -13,15 +13,18 @@ import { generateOverviewPDF } from "../lib/overviewReportUtils.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
-  ProjectResponse,
   TGenericComponentNoId,
   TGenericComponent,
 } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
-import FunctionalClassComponent from "./FunctionalClassComponent.tsx";
+import DraggableFunctionalComponent, {
+  COMPONENT_GRID_CLASSES,
+} from "./DraggableFunctionalComponent.tsx";
+import ComponentDragPreview from "./ComponentDragPreview.tsx";
+import ComponentSelectionBar from "./ComponentSelectionBar.tsx";
+import useComponentReorder from "../hooks/useComponentReorder.ts";
 import { FunctionalPointSummary } from "./FunctionalPointSummary.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
-import CreateCurrentDate from "../api/date.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
@@ -32,25 +35,11 @@ import DatePicker from "react-datepicker";
 import { format } from "date-fns";
 import { enUS, fi } from "date-fns/locale";
 
-// dnd-kit imports
-import {
-  DndContext,
-  closestCenter,
-  DragEndEvent,
-  DragStartEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  rectSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { useAlert } from "../context/AlertProvider.tsx";
+import { DndContext, DragOverlay } from "@dnd-kit/core";
+import { useAlert } from "../hooks/useAlert.ts";
 import {
   createSubComponents,
   updateSubComponents,
-  moveComponentToTop,
-  moveComponentToBottom,
 } from "../lib/fc-service-functions.ts";
 import {
   fetchProjectComments,
@@ -58,69 +47,6 @@ import {
   updateProjectComment,
   deleteProjectComment,
 } from "../api/comments.ts";
-
-function SortableFunctionalComponent({
-  component,
-  project,
-  setProject,
-  setProjectResponse,
-  deleteFunctionalComponent,
-  isLatest,
-  collapsed,
-  onCollapseChange,
-  debouncedSaveProject,
-  onMLAToggle,
-  descriptionRowsExpanded,
-  isCompactMode,
-  onMoveToTop,
-  onMoveToBottom,
-}: {
-  component: TGenericComponent;
-  project: Project;
-  setProject: React.Dispatch<React.SetStateAction<Project | null>>;
-  setProjectResponse: React.Dispatch<
-    React.SetStateAction<ProjectResponse | null>
-  >;
-  deleteFunctionalComponent: (id: number) => Promise<void>;
-  isLatest: boolean;
-  collapsed: boolean;
-  onCollapseChange: (componentId: number, collapsed: boolean) => void;
-  debouncedSaveProject: () => void;
-  onMLAToggle: (componentId: number, newMLAValue: boolean) => void;
-  descriptionRowsExpanded: boolean;
-  isCompactMode: boolean;
-  onMoveToTop: (componentId: number) => void;
-  onMoveToBottom: (componentId: number) => void;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: component.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      <FunctionalClassComponent
-        project={project}
-        setProject={setProject}
-        setProjectResponse={setProjectResponse}
-        component={component}
-        deleteFunctionalComponent={deleteFunctionalComponent}
-        isLatest={isLatest}
-        collapsed={collapsed}
-        onCollapseChange={onCollapseChange}
-        debouncedSaveProject={debouncedSaveProject}
-        dragHandleProps={{ ...attributes, ...listeners }}
-        onMLAToggle={onMLAToggle}
-        descriptionRowsExpanded={descriptionRowsExpanded}
-        isCompactMode={isCompactMode}
-        onMoveToTop={onMoveToTop}
-        onMoveToBottom={onMoveToBottom}
-      />
-    </div>
-  );
-}
 
 // Debounce hook for auto-saving projects
 function useDebounce<T extends (...args: unknown[]) => void>(
@@ -173,7 +99,6 @@ export default function ProjectPage() {
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
-  const [, setProjectResponse] = useState<ProjectResponse | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -199,7 +124,7 @@ export default function ProjectPage() {
   const { language } = useLanguage();
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const commitSha = useCommitSha("-");
+  const commitSha = useCommitSha();
 
   const handleCreateComment = async () => {
     if (!project || !commentText.trim()) return;
@@ -339,14 +264,15 @@ export default function ProjectPage() {
     : [];
 
   // components visible in the grid: full list, narrowed by the search query
-  const visibleComponents =
-    componentSearchQuery.trim() === ""
-      ? sortedComponents
-      : sortedComponents.filter((component) =>
-          (component.title || "")
-            .toLowerCase()
-            .includes(componentSearchQuery.trim().toLowerCase()),
-        );
+  const componentSearchQueryEmpty = componentSearchQuery.trim() === "";
+
+  const visibleComponents = componentSearchQueryEmpty
+    ? sortedComponents
+    : sortedComponents.filter((component) =>
+        (component.title || "")
+          .toLowerCase()
+          .includes(componentSearchQuery.trim().toLowerCase()),
+      );
 
   // Alert functionality
   const { showNotification, updateNotification } = useAlert();
@@ -416,7 +342,6 @@ export default function ProjectPage() {
       const editedProject = {
         ...currentProject,
         functionalComponents: normalized,
-        updatedAt: CreateCurrentDate(),
       };
 
       await updateProject(sessionToken, editedProject);
@@ -440,6 +365,26 @@ export default function ProjectPage() {
       );
     }
   }, 5000); // Auto-save every 5 seconds
+
+  // multi-select, drag and click-to-place reordering of the component grid
+  const reorder = useComponentReorder({
+    sortedComponents,
+    visibleComponents,
+    // archived versions can't be reordered, and while searching the drop
+    // position in the filtered list would be ambiguous
+    enabled: isLatest && componentSearchQueryEmpty,
+    resetKey: selectedProjectId,
+    onReorder: (reordered) => {
+      setProject((prev) =>
+        prev ? { ...prev, functionalComponents: reordered } : prev,
+      );
+      if (isLatest) {
+        debouncedSaveProject();
+      }
+    },
+  });
+  const canReorder = isLatest && componentSearchQueryEmpty;
+  const isPlacingSelected = canReorder && reorder.selectedCount > 0;
 
   // Collapse state management for preventing components collapsing during auto-save
   const [componentCollapseStates, setComponentCollapseStates] = useState<
@@ -468,7 +413,7 @@ export default function ProjectPage() {
     setDescriptionRowsExpanded((prev) => !prev);
   };
 
-  const toggleCompactMode = () => {
+  const toggleCompactMode = useCallback(() => {
     if (isCompactMode) {
       setIsCompactMode(false);
       setCollapseAll(true);
@@ -476,13 +421,28 @@ export default function ProjectPage() {
       setIsCompactMode(true);
       setCollapseAll(false);
     }
-  };
+  }, [isCompactMode]);
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const componentId = Number(event.active.id);
-    if (!Number.isFinite(componentId)) return;
-    updateComponentCollapseState(componentId, true);
-  };
+  //keyboard shortcut for toggling between compact and full view
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+
+      //guard against toggling view when typing in an input/textarea field or using keyboard shortcuts
+      const isTyping =
+        target.tagName === "INPUT" || target.tagName === "TEXTAREA";
+      if (isTyping) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        toggleCompactMode();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleCompactMode]);
 
   useEffect(() => {
     const getProject = async () => {
@@ -702,11 +662,9 @@ export default function ProjectPage() {
         const editedProject = {
           ...currentProject,
           functionalComponents: normalized,
-          updatedAt: CreateCurrentDate(),
         };
 
-        const savedProject = await updateProject(sessionToken, editedProject);
-        setProjectResponse(savedProject);
+        await updateProject(sessionToken, editedProject);
 
         if (showNotif) {
           updateNotification(
@@ -735,62 +693,6 @@ export default function ProjectPage() {
       }
     } else {
       isManuallySaved.current = false;
-    }
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!project || !over || active.id === over.id) return;
-
-    const sorted = project.functionalComponents
-      .slice()
-      .sort((a, b) => a.orderPosition - b.orderPosition);
-
-    const oldIndex = sorted.findIndex((c) => c.id === active.id);
-    const newIndex = sorted.findIndex((c) => c.id === over.id);
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const updated = [...sorted];
-    const [moved] = updated.splice(oldIndex, 1);
-    updated.splice(newIndex, 0, moved);
-
-    const reOrdered = updated.map((c, index) => ({
-      ...c,
-      orderPosition: index,
-    }));
-
-    setProject({ ...project, functionalComponents: reOrdered });
-
-    if (isLatest) {
-      debouncedSaveProject();
-    }
-  };
-
-  const handleMoveToTop = (componentId: number) => {
-    if (!project) return;
-
-    const reOrdered = moveComponentToTop(
-      project.functionalComponents,
-      componentId,
-    );
-    setProject({ ...project, functionalComponents: reOrdered });
-
-    if (isLatest) {
-      debouncedSaveProject();
-    }
-  };
-
-  const handleMoveToBottom = (componentId: number) => {
-    if (!project) return;
-
-    const reOrdered = moveComponentToBottom(
-      project.functionalComponents,
-      componentId,
-    );
-    setProject({ ...project, functionalComponents: reOrdered });
-
-    if (isLatest) {
-      debouncedSaveProject();
     }
   };
 
@@ -1229,23 +1131,25 @@ export default function ProjectPage() {
                   onChange={(e) => setComponentSearchQuery(e.target.value)}
                 />
               )}
-              <DndContext
-                collisionDetection={closestCenter}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={visibleComponents.map((c) => c.id)}
-                  strategy={rectSortingStrategy}
-                >
-                  <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-                    {visibleComponents?.map((component) => (
-                      <SortableFunctionalComponent
+              {isPlacingSelected && (
+                <ComponentSelectionBar
+                  count={reorder.selectedCount}
+                  onClear={reorder.clearSelection}
+                />
+              )}
+              <DndContext {...reorder.dndContextProps}>
+                <div ref={reorder.gridRef} className={COMPONENT_GRID_CLASSES}>
+                  {visibleComponents.map((component, visibleIndex) => {
+                    const fullIndex = sortedComponents.indexOf(component);
+                    const isLastVisible =
+                      visibleIndex === visibleComponents.length - 1;
+                    const showSlots = isPlacingSelected && !reorder.isDragging;
+                    return (
+                      <DraggableFunctionalComponent
                         key={component.id}
                         component={component}
                         project={project}
                         setProject={setProject}
-                        setProjectResponse={setProjectResponse}
                         deleteFunctionalComponent={
                           handleDeleteFunctionalComponent
                         }
@@ -1256,19 +1160,48 @@ export default function ProjectPage() {
                         onMLAToggle={handleMLAToggle}
                         descriptionRowsExpanded={descriptionRowsExpanded}
                         isCompactMode={isCompactMode}
-                        onMoveToTop={handleMoveToTop}
-                        onMoveToBottom={handleMoveToBottom}
+                        selected={reorder.selectedIds.has(component.id)}
+                        onCardClick={
+                          canReorder
+                            ? (e) => reorder.handleCardClick(component.id, e)
+                            : undefined
+                        }
+                        dragDisabled={!canReorder}
+                        isBeingDragged={reorder.draggedIds.includes(
+                          component.id,
+                        )}
+                        dropIndicator={reorder.dropIndicatorFor(component.id)}
+                        registerCard={reorder.registerCard}
+                        placementSlots={{
+                          before: showSlots ? fullIndex : null,
+                          after:
+                            showSlots && isLastVisible ? fullIndex + 1 : null,
+                        }}
+                        onPlace={reorder.placeSelected}
                       />
-                    ))}
-                  </div>
+                    );
+                  })}
+                </div>
 
-                  {sortedComponents.length === 0 && (
-                    <p className="text-gray-500 p-4">
-                      {translation.noFunctionalComponents}
-                    </p>
+                {sortedComponents.length === 0 && (
+                  <p className="text-gray-500 p-4">
+                    {translation.noFunctionalComponents}
+                  </p>
+                )}
+                <div
+                  ref={bottomRef}
+                  className={isPlacingSelected ? "h-24" : ""}
+                />
+                <DragOverlay dropAnimation={null}>
+                  {reorder.isDragging && (
+                    <ComponentDragPreview
+                      component={sortedComponents.find(
+                        (c) => c.id === reorder.draggedIds[0],
+                      )}
+                      count={reorder.draggedIds.length}
+                    />
                   )}
-                  <div ref={bottomRef} />
-                </SortableContext>
+                </DragOverlay>
               </DndContext>
             </>
           ) : error ? (

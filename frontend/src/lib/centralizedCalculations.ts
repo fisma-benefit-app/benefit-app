@@ -179,13 +179,6 @@ export const calculateTotalPoints = (
 };
 
 /**
- * Calculate total functional points for a project
- */
-export const calculateProjectTotalPoints = (project: Project): number => {
-  return calculateTotalPoints(project.functionalComponents);
-};
-
-/**
  * Calculate total functional points for parent components only (excluding subcomponents)
  */
 export const calculateParentOnlyPoints = (
@@ -278,15 +271,6 @@ export const calculateTotalPossiblePoints = (
     totalPossiblePoints += calculateBasePoints(component);
   }
   return totalPossiblePoints;
-};
-
-/**
- * Calculate total possible functional points for a project (if all components were 100% complete)
- */
-export const calculateProjectTotalPossiblePoints = (
-  project: Project,
-): number => {
-  return calculateTotalPossiblePoints(project.functionalComponents);
 };
 
 /**
@@ -395,6 +379,14 @@ export const calculateComponentsWithPoints = (
   return components.map((component) => ({
     ...component,
     functionalPoints: calculateComponentPoints(component).toFixed(2),
+    subComponents: component.subComponents
+      ? component.subComponents.map((sub) => ({
+          ...sub,
+          functionalPoints: calculateComponentPoints(
+            sub as TGenericComponent,
+          ).toFixed(2),
+        }))
+      : component.subComponents,
   }));
 };
 

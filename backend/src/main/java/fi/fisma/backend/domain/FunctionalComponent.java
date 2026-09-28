@@ -39,7 +39,7 @@ public class FunctionalComponent {
   @Column(name = "title")
   private String title;
 
-  @Size(max = 1000, message = "Description must not exceed 1000 characters")
+  @Size(max = 10000, message = "Description must not exceed 10000 characters")
   @Column(name = "description")
   private String description;
 

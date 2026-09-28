@@ -5,7 +5,9 @@ function withTrailingSlash(p: string) {
   return p.endsWith("/") ? p : `${p}/`;
 }
 
-export default function useCommitSha(fallback = "-") {
+const fallback = "-";
+
+export default function useCommitSha() {
   const [commitSha, setCommitSha] = useState<string>(fallback);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function useCommitSha(fallback = "-") {
 
     loadVersionJson();
     return () => controller.abort();
-  }, [fallback]);
+  }, []);
 
   return commitSha;
 }

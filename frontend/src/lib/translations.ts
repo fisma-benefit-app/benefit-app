@@ -8,6 +8,8 @@ export const translations = {
       SERVICE_UNAVAILABLE:
         "Cannot reach server. Please ensure the service is running.",
       UNAUTHORIZED: "Invalid username or password.",
+      TOO_MANY_LOGIN_ATTEMPTS:
+        "Too many failed login attempts. Please try again in one minute.",
     },
     scrollToTop: {
       tooltip: "Scroll to top",
@@ -102,8 +104,6 @@ export const translations = {
     functionalClassComponent: {
       collapseExpand: "Collapse/Expand component",
       delete: "Delete component",
-      moveToTop: "Move to top",
-      moveToBottom: "Move to bottom",
       toggleMLAInterfaces: "Show/Hide multi-layer interfaces",
       //creates an object where keys and their values are the same
       classNameOptions: Object.fromEntries(
@@ -158,6 +158,7 @@ export const translations = {
       },
       titlePlaceholder: "Title",
       descriptionPlaceholder: "Description/Comments",
+      descriptionMaxLengthReached: "Maximum description length reached",
       functionalPointText: "FP",
       functionalPointReadyText: "FP (Complete)",
       classNamePlaceholder: "Select Classname",
@@ -233,6 +234,12 @@ export const translations = {
       enableCompactMode: "Compact View",
       disableCompactMode: "Full View",
       searchComponentsPlaceholder: "Search components by title",
+      componentsSelected: "selected",
+      clearSelection: "Clear selection",
+      componentsLabel: "components",
+      clickGapToMove:
+        "Drag a selected component, or click a highlighted gap, to move them. Shift+click selects a range.",
+      moveSelectedHere: "Move selected components here",
       noFunctionalComponents:
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
@@ -275,6 +282,7 @@ export const translations = {
       deleting: "Deleting...",
       deleteSuccessful: "Functional component deleted",
       deleteFailed: "Failed to delete functional component",
+      pdfExportFailed: "Failed to generate the PDF report. Please try again.",
       sessionExpirationDescription:
         "You will be logged out in {minutes} minute(s)",
       sessionExpirationHeader: "Session",
@@ -292,15 +300,6 @@ export const translations = {
       passwordMinLength: "Password must be at least 6 characters",
       passwordUpdated: "Password updated successfully",
       passwordUpdateFailed: "Failed to update password",
-      updateUsername: "Update Username",
-      newUsername: "New Username",
-      currentPasswordForUsername: "Current Password (required)",
-      updateUsernameButton: "Update Username",
-      usernameEmpty: "Username cannot be empty",
-      usernamePasswordRequired: "Password is required to update username",
-      userIdNotFound: "User ID not found. Please try logging in again.",
-      usernameUpdated: "Username updated successfully",
-      usernameUpdateFailed: "Failed to update username",
       deleteAccount: "Delete Account",
       deleteAccountDangerZone: "DANGER! This action is irreversible.",
       deleteAccountWarning:
@@ -319,6 +318,8 @@ export const translations = {
       SERVICE_UNAVAILABLE:
         "Palvelinta ei tavoiteta. Varmista, että palvelu on käynnissä.",
       UNAUTHORIZED: "Virheellinen käyttäjätunnus tai salasana.",
+      TOO_MANY_LOGIN_ATTEMPTS:
+        "Liian monta epäonnistunutta kirjautumisyritystä. Yritä uudelleen minuutin kuluttua.",
     },
     scrollToTop: {
       tooltip: "Siirry ylös",
@@ -413,8 +414,6 @@ export const translations = {
     functionalClassComponent: {
       collapseExpand: "Pienennä/laajenna komponentti",
       delete: "Poista komponentti",
-      moveToTop: "Siirrä alkuun",
-      moveToBottom: "Siirrä loppuun",
       toggleMLAInterfaces: "Näytä/piilota monikerrosliittymät",
       classNameOptions: {
         "Interactive end-user navigation and query service":
@@ -470,6 +469,7 @@ export const translations = {
       },
       titlePlaceholder: "Otsikko",
       descriptionPlaceholder: "Kuvaus/Kommentit",
+      descriptionMaxLengthReached: "Kuvauksen enimmäispituus saavutettu",
       functionalPointText: "TP",
       functionalPointReadyText: "TP (Valmis)",
       classNamePlaceholder: "Valitse toimintoluokka",
@@ -546,6 +546,12 @@ export const translations = {
       enableCompactMode: "Tiivis näkymä",
       disableCompactMode: "Kokonaisnäkymä",
       searchComponentsPlaceholder: "Hae komponentteja otsikon perusteella",
+      componentsSelected: "valittu",
+      clearSelection: "Tyhjennä valinta",
+      componentsLabel: "komponenttia",
+      clickGapToMove:
+        "Siirrä valitut raahaamalla tai klikkaamalla korostettua väliä. Shift+klikkaus valitsee välin.",
+      moveSelectedHere: "Siirrä valitut komponentit tähän",
       noFunctionalComponents:
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",
@@ -588,6 +594,7 @@ export const translations = {
       deleting: "Poistetaan...",
       deleteSuccessful: "Toiminnallinen komponentti poistettu",
       deleteFailed: "Toiminnallisen komponentin poistaminen epäonnistui",
+      pdfExportFailed: "PDF-raportin luonti epäonnistui. Yritä uudelleen.",
       sessionExpirationHeader: "Istunto",
       sessionExpirationDescription:
         "Sinut kirjataan ulos {minutes} minuutin kuluttua",
@@ -605,17 +612,6 @@ export const translations = {
       passwordMinLength: "Salasanan on oltava vähintään 6 merkkiä pitkä",
       passwordUpdated: "Salasana päivitetty onnistuneesti",
       passwordUpdateFailed: "Salasanan päivitys epäonnistui",
-      updateUsername: "Päivitä käyttäjänimi",
-      newUsername: "Uusi käyttäjänimi",
-      currentPasswordForUsername: "Nykyinen salasana (vaaditaan)",
-      updateUsernameButton: "Päivitä käyttäjänimi",
-      usernameEmpty: "Käyttäjänimi ei voi olla tyhjä",
-      usernamePasswordRequired:
-        "Salasana vaaditaan käyttäjänimen päivittämiseksi",
-      userIdNotFound:
-        "Käyttäjätunnusta ei löydy. Ole hyvä ja kirjaudu sisään uudelleen.",
-      usernameUpdated: "Käyttäjänimi päivitetty onnistuneesti",
-      usernameUpdateFailed: "Käyttäjänimen päivitys epäonnistui",
       deleteAccount: "Poista tili",
       deleteAccountDangerZone: "VAARA! Tätä toimintoa ei voi perua.",
       deleteAccountWarning:

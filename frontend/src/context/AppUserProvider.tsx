@@ -3,7 +3,7 @@ import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
 import { extendSession, validateJWT } from "../api/authorization";
 import { decodeJWT, sessionTimeoutConfig } from "../lib/jwtUtils";
-import { useAlert } from "./AlertProvider";
+import { useAlert } from "../hooks/useAlert";
 import useTranslations from "../hooks/useTranslations";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -93,6 +93,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     };
 
     restoreSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- restore the stored session once on mount; logout changes with sessionToken
   }, []);
 
   const showSessionWarning = useCallback(
@@ -115,11 +116,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
           label: translation.extendSession,
           onClick: async () => {
             try {
-              const rememberMe = localStorage.getItem("loginToken") !== null;
-              const renewedToken = await extendSession(
-                sessionToken!,
-                rememberMe,
-              );
+              const renewedToken = await extendSession(sessionToken!);
 
               if (localStorage.getItem("loginToken")) {
                 localStorage.setItem("loginToken", renewedToken);
@@ -205,7 +202,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     const startCountdown = () => {
       showSessionWarning(expirationTime);
 
-      countdownIntervalId = setInterval(() => {
+      countdownIntervalId = window.setInterval(() => {
         if (expirationTime - Date.now() <= 0) {
           if (countdownIntervalId) clearInterval(countdownIntervalId);
           return;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useAppUser from "../hooks/useAppUser";
 import useTranslations from "../hooks/useTranslations";
-import { useAlert } from "../context/AlertProvider";
+import { useAlert } from "../hooks/useAlert";
 import { changePassword, deleteAppUser } from "../api/profile";
 import { useNavigate } from "react-router";
 import ConfirmModal from "./ConfirmModal";
@@ -18,11 +18,6 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-
-  // Username update state
-  // const [newUsername, setNewUsername] = useState("");
-  // const [passwordForUsername, setPasswordForUsername] = useState("");
-  // const [usernameError, setUsernameError] = useState("");
 
   // Delete account state
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -70,65 +65,6 @@ export default function ProfilePage() {
       );
     }
   };
-
-  // const handleUsernameUpdate = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setUsernameError("");
-
-  //   // Validation
-  //   if (!newUsername.trim()) {
-  //     setUsernameError(translation.usernameEmpty);
-  //     return;
-  //   }
-
-  //   if (!passwordForUsername) {
-  //     setUsernameError(translation.usernamePasswordRequired);
-  //     return;
-  //   }
-
-  //   if (!appUser?.id) {
-  //     setUsernameError(translation.userIdNotFound);
-  //     return;
-  //   }
-
-  //   try {
-  //     await updateAppUser(sessionToken, appUser.id, {
-  //       username: newUsername,
-  //       password: passwordForUsername,
-  //     });
-
-  //     showNotification(
-  //       alertTranslation.success,
-  //       translation.usernameUpdated,
-  //       "success",
-  //       "username-update",
-  //     );
-
-  //     // Clear form
-  //     setNewUsername("");
-  //     setPasswordForUsername("");
-
-  //     // Update will require re-login, so logout
-  //     setTimeout(() => {
-  //       logout();
-  //       navigate("/login");
-  //     }, 2000);
-  //   } catch (err) {
-  //     if (err instanceof Error && err.message === "Unauthorized!") {
-  //       logout();
-  //     }
-  //     console.error("Username update error:", err);
-  //     setUsernameError(
-  //       err instanceof Error ? err.message : "Failed to update username",
-  //     );
-  //     showNotification(
-  //       alertTranslation.error,
-  //       translation.usernameUpdateFailed,
-  //       "error",
-  //       "username-update",
-  //     );
-  //   }
-  // };
 
   const handleDeleteAccount = async () => {
     if (!appUser?.id) {

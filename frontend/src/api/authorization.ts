@@ -20,7 +20,7 @@ const fetchJWT = async (
       if (response.status === 401) {
         throw new Error(networkingErrorMessages.UNAUTHORIZED);
       } else if (response.status === 429) {
-        throw new Error("Too many login attempts!");
+        throw new Error(networkingErrorMessages.TOO_MANY_LOGIN_ATTEMPTS);
       }
       throw new Error(
         `Error getting JWT in fetchJWT! Status: ${response.status}`,
@@ -44,8 +44,8 @@ const fetchJWT = async (
   }
 };
 
-const extendSession = async (sessionToken: string, rememberMe: boolean) => {
-  const fetchURL = `${API_URL}/token?rememberMe=${rememberMe}`;
+const extendSession = async (sessionToken: string) => {
+  const fetchURL = `${API_URL}/token`;
   const response = await fetch(fetchURL, {
     method: "POST",
     headers: { Authorization: sessionToken },

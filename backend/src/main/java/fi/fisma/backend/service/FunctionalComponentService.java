@@ -81,11 +81,6 @@ public class FunctionalComponentService {
             .findByIdActive(componentId, projectId)
             .orElseThrow(() -> new EntityNotFoundException("Component not found"));
 
-    // Ensure the component belongs to the specified project
-    if (!component.getProject().getId().equals(projectId)) {
-      throw new EntityNotFoundException("Component not found in the specified project");
-    }
-
     // Soft delete the component
     LocalDateTime deletionTime = LocalDateTime.now();
     component.setDeletedAt(deletionTime);
@@ -102,7 +97,6 @@ public class FunctionalComponentService {
     return projectMapper.toResponse(updatedProject);
   }
 
-  @Transactional
   private void deleteSubcomponents(Long parentId, LocalDateTime deletionTime) {
     // Gets a list of a functional component's subcomponents
     List<FunctionalComponent> subcomponents =
@@ -137,11 +131,5 @@ public class FunctionalComponentService {
     for (var component : activeComponents) {
       component.setOrderPosition(i++);
     }
-  }
-
-  @Transactional(readOnly = true)
-  public List<FunctionalComponent> getProjectComponents(Long projectId, String username) {
-    projectService.findProjectForUser(projectId, username); // Verify access
-    return functionalComponentRepository.findAllByProjectIdActive(projectId);
   }
 }

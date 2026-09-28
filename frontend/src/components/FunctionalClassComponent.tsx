@@ -5,14 +5,15 @@ import {
   //faLayerGroup,
   //faGripVertical,
   faArrowsRotate,
-  faAnglesUp,
-  faAnglesDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, useEffect } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
-import { classNameOptions } from "../lib/fc-constants.ts";
-import { getFunctionalComponentColors } from "../lib/fc-icons.ts";
+import {
+  classNameOptions,
+  DESCRIPTION_MAX_LENGTH,
+} from "../lib/fc-constants.ts";
+import { getFunctionalComponentColors } from "../lib/fc-icons.ts"; 
 import {
   getComponentTypeOptions,
   getInputFields,
@@ -31,12 +32,12 @@ import {
   ClassName,
   ComponentType,
   Project,
-  ProjectResponse,
   TGenericComponent,
 } from "../lib/types.ts";
 import ConfirmModal from "./ConfirmModal.tsx";
 import ComponentClassIcons from "./ComponentClassIcons.tsx";
 import SubComponentsModal from "./SubComponentsModal.tsx";
+import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import FunctionalClassSubComponent from "./FunctionalClassSubComponent.tsx";
 
 type FunctionalClassComponentProps = {
@@ -44,19 +45,18 @@ type FunctionalClassComponentProps = {
   deleteFunctionalComponent: (componentId: number) => Promise<void>;
   project: Project;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
-  setProjectResponse: React.Dispatch<
-    React.SetStateAction<ProjectResponse | null>
-  >;
   isLatest: boolean;
   collapsed: boolean;
   onCollapseChange: (componentId: number, collapsed: boolean) => void;
-  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
   debouncedSaveProject: () => void;
   onMLAToggle: (componentId: number, newValue: boolean) => void;
   descriptionRowsExpanded: boolean;
   isCompactMode: boolean;
-  onMoveToTop: (componentId: number) => void;
-  onMoveToBottom: (componentId: number) => void;
+  selected?: boolean;
+  // selection clicks on the card (click toggles, Shift+click adds a range)
+  onCardClick?: (e: React.MouseEvent<HTMLFormElement>) => void;
+  // dnd-kit listeners making the card body the drag handle
+  dragListeners?: DraggableSyntheticListeners;
 };
 
 export default function FunctionalClassComponent({
@@ -68,12 +68,12 @@ export default function FunctionalClassComponent({
   collapsed,
   onCollapseChange,
   debouncedSaveProject,
-  dragHandleProps,
   onMLAToggle,
   descriptionRowsExpanded,
   isCompactMode,
-  onMoveToTop,
-  onMoveToBottom,
+  selected = false,
+  onCardClick,
+  dragListeners,
 }: FunctionalClassComponentProps) {
   const toggleCollapse = () => {
     onCollapseChange(component.id, !collapsed);
@@ -96,6 +96,7 @@ export default function FunctionalClassComponent({
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
 
   const translation = useTranslations().functionalClassComponent;
+  const descriptionLength = component.description?.length ?? 0;
 
   const componentTypeOptions = getComponentTypeOptions(component.className);
   const inputFields = getInputFields(component.className);
@@ -301,21 +302,20 @@ export default function FunctionalClassComponent({
   return (
     <>
       <form
+        {...dragListeners}
         onSubmit={(e) => e.preventDefault()}
-        className="flex flex-col gap-4 border-2 border-fisma-gray w-full p-4 rounded-lg border-l-8"
-        style={{
-          borderLeftColor: classColors.border,
-          backgroundColor: classColors.card,
-        }}
+onClick={onCardClick}
+
+onMouseDown={(e) => {
+  if (onCardClick && e.shiftKey) e.preventDefault();
+}}
+className={`flex flex-col gap-4 border-2 ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"} w-full p-4 rounded-lg border-l-8`}
+style={{
+  borderLeftColor: classColors.border,
+  backgroundColor: classColors.card,
+}}
       >
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
-          {/* Drag handle */}
-          <div
-            {...dragHandleProps}
-            className="cursor-grab bg-fisma-gray text-white py-2 px-2"
-          >
-            ::
-          </div>
           <div className="flex-1 min-w-[200px] flex items-center gap-2">
             <ComponentClassIcons
               componentClass={component.className}
@@ -333,30 +333,6 @@ export default function FunctionalClassComponent({
 
           <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
             <div className="flex gap-2 items-center">
-              {!isCompactMode && (
-                <>
-                  {/* Move to top button */}
-                  <button
-                    type="button"
-                    className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
-                    onClick={() => onMoveToTop(component.id)}
-                    disabled={!isLatest}
-                    title={translation.moveToTop}
-                  >
-                    <FontAwesomeIcon icon={faAnglesUp} />
-                  </button>
-                  {/* Move to bottom button */}
-                  <button
-                    type="button"
-                    className={`${isLatest ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
-                    onClick={() => onMoveToBottom(component.id)}
-                    disabled={!isLatest}
-                    title={translation.moveToBottom}
-                  >
-                    <FontAwesomeIcon icon={faAnglesDown} />
-                  </button>
-                </>
-              )}
               {/* Collapse button */}
               <button
                 type="button"
@@ -445,9 +421,21 @@ export default function FunctionalClassComponent({
                   onChange={handleComponentChange}
                   className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md"
                   rows={descriptionRowsExpanded ? 10 : 3}
+                  maxLength={DESCRIPTION_MAX_LENGTH}
                   disabled={!isLatest}
                   placeholder={translation.descriptionPlaceholder}
                 />
+                <p
+                  className={`text-xs text-right ${
+                    descriptionLength >= DESCRIPTION_MAX_LENGTH
+                      ? "text-red-600 font-medium"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {descriptionLength >= DESCRIPTION_MAX_LENGTH &&
+                    `${translation.descriptionMaxLengthReached}: `}
+                  {descriptionLength} / {DESCRIPTION_MAX_LENGTH}
+                </p>
               </div>
             )}
 

@@ -13,12 +13,16 @@ export default defineConfig(({ mode }) => {
 
   // Ensure VITE_API_URL is set
   if (!env.VITE_API_URL) {
-    throw new Error(`VITE_API_URL is not set in your .env.${mode} file!`);
+    throw new Error(
+      `VITE_API_URL is not set. Set it in frontend/.env or frontend/.env.${mode}, in the environment, or as a Docker build arg.`,
+    );
   }
 
   // Ensure VITE_BASE_PATH is set for testing and production deployments
   if ((mode === "testing" || mode === "production") && !env.VITE_BASE_PATH) {
-    throw new Error(`VITE_BASE_PATH is not set in your .env.${mode} file!`);
+    throw new Error(
+      `VITE_BASE_PATH is required for ${mode} builds. Set it in frontend/.env.${mode}, in the environment, or as a Docker build arg.`,
+    );
   }
 
   return {
@@ -31,10 +35,6 @@ export default defineConfig(({ mode }) => {
       watch: {
         usePolling: env.CHOKIDAR_USEPOLLING === "true",
       },
-    },
-    define: {
-      // make env available in the client code if needed
-      "import.meta.env.VITE_API_URL": JSON.stringify(env.VITE_API_URL),
     },
   };
 });

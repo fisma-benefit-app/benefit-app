@@ -8,10 +8,10 @@ import {
   calculatePossiblePointsByLayer,
 } from "./centralizedCalculations";
 import {
-  createHiddenIframe,
+  createHiddenContainer,
   dateLocalizer,
   getAllComponents,
-  sizeIframeToContent,
+  waitForContentReady,
   downloadElementsAsPdf,
 } from "./printUtils";
 
@@ -85,12 +85,9 @@ export const generateCalculationReportPDF = async (
       ? componentTypeTranslation[componentType] || componentType
       : "";
 
-  const { iframe, doc } = createHiddenIframe();
+  const { host, root } = createHiddenContainer();
+  const doc = document;
   const filename = `${project.projectName}-v${project.version}.pdf`;
-  doc.title = filename;
-  if (doc.documentElement) {
-    doc.documentElement.lang = "fi";
-  }
 
   const style = doc.createElement("style");
   style.textContent = `
@@ -108,8 +105,7 @@ export const generateCalculationReportPDF = async (
         color: blue;
         font-weight: bold;
       }
-      body { font-family: Arial, sans-serif; padding: 20px; }
-      .pdf-container { padding: 20px; background: #ffffff; }
+      .pdf-container { font-family: Arial, sans-serif; padding: 20px; background: #ffffff; }
       h1 { text-align: center; }
       .project-info { margin-bottom: 20px; }
       table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -152,6 +148,7 @@ export const generateCalculationReportPDF = async (
 
   const container = doc.createElement("div");
   container.className = "pdf-container";
+  container.lang = "fi";
 
   const heading = createElementWithText(
     doc,
@@ -669,18 +666,12 @@ export const generateCalculationReportPDF = async (
     container.appendChild(typeTable);
   }
 
-  if (doc.head) {
-    doc.head.appendChild(style);
-  }
-
-  while (doc.body.firstChild) {
-    doc.body.removeChild(doc.body.firstChild);
-  }
-  doc.body.appendChild(container);
+  root.appendChild(style);
+  root.appendChild(container);
   try {
-    await sizeIframeToContent(iframe, doc);
+    await waitForContentReady();
     await downloadElementsAsPdf([container], filename);
   } finally {
-    iframe.remove();
+    host.remove();
   }
 };

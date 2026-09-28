@@ -128,36 +128,13 @@ const createNewProjectVersion = async (
     "Content-Type": "application/json",
   };
 
-  // Map Project -> ProjectRequest
-  // Note: ProjectService.createProjectVersion (backend) ignores this payload's
-  // functionalComponents/previousFCId entirely — it rebuilds the new version's components
-  // straight from the original project and computes previousFCId itself. The mapping below is
-  // sent but has no effect; kept in sync with the request shape for clarity, not correctness.
+  // The backend rebuilds the new version's components from the original project.
   const projectRequest: ProjectRequest = {
     projectName: previousProject.projectName,
     version: previousProject.version + 1,
     reportContactDetails: previousProject.reportContactDetails ?? null,
     reportNotes: previousProject.reportNotes ?? null,
-    functionalComponents: previousProject.functionalComponents.map((fc) => ({
-      // adapt to FunctionalComponentRequest DTO
-      className: fc.className,
-      componentType: fc.componentType,
-      dataElements: fc.dataElements,
-      readingReferences: fc.readingReferences,
-      writingReferences: fc.writingReferences,
-      functionalMultiplier: fc.functionalMultiplier,
-      operations: fc.operations,
-      degreeOfCompletion: fc.degreeOfCompletion,
-      title: fc.title,
-      description: fc.description,
-      previousFCId: fc.id,
-      orderPosition: fc.orderPosition,
-      isMLA: fc.isMLA,
-      parentFCId: fc.parentFCId,
-      subComponentType: null,
-      isReadonly: false,
-      subComponents: fc.subComponents || [],
-    })),
+    functionalComponents: [],
     calculationDate: previousProject.calculationDate ?? null,
     projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
@@ -233,7 +210,9 @@ const updateProject = async (
     isReadonly: false,
     subComponents: fc.subComponents
       ? fc.subComponents.map((subComp) => ({
-          id: subComp.id,
+          // createSubComponents assigns negative temporary IDs to not-yet-saved sub-components;
+          // the backend only creates a sub-component when its id is null.
+          id: subComp.id > 0 ? subComp.id : undefined,
           title: subComp.title,
           description: subComp.description,
           className: subComp.className,

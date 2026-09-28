@@ -11,8 +11,9 @@ Benefit is a function point analysis tool (FiSMA 1.1 method / ISO/IEC 29881) bui
 ### Running the app locally
 
 ```bash
-# Full Dockerized setup (build on first run or when Dockerfiles change)
-docker compose up --build
+# Full Dockerized setup (build on first run or when Dockerfiles/package.json change;
+# -V refreshes the node_modules volume so new npm deps show up)
+docker compose up --build -V
 
 # Stop (keep DB data/caches) / stop and wipe everything
 docker compose down
@@ -21,12 +22,12 @@ docker compose down -v
 
 Frontend: http://localhost:5173/benefit-app/login · Backend: http://localhost:8080/actuator/health · Dev login: `user` / `user`
 
-Without Docker: run only the DB via `docker compose up db`, then `cd backend && ./gradlew bootRun` and `cd frontend && npm install && npm run dev`. The backend requires `JWT_PRIVATE_KEY` set in the root `.env` (from the private `backend-credentials` repo) — it is not in this repository.
+Without Docker: run only the DB via `docker compose up db`, then `cd backend && SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun` and `cd frontend && npm install && npm run dev`. Plain `./gradlew bootRun` uses the default profile and never seeds; the `dev` profile deletes and reseeds the database, and the backend refuses to start under `dev` against a non-local database. The backend requires `JWT_PRIVATE_KEY` set in the root `.env` (from the private `backend-credentials` repo) — it is not in this repository.
 
 ### Backend (`backend/`)
 
 ```bash
-./gradlew bootRun                                    # run
+./gradlew bootRun                                    # run (default profile, no seeding)
 ./gradlew build                                       # build
 ./gradlew test                                        # run all tests (needs Postgres — `docker compose up db` first)
 ./gradlew test --tests fi.fisma.backend.YourTestClass # run a single test class
@@ -38,13 +39,16 @@ Without Docker: run only the DB via `docker compose up db`, then `cd backend && 
 
 ```bash
 npm run dev                # dev server
-npx eslint .                # lint
+npx eslint . --max-warnings 0 # lint (CI fails on any warning)
+npx tsc -b                  # type-check (not `tsc --noEmit`: the root tsconfig.json has no files of its own)
 npx prettier . --write      # format
 npm run build:testing        # build for testing env (needs frontend/.env)
 npm run build:production     # build for production env
+npm run format:check         # check formatting, like CI does
+npm run knip                 # find unused files, exports and dependencies (needs frontend/.env; not run in CI)
 ```
 
-There is no frontend test suite (no test runner installed, no `*.test.ts(x)`/`*.spec.ts(x)` files) — don't invent an `npm test` command. Frontend correctness currently relies on ESLint, Prettier, `run-checks-on-pr.yml`, and manual verification.
+There is no frontend test suite (no test runner installed, no `*.test.ts(x)`/`*.spec.ts(x)` files) — don't invent an `npm test` command. Frontend correctness currently relies on TypeScript (`tsc -b`), ESLint, Prettier, `run-checks-on-pr.yml`, and manual verification.
 
 ### Formatting hook
 
@@ -71,9 +75,9 @@ Per the backend ADR (`documents/references/adr_backend.md`), the backend is inte
 
 Keep business logic in `service/`, not in controllers or repositories — that discipline is the explicit tradeoff called out in the ADR for this layered structure.
 
-**Auth flow**: login uses HTTP Basic against `POST /token`; the backend returns a JWT in the `Authorization: Bearer <jwt>` response header (exposed via CORS). The JWT is RSA-signed (`JWT_PRIVATE_KEY`/`jwt-keys/app.pub`), carries the username as `sub` and `ROLE_USER` as `scope`, and is valid 24h. Logout blacklists the token's `jti` in-memory via `TokenBlacklistService` until expiry. Full detail in `documents/guides/authentication.md`.
+**Auth flow**: login uses HTTP Basic against `POST /token`; the backend returns a JWT in the `Authorization: Bearer <jwt>` response header (exposed via CORS). The JWT is RSA-signed (`JWT_PRIVATE_KEY`/`jwt-keys/app.pub`), carries the username as `sub` and `ROLE_USER` as `scope`, and is valid 24h (30 days with `?rememberMe=true`). Renewal ("extend session") is `POST /token` with the current Bearer token: it keeps the token's lifetime, revokes the old token, and can't extend a login past 30 days (`auth_time` claim). Usernames can't be changed, because `sub` is how the backend finds the user. Logout blacklists the token's `jti` in-memory via `TokenBlacklistService` until expiry. Full detail in `documents/guides/authentication.md`.
 
-**Database**: Postgres. Schema/seed data live in `backend/src/main/resources/` (`schema.sql`, `data.sql`, `database-seed-{dev,testing,production}.sql`); seeding is controlled by the `DATABASE_INIT_MODE`/`DATABASE_SEED_FILE` env vars (see `application.yaml`). **Migrations are manual, not run automatically** — new SQL files are added under `backend/src/main/resources/migrations/` and must be applied by hand against each environment (see `documents/guides/database.md`).
+**Database**: Postgres. Schema/seed data live in `backend/src/main/resources/` (`schema.sql`, `data.sql`, `database-seed-{dev,testing,production}.sql`); seeding is controlled by the `DATABASE_INIT_MODE`/`DATABASE_SEED_FILE` env vars (see `application.yaml`). **Migrations are manual, not run automatically** — new SQL files are added under `backend/src/main/resources/migrations/` and must be applied by hand against each environment (see `documents/guides/database.md`). The exception is the self-hosted server (`docker-compose.prod.yaml`), where `./update_server.sh` applies them and records them in a `schema_migrations` table.
 
 ### Frontend — React + TypeScript + Vite (`frontend/src/`)
 
@@ -93,8 +97,8 @@ A `Project` contains `FunctionalComponent`s. Each component has a `className`/`c
 ## CI/CD
 
 - Trunk-based development: all work merges to `main` via PR (see `documents/guides/branching_strategy.md`). Development branches are named `issue/#XXX-description` (features), `bugfix/#XXX-description`, or `chore/description`; keep each PR scoped to one issue — unrelated changes get their own issue and PR.
-- `run-checks-on-pr.yml` (GitHub Actions) runs on every PR and must pass: backend Spotless check, frontend Prettier check, frontend ESLint, backend tests (against a Postgres service container). PRs also require peer review/approval.
-- Before opening a PR: link it to its issue and make sure CI (Spotless, Prettier, ESLint, backend tests) passes locally first.
+- `run-checks-on-pr.yml` (GitHub Actions) runs on every PR and must pass: backend Spotless check, frontend Prettier check, frontend ESLint (no warnings allowed), frontend type check (`tsc -b`), backend tests (against a Postgres service container). PRs also require peer review/approval.
+- Before opening a PR: link it to its issue and make sure CI (Spotless, Prettier, ESLint, `tsc -b`, backend tests) passes locally first.
 - Merges to `main` auto-deploy to the testing environment (Heroku backend + GitHub Pages frontend). Production deploys are triggered manually from Heroku, then GitHub Actions rolls the frontend to GitHub Pages (`run-deployments.yml`).
 - Version bumps use `./update_version.sh X.Y.Z`, which opens a `chore/update-version-to-X.Y.Z` PR; merging it auto-creates the `vX.Y.Z` git tag (`create-release-tag.yml`). See `documents/guides/versioning.md`. Only run this when explicitly asked to cut a release — merging its PR is not easily reversible.
 

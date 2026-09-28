@@ -34,7 +34,7 @@ psql -h localhost -p 5433 -U <username> <database>
 
 The production and testing databases are hosted on Heroku Postgres. Database seeding is controlled through environment configuration, and the branch-specific safety convention is that the default shared backend file must not carry a seed- or schema-init mode set to `always`.
 
-Database migrations are manual. See (/backend/src/main/resources/migrations/). 
+Database migrations are manual. See (/backend/src/main/resources/migrations/). On a self-hosted server (`docker-compose.prod.yaml`), `./update_server.sh` applies them and records them in the `schema_migrations` table; see the [UpCloud guide](./upcloud_deployment.md#updating-to-a-newer-version).
 
 ### Production and testing database seeding
 
@@ -61,6 +61,8 @@ spring:
 This branch intentionally removes the generic fallback `schema.sql` discovery path and uses the explicit `schema-dev.sql` name. That is a security and consistency improvement: Spring will not automatically look for a base `schema.sql` file when the dev override file declares the scheme and seed sources explicitly.
 
 The production and testing environments should therefore not point at the dev seed file for normal use. Their safe default remains the shared `mode: never` configuration, and any dev-only initialization should happen only when the `dev` profile is active locally or through the Compose environment.
+
+As a safety net, `DevProfileDatabaseGuard` stops the backend from starting when the `dev` profile is active and `spring.datasource.url` points anywhere other than a local database (`localhost`, `127.0.0.1`, `::1` or the Compose service `db`). This protects the testing and production databases if their URL ends up in `.env` by mistake. To run a local backend against a remote database on purpose, use another profile, e.g. plain `./gradlew bootRun`, which uses the default profile. The guard can't protect a database on the same machine, such as a Postgres container on a server; there, only the absence of the `dev` profile does.
 
 
 The contents of the database can also be reseeded manually. You can run the contents of each seeding file in the database directly, resulting in reseeding. See accessing database via different methods below.

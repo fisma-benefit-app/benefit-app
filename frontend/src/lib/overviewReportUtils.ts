@@ -1,4 +1,4 @@
-import { CommentResponse, Project, TGenericComponent } from "./types";
+import { Project, TGenericComponent } from "./types";
 import {
   calculateComponentPoints,
   calculateMLALayerDetails,
@@ -90,7 +90,28 @@ export const generateOverviewPDF = async (
           (sum, component) => sum + currentPoints.get(component.id)!,
           0,
         );
-        return `<tr><td>${escapeHtmlForSummary(name)}</td><td>${components.length}</td><td>${formatNumber(total)}${delta(total, previousGroupTotal)}</td></tr>`;
+        const incomingCount = components.filter(
+          (component) =>
+            component.className === "Interface service from other applications",
+        ).length;
+        const outgoingCount = components.filter(
+          (component) =>
+            component.className === "Interface service to other applications",
+        ).length;
+        return `<tr>
+          <td>
+            ${escapeHtmlForSummary(name)}
+          </td>
+          <td>
+            ${incomingCount}
+          </td>
+          <td>
+            ${outgoingCount}
+          </td>
+          <td>
+            ${formatNumber(total)}${delta(total, previousGroupTotal)}
+          </td>
+        </tr>`;
       })
       .join("");
   };
@@ -102,7 +123,7 @@ export const generateOverviewPDF = async (
   const externalInterfacePoints =
     externalInterfaces.toOtherApplications.points +
     externalInterfaces.fromOtherApplications.points;
-  const externalInterfaceCount =
+  const externalInterfaceCount = // is this still neccessary
     externalInterfaces.toOtherApplications.count +
     externalInterfaces.fromOtherApplications.count;
   const businessOnlyPoints = layers.business.points - externalInterfacePoints;
@@ -127,7 +148,8 @@ export const generateOverviewPDF = async (
           aggregates: "Koosteet ja tärkeät muutokset",
           classAggregate: "Toimintoluokat",
           typeAggregate: "Toimintotyypit",
-          count: "Lukumäärä",
+          inCount: "Saapuvien määrä",
+          outCount: "Lähtevien määrä",
           explanation: "Laskennan selitys ja tärkeät muutokset",
           changed:
             "Muuttuneet arvot on korostettu. Suluissa oleva luku kertoo eron edelliseen versioon.",
@@ -148,7 +170,8 @@ export const generateOverviewPDF = async (
           aggregates: "Aggregates and important changes",
           classAggregate: "Function classes",
           typeAggregate: "Function types",
-          count: "Count",
+          inCount: "Incoming",
+          outCount: "Out going",
           explanation: "Calculation explanation and important changes",
           changed:
             "Changed values are highlighted. The number in parentheses shows the difference from the previous version.",
@@ -179,8 +202,15 @@ export const generateOverviewPDF = async (
     }
 
     .page {
-      height:273mm;
-      padding:0 12mm;
+      /* min-height, not height: a fixed height doesn't clip overflowing content in the browser,
+         but element.scrollHeight (which drives how tall html2canvas captures this element) never
+         grows past a fixed height either, so any page whose content is taller than 273mm was
+         silently cut off. min-height still fills a page that has little content. */
+      min-height:273mm;
+      /* Small bottom buffer: html2canvas measures this element's fractional (subpixel) rendered
+         height and rounds it, so the very last pixel row of content can be clipped. A gap of
+         real blank space at the bottom means anything lost to that rounding is blank, not text. */
+      padding:0 12mm 4mm;
       break-after:page;
       position:relative;
       box-sizing:border-box;
@@ -405,7 +435,7 @@ export const generateOverviewPDF = async (
       }
 
       .page {
-        height: 273mm;
+        min-height: 273mm;
       }
     }
   </style>
@@ -492,7 +522,8 @@ export const generateOverviewPDF = async (
       <thead>
         <tr>
           <th>${labels.functionClass}</th>
-          <th>${labels.count}</th>
+          <th>${labels.inCount}</th>
+          <th>${labels.outCount}</th>
           <th>${labels.actionPoints}</th>
         </tr>
       </thead>
@@ -506,7 +537,8 @@ export const generateOverviewPDF = async (
       <thead>
         <tr>
           <th>${labels.functionType}</th>
-          <th>${labels.count}</th>
+          <th>${labels.inCount}</th>
+          <th>${labels.outCount}</th>
           <th>${labels.actionPoints}</th>
         </tr>
       </thead>
@@ -524,258 +556,4 @@ export const generateOverviewPDF = async (
 </html>`;
 
   await downloadHtmlAsPdf(html, filename, ".page");
-};
-
-/**
- * Generoi projektin yhteenveto-PDF:n (alustava placeholder versio!)
- */
-export const generateProjectSummaryPDF = async (
-  project: Project,
-  comments: CommentResponse[],
-  commentsTitle: string,
-): Promise<void> => {
-  const formattedCreatedAt = new Date(project.createdAt).toLocaleDateString(
-    "fi-FI",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    },
-  );
-
-  const formattedVersionCreatedAt = new Date(
-    project.versionCreatedAt,
-  ).toLocaleDateString("fi-FI", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  const formattedUpdatedAt = new Date(project.updatedAt).toLocaleDateString(
-    "fi-FI",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    },
-  );
-
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html lang="fi">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${project.projectName} - Yhteenveto</title>
-      <style>
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        
-        body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          line-height: 1.6;
-          color: #333;
-          background-color: #f5f5f5;
-          padding: 40px 20px;
-        }
-        
-        .container {
-          max-width: 900px;
-          margin: 0 auto;
-          background-color: white;
-          padding: 40px;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header {
-          border-bottom: 3px solid #1e40af;
-          padding-bottom: 20px;
-          margin-bottom: 30px;
-        }
-        
-        .header h1 {
-          font-size: 28px;
-          color: #1e40af;
-          margin-bottom: 10px;
-        }
-        
-        .header p {
-          color: #666;
-          font-size: 14px;
-        }
-        
-        .section {
-          margin-bottom: 30px;
-        }
-        
-        .section-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: #1e40af;
-          margin-bottom: 15px;
-          border-bottom: 2px solid #e5e7eb;
-          padding-bottom: 10px;
-        }
-        
-        .info-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 20px;
-        }
-        
-        .info-item {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .info-label {
-          font-weight: 600;
-          color: #1e40af;
-          font-size: 13px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 5px;
-        }
-        
-        .info-value {
-          color: #333;
-          font-size: 14px;
-        }
-        
-        .footer {
-          margin-top: 40px;
-          padding-top: 20px;
-          border-top: 1px solid #e5e7eb;
-          font-size: 12px;
-          color: #999;
-          text-align: center;
-        }
-
-        .comments-section {
-          page-break-before: always;
-          margin-top: 40px;
-        }
-
-        .comment-item {
-          margin-bottom: 15px;
-          padding: 10px;
-          background-color: #f9f9f9;
-          border-left: 3px solid #1e40af;
-        }
-
-        .comment-text {
-          color: #333;
-          font-size: 14px;
-          line-height: 1.5;
-          word-wrap: break-word;
-          white-space: pre-wrap;
-        }
-        
-        @media print {
-          body {
-            background-color: white;
-            padding: 0;
-          }
-          
-          .container {
-            box-shadow: none;
-            padding: 0;
-          }
-
-          .comments-section {
-            page-break-before: always;
-          }
-          
-          .no-print {
-            display: none;
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>${escapeHtmlForSummary(project.projectName)}</h1>
-          <p>Projektin yhteenveto - Luotu ${new Date().toLocaleDateString("fi-FI")}</p>
-        </div>
-        
-        <div class="section">
-          <div class="section-title">Perustiedot</div>
-          <div class="info-grid">
-            <div class="info-item">
-              <div class="info-label">Projektin nimi</div>
-              <div class="info-value">${escapeHtmlForSummary(project.projectName)}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Versio</div>
-              <div class="info-value">v${project.version}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Projektin ID</div>
-              <div class="info-value">${project.id}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Projektin tila</div>
-              <div class="info-value">${project.active ? "Aktiivinen" : "Passiivinen"}</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="section">
-          <div class="section-title">Aikaleima-tiedot</div>
-          <div class="info-grid">
-            <div class="info-item">
-              <div class="info-label">Luotu</div>
-              <div class="info-value">${formattedCreatedAt}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Version luotu</div>
-              <div class="info-value">${formattedVersionCreatedAt}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Päivitetty</div>
-              <div class="info-value">${formattedUpdatedAt}</div>
-            </div>
-          </div>
-        </div>
-        ${
-          comments.length > 0
-            ? `
-        <div class="section comments-section">
-          <div class="section-title">${escapeHtmlForSummary(commentsTitle)}</div>
-          ${comments
-            .map(
-              (comment) =>
-                `<div class="comment-item"><div class="comment-text">${escapeHtmlForSummary(
-                  comment.text,
-                )}</div></div>`,
-            )
-            .join("")}
-        </div>
-        `
-            : ""
-        }
-        
-        <div class="footer">
-          <p>Tämä dokumentti on luotu automaattisesti järjestelmästä.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  await downloadHtmlAsPdf(
-    htmlContent,
-    `${project.projectName}-v${project.version}-yhteenveto.pdf`,
-  );
 };

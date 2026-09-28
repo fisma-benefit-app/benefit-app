@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS functional_components
 (
     id                      BIGSERIAL PRIMARY KEY,
     title                   VARCHAR(255),
-    description             VARCHAR(1000),
+    description             VARCHAR(10000),
     class_name              VARCHAR(255),
     component_type          VARCHAR(255),
     data_elements           BIGINT,

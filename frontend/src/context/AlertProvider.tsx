@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleCheck,
@@ -13,39 +7,7 @@ import {
   faSpinner,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-
-type NotificationType = "success" | "error" | "loading" | "info";
-
-interface Notification {
-  id: string; // custom ID (operation ID)
-  title: string;
-  message: string;
-  type: NotificationType;
-  isVisible: boolean;
-  action?: {
-    label: string;
-    onClick: () => void | Promise<void>;
-  };
-}
-
-interface AlertContextType {
-  showNotification: (
-    title: string,
-    message: string,
-    type?: NotificationType,
-    id?: string, // optional ID for tracking same operation
-    action?: Notification["action"],
-  ) => void;
-  updateNotification: (
-    id: string,
-    title: string,
-    message: string,
-    type: NotificationType,
-  ) => void;
-  hideNotification: (id: string) => void;
-}
-
-const AlertContext = createContext<AlertContextType | null>(null);
+import { AlertContext, Notification, NotificationType } from "./AlertContext";
 
 export function AlertProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -122,13 +84,6 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
       <NotificationContainer />
     </AlertContext.Provider>
   );
-}
-
-export function useAlert() {
-  const context = useContext(AlertContext);
-  if (!context)
-    throw new Error("useAlert() must be used within an <AlertProvider>");
-  return context;
 }
 
 function NotificationToast({

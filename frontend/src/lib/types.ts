@@ -103,18 +103,6 @@ export type TGenericComponentNoId = {
   parentFCId: number | null;
 };
 
-export type ProjectWithUpdate = {
-  id: number;
-  projectName: string;
-  version: number;
-  createdAt: string;
-  versionCreatedAt: string;
-  calculationDate?: string | null;
-  updatedAt: string;
-  functionalComponents: (TGenericComponent | TGenericComponentNoId)[];
-  appUsers: ProjectAppUser[];
-};
-
 export type Project = {
   id: number;
   projectName: string;

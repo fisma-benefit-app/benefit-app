@@ -42,7 +42,7 @@ export default function ProjectList() {
       dir: "desc",
     },
   );
-  const commitSha = useCommitSha("-");
+  const commitSha = useCommitSha();
 
   const navigate = useNavigate();
   const translation = useTranslations();
