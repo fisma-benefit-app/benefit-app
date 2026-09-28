@@ -188,6 +188,17 @@ export const translations = {
       totalWithMultiLayerInterfaces: "Total with Multi-layer Interfaces",
       totalWithoutMultiLayerInterfaces: "Total without Multi-layer Interfaces",
       toggleTotalView: "Toggle total view",
+      classNameShort: {
+        "Interactive end-user navigation and query service":
+          "Navigation / query",
+        "Interactive end-user input service": "User input",
+        "Non-interactive end-user output service": "Output",
+        "Interface service to other applications": "Interface to other apps",
+        "Interface service from other applications":
+          "Interface from other apps",
+        "Data storage service": "Data storage",
+        "Algorithmic or manipulation service": "Algorithmic",
+      },
     },
     projectPage: {
       saveProject: "Save",
@@ -487,6 +498,16 @@ export const translations = {
       multiLayerInterface: "Monikerrosliittymä",
       totalWithMultiLayerInterfaces: "Yhteensä monikerrosliittymien kanssa",
       totalWithoutMultiLayerInterfaces: "Yhteensä ilman monikerrosliittymiä",
+      classNameShort: {
+        "Interactive end-user navigation and query service":
+          "Navigointi / kysely",
+        "Interactive end-user input service": "Syöttö",
+        "Non-interactive end-user output service": "Tuloste",
+        "Interface service to other applications": "Lähetettävä liittymä",
+        "Interface service from other applications": "Vastaanotettava liittymä",
+        "Data storage service": "Tiedonvarastointi",
+        "Algorithmic or manipulation service": "Algoritminen",
+      },
       toggleTotalView: "Vaihda kokonaisnäkymää",
     },
     projectPage: {

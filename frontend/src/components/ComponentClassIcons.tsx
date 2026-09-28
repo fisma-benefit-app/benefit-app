@@ -1,6 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useTranslations from "../hooks/useTranslations.ts";
-import { getFunctionalComponentIcons } from "../lib/fc-icons.ts";
+import {
+  getFunctionalComponentColors,
+  getFunctionalComponentIcons,
+} from "../lib/fc-icons.ts";
 import { ClassName, ComponentType } from "../lib/types.ts";
 
 type ComponentClassIconsProps = {
@@ -16,25 +19,36 @@ export default function ComponentClassIcons({
 }: ComponentClassIconsProps) {
   const translation = useTranslations().functionalClassComponent;
   const icons = getFunctionalComponentIcons(componentClass, componentType);
+  const colors = getFunctionalComponentColors(componentClass);
 
-  if (icons.length === 0) {
+  if (icons.length === 0 || !componentClass) {
     return null;
   }
 
-  const label = [
-    componentClass ? translation.classNameOptions[componentClass] : null,
+  const fullLabel = [
+    translation.classNameOptions[componentClass],
     componentType ? translation.componentTypeOptions[componentType] : null,
   ]
     .filter(Boolean)
     .join(" — ");
+  const shortLabel = translation.classNameShort[componentClass];
 
   const sizeClasses =
     size === "sm"
-      ? "inline-flex items-center gap-1 text-fisma-blue text-sm"
-      : "inline-flex items-center gap-1.5 bg-white border-2 border-fisma-gray text-fisma-blue px-2 py-2 rounded-md shrink-0";
+      ? "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium shrink-0"
+      : "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium shrink-0 whitespace-nowrap";
 
   return (
-    <span className={sizeClasses} title={label} aria-label={label}>
+    <span
+      className={sizeClasses}
+      style={{
+        color: colors.icon,
+        backgroundColor: colors.badge,
+        borderColor: colors.border,
+      }}
+      title={fullLabel}
+      aria-label={fullLabel}
+    >
       {icons.map((icon, index) => (
         <FontAwesomeIcon
           key={`${icon.iconName}-${index}`}
@@ -42,6 +56,7 @@ export default function ComponentClassIcons({
           aria-hidden
         />
       ))}
+      <span>{shortLabel}</span>
     </span>
   );
 }

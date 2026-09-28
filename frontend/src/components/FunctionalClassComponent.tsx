@@ -13,6 +13,7 @@ import {
   classNameOptions,
   DESCRIPTION_MAX_LENGTH,
 } from "../lib/fc-constants.ts";
+import { getFunctionalComponentColors } from "../lib/fc-icons.ts"; 
 import {
   getComponentTypeOptions,
   getInputFields,
@@ -296,17 +297,23 @@ export default function FunctionalClassComponent({
     onMLAToggle(component.id, !component.isMLA);
   };
 
+  const classColors = getFunctionalComponentColors(component.className);
+
   return (
     <>
       <form
         {...dragListeners}
         onSubmit={(e) => e.preventDefault()}
-        onClick={onCardClick}
-        // stop Shift+click range selection from also selecting page text
-        onMouseDown={(e) => {
-          if (onCardClick && e.shiftKey) e.preventDefault();
-        }}
-        className={`flex flex-col gap-4 border-2 ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"} bg-gray-200 w-full p-4 rounded-lg`}
+onClick={onCardClick}
+
+onMouseDown={(e) => {
+  if (onCardClick && e.shiftKey) e.preventDefault();
+}}
+className={`flex flex-col gap-4 border-2 ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"} w-full p-4 rounded-lg border-l-8`}
+style={{
+  borderLeftColor: classColors.border,
+  backgroundColor: classColors.card,
+}}
       >
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
           <div className="flex-1 min-w-[200px] flex items-center gap-2">

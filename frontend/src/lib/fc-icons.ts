@@ -24,6 +24,75 @@ const NAVIGATION_QUERY_TYPES: ReadonlySet<ComponentType> = new Set([
   "data inquiries",
 ]);
 
+export type FunctionalComponentColors = {
+  badge: string;
+  card: string;
+  icon: string;
+  border: string;
+};
+
+const DEFAULT_COLORS: FunctionalComponentColors = {
+  badge: "#FFFFFF",
+  card: "#E5E7EB",
+  icon: "#1E73BE",
+  border: "#636363",
+};
+
+export const CLASS_COLORS: Record<ClassName, FunctionalComponentColors> = {
+  "Interactive end-user navigation and query service": {
+    badge: "#DBEAFE",
+    card: "#D8E2EC",
+    icon: "#1D4ED8",
+    border: "#2563EB",
+  },
+  "Interactive end-user input service": {
+    badge: "#FEF9C3",
+    card: "#F6F1D4",
+    icon: "#A16207",
+    border: "#CA8A04",
+  },
+  "Non-interactive end-user output service": {
+    badge: "#FCE7F3",
+    card: "#F4E6EE",
+    icon: "#9A3D62",
+    border: "#D4537E",
+  },
+  "Interface service to other applications": {
+    badge: "#FEF3C7",
+    card: "#E8E2D4",
+    icon: "#B45309",
+    border: "#D97706",
+  },
+  "Interface service from other applications": {
+    badge: "#FFEDD5",
+    card: "#E8DCD6",
+    icon: "#C2410C",
+    border: "#EA580C",
+  },
+  "Data storage service": {
+    badge: "#EDE9FE",
+    card: "#DEDCE8",
+    icon: "#6D28D9",
+    border: "#7C3AED",
+  },
+  "Algorithmic or manipulation service": {
+    badge: "#D1FAE5",
+    card: "#D6E6DB",
+    icon: "#047857",
+    border: "#059669",
+  },
+};
+
+export const getFunctionalComponentColors = (
+  className: ClassName | null,
+): FunctionalComponentColors => {
+  if (!className) {
+    return DEFAULT_COLORS;
+  }
+
+  return CLASS_COLORS[className];
+};
+
 const CLASS_ICONS: Record<ClassName, IconDefinition> = {
   "Interactive end-user navigation and query service": faDesktop,
   "Interactive end-user input service": faDesktop,
