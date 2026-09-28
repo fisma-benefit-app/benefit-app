@@ -217,7 +217,7 @@ What it does, in order:
 4. Backs up the database to `/var/backups/fisma-benefit-app/`. It keeps the newest 10; set `BACKUP_DIR` to use another folder.
 5. Applies the migrations the database doesn't have yet, oldest first. Each file runs in one transaction and is recorded in the `schema_migrations` table. The first failure stops the run, with the old version still running.
 6. Starts the new version and waits for `/api/actuator/health`. If it doesn't come up, the script prints the backend log.
-7. Removes this project's old images, build cache older than a week, and older backups.
+7. Removes this project's old images, the build cache and older backups. Clearing the build cache keeps the small disk from filling up, so the next build starts from scratch and downloads its base images again, which takes 2–3 minutes.
 
 To deploy the checked-out commit without pulling, e.g. a pull request's branch after `git switch <branch>`, run `./update_server.sh --no-pull`. Be careful with branches that add a migration: the server records it as applied, so if the pull request later changes that file, the server won't run the new version.
 
