@@ -153,7 +153,7 @@ cd /opt/benefit-app && docker compose -f docker-compose.prod.yaml up -d --wait d
 
 - **`schema-dev.sql` is the complete current schema**, including every file in `migrations/`, so a new database needs only this file. Don't also run the migrations: `2026_09_19_functional_components_multiplier_constraint.sql` fails with `constraint … already exists`.
 - **The file starts with `DROP TABLE ...`.** The `grep -v` removes that line, so running the command again can't wipe data.
-- **Write down the commit you loaded the schema from** (`git log --oneline -1`). Later updates need every migration added after it, see [Updating](#updating-to-a-newer-version).
+- **Note the newest migration at this commit** (`ls backend/src/main/resources/migrations | tail -1`). The first run of `update_server.sh` needs it as `--baseline`, see [Updating](#updating-to-a-newer-version).
 
 ### 5b. Create the first user
 
@@ -201,19 +201,47 @@ Two harmless things you may see:
 
 ## Updating to a newer version
 
-```bash
-cd /opt/benefit-app && git pull --ff-only && docker compose -f docker-compose.prod.yaml up -d --build
-```
-
-The database volume is kept. **Schema changes aren't applied automatically.** Before starting the new version, apply by hand every file in `backend/src/main/resources/migrations/` added since the commit you loaded the schema from. Apply them oldest first, and take a backup first:
+Run `update_server.sh` from the repository on the server. It keeps the database's data, and it either finishes or stops with a message that says what state things are in:
 
 ```bash
-cd /opt/benefit-app && docker compose -f docker-compose.prod.yaml exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' > /root/backup-$(date +%F).sql
+cd /opt/benefit-app && ./update_server.sh
 ```
 
+To see first what it would do, run `./update_server.sh --dry-run`. It lists the commits it would pull and the migrations it would apply, and checks `.env` against the new version. It changes nothing.
+
+What it does, in order:
+
+1. Checks that the repository has no local changes, that `.env` parses and that the database is up.
+2. Runs `git pull --ff-only` on the checked-out branch. If the pull changed the script itself, the new version takes over. If the new version needs a setting that `.env` lacks, it stops here and names it.
+3. Builds the new images while the old version keeps running. If the build fails, nothing has changed.
+4. Backs up the database to `/var/backups/fisma-benefit-app/`. It keeps the newest 10; set `BACKUP_DIR` to use another folder.
+5. Applies the migrations the database doesn't have yet, oldest first. Each file runs in one transaction and is recorded in the `schema_migrations` table. The first failure stops the run, with the old version still running.
+6. Starts the new version and waits for `/api/actuator/health`. If it doesn't come up, the script prints the backend log.
+7. Removes this project's old images, build cache older than a week, and older backups.
+
+To deploy the checked-out commit without pulling, e.g. a pull request's branch after `git switch <branch>`, run `./update_server.sh --no-pull`. Be careful with branches that add a migration: the server records it as applied, so if the pull request later changes that file, the server won't run the new version.
+
+The script never changes `.env`. Git ignores the file, so pulls leave it alone, and the script only reads it. Keep a copy somewhere safe, because the database password in it exists nowhere else.
+
+### First run on an existing database
+
+A database set up before the script has no `schema_migrations` table. The script doesn't know which migrations such a database already has, and it refuses to guess. Tell it the newest migration the database already has, and it records that file and every older one as applied, without running them:
+
 ```bash
-cd /opt/benefit-app && docker compose -f docker-compose.prod.yaml exec -T db sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < backend/src/main/resources/migrations/<file>.sql
+cd /opt/benefit-app && ./update_server.sh --baseline <newest migration already in the database>
 ```
+
+A database created from `schema-dev.sql` (step 5a) has every migration that existed at that commit. If you didn't note the newest one, list them with `git ls-tree --name-only <commit> backend/src/main/resources/migrations/`.
+
+### Undoing a bad update
+
+Migrations aren't rolled back automatically. Each backup drops and recreates every table, so restoring one returns the database to the moment before that run. Stop the backend first, so nothing writes in the meantime:
+
+```bash
+cd /opt/benefit-app && docker compose -f docker-compose.prod.yaml stop backend && gunzip -c /var/backups/fisma-benefit-app/<backup>.sql.gz | docker compose -f docker-compose.prod.yaml exec -T db sh -c 'psql -q -o /dev/null -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+```
+
+Then check out the previous commit (the script prints it) and deploy it with `./update_server.sh --no-pull`.
 
 ## Everyday commands
 
@@ -221,6 +249,7 @@ All from `/opt/benefit-app`:
 
 | What | Command |
 |---|---|
+| Update to the latest version | `./update_server.sh` |
 | Status | `docker compose -f docker-compose.prod.yaml ps` |
 | Backend logs | `docker compose -f docker-compose.prod.yaml logs --tail 100 -f backend` |
 | Restart one service | `docker compose -f docker-compose.prod.yaml restart backend` |
