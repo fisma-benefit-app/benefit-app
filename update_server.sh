@@ -251,7 +251,10 @@ main() {
 
     step "Cleaning up"
     docker image prune -f --filter "label=com.docker.compose.project=$project" > /dev/null
-    docker builder prune -f --filter until=168h > /dev/null
+    # All build cache, including the base images it pulled: the cache rarely saves
+    # time (backend or package.json changes rebuild from scratch anyway), and a
+    # small server disk can't spare the gigabytes it grows to.
+    docker builder prune -f > /dev/null
     # The names start with the date and time, so name order is age order.
     printf '%s\n' "$BACKUP_DIR/$project"-*.sql.gz | sort -r | tail -n +$((KEEP_BACKUPS + 1)) | xargs -r rm --
 
