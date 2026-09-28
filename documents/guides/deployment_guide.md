@@ -243,6 +243,7 @@ Only port 80 (and 22 for SSH) has to be open in the UpCloud firewall. The backen
 
 Things to know:
 
+- To update a running server, use `./update_server.sh`. It pulls, builds, backs up the database, applies new migrations and restarts. See [Updating](./upcloud_deployment.md#updating-to-a-newer-version) in the UpCloud guide.
 - A new database volume starts **empty**. The backend doesn't create tables or the first user. Load `schema-dev.sql` without its `DROP TABLE` line (it already includes every migration) and insert the first user by hand, as in [step 5 of the UpCloud guide](./upcloud_deployment.md#5-create-the-database-schema-and-first-user).
 - On a 1 GB server the Gradle build can run out of memory. Add swap before building if it gets killed.
 - Building on the host instead of in Docker needs the **JDK** (`openjdk-21-jdk-headless`). The JRE alone gives the same `Cannot find a Java installation` error.

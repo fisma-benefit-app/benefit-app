@@ -34,7 +34,7 @@ psql -h localhost -p 5433 -U <username> <database>
 
 The production and testing databases are hosted on Heroku Postgres. Database seeding is controlled through environment configuration, and the branch-specific safety convention is that the default shared backend file must not carry a seed- or schema-init mode set to `always`.
 
-Database migrations are manual. See (/backend/src/main/resources/migrations/). 
+Database migrations are manual. See (/backend/src/main/resources/migrations/). On a self-hosted server (`docker-compose.prod.yaml`), `./update_server.sh` applies them and records them in the `schema_migrations` table; see the [UpCloud guide](./upcloud_deployment.md#updating-to-a-newer-version).
 
 ### Production and testing database seeding
 
