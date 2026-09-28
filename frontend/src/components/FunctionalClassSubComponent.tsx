@@ -1,5 +1,6 @@
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
+import { getFunctionalComponentColors } from "../lib/fc-icons.ts";
 import ComponentClassIcons from "./ComponentClassIcons.tsx";
 import {
   getComponentTypeOptions,
@@ -24,13 +25,17 @@ export default function FunctionalClassSubComponent({
 
   const componentTypeOptions = getComponentTypeOptions(component.className);
   const inputFields = getInputFields(component.className);
+  const classColors = getFunctionalComponentColors(component.className);
 
   // Calculate functional points using centralized calculations
   const fullPoints = calculateBasePoints(component);
   const pointsByDegreeOfCompletion = calculateComponentPoints(component);
 
   return (
-    <div className="bg-white border-l-4 border-blue-500 shadow-md rounded-r-lg p-4 mb-3">
+    <div
+      className="bg-white border-l-4 shadow-md rounded-r-lg p-4 mb-3"
+      style={{ borderLeftColor: classColors.border }}
+    >
       {!collapsed && (
         <>
           {/* Subcomponent Badge */}

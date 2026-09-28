@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useState, useEffect } from "react";
 import useTranslations from "../hooks/useTranslations.ts";
 import { classNameOptions } from "../lib/fc-constants.ts";
+import { getFunctionalComponentColors } from "../lib/fc-icons.ts";
 import {
   getComponentTypeOptions,
   getInputFields,
@@ -295,11 +296,17 @@ export default function FunctionalClassComponent({
     onMLAToggle(component.id, !component.isMLA);
   };
 
+  const classColors = getFunctionalComponentColors(component.className);
+
   return (
     <>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="flex flex-col gap-4 border-2 border-fisma-gray bg-gray-200 w-full p-4 rounded-lg"
+        className="flex flex-col gap-4 border-2 border-fisma-gray w-full p-4 rounded-lg border-l-8"
+        style={{
+          borderLeftColor: classColors.border,
+          backgroundColor: classColors.card,
+        }}
       >
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
           {/* Drag handle */}
