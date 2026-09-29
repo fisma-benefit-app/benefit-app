@@ -415,14 +415,14 @@ export const generateOverviewPDF = async (
 
     .junction-arrow-right::after {
       border-left-color: #5b8cc5;
-      right: -9mm;
-      top: 2mm;
+      right: -11mm;
+      top: calc(50% - 6mm); /* 6mm = half the 12mm arrow box, so it's vertically centered */
     }
 
     .junction-arrow-left::after {
       border-right-color: #5b8cc5;
-      left: -9mm;
-      top: 2mm;
+      left: -11mm;
+      top: calc(50% - 6mm);
     }
 
     .small {
