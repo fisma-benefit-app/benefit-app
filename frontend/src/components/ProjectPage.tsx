@@ -34,6 +34,7 @@ import useLanguage from "../hooks/useLanguage.tsx";
 import DatePicker from "react-datepicker";
 import { format } from "date-fns";
 import { enUS, fi } from "date-fns/locale";
+import ShortcutTooltip from "./ShortcutTooltip.tsx";
 
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { useAlert } from "../hooks/useAlert.ts";
@@ -121,6 +122,7 @@ export default function ProjectPage() {
   const translations = useTranslations();
   const translation = translations.projectPage;
   const alertTranslation = useTranslations().alert;
+  const tooltipTranslation = useTranslations().shortcutTooltip;
   const { language } = useLanguage();
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -1122,6 +1124,7 @@ export default function ProjectPage() {
         <div className="flex-1 xl:pr-5 xl:order-1">
           {project ? (
             <>
+              <ShortcutTooltip text={tooltipTranslation.toggleViewTip} />
               {sortedComponents.length > 0 && (
                 <input
                   type="text"
