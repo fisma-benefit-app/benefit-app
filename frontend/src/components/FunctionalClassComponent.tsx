@@ -341,16 +341,6 @@ export default function FunctionalClassComponent({
               >
                 <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
               </button>
-              {/* Delete button */}
-              <button
-                type="button"
-                className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
-                onClick={() => setConfirmModalOpen(true)}
-                disabled={!isLatest}
-                title={translation.delete}
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
             </div>
           </div>
         </div>
@@ -685,6 +675,19 @@ export default function FunctionalClassComponent({
                 </div>
               )}
           </div>
+        )}
+
+        {/* Delete button */}
+        {!collapsed && (
+          <button
+            type="button"
+            className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
+            onClick={() => setConfirmModalOpen(true)}
+            disabled={!isLatest}
+            title={translation.delete}
+          >
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
         )}
       </form>
 
