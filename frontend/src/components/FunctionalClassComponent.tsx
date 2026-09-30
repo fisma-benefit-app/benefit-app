@@ -13,7 +13,7 @@ import {
   classNameOptions,
   DESCRIPTION_MAX_LENGTH,
 } from "../lib/fc-constants.ts";
-import { getFunctionalComponentColors } from "../lib/fc-icons.ts"; 
+import { getFunctionalComponentColors } from "../lib/fc-icons.ts";
 import {
   getComponentTypeOptions,
   getInputFields,
@@ -304,16 +304,15 @@ export default function FunctionalClassComponent({
       <form
         {...dragListeners}
         onSubmit={(e) => e.preventDefault()}
-onClick={onCardClick}
-
-onMouseDown={(e) => {
-  if (onCardClick && e.shiftKey) e.preventDefault();
-}}
-className={`flex flex-col gap-4 border-2 ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"} w-full p-4 rounded-lg border-l-8`}
-style={{
-  borderLeftColor: classColors.border,
-  backgroundColor: classColors.card,
-}}
+        onClick={onCardClick}
+        onMouseDown={(e) => {
+          if (onCardClick && e.shiftKey) e.preventDefault();
+        }}
+        className={`flex flex-col gap-4 border-2 ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"} w-full p-4 rounded-lg border-l-8`}
+        style={{
+          borderLeftColor: classColors.border,
+          backgroundColor: classColors.card,
+        }}
       >
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
           <div className="flex-1 min-w-[200px] flex items-center gap-2">
@@ -440,48 +439,49 @@ style={{
             )}
 
             {/* Metadata Section */}
-            {!isCompactMode && (
-              <div className="flex flex-row flex-wrap gap-3 items-center">
-                <select
-                  id="className"
-                  value={component.className || ""}
-                  onChange={handleClassNameChange}
-                  className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
-                  disabled={!isLatest}
-                >
-                  <option value="">{translation.classNamePlaceholder}</option>
-                  {classNameOptions.map((className) => (
-                    <option key={className} value={className}>
-                      {translation.classNameOptions[className]}
-                    </option>
-                  ))}
-                </select>
+            {!isCompactMode ||
+              (!component.className && (
+                <div className="flex flex-row flex-wrap gap-3 items-center">
+                  <select
+                    id="className"
+                    value={component.className || ""}
+                    onChange={handleClassNameChange}
+                    className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
+                    disabled={!isLatest}
+                  >
+                    <option value="">{translation.classNamePlaceholder}</option>
+                    {classNameOptions.map((className) => (
+                      <option key={className} value={className}>
+                        {translation.classNameOptions[className]}
+                      </option>
+                    ))}
+                  </select>
 
-                {component.className && (
-                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
-                    <select
-                      id="componentType"
-                      value={component.componentType || ""}
-                      onChange={handleOptionTypeChange}
-                      className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
-                      disabled={!isLatest}
-                    >
-                      {component.className !==
-                        "Interactive end-user input service" && (
-                        <option value="">
-                          {translation.componentTypePlaceholder}
-                        </option>
-                      )}
-                      {componentTypeOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {translation.componentTypeOptions[option]}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-            )}
+                  {component.className && (
+                    <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                      <select
+                        id="componentType"
+                        value={component.componentType || ""}
+                        onChange={handleOptionTypeChange}
+                        className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
+                        disabled={!isLatest}
+                      >
+                        {component.className !==
+                          "Interactive end-user input service" && (
+                          <option value="">
+                            {translation.componentTypePlaceholder}
+                          </option>
+                        )}
+                        {componentTypeOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {translation.componentTypeOptions[option]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              ))}
             {!isCompactMode && (
               <div className="flex flex-col gap-2 bg-white border-2 border-fisma-light-gray p-3 rounded-md w-full">
                 <label className="font-bold text-fisma-blue">
