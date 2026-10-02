@@ -34,6 +34,7 @@ import useLanguage from "../hooks/useLanguage.tsx";
 import DatePicker from "react-datepicker";
 import { format } from "date-fns";
 import { enUS, fi } from "date-fns/locale";
+import ShortcutTooltip from "./ShortcutTooltip.tsx";
 
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { useAlert } from "../hooks/useAlert.ts";
@@ -1122,15 +1123,20 @@ export default function ProjectPage() {
         <div className="flex-1 xl:pr-5 xl:order-1">
           {project ? (
             <>
-              {sortedComponents.length > 0 && (
-                <input
-                  type="text"
-                  placeholder={translation.searchComponentsPlaceholder}
-                  className="mb-4 p-2 border-2 border-gray-400 w-full"
-                  value={componentSearchQuery}
-                  onChange={(e) => setComponentSearchQuery(e.target.value)}
-                />
-              )}
+              <div className="mb-4 flex items-stretch gap-2">
+                {sortedComponents.length > 0 && (
+                  <>
+                    <ShortcutTooltip />
+                    <input
+                      type="text"
+                      placeholder={translation.searchComponentsPlaceholder}
+                      className="min-w-0 flex-1 p-2 border-2 border-gray-400"
+                      value={componentSearchQuery}
+                      onChange={(e) => setComponentSearchQuery(e.target.value)}
+                    />
+                  </>
+                )}
+              </div>
               {isPlacingSelected && (
                 <ComponentSelectionBar
                   count={reorder.selectedCount}

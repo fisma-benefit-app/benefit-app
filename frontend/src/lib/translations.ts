@@ -308,6 +308,14 @@ export const translations = {
       accountDeleted: "Account deleted successfully",
       accountDeleteFailed: "Failed to delete account",
     },
+    shortcutTooltip: {
+      toggleViewTip: "Press V to toggle between Compact and Full View.",
+      componentDragTip:
+        "To move components drag them or select with click and click a highlighted spot.",
+      componentMultipleSelectTip:
+        "Shift + Click to select multiple components at once.",
+      selectionClearTip: "Press Esc to clear component selection(s).",
+    },
   },
   fi: {
     errorModal: {
@@ -619,6 +627,15 @@ export const translations = {
       deleteAccountButton: "Poista tilini",
       accountDeleted: "Tili poistettu onnistuneesti",
       accountDeleteFailed: "Tilin poistaminen epäonnistui",
+    },
+    shortcutTooltip: {
+      toggleViewTip:
+        "Paina V vaihtaaksesi kokonaisnäkymän ja tiiviin väkymän välillä.",
+      componentDragTip:
+        "Siirrä komponentteja raahaamalla tai valitse ne ja paina korostetusta välistä.",
+      componentMultipleSelectTip:
+        "Shift + klikkaus valitaksesi monta komponenttia kerralla.",
+      selectionClearTip: "Paina Esc tyhjentääksesi komponenttivalinnat.",
     },
   },
 };
