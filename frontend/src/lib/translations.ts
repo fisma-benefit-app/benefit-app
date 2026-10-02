@@ -309,10 +309,12 @@ export const translations = {
       accountDeleteFailed: "Failed to delete account",
     },
     shortcutTooltip: {
-      toggleViewTip: 'Press "v" to toggle between Compact and Full view',
+      toggleViewTip: "Press V to toggle between Compact and Full View.",
       componentDragTip:
-        "To move components drag them or select with click and click a highlighted spot",
-      componentMultipleSelectTip: "Shift + click to select multiple components",
+        "To move components drag them or select with click and click a highlighted spot.",
+      componentMultipleSelectTip:
+        "Shift + Click to select multiple components at once.",
+      selectionClearTip: "Press Esc to clear component selection(s).",
     },
   },
   fi: {
@@ -628,11 +630,12 @@ export const translations = {
     },
     shortcutTooltip: {
       toggleViewTip:
-        "Vaihda tiiviin näkymän ja kokonaisnäkymän välillä painamalla V-näppäintä.",
+        "Paina V vaihtaaksesi kokonaisnäkymän ja tiiviin väkymän välillä.",
       componentDragTip:
         "Siirrä komponentteja raahaamalla tai valitse ne ja paina korostetusta välistä.",
       componentMultipleSelectTip:
-        "Shift + click valitaksesi monta komponenttia kerralla.",
+        "Shift + klikkaus valitaksesi monta komponenttia kerralla.",
+      selectionClearTip: "Paina Esc tyhjentääksesi komponenttivalinnat.",
     },
   },
 };
