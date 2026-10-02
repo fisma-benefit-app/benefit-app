@@ -241,6 +241,13 @@ export const generateOverviewPDF = async (
       padding-bottom: 10px;
     }
 
+    h3 {
+      font-size: 12px;
+      line-height: 1.4;
+      margin: 6mm 0 3mm;
+      break-after: avoid;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -274,6 +281,7 @@ export const generateOverviewPDF = async (
       border: 1px solid #999;
       padding: 6mm;
       min-height: 25mm;
+      margin-top: 3mm;
     }
 
     .footer {
