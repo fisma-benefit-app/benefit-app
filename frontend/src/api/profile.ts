@@ -1,6 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
 export interface PasswordChangeRequest {
+  currentPassword: string;
   newPassword: string;
 }
 
@@ -44,6 +45,7 @@ const deleteAppUser = async (
  */
 const changePassword = async (
   sessionToken: string | null,
+  currentPassword: string,
   newPassword: string,
 ): Promise<string> => {
   if (!sessionToken)
@@ -57,6 +59,7 @@ const changePassword = async (
   };
 
   const passwordChangeRequest: PasswordChangeRequest = {
+    currentPassword: currentPassword,
     newPassword: newPassword,
   };
 

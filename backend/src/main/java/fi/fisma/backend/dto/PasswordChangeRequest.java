@@ -10,5 +10,7 @@ import lombok.Data;
 public class PasswordChangeRequest {
   @NotEmpty(message = "Password cannot be empty")
   @Size(max = 64, message = "Password must not exceed 64 characters")
+  private String currentPassword;
+
   private String newPassword;
 }

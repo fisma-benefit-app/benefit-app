@@ -124,8 +124,18 @@ public class AppUserService {
    * @throws UnauthorizedException if password change not allowed
    */
   @Transactional
-  public void changePassword(@NotBlank String newPassword, Authentication authentication) {
+  public void changePassword(
+      @NotBlank String currentPassword,
+      @NotBlank String newPassword,
+      Authentication authentication) {
     AppUser appUser = getUserFromAuthentication(authentication);
+
+    CharSequence currPasswordCharSequence = new StringBuffer(currentPassword);
+
+    if (!passwordEncoder.matches(currPasswordCharSequence, appUser.getPassword())) {
+      throw new UnauthorizedException("Current password is incorrect");
+    }
+    ;
 
     validatePasswordRequirements(newPassword);
 
