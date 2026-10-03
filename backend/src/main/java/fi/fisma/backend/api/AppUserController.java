@@ -63,7 +63,6 @@ public class AppUserController {
   @ApiResponse(responseCode = "401", description = "User not authenticated")
   public ResponseEntity<String> changePassword(
       @Valid @RequestBody PasswordChangeRequest request, Authentication authentication) {
-    // String currentPassword = request.get
     appUserService.changePassword(
         request.getCurrentPassword(), request.getNewPassword(), authentication);
     return ResponseEntity.ok("Password changed successfully");
