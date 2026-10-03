@@ -43,7 +43,9 @@ class AppUserControllerTest {
 
   @Test
   void testChangePassword() {
-    doNothing().when(appUserService).changePassword(eq("new-password"), any(Authentication.class));
+    doNothing()
+        .when(appUserService)
+        .changePassword(eq("current-password"), eq("new-password"), any(Authentication.class));
 
     mockMvcTester
         .put()
@@ -53,13 +55,15 @@ class AppUserControllerTest {
         .content(
             """
                 {
+                  "currentPassword": "current-password",
                   "newPassword": "newPass123"
                 }
                 """)
         .assertThat()
         .hasStatusOk();
 
-    verify(appUserService).changePassword(eq("newPass123"), any(Authentication.class));
+    verify(appUserService)
+        .changePassword(eq("current-password"), eq("newPass123"), any(Authentication.class));
   }
 
   @Test

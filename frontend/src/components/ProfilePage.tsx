@@ -39,7 +39,7 @@ export default function ProfilePage() {
 
     try {
       // Call the API endpoint
-      await changePassword(sessionToken, newPassword);
+      await changePassword(sessionToken, currentPassword, newPassword);
 
       showNotification(
         alertTranslation.success,
