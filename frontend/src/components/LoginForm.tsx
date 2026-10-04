@@ -22,7 +22,14 @@ export default function LoginForm() {
   const [loading, setLoading] = useState<boolean>(false);
   const loginInProgress = useRef(false);
 
-  const { setSessionToken, setLoggedIn, setAppUser, loggedIn } = useAppUser();
+  const {
+    setSessionToken,
+    setLoggedIn,
+    setAppUser,
+    loggedIn,
+    invalidSession,
+    setInvalidSession,
+  } = useAppUser();
   const { showError } = useError();
   const navigate = useNavigate();
   const translation = useTranslations().loginForm;
@@ -50,6 +57,7 @@ export default function LoginForm() {
         storage.setItem("userId", userId.toString());
       }
 
+      setInvalidSession(false);
       setSessionToken(loginToken);
       setAppUser({ id: userId, username: username });
       setLoggedIn(true);
@@ -87,6 +95,15 @@ export default function LoginForm() {
         <h1 className="text-2xl text-center text-white font-medium mb-4 bg-fisma-dark-blue -mx-4 -mt-4 px-4 py-2">
           {translation.header}
         </h1>
+
+        {invalidSession && (
+          <p
+            role="alert"
+            className="mb-4 border border-fisma-red bg-red-100 p-2 text-center text-sm text-fisma-red"
+          >
+            {translation.invalidSession}
+          </p>
+        )}
 
         <div className="mb-4 relative">
           <FontAwesomeIcon

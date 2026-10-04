@@ -17,6 +17,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [invalidSession, setInvalidSession] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   const { showNotification, hideNotification } = useAlert();
@@ -71,6 +72,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       if (loginToken && userInfo) {
         const decoded = decodeJWT(loginToken);
         if (!decoded || !decoded?.exp) {
+          setInvalidSession(true);
           await logout();
           console.warn("Could not decode token or no exp claim");
           return;
@@ -78,7 +80,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
         const jwtValid = await validateJWT(loginToken);
 
-        if (jwtValid === false) {
+        if (jwtValid !== true) {
+          setInvalidSession(true);
           clearLocalSession();
         } else {
           setSessionToken(loginToken);
@@ -95,6 +98,31 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     restoreSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- restore the stored session once on mount; logout changes with sessionToken
   }, []);
+
+  useEffect(() => {
+    if (!sessionToken) return;
+
+    let logoutStarted = false;
+    const checkStoredToken = () => {
+      const storedToken =
+        sessionStorage.getItem("loginToken") ||
+        localStorage.getItem("loginToken");
+
+      if (!logoutStarted && storedToken !== sessionToken) {
+        logoutStarted = true;
+        setInvalidSession(true);
+        void logout();
+      }
+    };
+
+    const intervalId = window.setInterval(checkStoredToken, 1000);
+    window.addEventListener("storage", checkStoredToken);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("storage", checkStoredToken);
+    };
+  }, [logout, sessionToken]);
 
   const showSessionWarning = useCallback(
     (expirationTime: number) => {
@@ -233,7 +261,9 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     loadingAuth,
     appUser,
     loggedIn,
+    invalidSession,
     sessionToken,
+    setInvalidSession,
     setSessionToken,
     setLoggedIn,
     setAppUser,
