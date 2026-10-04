@@ -17,6 +17,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [invalidSession, setInvalidSession] = useState<boolean>(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   const { showNotification, hideNotification } = useAlert();
@@ -37,22 +38,20 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   };
 
   const logout = useCallback(async () => {
+    const tokenToRevoke = sessionToken;
     setLoadingAuth(true);
+    clearLocalSession();
+    hideNotification("session-expiring");
+    setLoadingAuth(false);
+
     try {
-      if (sessionToken) {
+      if (tokenToRevoke) {
         const fetchURL = `${API_URL}/auth/logout`;
-        const headers = { Authorization: sessionToken };
+        const headers = { Authorization: tokenToRevoke };
         await fetch(fetchURL, { method: "POST", headers });
       }
     } catch (err) {
-      console.error(
-        "Logout request failed, clearing session locally anyway:",
-        err,
-      );
-    } finally {
-      clearLocalSession();
-      hideNotification("session-expiring");
-      setLoadingAuth(false);
+      console.error("Logout request failed; local session was cleared:", err);
     }
   }, [hideNotification, sessionToken]);
 
@@ -71,6 +70,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       if (loginToken && userInfo) {
         const decoded = decodeJWT(loginToken);
         if (!decoded || !decoded?.exp) {
+          setInvalidSession(true);
           await logout();
           console.warn("Could not decode token or no exp claim");
           return;
@@ -78,7 +78,9 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
         const jwtValid = await validateJWT(loginToken);
 
-        if (jwtValid === false) {
+        // Only restore the session after the server confirms the token is valid.
+        if (jwtValid !== true) {
+          setInvalidSession(true);
           clearLocalSession();
         } else {
           setSessionToken(loginToken);
@@ -95,6 +97,94 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     restoreSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- restore the stored session once on mount; logout changes with sessionToken
   }, []);
+
+  useEffect(() => {
+    if (!sessionToken) return;
+
+    let logoutStarted = false;
+    let validationInProgress = false;
+    let pendingReplacementToken: string | null = null;
+    const tokenStorage =
+      sessionStorage.getItem("loginToken") === sessionToken
+        ? sessionStorage
+        : localStorage;
+
+    const getStoredToken = () => tokenStorage.getItem("loginToken");
+
+    const logoutForInvalidToken = () => {
+      if (logoutStarted) return;
+      logoutStarted = true;
+      setInvalidSession(true);
+      void logout();
+    };
+
+    const validateReplacementToken = async (token: string) => {
+      if (logoutStarted || validationInProgress) return;
+
+      if (decodeJWT(token)?.sub !== appUser?.username) {
+        logoutForInvalidToken();
+        return;
+      }
+
+      validationInProgress = true;
+      const tokenIsValid = await validateJWT(token);
+      validationInProgress = false;
+
+      if (getStoredToken() !== token) return;
+
+      if (tokenIsValid === true) {
+        pendingReplacementToken = null;
+        setSessionToken(token);
+      } else {
+        logoutForInvalidToken();
+      }
+    };
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (
+        event.storageArea !== tokenStorage ||
+        (event.key !== "loginToken" && event.key !== null)
+      ) {
+        return;
+      }
+
+      const storedToken = getStoredToken();
+      if (storedToken === sessionToken) return;
+      if (!storedToken) {
+        logoutForInvalidToken();
+        return;
+      }
+
+      pendingReplacementToken = storedToken;
+      void validateReplacementToken(storedToken);
+    };
+
+    const checkStoredToken = () => {
+      if (logoutStarted || validationInProgress) return;
+
+      const storedToken = getStoredToken();
+      if (storedToken === sessionToken) {
+        pendingReplacementToken = null;
+        return;
+      }
+
+      if (storedToken && pendingReplacementToken === storedToken) {
+        void validateReplacementToken(storedToken);
+        return;
+      }
+
+      logoutForInvalidToken();
+    };
+
+    const intervalId = window.setInterval(checkStoredToken, 1000);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      // Stop checking when this effect ends.
+      window.clearInterval(intervalId);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [appUser?.username, logout, sessionToken]);
 
   const showSessionWarning = useCallback(
     (expirationTime: number) => {
@@ -233,7 +323,9 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     loadingAuth,
     appUser,
     loggedIn,
+    invalidSession,
     sessionToken,
+    setInvalidSession,
     setSessionToken,
     setLoggedIn,
     setAppUser,

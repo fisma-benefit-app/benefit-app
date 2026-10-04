@@ -26,6 +26,8 @@ export const translations = {
     loginForm: {
       header: "Sign in",
       errorMessage: "Check username and password!",
+      invalidSession:
+        "Your session is invalid or could not be verified. Please log in again.",
       username: "Username",
       password: "Password",
       rememberMe: "Remember me",
@@ -344,6 +346,8 @@ export const translations = {
     loginForm: {
       header: "Kirjaudu sisään",
       errorMessage: "Tarkista käyttäjänimi ja salasana!",
+      invalidSession:
+        "Istunto on virheellinen tai sitä ei voitu vahvistaa. Kirjaudu uudelleen.",
       username: "Käyttäjänimi",
       password: "Salasana",
       rememberMe: "Muista minut",
