@@ -31,7 +31,7 @@ The strategy is implemented as outlined below:
 
    This way, the branches we open PRs from are clearly linked to a specific issue. Each issue and bugfix on the project board should have its own dedicated branch. Chores are small changes that don't have their own issues due to the minimal effort and impact they have.
 
-3. When a development branch is ready to be merged into `main` branch, it is pushed to GitHub as a new branch, and a pull request is opened for review by another developer. When each development branch contains changes related to only one issue, it’s easier to keep track of what has been done. It also makes the reviewer’s job easier, as pull requests remain reasonably sized and focused on a single issue.
+3. When a development branch is ready to be merged into `main` branch, it is pushed to GitHub as a new branch, and a pull request is opened for review by another developer. Review by other developers is not strictly necessary, but highly encouraged when introducing complex or high-risk changes. When each development branch contains changes related to only one issue, it’s easier to keep track of what has been done. It also makes the reviewer’s job easier, as pull requests remain reasonably sized and focused on a single issue.
 
    ```
    !! While coding, if you notice that something not related to the issue you are currently working on could be changed, don't implement it in the same pull request!
