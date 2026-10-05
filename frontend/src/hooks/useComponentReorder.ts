@@ -174,13 +174,10 @@ export default function useComponentReorder({
     }
     if (!nearest) return setDropTarget(null);
 
-    // read the column count off the grid itself rather than duplicating its
-    // responsive breakpoints here
+    const { rect } = nearest;
     const multiColumn =
       gridRef.current !== null &&
-      getComputedStyle(gridRef.current).gridTemplateColumns.split(" ").length >
-        1;
-    const { rect } = nearest;
+      Number(gridRef.current.dataset.columnCount ?? 1) > 1;
     const side = (
       multiColumn
         ? x < rect.left + rect.width / 2

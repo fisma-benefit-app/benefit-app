@@ -14,7 +14,7 @@ export default function App() {
   const { loadingAuth, loggedIn } = useAppUser();
 
   return (
-    <div style={{ backgroundColor: showTestVersion ? "#D3D3D3" : "white" }}>
+    <div style={{ backgroundColor: showTestVersion ? "#D3D3D3" : "white", minHeight: "100vh" }}>
       <Header />
       <main>
         {loadingAuth ? (
