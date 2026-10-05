@@ -208,7 +208,6 @@ export default function ProjectPage() {
         previousProject,
         language,
         translations.functionalClassComponent.classNameOptions,
-        translations.functionalClassComponent.componentTypeOptions,
       );
     } catch (error) {
       console.error("Failed to generate PDF", error);
