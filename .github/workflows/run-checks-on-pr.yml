@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm install
+          npm ci
 
       - name: Run Prettier check
         run: |
@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm install
+          npm ci
 
       - name: Run ESLint
         run: |
@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm install
+          npm ci
 
       # tsc -b, not tsc --noEmit: the root tsconfig.json only references
       # tsconfig.app.json and tsconfig.node.json, which plain tsc doesn't follow.
