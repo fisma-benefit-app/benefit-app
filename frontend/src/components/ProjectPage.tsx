@@ -99,6 +99,8 @@ export default function ProjectPage() {
     useState<boolean>(true);
   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
+  const [includeFunctionsInReport, setIncludeFunctionsInReport] =
+    useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
@@ -209,6 +211,7 @@ export default function ProjectPage() {
         language,
         translations.functionalClassComponent.classNameOptions,
         translations.functionalClassComponent.componentTypeOptions,
+        includeFunctionsInReport,
       );
     } catch (error) {
       console.error("Failed to generate PDF", error);
@@ -845,6 +848,16 @@ export default function ProjectPage() {
                     <FontAwesomeIcon icon={faFilePdf} />
                     {translation.overviewSummaryReport}
                   </button>
+                  <label className="flex items-center gap-2 text-xs cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={includeFunctionsInReport}
+                      onChange={(e) =>
+                        setIncludeFunctionsInReport(e.target.checked)
+                      }
+                    />
+                    {translation.includeFunctionsInReport}
+                  </label>
                 </div>
               ) : (
                 <div className="flex flex-row gap-2 w-full">

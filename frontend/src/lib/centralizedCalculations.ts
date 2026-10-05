@@ -1,4 +1,4 @@
-import { TGenericComponent, Project } from "./types";
+import { ClassName, TGenericComponent, Project } from "./types";
 import { getCalculateFunction } from "./fc-service-functions";
 
 /**
@@ -279,8 +279,8 @@ export const calculateTotalPossiblePoints = (
  */
 export const getUniqueClassNames = (
   components: TGenericComponent[],
-): string[] => {
-  const uniqueClasses = new Set<string>();
+): ClassName[] => {
+  const uniqueClasses = new Set<ClassName>();
 
   for (const component of components) {
     if (component.className) {
@@ -328,11 +328,17 @@ export const getGroupedComponents = (components: TGenericComponent[]) => {
   });
 
   const groupByClassAndType = (componentsList: TGenericComponent[]) => {
-    const uniqueClasses = getUniqueClassNames(componentsList);
+    // Components that have no class selected yet are kept as their own group (className null)
+    const uniqueClasses: (ClassName | null)[] = [
+      ...getUniqueClassNames(componentsList),
+    ];
+    if (componentsList.some((component) => !component.className)) {
+      uniqueClasses.push(null);
+    }
 
     return uniqueClasses.map((className) => {
       const componentsInClass = componentsList.filter(
-        (component) => component.className === className,
+        (component) => (component.className || null) === className,
       );
 
       const uniqueTypes = getUniqueComponentTypes(componentsInClass);
@@ -346,6 +352,7 @@ export const getGroupedComponents = (components: TGenericComponent[]) => {
           type: componentType || null,
           count: componentsOfType.length,
           points: calculateTotalPoints(componentsOfType),
+          possiblePoints: calculateTotalPossiblePoints(componentsOfType),
         };
       });
 
@@ -357,6 +364,7 @@ export const getGroupedComponents = (components: TGenericComponent[]) => {
           type: null,
           count: componentsWithoutType.length,
           points: calculateTotalPoints(componentsWithoutType),
+          possiblePoints: calculateTotalPossiblePoints(componentsWithoutType),
         });
       }
 

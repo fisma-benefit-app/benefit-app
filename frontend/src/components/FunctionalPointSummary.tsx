@@ -1,9 +1,4 @@
-import {
-  Project,
-  ClassName,
-  ComponentType,
-  TGenericComponent,
-} from "../lib/types";
+import { Project, ComponentType, TGenericComponent } from "../lib/types";
 import { downloadProjectComponentsCsv } from "../lib/csvExportUtils";
 import { generateCalculationReportPDF } from "../lib/calculationReportUtils";
 import {
@@ -163,7 +158,7 @@ export const FunctionalPointSummary = ({
               // Collect all parent components for this class
               const allComponentsInThisClass: TGenericComponent[] = [];
               project.functionalComponents.forEach((component) => {
-                if (component.className === group.className) {
+                if ((component.className || null) === group.className) {
                   allComponentsInThisClass.push(component);
                 }
               });
@@ -174,7 +169,7 @@ export const FunctionalPointSummary = ({
 
               return (
                 <div
-                  key={group.className}
+                  key={group.className ?? "no-class"}
                   className="flex gap-2 sm:gap-5 justify-between w-full pb-3 text-sm sm:text-base"
                 >
                   <div>
@@ -182,16 +177,19 @@ export const FunctionalPointSummary = ({
                       <span className="text-blue-600 pr-2">
                         {componentCount}
                       </span>{" "}
-                      <ComponentClassIcons
-                        componentClass={group.className as ClassName}
-                        componentType={null}
-                        size="sm"
-                      />{" "}
-                      {
-                        translation.functionalClassComponent.classNameOptions[
-                          group.className as ClassName
-                        ]
-                      }{" "}
+                      {group.className && (
+                        <ComponentClassIcons
+                          componentClass={group.className}
+                          componentType={null}
+                          size="sm"
+                        />
+                      )}{" "}
+                      {group.className
+                        ? translation.functionalClassComponent.classNameOptions[
+                            group.className
+                          ]
+                        : translation.functionalPointSummary
+                            .noSelectedClassName}{" "}
                       {}
                     </b>
                     <br />
@@ -261,7 +259,9 @@ export const FunctionalPointSummary = ({
                   project.functionalComponents.forEach((component) => {
                     if (component.subComponents) {
                       component.subComponents.forEach((subComponent) => {
-                        if (subComponent.className === group.className) {
+                        if (
+                          (subComponent.className || null) === group.className
+                        ) {
                           allSubComponentsInThisClass.push(
                             subComponent as TGenericComponent,
                           );
@@ -276,7 +276,7 @@ export const FunctionalPointSummary = ({
 
                   return (
                     <div
-                      key={group.className}
+                      key={group.className ?? "no-class"}
                       className="flex gap-2 sm:gap-5 justify-between w-full pb-3 text-sm sm:text-base"
                     >
                       <div>
@@ -284,15 +284,18 @@ export const FunctionalPointSummary = ({
                           <span className="text-blue-600 pr-2">
                             {componentCount}
                           </span>{" "}
-                          <ComponentClassIcons
-                            componentClass={group.className as ClassName}
-                            componentType={null}
-                            size="sm"
-                          />{" "}
-                          {
-                            translation.functionalClassComponent
-                              .classNameOptions[group.className as ClassName]
-                          }{" "}
+                          {group.className && (
+                            <ComponentClassIcons
+                              componentClass={group.className}
+                              componentType={null}
+                              size="sm"
+                            />
+                          )}{" "}
+                          {group.className
+                            ? translation.functionalClassComponent
+                                .classNameOptions[group.className]
+                            : translation.functionalPointSummary
+                                .noSelectedClassName}{" "}
                           {}
                         </b>
                         <br />

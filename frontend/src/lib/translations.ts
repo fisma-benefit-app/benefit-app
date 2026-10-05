@@ -246,8 +246,10 @@ export const translations = {
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
       overviewSummaryReport: "Overview summary report",
+      includeFunctionsInReport: "Include function list in summary report",
     },
     functionalPointSummary: {
+      noSelectedClassName: "no selected component class",
       noSelectedComponentType: "no selected component type",
       total: "Total",
       totalPossible: "Total Possible",
@@ -568,8 +570,10 @@ export const translations = {
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",
       overviewSummaryReport: "Laajuuden yhteenvetoraportti",
+      includeFunctionsInReport: "Sisällytä toimintolista yhteenvetoraporttiin",
     },
     functionalPointSummary: {
+      noSelectedClassName: "ei valittua toimintoluokkaa",
       noSelectedComponentType: "ei valittua toimintotyyppiä",
       total: "Yhteensä",
       totalPossible: "Mahdollinen Yhteensä",
