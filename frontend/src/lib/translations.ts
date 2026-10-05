@@ -248,6 +248,7 @@ export const translations = {
       overviewSummaryReport: "Overview summary report",
     },
     functionalPointSummary: {
+      noSelectedClassName: "no selected component class",
       noSelectedComponentType: "no selected component type",
       total: "Total",
       totalPossible: "Total Possible",
@@ -570,6 +571,7 @@ export const translations = {
       overviewSummaryReport: "Laajuuden yhteenvetoraportti",
     },
     functionalPointSummary: {
+      noSelectedClassName: "ei valittua toimintoluokkaa",
       noSelectedComponentType: "ei valittua toimintotyyppiä",
       total: "Yhteensä",
       totalPossible: "Mahdollinen Yhteensä",
