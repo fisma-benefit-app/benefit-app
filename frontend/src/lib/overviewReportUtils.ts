@@ -1,5 +1,7 @@
-import { Project } from "./types";
+import { Project, TGenericComponent } from "./types";
 import {
+  calculateBasePoints,
+  calculateComponentPoints,
   calculateGrandTotalPoints,
   calculateGrandTotalPossiblePoints,
   getGroupedComponents,
@@ -17,11 +19,15 @@ export const generateOverviewPDF = async (
   previousProject?: Project,
   language: "fi" | "en" = "fi",
   classNameTranslation: Record<string, string> = {},
+  componentTypeTranslation: Record<string, string> = {},
+  includeFunctions = false,
 ): Promise<void> => {
   const formatNumber = (value: number) => value.toFixed(2);
   const delta = (current: number, previous?: number) => {
-    if (previous === undefined || current === previous) return "";
+    if (previous === undefined) return "";
     const difference = current - previous;
+    // Ignore floating point noise that would otherwise be shown as "+0.00"
+    if (Math.abs(difference) < 0.005) return "";
     return ` <span class="delta">(${difference >= 0 ? "+" : ""}${formatNumber(difference)})</span>`;
   };
   const percentDone = (done: number, possible: number) =>
@@ -56,30 +62,66 @@ export const generateOverviewPDF = async (
       ),
     }));
 
+  const tableRow = (
+    name: string,
+    current: Omit<SummaryRow, "name">,
+    previousPoints?: number,
+    rowClass = "",
+  ) => `<tr${rowClass ? ` class="${rowClass}"` : ""}>
+          <td>${escapeHtmlForSummary(name)}</td>
+          <td>${current.count}</td>
+          <td>${formatNumber(current.points)}${delta(current.points, previousPoints)} / ${formatNumber(current.possiblePoints)}</td>
+          <td>${percentDone(current.points, current.possiblePoints)}</td>
+        </tr>`;
+
+  // Same layout as the project summary in the app: parent components first, then the generated
+  // MLA subcomponents, so the total row adds up to the total size.
   const grouped = () => {
-    const rows = summaryRows(
-      getGroupedComponents(project.functionalComponents).parentGroups,
-    ).sort((a, b) => b.possiblePoints - a.possiblePoints);
-    const previousRows = previousProject
-      ? summaryRows(
-          getGroupedComponents(previousProject.functionalComponents)
-            .parentGroups,
-        )
+    const current = getGroupedComponents(project.functionalComponents);
+    const previous = previousProject
+      ? getGroupedComponents(previousProject.functionalComponents)
       : undefined;
-    const previousPoints = (name: string) =>
-      previousRows
-        ? previousRows.find((row) => row.name === name)?.points || 0
+    const section = (groups: Groups, previousGroups?: Groups) => {
+      const rows = summaryRows(groups).sort(
+        (a, b) => b.possiblePoints - a.possiblePoints,
+      );
+      const previousRows = previousGroups
+        ? summaryRows(previousGroups)
         : undefined;
-    return rows
-      .map(
-        (row) => `<tr>
-          <td>${escapeHtmlForSummary(row.name)}</td>
-          <td>${row.count}</td>
-          <td>${formatNumber(row.points)}${delta(row.points, previousPoints(row.name))} / ${formatNumber(row.possiblePoints)}</td>
-          <td>${percentDone(row.points, row.possiblePoints)}</td>
-        </tr>`,
-      )
-      .join("");
+      return rows.map((row) =>
+        tableRow(
+          row.name,
+          row,
+          previousRows
+            ? previousRows.find((entry) => entry.name === row.name)?.points || 0
+            : undefined,
+        ),
+      );
+    };
+    const parentRows = section(current.parentGroups, previous?.parentGroups);
+    const subRows = section(
+      current.subComponentGroups,
+      previous?.subComponentGroups,
+    );
+    const allRows = summaryRows([
+      ...current.parentGroups,
+      ...current.subComponentGroups,
+    ]);
+    const totals = {
+      count: allRows.reduce((sum, row) => sum + row.count, 0),
+      points: totalPoints,
+      possiblePoints: totalPossiblePoints,
+    };
+    return [
+      ...parentRows,
+      ...(subRows.length > 0
+        ? [
+            `<tr class="sub-heading"><td colspan="4">${labels.subComponents}</td></tr>`,
+            ...subRows,
+          ]
+        : []),
+      tableRow(labels.sum, totals, previousTotalPoints, "total-row"),
+    ].join("");
   };
 
   // Incoming and outgoing interfaces: standalone interface components plus the generated message subcomponents
@@ -118,6 +160,65 @@ export const generateOverviewPDF = async (
           <td>${formatNumber(current.points)}${delta(current.points, previous?.points)} / ${formatNumber(current.possiblePoints)}</td>
           <td>${percentDone(current.points, current.possiblePoints)}</td>
         </tr>`;
+  // Optional per-function listing; MLA subcomponents follow their parent so the rows add up to the
+  // total size. Previous-version values are matched through previousFCId.
+  const functionList = () => {
+    const previousPoints = new Map<number, number>();
+    previousProject?.functionalComponents.forEach((component) => {
+      previousPoints.set(component.id, calculateComponentPoints(component));
+      component.subComponents?.forEach((sub) =>
+        previousPoints.set(
+          sub.id,
+          calculateComponentPoints(sub as TGenericComponent),
+        ),
+      );
+    });
+    const row = (component: TGenericComponent, isSub: boolean) => {
+      const points = calculateComponentPoints(component);
+      const possible = calculateBasePoints(component);
+      const previous = previousProject
+        ? (previousPoints.get(component.previousFCId ?? -1) ?? 0)
+        : undefined;
+      return `<tr class="keep-together${isSub ? " sub-row" : ""}">
+          <td>${escapeHtmlForSummary(component.title) || "–"}</td>
+          <td>${escapeHtmlForSummary(component.className ? classNameTranslation[component.className] || component.className : unspecified)}</td>
+          <td>${escapeHtmlForSummary(component.componentType ? componentTypeTranslation[component.componentType] || component.componentType : unspecified)}</td>
+          <td>${formatNumber(points)}${delta(points, previous)} / ${formatNumber(possible)}</td>
+          <td>${percentDone(points, possible)}</td>
+        </tr>`;
+    };
+    const rows = [...project.functionalComponents]
+      .sort((a, b) => a.orderPosition - b.orderPosition)
+      .flatMap((component) => [
+        row(component, false),
+        ...(component.subComponents ?? []).map((sub) =>
+          row(sub as TGenericComponent, true),
+        ),
+      ]);
+    return `<section class="page">
+    <h2>${labels.functionList}</h2>
+    <p class="small">${labels.functionListNote}</p>
+    <table>
+      <thead>
+        <tr>
+          <th>${labels.functionName}</th>
+          <th>${labels.functionClass}</th>
+          <th>${labels.functionType}</th>
+          <th>${labels.actionPoints}</th>
+          <th>${labels.percentDone}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.join("")}
+        <tr class="total-row keep-together">
+          <td colspan="3">${labels.sum}</td>
+          <td>${formatNumber(totalPoints)}${delta(totalPoints, previousTotalPoints)} / ${formatNumber(totalPossiblePoints)}</td>
+          <td>${percentDone(totalPoints, totalPossiblePoints)}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>`;
+  };
   const layers = calculateMLALayerDetails(project.functionalComponents);
   const messages = calculateMLAMessageCounts(project.functionalComponents);
   const externalInterfaces = calculateExternalInterfaceDetails(
@@ -151,6 +252,13 @@ export const generateOverviewPDF = async (
           aggregates: "Koosteet ja tärkeät muutokset",
           classAggregate: "Toimintoluokat",
           count: "Määrä",
+          sum: "Yhteensä",
+          subComponents: "MLA-alikomponentit",
+          functionList: "Toimintolista",
+          functionName: "Toiminto",
+          functionType: "Toimintotyyppi",
+          functionListNote:
+            "MLA-alikomponentit on listattu vanhempansa alla. Pisteet ovat tehdyt / mahdolliset pisteet.",
           unspecified: "Ei valittu",
           inCount: "Saapuvat",
           outCount: "Lähtevät",
@@ -176,6 +284,13 @@ export const generateOverviewPDF = async (
           aggregates: "Aggregates and important changes",
           classAggregate: "Function classes",
           count: "Count",
+          sum: "Total",
+          subComponents: "MLA subcomponents",
+          functionList: "Function list",
+          functionName: "Function",
+          functionType: "Function type",
+          functionListNote:
+            "MLA subcomponents are listed under their parent. Points are done / possible points.",
           unspecified: "Not selected",
           inCount: "Incoming",
           outCount: "Outgoing",
@@ -269,6 +384,20 @@ export const generateOverviewPDF = async (
       padding: 10px;
       text-align: left;
       vertical-align: top;
+    }
+
+    .sub-heading td {
+      font-weight: bold;
+      background: #f4f3f8;
+    }
+
+    .total-row td {
+      font-weight: bold;
+      background: #e9e8ef;
+    }
+
+    .sub-row td:first-child {
+      padding-left: 22px;
     }
 
     th {
@@ -570,6 +699,7 @@ export const generateOverviewPDF = async (
     <div class="notes">${escapeHtmlForSummary(project.reportNotes)}</div>
     <p class="small">${labels.changed}</p>
   </section>
+  ${includeFunctions ? functionList() : ""}
 
 </body>
 </html>`;
