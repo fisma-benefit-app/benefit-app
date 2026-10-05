@@ -275,10 +275,10 @@ export default function ProjectPage() {
   const visibleComponents = componentSearchQueryEmpty
     ? sortedComponents
     : sortedComponents.filter((component) =>
-      (component.title || "")
-        .toLowerCase()
-        .includes(componentSearchQuery.trim().toLowerCase()),
-    );
+        (component.title || "")
+          .toLowerCase()
+          .includes(componentSearchQuery.trim().toLowerCase()),
+      );
 
   // Alert functionality
   const { showNotification, updateNotification } = useAlert();
@@ -761,13 +761,18 @@ export default function ProjectPage() {
       </div>
 
       {/* Desktop Panel Toggle Button */}
-      <div className={`hidden xl:flex fixed top-20 mt-1 z-50 transition-all duration-300 ${isPanelOpen ? 'right-[480px] 2xl:right-[420px]' : 'right-0'}`}>
+      <div
+        className={`hidden xl:flex fixed top-20 mt-1 z-50 transition-all duration-300 ${isPanelOpen ? "right-[480px] 2xl:right-[420px]" : "right-0"}`}
+      >
         <button
           onClick={() => setIsPanelOpen(!isPanelOpen)}
           className="bg-white text-gray-500 hover:bg-gray-100 hover:text-fisma-blue w-6 h-10 rounded-l-md border border-gray-300 border-r-0 shadow-[-2px_0_5px_rgba(0,0,0,0.08)] flex items-center justify-center transition-colors"
           title={isPanelOpen ? "Close sidebar" : "Open sidebar"}
         >
-          <FontAwesomeIcon icon={isPanelOpen ? faChevronRight : faChevronLeft} className="w-4 h-4" />
+          <FontAwesomeIcon
+            icon={isPanelOpen ? faChevronRight : faChevronLeft}
+            className="w-4 h-4"
+          />
         </button>
       </div>
 
@@ -775,10 +780,11 @@ export default function ProjectPage() {
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
         {/* SUMMARY (on top for small screens, on right for large - now with sticky dropdown on mobile) */}
         <div
-          className={`${isSummaryMenuOpen ? "block" : "hidden"} ${!isPanelOpen
+          className={`${isSummaryMenuOpen ? "block" : "hidden"} ${
+            !isPanelOpen
               ? "xl:hidden"
               : "xl:block xl:w-[360px] xl:shrink-0 2xl:w-[420px]"
-            } fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none transition-all duration-300`}
+          } fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none transition-all duration-300`}
         >
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
@@ -828,20 +834,22 @@ export default function ProjectPage() {
                 <div className="flex flex-col gap-2 w-full">
                   <div className="flex flex-row gap-2 w-full">
                     <button
-                      className={`w-full ${!loadingProject
-                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                        : "bg-fisma-gray"
-                        } text-white text-xs py-3 px-4`}
+                      className={`w-full ${
+                        !loadingProject
+                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                          : "bg-fisma-gray"
+                      } text-white text-xs py-3 px-4`}
                       onClick={() => saveProject()}
                       disabled={loadingProject}
                     >
                       {translation.saveProject}
                     </button>
                     <button
-                      className={`w-full ${!loadingProject
-                        ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                        : "bg-fisma-gray"
-                        } text-white text-xs py-3 px-4`}
+                      className={`w-full ${
+                        !loadingProject
+                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                          : "bg-fisma-gray"
+                      } text-white text-xs py-3 px-4`}
                       onClick={() => setConfirmModalOpen(true)}
                       disabled={loadingProject}
                     >
@@ -849,10 +857,11 @@ export default function ProjectPage() {
                     </button>
                   </div>
                   <button
-                    className={`w-full ${!loadingProject
-                      ? "bg-red-600 hover:bg-red-700 cursor-pointer"
-                      : "bg-fisma-gray"
-                      } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
+                    className={`w-full ${
+                      !loadingProject
+                        ? "bg-red-600 hover:bg-red-700 cursor-pointer"
+                        : "bg-fisma-gray"
+                    } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
                     onClick={handlePrintProjectSummaryPDF}
                     disabled={loadingProject}
                   >
@@ -986,10 +995,11 @@ export default function ProjectPage() {
               </select>
               <button
                 onClick={handleCreateFunctionalComponent}
-                className={`w-full ${isLatest || !loadingProject
-                  ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                  : "bg-fisma-gray"
-                  } text-white py-3 px-4`}
+                className={`w-full ${
+                  isLatest || !loadingProject
+                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                    : "bg-fisma-gray"
+                } text-white py-3 px-4`}
                 disabled={!isLatest || loadingProject}
               >
                 {translation.newFunctionalComponent}
@@ -1199,13 +1209,11 @@ export default function ProjectPage() {
                   }}
                 />
 
-                {
-                  sortedComponents.length === 0 && (
-                    <p className="text-gray-500 p-4">
-                      {translation.noFunctionalComponents}
-                    </p>
-                  )
-                }
+                {sortedComponents.length === 0 && (
+                  <p className="text-gray-500 p-4">
+                    {translation.noFunctionalComponents}
+                  </p>
+                )}
                 <div
                   ref={bottomRef}
                   className={isPlacingSelected ? "h-24" : ""}

@@ -26,14 +26,15 @@ export default function MasonryComponentGrid({
   }, [items]);
 
   const columns = useMemo(() => {
-    const nextColumns = Array.from({ length: columnCount }, () => [] as number[]);
+    const nextColumns = Array.from(
+      { length: columnCount },
+      () => [] as number[],
+    );
     const heights = Array.from({ length: columnCount }, () => 0);
 
     items.forEach((item, index) => {
       const columnIndex =
-        index < columnCount
-          ? index
-          : heights.indexOf(Math.min(...heights));
+        index < columnCount ? index : heights.indexOf(Math.min(...heights));
       nextColumns[columnIndex].push(index);
       heights[columnIndex] += itemHeights[item.id] ?? 0;
     });
@@ -50,9 +51,7 @@ export default function MasonryComponentGrid({
         let changed = false;
 
         entries.forEach((entry) => {
-          const id = Number(
-            (entry.target as HTMLElement).dataset.masonryItem,
-          );
+          const id = Number((entry.target as HTMLElement).dataset.masonryItem);
           const height = Math.round(entry.contentRect.height);
           if (next[id] !== height) {
             next[id] = height;
