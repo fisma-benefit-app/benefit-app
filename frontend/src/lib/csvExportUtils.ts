@@ -7,7 +7,9 @@ import {
   calculateBasePoints,
 } from "./centralizedCalculations.ts";
 
-import { Project, TGenericComponent } from "./types";
+import { sortSubComponents } from "./fc-service-functions.ts";
+
+import { MLAsubComponent, Project, TGenericComponent } from "./types";
 
 export const convertToCSV = (
   rows: Record<string, unknown>[],
@@ -88,10 +90,10 @@ export const encodeComponentForCSV = (
     return needsQuotes ? `"${escaped}"` : escaped;
   };
 
-  const formatSubcomponents = (subComponents?: TGenericComponent[]) => {
+  const formatSubcomponents = (subComponents?: MLAsubComponent[]) => {
     if (!Array.isArray(subComponents)) return "";
 
-    return subComponents
+    return sortSubComponents(subComponents)
       .map((sc) => sc.title ?? "")
       .filter(Boolean)
       .join(", ");
@@ -161,7 +163,7 @@ export const downloadProjectComponentsCsv = async (
     );
 
     if (Array.isArray(c.subComponents)) {
-      for (const sub of c.subComponents) {
+      for (const sub of sortSubComponents(c.subComponents)) {
         subComponentsList.push(
           encodeComponentForCSV(
             { ...sub, parentFCId: c.id },
