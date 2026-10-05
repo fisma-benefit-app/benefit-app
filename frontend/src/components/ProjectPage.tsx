@@ -1,7 +1,13 @@
 import { ChangeEvent, useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilePdf, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFilePdf,
+  faBars,
+  faTimes,
+  faChevronRight,
+  faChevronLeft,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   fetchAllProjects,
   fetchProject,
@@ -17,9 +23,8 @@ import {
   TGenericComponent,
 } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
-import DraggableFunctionalComponent, {
-  COMPONENT_GRID_CLASSES,
-} from "./DraggableFunctionalComponent.tsx";
+import DraggableFunctionalComponent from "./DraggableFunctionalComponent.tsx";
+import MasonryComponentGrid from "./MasonryComponentGrid.tsx";
 import ComponentDragPreview from "./ComponentDragPreview.tsx";
 import ComponentSelectionBar from "./ComponentSelectionBar.tsx";
 import useComponentReorder from "../hooks/useComponentReorder.ts";
@@ -93,6 +98,7 @@ export default function ProjectPage() {
   const { selectedProjectId } = useParams();
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
+  const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true);
   const [collapseAll, setCollapseAll] = useState<boolean>(true);
   const [componentSearchQuery, setComponentSearchQuery] = useState<string>("");
   const [descriptionRowsExpanded, setDescriptionRowsExpanded] =
@@ -758,18 +764,36 @@ export default function ProjectPage() {
         </button>
       </div>
 
+      {/* Desktop Panel Toggle Button */}
+      <div
+        className={`hidden xl:flex fixed top-20 mt-1 z-50 transition-all duration-300 ${isPanelOpen ? "right-[480px] 2xl:right-[420px]" : "right-0"}`}
+      >
+        <button
+          onClick={() => setIsPanelOpen(!isPanelOpen)}
+          className="bg-white text-gray-500 hover:bg-gray-100 hover:text-fisma-blue w-6 h-10 rounded-l-md border border-gray-300 border-r-0 shadow-[-2px_0_5px_rgba(0,0,0,0.08)] flex items-center justify-center transition-colors"
+          title={isPanelOpen ? "Close sidebar" : "Open sidebar"}
+        >
+          <FontAwesomeIcon
+            icon={isPanelOpen ? faChevronRight : faChevronLeft}
+            className="w-4 h-4"
+          />
+        </button>
+      </div>
+
       {/* Main Content */}
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
         {/* SUMMARY (on top for small screens, on right for large - now with sticky dropdown on mobile) */}
         <div
-          className={`${
-            isSummaryMenuOpen ? "block" : "hidden"
-          } xl:block fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:w-[480px] 2xl:w-[420px] xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none`}
+          className={`${isSummaryMenuOpen ? "block" : "hidden"} ${
+            !isPanelOpen
+              ? "xl:hidden"
+              : "xl:block xl:w-[360px] xl:shrink-0 2xl:w-[420px]"
+          } fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none transition-all duration-300`}
         >
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center w-full">
-                <div className="flex-grow-0 flex flex-col max-w-[calc(100%-140px)]">
+                <div className="flex-grow-0 flex flex-col max-w-[calc(100%-140px)] xl:pl-8">
                   <div className="text-left font-medium">
                     {translation.nameOfProject}:
                   </div>
@@ -1133,7 +1157,7 @@ export default function ProjectPage() {
         </div>
 
         {/* FUNCTIONAL COMPONENTS (below on mobile, left on large screens) */}
-        <div className="flex-1 xl:pr-5 xl:order-1">
+        <div className="min-w-0 flex-1 xl:pr-5 xl:order-1">
           {project ? (
             <>
               <div className="mb-4 flex items-stretch gap-2">
@@ -1157,15 +1181,17 @@ export default function ProjectPage() {
                 />
               )}
               <DndContext {...reorder.dndContextProps}>
-                <div ref={reorder.gridRef} className={COMPONENT_GRID_CLASSES}>
-                  {visibleComponents.map((component, visibleIndex) => {
+                <MasonryComponentGrid
+                  items={visibleComponents}
+                  columnCount={isPanelOpen ? 3 : 4}
+                  gridRef={reorder.gridRef}
+                  renderItem={(component, visibleIndex) => {
                     const fullIndex = sortedComponents.indexOf(component);
                     const isLastVisible =
                       visibleIndex === visibleComponents.length - 1;
                     const showSlots = isPlacingSelected && !reorder.isDragging;
                     return (
                       <DraggableFunctionalComponent
-                        key={component.id}
                         component={component}
                         project={project}
                         setProject={setProject}
@@ -1199,8 +1225,8 @@ export default function ProjectPage() {
                         onPlace={reorder.placeSelected}
                       />
                     );
-                  })}
-                </div>
+                  }}
+                />
 
                 {sortedComponents.length === 0 && (
                   <p className="text-gray-500 p-4">
