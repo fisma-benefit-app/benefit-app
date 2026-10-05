@@ -138,6 +138,32 @@ export const createSubComponents = (
   }));
 };
 
+// Same order as createSubComponents builds the sub-components in
+const subComponentTypeOrder: string[] = ["UI-B", "B-UI", "B-D", "D-B"];
+const subComponentClassNameOrder: string[] = [
+  "Interface service to other applications",
+  "Interface service from other applications",
+];
+
+// The backend returns sub-components in no guaranteed order, so this sorts them by layer pair and then by direction (to before from)
+export const sortSubComponents = (
+  subComponents: MLAsubComponent[],
+): MLAsubComponent[] => {
+  // Unknown values are sorted last
+  const rank = (order: string[], value: string) => {
+    const index = order.indexOf(value);
+    return index === -1 ? order.length : index;
+  };
+
+  return [...subComponents].sort(
+    (a, b) =>
+      rank(subComponentTypeOrder, a.subComponentType) -
+        rank(subComponentTypeOrder, b.subComponentType) ||
+      rank(subComponentClassNameOrder, a.className) -
+        rank(subComponentClassNameOrder, b.className),
+  );
+};
+
 export const updateSubComponents = (
   parentComponent: TGenericComponent,
   existingSubComponents: MLAsubComponent[],
