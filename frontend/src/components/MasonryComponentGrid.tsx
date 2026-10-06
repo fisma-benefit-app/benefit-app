@@ -23,7 +23,7 @@ export default function MasonryComponentGrid({
       () => [] as number[],
     );
 
-    items.forEach((item, index) => {
+    items.forEach((_, index) => {
       // Keep the source order stable. Rebalancing based on measured card
       // heights makes cards appear to be sorted again whenever their width
       // changes during a panel toggle.
@@ -42,12 +42,10 @@ export default function MasonryComponentGrid({
       grid.querySelectorAll<HTMLElement>("[data-masonry-item]"),
     );
     const currentItemRects = new Map<number, DOMRect>(
-      elements.map(
-        (element): [number, DOMRect] => [
-          Number(element.dataset.masonryItem),
-          element.getBoundingClientRect(),
-        ],
-      ),
+      elements.map((element): [number, DOMRect] => [
+        Number(element.dataset.masonryItem),
+        element.getBoundingClientRect(),
+      ]),
     );
 
     const shouldAnimate =
