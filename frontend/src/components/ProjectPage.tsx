@@ -124,6 +124,26 @@ export default function ProjectPage() {
   >([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
 
+  const [columnCount, setColumnCount] = useState<number>(isPanelOpen ? 3 : 4);
+
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width < 768) {
+        setColumnCount(1);
+      } else if (width < 1280) {
+        setColumnCount(2);
+      } else {
+        setColumnCount(isPanelOpen ? 3 : 4);
+      }
+    };
+
+    updateColumns();
+
+    window.addEventListener("resize", updateColumns);
+    return () => window.removeEventListener("resize", updateColumns);
+  }, [isPanelOpen]);
+
   const translations = useTranslations();
   const translation = translations.projectPage;
   const alertTranslation = useTranslations().alert;
@@ -762,7 +782,7 @@ export default function ProjectPage() {
 
       {/* Desktop Panel Toggle Button */}
       <div
-        className={`hidden xl:flex fixed top-20 mt-1 z-50 transition-all duration-300 ${isPanelOpen ? "right-[480px] 2xl:right-[420px]" : "right-0"}`}
+        className={`hidden xl:flex fixed top-20 mt-1 z-50 transition-all duration-300 ${isPanelOpen ? "right-[356px] 2xl:right-[416px]" : "right-0"}`}
       >
         <button
           onClick={() => setIsPanelOpen(!isPanelOpen)}
@@ -1164,7 +1184,7 @@ export default function ProjectPage() {
               <DndContext {...reorder.dndContextProps}>
                 <MasonryComponentGrid
                   items={visibleComponents}
-                  columnCount={isPanelOpen ? 3 : 4}
+                  columnCount={columnCount}
                   gridRef={reorder.gridRef}
                   renderItem={(component, visibleIndex) => {
                     const fullIndex = sortedComponents.indexOf(component);

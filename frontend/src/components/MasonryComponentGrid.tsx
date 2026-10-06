@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useLayoutEffect, useMemo, useRef } from "react";
 import type { TGenericComponent } from "../lib/types.ts";
 
 type MasonryComponentGridProps = {
@@ -14,67 +14,81 @@ export default function MasonryComponentGrid({
   gridRef,
   renderItem,
 }: MasonryComponentGridProps) {
-  const [itemHeights, setItemHeights] = useState<Record<number, number>>({});
-
-  useEffect(() => {
-    setItemHeights((current) => {
-      const itemIds = new Set(items.map((item) => item.id));
-      return Object.fromEntries(
-        Object.entries(current).filter(([id]) => itemIds.has(Number(id))),
-      );
-    });
-  }, [items]);
+  const previousItemRects = useRef<Map<number, DOMRect>>(new Map());
+  const previousColumnCount = useRef(columnCount);
 
   const columns = useMemo(() => {
     const nextColumns = Array.from(
       { length: columnCount },
       () => [] as number[],
     );
-    const heights = Array.from({ length: columnCount }, () => 0);
 
     items.forEach((item, index) => {
-      const columnIndex =
-        index < columnCount ? index : heights.indexOf(Math.min(...heights));
+      // Keep the source order stable. Rebalancing based on measured card
+      // heights makes cards appear to be sorted again whenever their width
+      // changes during a panel toggle.
+      const columnIndex = index % columnCount;
       nextColumns[columnIndex].push(index);
-      heights[columnIndex] += itemHeights[item.id] ?? 0;
     });
 
     return nextColumns;
-  }, [columnCount, itemHeights, items]);
+  }, [columnCount, items]);
 
-  useEffect(() => {
-    if (typeof ResizeObserver === "undefined" || !gridRef.current) return;
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
 
-    const observer = new ResizeObserver((entries) => {
-      setItemHeights((current) => {
-        const next = { ...current };
-        let changed = false;
+    const elements = Array.from(
+      grid.querySelectorAll<HTMLElement>("[data-masonry-item]"),
+    );
+    const currentItemRects = new Map<number, DOMRect>(
+      elements.map(
+        (element): [number, DOMRect] => [
+          Number(element.dataset.masonryItem),
+          element.getBoundingClientRect(),
+        ],
+      ),
+    );
 
-        entries.forEach((entry) => {
-          const id = Number((entry.target as HTMLElement).dataset.masonryItem);
-          const height = Math.round(entry.contentRect.height);
-          if (next[id] !== height) {
-            next[id] = height;
-            changed = true;
-          }
-        });
+    const shouldAnimate =
+      previousItemRects.current.size > 0 &&
+      previousColumnCount.current !== columnCount &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-        return changed ? next : current;
+    if (shouldAnimate && typeof Element.prototype.animate === "function") {
+      elements.forEach((element) => {
+        const itemId = Number(element.dataset.masonryItem);
+        const previousRect = previousItemRects.current.get(itemId);
+        const currentRect = currentItemRects.get(itemId);
+        if (!previousRect || !currentRect) return;
+
+        element.getAnimations().forEach((animation) => animation.cancel());
+        element.animate(
+          [
+            {
+              transform: `translate(${previousRect.left - currentRect.left}px, ${
+                previousRect.top - currentRect.top
+              }px)`,
+            },
+            { transform: "translate(0, 0)" },
+          ],
+          {
+            duration: 280,
+            easing: "ease-out",
+          },
+        );
       });
-    });
+    }
 
-    gridRef.current
-      .querySelectorAll<HTMLElement>("[data-masonry-item]")
-      .forEach((element) => observer.observe(element));
-
-    return () => observer.disconnect();
-  }, [columns, gridRef]);
+    previousItemRects.current = currentItemRects;
+    previousColumnCount.current = columnCount;
+  }, [columnCount, columns, gridRef]);
 
   return (
     <div
       ref={gridRef}
       data-column-count={columnCount}
-      className="grid w-full gap-5 transition-all duration-300"
+      className="grid w-full gap-5"
       style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
     >
       {columns.map((column, columnIndex) => (
