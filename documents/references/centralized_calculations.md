@@ -57,7 +57,7 @@ calculateComponentsWithPoints(components: TGenericComponent[])
 
 - ✅ `FunctionalClassComponent.tsx` - Now uses `calculateBasePoints()` and `calculateComponentPoints()`
 - ✅ `FunctionalPointSummary.tsx` - Uses `calculateTotalPoints()`, `getGroupedComponents()`, and `calculateComponentsWithPoints()`
-- ✅ `printUtils.ts` - Uses `calculateComponentPointsWithMultiplier()` and `calculateTotalPoints()`
+- ✅ `calculationReportUtils.ts` - Uses `calculateComponentPointsWithMultiplier()` and `calculateTotalPoints()`
 
 ### Performance Improvements
 

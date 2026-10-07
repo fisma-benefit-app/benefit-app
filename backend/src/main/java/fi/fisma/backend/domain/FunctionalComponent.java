@@ -81,7 +81,8 @@ public class FunctionalComponent {
   // when a new version is created (new component's previousFCId = original component's id); null
   // for version-1 components and for components added after a version was created. Used to (a)
   // remap parent/subcomponent relationships onto the new version's IDs, and (b) look up the
-  // matching component in the previous version so the PDF report (printUtils.ts) can show
+  // matching component in the previous version so the PDF report (calculationReportUtils.ts) can
+  // show
   // per-field diffs between versions.
   @Column(name = "previous_fc_id")
   private Long previousFCId;
