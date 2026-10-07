@@ -28,13 +28,13 @@ Side effects we want: much smaller files (tens of KB instead of up to 70MB+), an
 ## Structure
 
 - `frontend/src/lib/pdf/pdfmakeRuntime.ts`: lazy loader plus `downloadPdfmakeDocument(definition, filename)`. Reuses `downloadBlob` and `ensurePdfFilename` from `printUtils.ts` (the Firefox-safe attached-anchor download).
-- Step 2 adds shared building blocks (page defaults, header/footer, table styles, changed-value highlight) under `frontend/src/lib/pdf/`.
+- `frontend/src/lib/pdf/pdfReportLayout.ts`: shared page defaults, styles, table and cell helpers for both reports.
 - `calculationReportUtils.ts` and `overviewReportUtils.ts` keep their exported entry points (`generateCalculationReportPDF`, `generateOverviewPDF`) so callers do not change; only the internals switch from HTML strings to pdfmake document definitions.
 
 ## Steps
 
 1. **Foundation (done).** Add `pdfmake` + `@types/pdfmake`; lazy loader and download helper; smoke-tested in headless Chrome (Finnish text extracts correctly, 14 KB output).
-2. **Shared helpers.** Page size/margins, default style, header/footer with page numbers, table layout, blue "changed value" cell helper.
+2. **Shared helpers (done).** `pdf/pdfReportLayout.ts`: A4 page setup with "n / N" footer, heading styles, bordered table with repeating header and unsplittable rows, cell helpers (colSpan, indent, changed-value highlight), `keepTogether`. Smoke-tested with a 300-component table (8 pages, 117 KB).
 3. **Calculation report.** Rebuild the version-diff table (10 columns, subcomponents, colSpan total rows, summary tables, ingress, project info). Keep rows from splitting across pages, and repeat the header row.
 4. **Overview report.** Rebuild cover page, architecture diagram (simplified, canvas shapes), aggregate tables, notes, and function list.
 5. **Cleanup.** Delete `html2canvas` and `jspdf` dependencies, the capture/chunk/keep-together code and the hidden shadow-DOM container from `printUtils.ts`, and the now-unused report CSS. Keep `dateLocalizer`, `getAllComponents`, `escapeHtmlForSummary` only if still used (check with `knip`).
