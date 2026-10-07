@@ -96,14 +96,14 @@ const nextSliceEnd = (
   return sliceEnd;
 };
 
-const ensurePdfFilename = (filename: string) =>
+export const ensurePdfFilename = (filename: string) =>
   filename.toLowerCase().endsWith(".pdf") ? filename : `${filename}.pdf`;
 
 // jsPDF's own pdf.save() builds a detached <a download> and dispatches a synthetic click on it
 // without ever attaching it to the document. Chrome accepts that; Firefox silently ignores a
 // download click on an element that was never in the DOM. Downloading the blob ourselves, through
 // an anchor that's actually attached, works the same way in both.
-const downloadBlob = (blob: Blob, filename: string) => {
+export const downloadBlob = (blob: Blob, filename: string) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
