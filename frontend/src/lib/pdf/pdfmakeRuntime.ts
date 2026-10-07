@@ -2,9 +2,27 @@ import type {
   TDocumentDefinitions,
   TVirtualFileSystem,
 } from "pdfmake/interfaces";
-import { downloadBlob, ensurePdfFilename } from "../printUtils";
 
 type PdfMake = typeof import("pdfmake/build/pdfmake");
+
+const ensurePdfFilename = (filename: string) =>
+  filename.toLowerCase().endsWith(".pdf") ? filename : `${filename}.pdf`;
+
+// Library save() helpers (jsPDF's, and file-saver, which pdfmake's download() uses) can dispatch a
+// click on an <a download> that was never attached to the document. Chrome accepts that; Firefox
+// has silently ignored it. Downloading the blob ourselves, through an anchor that's actually
+// attached, works the same way in both.
+const downloadBlob = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.rel = "noopener";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 40000);
+};
 
 let pdfMakePromise: Promise<PdfMake> | null = null;
 
@@ -35,9 +53,6 @@ const loadPdfMake = (): Promise<PdfMake> => {
   return pdfMakePromise;
 };
 
-// pdfmake's own download() goes through file-saver. Downloading the blob through the shared
-// downloadBlob helper instead keeps the Firefox-safe attached-anchor behavior the old jsPDF path
-// needed (see printUtils.ts).
 export const downloadPdfmakeDocument = async (
   definition: TDocumentDefinitions,
   filename: string,

@@ -138,7 +138,7 @@ export type TGenericComponent = {
   degreeOfCompletion: number | null;
   // ID of this component's counterpart in the previous project version (set server-side by
   // ProjectService.createProjectVersion); null if there is no prior version. Used by
-  // printUtils.ts to diff this component against its previous-version value in the PDF report.
+  // calculationReportUtils.ts to diff this component against its previous-version value in the PDF report.
   // Unrelated to orderPosition.
   previousFCId: number | null;
   orderPosition: number;
