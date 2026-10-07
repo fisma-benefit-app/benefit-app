@@ -1,15 +1,19 @@
 package fi.fisma.backend.security;
 
+import fi.fisma.backend.domain.RevokedToken;
+import fi.fisma.backend.repository.RevokedTokenRepository;
 import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TokenBlacklistService {
-  // jti -> token expiry time
-  private final ConcurrentMap<String, Instant> blacklistedTokens = new ConcurrentHashMap<>();
+  private final RevokedTokenRepository revokedTokenRepository;
+
+  public TokenBlacklistService(RevokedTokenRepository revokedTokenRepository) {
+    this.revokedTokenRepository = revokedTokenRepository;
+  }
 
   /**
    * Adds a token's unique ID (jti) to the blacklist until its expiration time.
@@ -17,36 +21,30 @@ public class TokenBlacklistService {
    * @param jti the JWT ID to blacklist
    * @param expiresAt the expiration time of the token
    */
+  @Transactional
   public void blacklistToken(String jti, Instant expiresAt) {
     if (jti != null && expiresAt != null) {
-      blacklistedTokens.put(jti, expiresAt);
+      revokedTokenRepository.save(new RevokedToken(jti, expiresAt));
     }
   }
 
   /**
-   * Checks if a token is currently blacklisted and not expired. If the token is expired, it is
-   * removed from the blacklist.
+   * Checks if a token is currently blacklisted and not expired.
    *
    * @param jti the JWT ID to check
    * @return true if the token is blacklisted and not expired, false otherwise
    */
   public boolean isTokenBlacklisted(String jti) {
-    if (jti == null) return false;
-    Instant exp = blacklistedTokens.get(jti);
-    if (exp == null) return false;
-
-    // drop stale entries on read
-    if (Instant.now().isAfter(exp)) {
-      blacklistedTokens.remove(jti, exp);
+    if (jti == null) {
       return false;
     }
-    return true;
+    return revokedTokenRepository.existsByJtiAndExpiresAtAfter(jti, Instant.now());
   }
 
   /** Periodically removes expired tokens from the blacklist. Runs every hour. */
   @Scheduled(fixedRate = 3_600_000) // every hour
+  @Transactional
   public void cleanupExpiredTokens() {
-    Instant now = Instant.now();
-    blacklistedTokens.entrySet().removeIf(e -> now.isAfter(e.getValue()));
+    revokedTokenRepository.deleteByExpiresAtLessThanEqual(Instant.now());
   }
 }
