@@ -153,10 +153,22 @@ export const translations = {
         ].map((key) => [key, key]),
       ),
       parameters: {
-        dataElements: "Data Elements",
-        writingReferences: "Writing References",
-        readingReferences: "Reading References",
-        operations: "Operations",
+        dataElements: {
+          compactView: "DE",
+          fullView: "Data Elements",
+        },
+        writingReferences: {
+          compactView: "WR",
+          fullView: "Writing References",
+        },
+        readingReferences: {
+          compactView: "RR",
+          fullView: "Reading References",
+        },
+        operations: {
+          compactView: "OPS",
+          fullView: "Operations",
+        },
       },
       titlePlaceholder: "Title",
       descriptionPlaceholder: "Description/Comments",
@@ -476,10 +488,22 @@ export const translations = {
         "other manipulation routines": "Muut käsittelyrutiinit",
       },
       parameters: {
-        dataElements: "Tietoelementit",
-        writingReferences: "Kirjoitusviittaukset",
-        readingReferences: "Lukuviittaukset",
-        operations: "Operaatiot",
+        dataElements: {
+          compactView: "TE",
+          fullView: "Tietoelementit",
+        },
+        writingReferences: {
+          compactView: "KV",
+          fullView: "Kirjoitusviittaukset",
+        },
+        readingReferences: {
+          compactView: "LV",
+          fullView: "Lukuviittaukset",
+        },
+        operations: {
+          compactView: "OPS",
+          fullView: "Operaatiot",
+        },
       },
       titlePlaceholder: "Otsikko",
       descriptionPlaceholder: "Kuvaus/Kommentit",

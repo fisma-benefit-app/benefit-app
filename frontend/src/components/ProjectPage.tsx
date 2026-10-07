@@ -127,7 +127,9 @@ export default function ProjectPage() {
   >([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
 
-  const [columnCount, setColumnCount] = useState<number>(isPanelOpen ? 3 : 4);
+  const [columnCount, setColumnCount] = useState<number>(
+    isCompactMode ? (isPanelOpen ? 4 : 5) : isPanelOpen ? 3 : 4,
+  );
 
   useEffect(() => {
     const updateColumns = () => {
@@ -137,7 +139,9 @@ export default function ProjectPage() {
       } else if (width < 1280) {
         setColumnCount(2);
       } else {
-        setColumnCount(isPanelOpen ? 3 : 4);
+        setColumnCount(
+          isCompactMode ? (isPanelOpen ? 4 : 5) : isPanelOpen ? 3 : 4,
+        );
       }
     };
 
@@ -145,7 +149,7 @@ export default function ProjectPage() {
 
     window.addEventListener("resize", updateColumns);
     return () => window.removeEventListener("resize", updateColumns);
-  }, [isPanelOpen]);
+  }, [isPanelOpen, isCompactMode]);
 
   const translations = useTranslations();
   const translation = translations.projectPage;
