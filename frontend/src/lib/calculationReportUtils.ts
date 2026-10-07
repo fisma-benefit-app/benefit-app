@@ -1,4 +1,4 @@
-import { Project } from "./types";
+import { Project, TGenericComponent } from "./types";
 import {
   calculateComponentPointsWithMultiplier,
   calculateTotalPoints,
@@ -7,18 +7,27 @@ import {
   calculateProjectPointsByLayer,
   calculatePossiblePointsByLayer,
 } from "./centralizedCalculations";
+import { dateLocalizer, getAllComponents } from "./printUtils";
+import { downloadPdfmakeDocument } from "./pdf/pdfmakeRuntime";
 import {
-  createHiddenContainer,
-  dateLocalizer,
-  getAllComponents,
-  waitForContentReady,
-  downloadElementsAsPdf,
-} from "./printUtils";
+  PDF_COLORS,
+  changedCell,
+  createReportDocument,
+  keepTogether,
+  reportTable,
+  spanningCell,
+  textCell,
+} from "./pdf/pdfReportLayout";
+import type { Content, TableCell } from "pdfmake/interfaces";
 
-// const PDF_PAGE_WIDTH_MM = 210;
-// const PDF_PAGE_HEIGHT_MM = 297;
-//const PDF_CANVAS_MAX_PX = 32767;
-const KEEP_TOGETHER_CLASS = "keep-together";
+type CellValue = string | number | null | undefined;
+
+// Total columns in the main component table; the total rows' label spans all but the last two.
+const COMPONENT_COLUMN_COUNT = 10;
+
+// Fixed widths (pt) for everything but the title, which takes the remaining space. The wide
+// table is why this report is landscape.
+const COMPONENT_TABLE_WIDTHS = ["*", 110, 90, 50, 52, 54, 52, 72, 52, 52];
 
 export const generateCalculationReportPDF = async (
   project: Project,
@@ -38,44 +47,28 @@ export const generateCalculationReportPDF = async (
   const allCurrentComponents = getAllComponents(project.functionalComponents);
   const allOldComponents = getAllComponents(oldProject.functionalComponents);
 
-  const createElementWithText = <K extends keyof HTMLElementTagNameMap>(
-    doc: Document,
-    tag: K,
-    text: string,
-    className?: string,
-  ): HTMLElementTagNameMap[K] => {
-    const element = doc.createElement(tag);
-    if (className) {
-      element.className = className;
-    }
-    element.textContent = text;
-    return element;
-  };
+  const isChanged = (current: CellValue, prev: CellValue) =>
+    !isFirstVersion && prev !== current;
 
-  const createComparisonSpan = (
-    doc: Document,
-    currentValue: string | number | null | undefined,
-    prevValue: string | number | null | undefined,
-  ) => {
-    const value = prevValue !== currentValue ? currentValue : prevValue;
-    const span = doc.createElement("span");
-    span.className =
-      !isFirstVersion && prevValue !== currentValue
-        ? "project-data highlighted"
-        : "project-data";
-    span.textContent = value != null ? String(value) : "";
-    return span;
-  };
+  // A value that differs from the previous version is shown in bold blue.
+  const comparisonCell = (
+    current: CellValue,
+    prev: CellValue,
+    options?: Parameters<typeof textCell>[1],
+  ) =>
+    changedCell(
+      current,
+      isChanged(current, prev),
+      PDF_COLORS.changedBlue,
+      options,
+    );
 
-  const createComparisonCell = (
-    doc: Document,
-    currentValue: string | number | null | undefined,
-    prevValue: string | number | null | undefined,
-  ) => {
-    const cell = doc.createElement("td");
-    cell.appendChild(createComparisonSpan(doc, currentValue, prevValue));
-    return cell;
-  };
+  const comparisonText = (current: CellValue, prev: CellValue) => ({
+    text: current == null ? "" : String(current),
+    ...(isChanged(current, prev)
+      ? { color: PDF_COLORS.changedBlue, bold: true }
+      : {}),
+  });
 
   const translateClassName = (className: string) =>
     classNameTranslation[className] || className;
@@ -85,76 +78,9 @@ export const generateCalculationReportPDF = async (
       ? componentTypeTranslation[componentType] || componentType
       : "";
 
-  const { host, root } = createHiddenContainer();
-  const doc = document;
   const filename = `${project.projectName}-v${project.version}.pdf`;
 
-  const style = doc.createElement("style");
-  style.textContent = `
-      th, td {
-        border: 1px solid #000;
-        padding: 10px;
-        text-align: left;
-        overflow-wrap: break-word;
-        word-break: break-word;
-      }
-      .project-data {
-        font-weight: normal;
-      }
-      .highlighted {
-        color: blue;
-        font-weight: bold;
-      }
-      .pdf-container { font-family: Arial, sans-serif; padding: 20px; background: #ffffff; }
-      h1 { text-align: center; }
-      .project-info { margin-bottom: 20px; }
-      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-      th { background-color: #f2f2f2; }
-      .total-row { font-weight: bold; background-color: #ddd; }
-      .subcomponent-row td {
-        padding-left: 30px;
-        background-color: #fafafa;
-      }
-      @media print {
-        @page {
-          margin: 5mm 5mm 5mm 0mm;
-        }
-        thead {
-          display: table-header-group;
-        }
-        tfoot {
-          display: table-row-group;
-        }
-        tr {
-          page-break-inside: avoid;
-        }
-        .project-info {
-          page-break-after: avoid;
-        }
-        .total-row {
-          break-inside: avoid;
-          page-break-before: avoid;
-        }
-        h3 {
-          break-after: avoid;
-          page-break-after: avoid;
-        }
-        .keep-together {
-          break-inside: avoid;
-          page-break-inside: avoid;
-        }
-      }
-    `;
-
-  const container = doc.createElement("div");
-  container.className = "pdf-container";
-  container.lang = "fi";
-
-  const heading = createElementWithText(
-    doc,
-    "h1",
-    `${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}`,
-  );
+  const headingText = `${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}`;
   // Check language
   const isFinnish =
     printUtilsTranslation.projectReport?.toLowerCase().includes("raportti") ||
@@ -163,12 +89,7 @@ export const generateCalculationReportPDF = async (
   // 1. Calculate the total FP score
   const currentTotalFP = calculateTotalPoints(allCurrentComponents);
 
-  // 2. Create Ingress
-  const ingressContainer = doc.createElement("div");
-  ingressContainer.className = "ingress";
-  ingressContainer.style.marginBottom = "20px";
-
-  // 3. Text content
+  // 2. Text content
   const ingressLines = isFinnish
     ? [
         `${project.projectName}-järjestelmän toimintoluettelo ja toiminnallinen laajuus lisätiedoilla`,
@@ -187,19 +108,13 @@ export const generateCalculationReportPDF = async (
         "Changed values are highlighted in blue",
       ];
 
-  // 4. Insert into pdf file
-  ingressLines.forEach((text) => {
-    const p = doc.createElement("p");
-    p.textContent = text;
-    if (text.includes("Kokonaislaajuus") || text.includes("Total size")) {
-      p.style.fontWeight = "bold";
-    }
-    ingressContainer.appendChild(p);
-  });
+  const ingress: Content[] = ingressLines.map((text) => ({
+    text,
+    bold: text.includes("Kokonaislaajuus") || text.includes("Total size"),
+    margin: [0, 0, 0, 3],
+  }));
 
-  const projectInfo = doc.createElement("div");
-  projectInfo.className = "project-info";
-  const infoRows = [
+  const infoRows: [string, CellValue, CellValue][] = [
     [printUtilsTranslation.projectId, project.id, oldProject.id],
     [printUtilsTranslation.version, project.version, oldProject.version],
     [
@@ -226,192 +141,89 @@ export const generateCalculationReportPDF = async (
     ],
   ];
 
-  infoRows.forEach(([label, currentValue, prevValue]) => {
-    const paragraph = doc.createElement("p");
-    const strong = createElementWithText(doc, "strong", `${label}: `);
-    paragraph.appendChild(strong);
-    paragraph.appendChild(createComparisonSpan(doc, currentValue, prevValue));
-    projectInfo.appendChild(paragraph);
-  });
+  const projectInfo: Content[] = infoRows.map(
+    ([label, currentValue, prevValue]) => ({
+      text: [
+        { text: `${label}: `, bold: true },
+        comparisonText(currentValue, prevValue),
+      ],
+      margin: [0, 0, 0, 3],
+    }),
+  );
 
-  const table = doc.createElement("table");
-  const thead = doc.createElement("thead");
-  const headerRow = doc.createElement("tr");
-  [
-    printUtilsTranslation.title,
-    printUtilsTranslation.className,
-    printUtilsTranslation.componentType,
-    printUtilsTranslation.dataElements,
-    printUtilsTranslation.readingReferences,
-    printUtilsTranslation.writingReferences,
-    printUtilsTranslation.operations,
-    printUtilsTranslation.degreeOfCompletion,
-    printUtilsTranslation.functionalPoints,
-    printUtilsTranslation.totalPossiblePoints,
-  ].forEach((headerText) => {
-    headerRow.appendChild(createElementWithText(doc, "th", headerText));
-  });
-  thead.appendChild(headerRow);
+  // One table row for a component and (when it has a counterpart in the previous version) its
+  // previous values. Subcomponent rows get an indented title and a light fill.
+  const buildComponentRow = (
+    comp: TGenericComponent,
+    prevComp: TGenericComponent | null,
+    isSubComponent: boolean,
+  ): TableCell[] => {
+    const fill = isSubComponent
+      ? { fillColor: PDF_COLORS.subRowFill }
+      : undefined;
+    const titleOptions = isSubComponent ? { ...fill, indent: 10 } : undefined;
 
-  const tbody = doc.createElement("tbody");
+    return [
+      comparisonCell(comp.title, prevComp?.title ?? null, titleOptions),
+      comparisonCell(
+        translateClassName(comp.className),
+        prevComp ? translateClassName(prevComp.className) : null,
+        fill,
+      ),
+      comparisonCell(
+        translateComponentType(comp.componentType),
+        prevComp ? translateComponentType(prevComp.componentType) : null,
+        fill,
+      ),
+      comparisonCell(comp.dataElements, prevComp?.dataElements ?? null, fill),
+      comparisonCell(
+        comp.readingReferences,
+        prevComp?.readingReferences ?? null,
+        fill,
+      ),
+      comparisonCell(
+        comp.writingReferences,
+        prevComp?.writingReferences ?? null,
+        fill,
+      ),
+      comparisonCell(comp.operations, prevComp?.operations ?? null, fill),
+      comparisonCell(
+        comp.degreeOfCompletion,
+        prevComp?.degreeOfCompletion ?? null,
+        fill,
+      ),
+      comparisonCell(
+        calculateComponentPointsWithMultiplier(
+          comp,
+          comp.degreeOfCompletion,
+        ).toFixed(2),
+        calculateComponentPointsWithMultiplier(
+          prevComp,
+          prevComp?.degreeOfCompletion || null,
+        ).toFixed(2),
+        fill,
+      ),
+      comparisonCell(
+        calculateBasePoints(comp).toFixed(2),
+        prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
+        fill,
+      ),
+    ];
+  };
+
+  const componentRows: TableCell[][] = [];
   project.functionalComponents.forEach((comp) => {
     const prevComp = comp.previousFCId
       ? previousComponentsMap[comp.previousFCId]
       : null;
+    componentRows.push(buildComponentRow(comp, prevComp, false));
 
-    const row = doc.createElement("tr");
-    row.appendChild(
-      createComparisonCell(doc, comp.title, prevComp?.title ?? null),
-    );
-    row.appendChild(
-      createComparisonCell(
-        doc,
-        translateClassName(comp.className),
-        prevComp ? translateClassName(prevComp.className) : null,
-      ),
-    );
-    row.appendChild(
-      createComparisonCell(
-        doc,
-        translateComponentType(comp.componentType),
-        prevComp ? translateComponentType(prevComp.componentType) : null,
-      ),
-    );
-    row.appendChild(
-      createComparisonCell(
-        doc,
-        comp.dataElements,
-        prevComp?.dataElements ?? null,
-      ),
-    );
-    row.appendChild(
-      createComparisonCell(
-        doc,
-        comp.readingReferences,
-        prevComp?.readingReferences ?? null,
-      ),
-    );
-    row.appendChild(
-      createComparisonCell(
-        doc,
-        comp.writingReferences,
-        prevComp?.writingReferences ?? null,
-      ),
-    );
-    row.appendChild(
-      createComparisonCell(doc, comp.operations, prevComp?.operations ?? null),
-    );
-    row.appendChild(
-      createComparisonCell(
-        doc,
-        comp.degreeOfCompletion,
-        prevComp?.degreeOfCompletion ?? null,
-      ),
-    );
-    row.appendChild(
-      createComparisonCell(
-        doc,
-        calculateComponentPointsWithMultiplier(
-          comp || null,
-          comp.degreeOfCompletion,
-        ).toFixed(2),
-        calculateComponentPointsWithMultiplier(
-          prevComp || null,
-          prevComp?.degreeOfCompletion || null,
-        ).toFixed(2),
-      ),
-    );
-    row.appendChild(
-      createComparisonCell(
-        doc,
-        calculateBasePoints(comp).toFixed(2),
-        prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
-      ),
-    );
-    tbody.appendChild(row);
-
-    if (Array.isArray(comp.subComponents)) {
-      comp.subComponents.forEach((sub) => {
-        const prevSub = sub.previousFCId
-          ? previousComponentsMap[sub.previousFCId]
-          : null;
-        const subRow = doc.createElement("tr");
-        subRow.className = "subcomponent-row";
-        subRow.appendChild(
-          createComparisonCell(doc, sub.title, prevSub?.title ?? null),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            translateClassName(sub.className),
-            prevSub ? translateClassName(prevSub.className) : null,
-          ),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            translateComponentType(sub.componentType),
-            prevSub ? translateComponentType(prevSub.componentType) : null,
-          ),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            sub.dataElements,
-            prevSub?.dataElements ?? null,
-          ),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            sub.readingReferences,
-            prevSub?.readingReferences ?? null,
-          ),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            sub.writingReferences,
-            prevSub?.writingReferences ?? null,
-          ),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            sub.operations,
-            prevSub?.operations ?? null,
-          ),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            sub.degreeOfCompletion,
-            prevSub?.degreeOfCompletion ?? null,
-          ),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            calculateComponentPointsWithMultiplier(
-              sub || null,
-              sub.degreeOfCompletion,
-            ).toFixed(2),
-            calculateComponentPointsWithMultiplier(
-              prevSub || null,
-              prevSub?.degreeOfCompletion || null,
-            ).toFixed(2),
-          ),
-        );
-        subRow.appendChild(
-          createComparisonCell(
-            doc,
-            calculateBasePoints(sub).toFixed(2),
-            prevSub ? calculateBasePoints(prevSub).toFixed(2) : "0.00",
-          ),
-        );
-        tbody.appendChild(subRow);
-      });
-    }
+    comp.subComponents?.forEach((sub) => {
+      const prevSub = sub.previousFCId
+        ? previousComponentsMap[sub.previousFCId]
+        : null;
+      componentRows.push(buildComponentRow(sub, prevSub, true));
+    });
   });
 
   // --- HELPER FUNCTION: Compare the change ---
@@ -424,128 +236,87 @@ export const generateCalculationReportPDF = async (
     return `${current.toFixed(2)} FP (${sign}${diff.toFixed(2)} FP)`;
   };
 
-  const currentTotal = calculateTotalPoints(allCurrentComponents);
-  const oldTotal = calculateTotalPoints(allOldComponents);
-  const currentPossible = calculateTotalPossiblePoints(allCurrentComponents);
-  const oldPossible = calculateTotalPossiblePoints(allOldComponents);
+  const totalCell = (current: number, previous: number) =>
+    changedCell(
+      formatTotalWithDiff(current, previous),
+      !isFirstVersion && current !== previous,
+      PDF_COLORS.changedBlue,
+      { bold: true, fillColor: PDF_COLORS.tableHeaderFill },
+    );
 
-  const currentTotalNoSub = calculateTotalPoints(project.functionalComponents);
-  const oldTotalNoSub = calculateTotalPoints(oldProject.functionalComponents);
-  const currentPossibleNoSub = calculateTotalPossiblePoints(
-    project.functionalComponents,
-  );
-  const oldPossibleNoSub = calculateTotalPossiblePoints(
-    oldProject.functionalComponents,
-  );
+  const totalRow = (
+    label: string,
+    current: { actual: number; possible: number },
+    previous: { actual: number; possible: number },
+  ): TableCell[] => [
+    ...spanningCell(label, COMPONENT_COLUMN_COUNT - 2, {
+      bold: true,
+      fillColor: PDF_COLORS.tableHeaderFill,
+    }),
+    totalCell(current.actual, previous.actual),
+    totalCell(current.possible, previous.possible),
+  ];
 
-  const tfoot = doc.createElement("tfoot");
-  const totalRow = doc.createElement("tr");
-  totalRow.className = "total-row";
-  const totalLabelCell = doc.createElement("td");
-  totalLabelCell.colSpan = 8;
-  totalLabelCell.appendChild(
-    createElementWithText(
-      doc,
-      "b",
+  componentRows.push(
+    totalRow(
       printUtilsTranslation.totalFunctionalPoints,
+      {
+        actual: calculateTotalPoints(allCurrentComponents),
+        possible: calculateTotalPossiblePoints(allCurrentComponents),
+      },
+      {
+        actual: calculateTotalPoints(allOldComponents),
+        possible: calculateTotalPossiblePoints(allOldComponents),
+      },
     ),
-  );
-  totalRow.appendChild(totalLabelCell);
-  totalRow.appendChild(
-    createComparisonCell(
-      doc,
-      formatTotalWithDiff(currentTotal, oldTotal),
-      currentTotal === oldTotal ? currentTotal.toFixed(2) : null,
-    ),
-  );
-  totalRow.appendChild(
-    createComparisonCell(
-      doc,
-      formatTotalWithDiff(currentPossible, oldPossible),
-      currentPossible === oldPossible ? currentPossible.toFixed(2) : null,
-    ),
-  );
-
-  const totalRowWithoutSubcomponents = doc.createElement("tr");
-  totalRowWithoutSubcomponents.className = "total-row";
-  const totalWithoutSubLabelCell = doc.createElement("td");
-  totalWithoutSubLabelCell.colSpan = 8;
-  totalWithoutSubLabelCell.appendChild(
-    createElementWithText(
-      doc,
-      "b",
+    totalRow(
       printUtilsTranslation.totalFunctionalPointsWithoutSubcomponents,
-    ),
-  );
-  totalRowWithoutSubcomponents.appendChild(totalWithoutSubLabelCell);
-  totalRowWithoutSubcomponents.appendChild(
-    createComparisonCell(
-      doc,
-      formatTotalWithDiff(currentTotalNoSub, oldTotalNoSub),
-      currentTotalNoSub === oldTotalNoSub ? currentTotalNoSub.toFixed(2) : null,
-    ),
-  );
-  totalRowWithoutSubcomponents.appendChild(
-    createComparisonCell(
-      doc,
-      formatTotalWithDiff(currentPossibleNoSub, oldPossibleNoSub),
-      currentPossibleNoSub === oldPossibleNoSub
-        ? currentPossibleNoSub.toFixed(2)
-        : null,
+      {
+        actual: calculateTotalPoints(project.functionalComponents),
+        possible: calculateTotalPossiblePoints(project.functionalComponents),
+      },
+      {
+        actual: calculateTotalPoints(oldProject.functionalComponents),
+        possible: calculateTotalPossiblePoints(oldProject.functionalComponents),
+      },
     ),
   );
 
-  tfoot.appendChild(totalRow);
-  tfoot.appendChild(totalRowWithoutSubcomponents);
-
-  table.appendChild(thead);
-  table.appendChild(tbody);
-  table.appendChild(tfoot);
+  const componentTable = reportTable({
+    headers: [
+      printUtilsTranslation.title,
+      printUtilsTranslation.className,
+      printUtilsTranslation.componentType,
+      printUtilsTranslation.dataElements,
+      printUtilsTranslation.readingReferences,
+      printUtilsTranslation.writingReferences,
+      printUtilsTranslation.operations,
+      printUtilsTranslation.degreeOfCompletion,
+      printUtilsTranslation.functionalPoints,
+      printUtilsTranslation.totalPossiblePoints,
+    ],
+    rows: componentRows,
+    widths: COMPONENT_TABLE_WIDTHS,
+    margin: [0, 10, 0, 0],
+  });
 
   // --- HELPER FUNCTION: Summary Table ---
   const createSummaryTable = (
-    doc: Document,
     title: string,
-    data: (string | number)[][],
+    data: string[][],
     headers: string[],
-  ) => {
-    const wrapper = doc.createElement("div");
-    wrapper.className = KEEP_TOGETHER_CLASS;
-    wrapper.style.marginTop = "30px";
+  ): Content =>
+    keepTogether(
+      { text: title, style: "h3", margin: [0, 20, 0, 4] },
+      reportTable({
+        headers,
+        rows: data.map((rowData) => rowData.map((cell) => textCell(cell))),
+        widths: ["*", 110, 130],
+        margin: [0, 4, 0, 0],
+      }),
+    );
 
-    const tableTitle = createElementWithText(doc, "h3", title);
-    wrapper.appendChild(tableTitle);
-
-    const tbl = doc.createElement("table");
-
-    // Header
-    const tHead = doc.createElement("thead");
-    const hRow = doc.createElement("tr");
-    headers.forEach((headerText) => {
-      hRow.appendChild(createElementWithText(doc, "th", headerText));
-    });
-    tHead.appendChild(hRow);
-    tbl.appendChild(tHead);
-
-    // Body
-    const tBody = doc.createElement("tbody");
-    data.forEach((rowData) => {
-      const row = doc.createElement("tr");
-      rowData.forEach((cellData: string | number) => {
-        row.appendChild(createElementWithText(doc, "td", String(cellData)));
-      });
-      tBody.appendChild(row);
-    });
-    tbl.appendChild(tBody);
-
-    wrapper.appendChild(tbl);
-    return wrapper;
-  };
-
-  container.appendChild(heading);
-  container.appendChild(ingressContainer);
-  container.appendChild(projectInfo);
-  container.appendChild(table);
+  const summaryTables: Content[] = [];
 
   // --- Summary MLA ---
   const actualLayerPoints = calculateProjectPointsByLayer(project);
@@ -584,12 +355,13 @@ export const generateCalculationReportPDF = async (
     ? "Monikerrosarkkitehtuurin yhteenveto (MLA Totals)"
     : "Multi-layered Architecture Summary (MLA Totals)";
 
-  const mlaTable = createSummaryTable(doc, mlaTableHeading, mlaData, [
-    isFinnish ? "Kerros" : "Layer",
-    isFinnish ? "Toteutuneet FP" : "Actual FP",
-    isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
-  ]);
-  container.appendChild(mlaTable);
+  summaryTables.push(
+    createSummaryTable(mlaTableHeading, mlaData, [
+      isFinnish ? "Kerros" : "Layer",
+      isFinnish ? "Toteutuneet FP" : "Actual FP",
+      isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
+    ]),
+  );
 
   // --- HELPER FUNCTION: Group by Class and Components ---
   const getSummaryDataByProperty = (
@@ -638,12 +410,13 @@ export const generateCalculationReportPDF = async (
       ? "Yhteenveto toimintoluokittain (By Class)"
       : "Summary by Component Class";
 
-    const classTable = createSummaryTable(doc, classTableHeading, classData, [
-      isFinnish ? "Toimintoluokka" : "Class Name",
-      isFinnish ? "Toteutuneet FP" : "Actual FP",
-      isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
-    ]);
-    container.appendChild(classTable);
+    summaryTables.push(
+      createSummaryTable(classTableHeading, classData, [
+        isFinnish ? "Toimintoluokka" : "Class Name",
+        isFinnish ? "Toteutuneet FP" : "Actual FP",
+        isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
+      ]),
+    );
   }
 
   // --- CREATE SUMMARY TABLE GROUP BY TYPE ---
@@ -658,20 +431,27 @@ export const generateCalculationReportPDF = async (
       ? "Yhteenveto toimintotyypeittäin (By Type)"
       : "Summary by Component Type";
 
-    const typeTable = createSummaryTable(doc, typeTableHeading, typeData, [
-      isFinnish ? "Toimintotyyppi" : "Component Type",
-      isFinnish ? "Toteutuneet FP" : "Actual FP",
-      isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
-    ]);
-    container.appendChild(typeTable);
+    summaryTables.push(
+      createSummaryTable(typeTableHeading, typeData, [
+        isFinnish ? "Toimintotyyppi" : "Component Type",
+        isFinnish ? "Toteutuneet FP" : "Actual FP",
+        isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
+      ]),
+    );
   }
 
-  root.appendChild(style);
-  root.appendChild(container);
-  try {
-    await waitForContentReady();
-    await downloadElementsAsPdf([container], filename);
-  } finally {
-    host.remove();
-  }
+  await downloadPdfmakeDocument(
+    createReportDocument({
+      title: headingText,
+      pageOrientation: "landscape",
+      content: [
+        { text: headingText, style: "h1", alignment: "center" },
+        { stack: ingress, margin: [0, 0, 0, 10] },
+        { stack: projectInfo, margin: [0, 0, 0, 10] },
+        componentTable,
+        ...summaryTables,
+      ],
+    }),
+    filename,
+  );
 };

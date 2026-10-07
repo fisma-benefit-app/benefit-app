@@ -50,19 +50,24 @@ export const reportTableLayout: CustomTableLayout = {
 
 type ReportDocumentOptions = {
   content: Content;
+  title?: string;
+  pageOrientation?: "portrait" | "landscape";
   // Defaults to 10 mm sides / 12 mm top / 14 mm bottom (the bottom leaves room for the footer).
   pageMargins?: [number, number, number, number];
   fontSize?: number;
 };
 
-// Shared page setup for both reports: A4 portrait, Roboto, "page / total" footer.
+// Shared page setup for both reports: A4, Roboto, "page / total" footer.
 export const createReportDocument = ({
   content,
+  title,
+  pageOrientation = "portrait",
   pageMargins = [mmToPt(10), mmToPt(12), mmToPt(10), mmToPt(14)],
   fontSize = 9,
 }: ReportDocumentOptions): TDocumentDefinitions => ({
+  info: { title },
   pageSize: "A4",
-  pageOrientation: "portrait",
+  pageOrientation,
   pageMargins,
   defaultStyle: { font: "Roboto", fontSize, color: PDF_COLORS.text },
   styles: reportStyles,
@@ -75,7 +80,7 @@ export const createReportDocument = ({
   }),
 });
 
-type CellOptions = {
+export type CellOptions = {
   bold?: boolean;
   color?: string;
   fillColor?: string;

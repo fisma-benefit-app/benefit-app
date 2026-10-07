@@ -10,14 +10,14 @@ Side effects we want: much smaller files (tens of KB instead of up to 70MB+), an
 
 ## Decisions
 
-| Question | Decision |
-|---|---|
-| Library | pdfmake 0.3.x (declarative tables, colSpan, repeating headers, automatic pagination, `dontBreakRows`/`unbreakable`) |
-| Where it runs | In the browser, as now. No backend changes. |
-| Scope | Both reports: calculation report and overview report |
-| Visual fidelity | Free to redesign. Same content and structure; flat fills and simple shapes instead of CSS gradients. |
-| Font | pdfmake's bundled Roboto. Covers Finnish (ä, ö, å) and the en dash; verified by text extraction. No Arial. |
-| Loading | pdfmake and its fonts (~1.9 MB raw) are dynamically imported on first export only |
+| Question        | Decision                                                                                                            |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Library         | pdfmake 0.3.x (declarative tables, colSpan, repeating headers, automatic pagination, `dontBreakRows`/`unbreakable`) |
+| Where it runs   | In the browser, as now. No backend changes.                                                                         |
+| Scope           | Both reports: calculation report and overview report                                                                |
+| Visual fidelity | Free to redesign. Same content and structure; flat fills and simple shapes instead of CSS gradients.                |
+| Font            | pdfmake's bundled Roboto. Covers Finnish (ä, ö, å) and the en dash; verified by text extraction. No Arial.          |
+| Loading         | pdfmake and its fonts (~1.9 MB raw) are dynamically imported on first export only                                   |
 
 ## Out of scope
 
@@ -35,7 +35,7 @@ Side effects we want: much smaller files (tens of KB instead of up to 70MB+), an
 
 1. **Foundation (done).** Add `pdfmake` + `@types/pdfmake`; lazy loader and download helper; smoke-tested in headless Chrome (Finnish text extracts correctly, 14 KB output).
 2. **Shared helpers (done).** `pdf/pdfReportLayout.ts`: A4 page setup with "n / N" footer, heading styles, bordered table with repeating header and unsplittable rows, cell helpers (colSpan, indent, changed-value highlight), `keepTogether`. Smoke-tested with a 300-component table (8 pages, 117 KB).
-3. **Calculation report.** Rebuild the version-diff table (10 columns, subcomponents, colSpan total rows, summary tables, ingress, project info). Keep rows from splitting across pages, and repeat the header row.
+3. **Calculation report (done).** Rebuilt on pdfmake in landscape A4 (the 10-column table does not fit portrait without cramped headers). Same content, version-diff highlighting, subcomponent rows, total rows, and the three summary tables; header row repeats and rows never split. Verified with 300 components + 100 subcomponents in headless Chrome (fi and en, v1 and v2): 28 pages, ~190 KB, ~3.6 s in a dev build including the first load of pdfmake, no blank pages, no NaN.
 4. **Overview report.** Rebuild cover page, architecture diagram (simplified, canvas shapes), aggregate tables, notes, and function list.
 5. **Cleanup.** Delete `html2canvas` and `jspdf` dependencies, the capture/chunk/keep-together code and the hidden shadow-DOM container from `printUtils.ts`, and the now-unused report CSS. Keep `dateLocalizer`, `getAllComponents`, `escapeHtmlForSummary` only if still used (check with `knip`).
 
