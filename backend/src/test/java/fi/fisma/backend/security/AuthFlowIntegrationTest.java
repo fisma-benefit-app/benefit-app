@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.repository.AppUserRepository;
+import fi.fisma.backend.repository.RevokedTokenRepository;
+import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,15 +32,22 @@ class AuthFlowIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private AppUserRepository appUserRepository;
+  @Autowired private RevokedTokenRepository revokedTokenRepository;
   @Autowired private PasswordEncoder passwordEncoder;
   @Autowired private JdbcTemplate jdbcTemplate;
   @Autowired private LoginAttemptThrottleService loginAttemptThrottleService;
+  @Autowired private TokenBlacklistService tokenBlacklistService;
 
   private String username;
+  private String revokedJti;
   private AppUser testUser;
 
   @BeforeEach
   void createTestUser() {
+    jdbcTemplate.execute(
+        "CREATE TABLE IF NOT EXISTS revoked_tokens ("
+            + "jti VARCHAR PRIMARY KEY, "
+            + "expires_at TIMESTAMP WITH TIME ZONE NOT NULL)");
     jdbcTemplate.execute(
         "CREATE TABLE IF NOT EXISTS app_users ("
             + "id BIGSERIAL PRIMARY KEY, "
@@ -57,6 +66,9 @@ class AuthFlowIntegrationTest {
   @AfterEach
   void deleteTestUser() {
     loginAttemptThrottleService.reset(username);
+    if (revokedJti != null) {
+      revokedTokenRepository.deleteById(revokedJti);
+    }
     if (testUser != null && testUser.getId() != null) {
       appUserRepository.deleteById(testUser.getId());
     }
@@ -135,5 +147,15 @@ class AuthFlowIntegrationTest {
 
   private static String bearer(String token) {
     return "Bearer " + token;
+  }
+
+  @Test
+  void revokedTokenRemainsRevokedWhenServiceIsRecreated() {
+    revokedJti = "revoked-it-" + UUID.randomUUID();
+    tokenBlacklistService.blacklistToken(revokedJti, Instant.now().plusSeconds(3600));
+
+    TokenBlacklistService recreatedService = new TokenBlacklistService(revokedTokenRepository);
+
+    assertThat(recreatedService.isTokenBlacklisted(revokedJti)).isTrue();
   }
 }

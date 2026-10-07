@@ -4,6 +4,12 @@
 
 DROP TABLE IF EXISTS comments, projects_app_users, functional_components, projects, app_users;
 
+CREATE TABLE IF NOT EXISTS revoked_tokens
+(
+    jti         VARCHAR PRIMARY KEY,
+    expires_at  TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS app_users
 (
     id              BIGSERIAL PRIMARY KEY,
