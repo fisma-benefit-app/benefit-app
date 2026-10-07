@@ -116,8 +116,8 @@ export const spanningCell = (
   ...Array.from({ length: span - 1 }, (): TableCell => ({})),
 ];
 
-// Highlights a value that differs from the previous version. `color` is per report: the
-// calculation report uses blue, the overview report red (with a green delta, see textCell).
+// Highlights a value that differs from the previous version in bold `color` (the calculation
+// report uses blue).
 export const changedCell = (
   value: string | number | null | undefined,
   changed: boolean,
@@ -135,14 +135,17 @@ type ReportTableOptions = {
   margin?: [number, number, number, number];
 };
 
-// A table with a repeating header row. Rows never split across a page break, and the first body
+// A table with a repeating header row. There is deliberately no bottom margin: when a table ends
+// exactly at the bottom of a page, a trailing margin makes pdfmake add an empty extra page. Spacing
+// below a table comes from the top margin of whatever follows (e.g. the h3 style).
+// Rows never split across a page break, and the first body
 // row stays with the header so a header is never left alone at the bottom of a page (replaces the
 // old `.keep-together` / `tr { page-break-inside: avoid }` CSS).
 export const reportTable = ({
   headers,
   rows,
   widths,
-  margin = [0, 4, 0, 4],
+  margin = [0, 4, 0, 0],
 }: ReportTableOptions): ContentTable => ({
   table: {
     headerRows: 1,
