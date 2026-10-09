@@ -12,11 +12,15 @@ export const mmToPt = (mm: number) => (mm * 72) / 25.4;
 
 export const PDF_COLORS = {
   text: "#202020",
+  mutedText: "#5f5f6b",
   heading: "#25205f",
   border: "#999999",
   tableHeaderFill: "#e9e8ef",
   subHeadingFill: "#f4f3f8",
   subRowFill: "#fafafa",
+  // Calculation report sub-component rows: "to other applications" / "from other applications"
+  sentFill: "#e6f4ea",
+  receivedFill: "#fdf0e0",
   changedBlue: "#0000ff",
   changedRed: "#b00020",
   deltaGreen: "#087443",
@@ -92,9 +96,13 @@ export type CellOptions = {
 const toText = (value: string | number | null | undefined) =>
   value == null ? "" : String(value);
 
-export const headerCell = (text: string): TableCell => ({
+export const headerCell = (
+  text: string,
+  alignment?: CellOptions["alignment"],
+): TableCell => ({
   text,
   style: "tableHeader",
+  ...(alignment ? { alignment } : {}),
 });
 
 export const textCell = (
@@ -133,6 +141,8 @@ type ReportTableOptions = {
   rows: TableCell[][];
   widths: (number | string)[];
   margin?: [number, number, number, number];
+  // Per-column header alignment, e.g. "right" above right-aligned number columns
+  headerAlignments?: CellOptions["alignment"][];
 };
 
 // A table with a repeating header row. There is deliberately no bottom margin: when a table ends
@@ -146,13 +156,19 @@ export const reportTable = ({
   rows,
   widths,
   margin = [0, 4, 0, 0],
+  headerAlignments,
 }: ReportTableOptions): ContentTable => ({
   table: {
     headerRows: 1,
     keepWithHeaderRows: 1,
     dontBreakRows: true,
     widths,
-    body: [headers.map(headerCell), ...rows],
+    body: [
+      headers.map((header, index) =>
+        headerCell(header, headerAlignments?.[index]),
+      ),
+      ...rows,
+    ],
   },
   layout: reportTableLayout,
   margin,

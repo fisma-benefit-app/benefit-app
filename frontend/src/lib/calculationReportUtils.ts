@@ -14,7 +14,9 @@ import {
   changedCell,
   createReportDocument,
   keepTogether,
+  mmToPt,
   reportTable,
+  reportTableLayout,
   spanningCell,
   textCell,
 } from "./pdf/pdfReportLayout";
@@ -28,6 +30,16 @@ const COMPONENT_COLUMN_COUNT = 10;
 // Fixed widths (pt) for everything but the title, which takes the remaining space. The wide
 // table is why this report is landscape.
 const COMPONENT_TABLE_WIDTHS = ["*", 110, 90, 50, 52, 54, 52, 72, 52, 52];
+
+// Columns from Data Elements onwards hold numbers and are right-aligned
+const FIRST_NUMBER_COLUMN = 3;
+
+// Sub-component classes, used to tint sub-component rows by direction
+const SENT_CLASS_NAME = "Interface service to other applications";
+const RECEIVED_CLASS_NAME = "Interface service from other applications";
+
+// Landscape A4 width minus createReportDocument's default 10 mm side margins, for full-width rules
+const CONTENT_WIDTH_PT = mmToPt(297) - 2 * mmToPt(10);
 
 export const generateCalculationReportPDF = async (
   project: Project,
@@ -63,13 +75,6 @@ export const generateCalculationReportPDF = async (
       options,
     );
 
-  const comparisonText = (current: CellValue, prev: CellValue) => ({
-    text: current == null ? "" : String(current),
-    ...(isChanged(current, prev)
-      ? { color: PDF_COLORS.changedBlue, bold: true }
-      : {}),
-  });
-
   const translateClassName = (className: string) =>
     classNameTranslation[className] || className;
 
@@ -90,29 +95,149 @@ export const generateCalculationReportPDF = async (
   const currentTotalFP = calculateTotalPoints(allCurrentComponents);
 
   // 2. Text content
-  const ingressLines = isFinnish
-    ? [
-        `${project.projectName}-järjestelmän toimintoluettelo ja toiminnallinen laajuus lisätiedoilla`,
-        dateLocalizer(new Date().toISOString()),
-        `Kokonaislaajuus ${currentTotalFP.toFixed(2)} FP`,
-        "Laskennassa käytössä FiSMA 1.1 toimintopisteet ISO/IEC 29881:2010",
-        "Valmistumisaste on ajankohdan hetkellä olevien toiminnallisuuksien valmistumisaste, ei siis toiminnon määritysten mukaisen lopullisen valmistumisen aste.",
-        "Sinisellä värillä korostettu muuttuneet",
-      ]
-    : [
-        `Function list and functional size of the ${project.projectName} system with additional information`,
-        dateLocalizer(new Date().toISOString()),
-        `Total size ${currentTotalFP.toFixed(2)} FP`,
-        "Calculation uses FiSMA 1.1 function points ISO/IEC 29881:2010",
-        "The degree of completion reflects the status of functionalities at the current time, not the final completion according to the specifications.",
-        "Changed values are highlighted in blue",
-      ];
+  const texts = isFinnish
+    ? {
+        subtitle: `${project.projectName}-järjestelmän toimintoluettelo ja toiminnallinen laajuus lisätiedoilla`,
+        totalSize: "Kokonaislaajuus",
+        reportDate: "Raportti luotu",
+        method: "Laskentamenetelmä",
+        methodValue: "FiSMA 1.1 toimintopisteet",
+        methodStandard: "ISO/IEC 29881:2010",
+        projectDetails: "Projektin tiedot",
+        functionList: "Toimintoluettelo",
+        summaries: "Yhteenvedot",
+        completionNote:
+          "Valmistumisaste on ajankohdan hetkellä olevien toiminnallisuuksien valmistumisaste, ei siis toiminnon määritysten mukaisen lopullisen valmistumisen aste.",
+        changedNote: "Sinisellä värillä korostettu muuttuneet",
+        rowColours: "Alikomponenttien rivivärit",
+      }
+    : {
+        subtitle: `Function list and functional size of the ${project.projectName} system with additional information`,
+        totalSize: "Total size",
+        reportDate: "Report created",
+        method: "Calculation method",
+        methodValue: "FiSMA 1.1 function points",
+        methodStandard: "ISO/IEC 29881:2010",
+        projectDetails: "Project details",
+        functionList: "Function list",
+        summaries: "Summaries",
+        completionNote:
+          "The degree of completion reflects the status of functionalities at the current time, not the final completion according to the specifications.",
+        changedNote: "Changed values are highlighted in blue",
+        rowColours: "Sub-component row colours",
+      };
 
-  const ingress: Content[] = ingressLines.map((text) => ({
-    text,
-    bold: text.includes("Kokonaislaajuus") || text.includes("Total size"),
-    margin: [0, 0, 0, 3],
-  }));
+  // Section title with a rule under it, same look as the overview report's section headings
+  const sectionHeading = (text: string, marginTop = 14): Content => ({
+    stack: [
+      { text, style: "h2", margin: [0, marginTop, 0, 4] },
+      {
+        canvas: [
+          {
+            type: "line",
+            x1: 0,
+            y1: 0,
+            x2: CONTENT_WIDTH_PT,
+            y2: 0,
+            lineWidth: 1,
+            lineColor: PDF_COLORS.heading,
+          },
+        ],
+        margin: [0, 0, 0, 8],
+      },
+    ],
+  });
+
+  const titleBlock: Content = {
+    stack: [
+      { text: headingText, style: "h1", margin: [0, 0, 0, 2] },
+      { text: texts.subtitle, fontSize: 10, color: PDF_COLORS.mutedText },
+      {
+        canvas: [
+          {
+            type: "line",
+            x1: 0,
+            y1: 0,
+            x2: CONTENT_WIDTH_PT,
+            y2: 0,
+            lineWidth: 2,
+            lineColor: PDF_COLORS.heading,
+          },
+        ],
+        margin: [0, 8, 0, 12],
+      },
+    ],
+  };
+
+  // A shaded box with a small label above a large value, for the key figures under the title.
+  // Every box has a detail line (blank if not given) so all boxes are the same height.
+  const keyFigure = (label: string, value: string, detail = " "): Content => ({
+    table: {
+      widths: ["*"],
+      body: [
+        [
+          {
+            stack: [
+              { text: label, fontSize: 8, color: PDF_COLORS.mutedText },
+              {
+                text: value,
+                fontSize: 14,
+                bold: true,
+                color: PDF_COLORS.heading,
+                margin: [0, 2, 0, 1],
+              },
+              { text: detail, fontSize: 8, color: PDF_COLORS.mutedText },
+            ],
+            fillColor: PDF_COLORS.subHeadingFill,
+            margin: [8, 6, 8, 6],
+          },
+        ],
+      ],
+    },
+    layout: "noBorders",
+  });
+
+  const keyFigures: Content = {
+    columns: [
+      keyFigure(texts.totalSize, `${currentTotalFP.toFixed(2)} FP`),
+      keyFigure(texts.reportDate, dateLocalizer(new Date().toISOString())),
+      keyFigure(texts.method, texts.methodValue, texts.methodStandard),
+    ],
+    columnGap: 10,
+  };
+
+  // Explains the degree of completion, the blue highlighting and the sub-component row colours,
+  // shown right above the function list
+  const notes: Content = {
+    stack: [
+      { text: texts.completionNote },
+      {
+        text: texts.changedNote,
+        color: PDF_COLORS.changedBlue,
+        bold: true,
+        margin: [0, 2, 0, 0],
+      },
+      {
+        text: [
+          `${texts.rowColours}:  `,
+          {
+            text: ` ${translateClassName(SENT_CLASS_NAME)} `,
+            background: PDF_COLORS.sentFill,
+            color: PDF_COLORS.text,
+          },
+          "   ",
+          {
+            text: ` ${translateClassName(RECEIVED_CLASS_NAME)} `,
+            background: PDF_COLORS.receivedFill,
+            color: PDF_COLORS.text,
+          },
+        ],
+        margin: [0, 3, 0, 0],
+      },
+    ],
+    fontSize: 8,
+    color: PDF_COLORS.mutedText,
+  };
 
   const infoRows: [string, CellValue, CellValue][] = [
     [printUtilsTranslation.projectId, project.id, oldProject.id],
@@ -141,27 +266,43 @@ export const generateCalculationReportPDF = async (
     ],
   ];
 
-  const projectInfo: Content[] = infoRows.map(
-    ([label, currentValue, prevValue]) => ({
-      text: [
-        { text: `${label}: `, bold: true },
-        comparisonText(currentValue, prevValue),
-      ],
-      margin: [0, 0, 0, 3],
-    }),
-  );
+  // Project details as a label/value table, two pairs per row
+  const projectInfoRows: TableCell[][] = [];
+  for (let i = 0; i < infoRows.length; i += 2) {
+    projectInfoRows.push(
+      infoRows
+        .slice(i, i + 2)
+        .flatMap(([label, currentValue, prevValue]) => [
+          textCell(label, { bold: true, fillColor: PDF_COLORS.subHeadingFill }),
+          comparisonCell(currentValue, prevValue),
+        ]),
+    );
+  }
+
+  const projectInfo: Content = {
+    table: { widths: [130, "*", 130, "*"], body: projectInfoRows },
+    layout: reportTableLayout,
+  };
 
   // One table row for a component and (when it has a counterpart in the previous version) its
-  // previous values. Subcomponent rows get an indented title and a light fill.
+  // previous values. Main component titles are bold; subcomponent rows get an indented title and
+  // a fill showing their direction (green "to", orange "from" other applications).
   const buildComponentRow = (
     comp: TGenericComponent,
     prevComp: TGenericComponent | null,
     isSubComponent: boolean,
   ): TableCell[] => {
-    const fill = isSubComponent
-      ? { fillColor: PDF_COLORS.subRowFill }
-      : undefined;
-    const titleOptions = isSubComponent ? { ...fill, indent: 10 } : undefined;
+    const subRowFill =
+      comp.className === SENT_CLASS_NAME
+        ? PDF_COLORS.sentFill
+        : comp.className === RECEIVED_CLASS_NAME
+          ? PDF_COLORS.receivedFill
+          : PDF_COLORS.subRowFill;
+    const fill = isSubComponent ? { fillColor: subRowFill } : undefined;
+    const titleOptions = isSubComponent
+      ? { ...fill, indent: 10 }
+      : { bold: true };
+    const numberOptions = { ...fill, alignment: "right" as const };
 
     return [
       comparisonCell(comp.title, prevComp?.title ?? null, titleOptions),
@@ -175,22 +316,30 @@ export const generateCalculationReportPDF = async (
         prevComp ? translateComponentType(prevComp.componentType) : null,
         fill,
       ),
-      comparisonCell(comp.dataElements, prevComp?.dataElements ?? null, fill),
+      comparisonCell(
+        comp.dataElements,
+        prevComp?.dataElements ?? null,
+        numberOptions,
+      ),
       comparisonCell(
         comp.readingReferences,
         prevComp?.readingReferences ?? null,
-        fill,
+        numberOptions,
       ),
       comparisonCell(
         comp.writingReferences,
         prevComp?.writingReferences ?? null,
-        fill,
+        numberOptions,
       ),
-      comparisonCell(comp.operations, prevComp?.operations ?? null, fill),
+      comparisonCell(
+        comp.operations,
+        prevComp?.operations ?? null,
+        numberOptions,
+      ),
       comparisonCell(
         comp.degreeOfCompletion,
         prevComp?.degreeOfCompletion ?? null,
-        fill,
+        numberOptions,
       ),
       comparisonCell(
         calculateComponentPointsWithMultiplier(
@@ -201,12 +350,12 @@ export const generateCalculationReportPDF = async (
           prevComp,
           prevComp?.degreeOfCompletion || null,
         ).toFixed(2),
-        fill,
+        numberOptions,
       ),
       comparisonCell(
         calculateBasePoints(comp).toFixed(2),
         prevComp ? calculateBasePoints(prevComp).toFixed(2) : "0.00",
-        fill,
+        numberOptions,
       ),
     ];
   };
@@ -241,7 +390,7 @@ export const generateCalculationReportPDF = async (
       formatTotalWithDiff(current, previous),
       !isFirstVersion && current !== previous,
       PDF_COLORS.changedBlue,
-      { bold: true, fillColor: PDF_COLORS.tableHeaderFill },
+      { bold: true, fillColor: PDF_COLORS.tableHeaderFill, alignment: "right" },
     );
 
   const totalRow = (
@@ -297,7 +446,10 @@ export const generateCalculationReportPDF = async (
     ],
     rows: componentRows,
     widths: COMPONENT_TABLE_WIDTHS,
-    margin: [0, 10, 0, 0],
+    margin: [0, 8, 0, 0],
+    headerAlignments: Array.from({ length: COMPONENT_COLUMN_COUNT }, (_, i) =>
+      i >= FIRST_NUMBER_COLUMN ? "right" : "left",
+    ),
   });
 
   // --- HELPER FUNCTION: Summary Table ---
@@ -310,9 +462,15 @@ export const generateCalculationReportPDF = async (
       { text: title, style: "h3", margin: [0, 20, 0, 4] },
       reportTable({
         headers,
-        rows: data.map((rowData) => rowData.map((cell) => textCell(cell))),
+        // First column is the label, the other two are numbers
+        rows: data.map((rowData) =>
+          rowData.map((cell, index) =>
+            textCell(cell, index > 0 ? { alignment: "right" } : undefined),
+          ),
+        ),
         widths: ["*", 110, 130],
         margin: [0, 4, 0, 0],
+        headerAlignments: ["left", "right", "right"],
       }),
     );
 
@@ -440,16 +598,23 @@ export const generateCalculationReportPDF = async (
     );
   }
 
+  // The "Summaries" heading is kept on the same page as the first summary table
+  const [firstSummaryTable, ...otherSummaryTables] = summaryTables;
+
   await downloadPdfmakeDocument(
     createReportDocument({
       title: headingText,
       pageOrientation: "landscape",
       content: [
-        { text: headingText, style: "h1", alignment: "center" },
-        { stack: ingress, margin: [0, 0, 0, 10] },
-        { stack: projectInfo, margin: [0, 0, 0, 10] },
+        titleBlock,
+        keyFigures,
+        sectionHeading(texts.projectDetails, 16),
+        projectInfo,
+        sectionHeading(texts.functionList, 18),
+        notes,
         componentTable,
-        ...summaryTables,
+        keepTogether(sectionHeading(texts.summaries, 22), firstSummaryTable),
+        ...otherSummaryTables,
       ],
     }),
     filename,
