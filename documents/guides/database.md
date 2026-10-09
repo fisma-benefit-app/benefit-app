@@ -67,6 +67,10 @@ As a safety net, `DevProfileDatabaseGuard` stops the backend from starting when 
 
 The contents of the database can also be reseeded manually. You can run the contents of each seeding file in the database directly, resulting in reseeding. See accessing database via different methods below.
 
+### Adding the kitchen sink test project to the testing database
+
+[`documents/test-data/kitchen_sink_project.sql`](../test-data/kitchen_sink_project.sql) inserts the "[Kitchen sink] Every component type + MLA" project from the dev seed into a database that is not seeded. Unlike the seed files it deletes nothing, takes new ids from the sequences and links the project to one existing user. See the comments at the top of the script for usage.
+
 ### Access via Heroku CLI
 
 ```sh
