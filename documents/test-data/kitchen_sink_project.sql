@@ -7,10 +7,15 @@
 -- sub-components is remapped to the new parent ids, and the project is linked to one existing
 -- user. It runs in a single transaction, so it either inserts everything or nothing.
 --
--- Usage:
---   1. Set owner_username below to an existing, non-deleted user on the target database.
---   2. heroku pg:psql HEROKU_TESTING_POSTGRES_DB_NAME --app=fisma-benefit-app-testing \
---        -f documents/test-data/kitchen_sink_project.sql
+-- Usage: pass the owner as the psql variable owner_username (an existing, non-deleted user on the
+-- target database). The file itself never needs editing. From the repo root:
+--
+--   (echo "\set owner_username 'some-user'"; cat documents/test-data/kitchen_sink_project.sql) \
+--     | heroku pg:psql HEROKU_TESTING_POSTGRES_DB_NAME --app=fisma-benefit-app-testing
+--
+-- or, with a local psql and a connection string:
+--
+--   psql "$DATABASE_URL" -v owner_username=some-user -f documents/test-data/kitchen_sink_project.sql
 --
 -- It refuses to run if a non-deleted project with the same name already exists, so a second run
 -- fails loudly instead of adding a duplicate. Soft-delete the old copy first if you want to redo it.
@@ -19,7 +24,16 @@
 
 \set ON_ERROR_STOP on
 
+\if :{?owner_username}
+\else
+    \echo 'owner_username is not set. See the usage notes at the top of this file.'
+    \quit
+\endif
+
 BEGIN;
+
+-- DO blocks can't see psql variables, so hand the owner over as a transaction-local setting.
+SELECT set_config('kitchen_sink.owner_username', :'owner_username', true);
 
 -- Staging copy of the seed rows, still carrying the seed's ids (100-154).
 CREATE TEMP TABLE kitchen_sink_stage (
@@ -100,7 +114,7 @@ VALUES
 
 DO $$
 DECLARE
-    owner_username CONSTANT text := 'CHANGE_ME';
+    owner_username CONSTANT text := current_setting('kitchen_sink.owner_username');
     project_title  CONSTANT text := '[Kitchen sink] Every component type + MLA';
     owner_id       bigint;
     new_project_id bigint;
@@ -110,7 +124,7 @@ BEGIN
     FROM app_users
     WHERE LOWER(username) = LOWER(owner_username) AND deleted_at IS NULL;
     IF owner_id IS NULL THEN
-        RAISE EXCEPTION 'No active user "%" found. Set owner_username at the top of the DO block.', owner_username;
+        RAISE EXCEPTION 'No active user "%" found. Check the owner_username you passed.', owner_username;
     END IF;
 
     IF EXISTS (SELECT 1 FROM projects WHERE project_name = project_title AND deleted_at IS NULL) THEN
