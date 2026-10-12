@@ -4,7 +4,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
@@ -230,7 +230,16 @@ export default function ProjectList() {
                   }}
                 >
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap overflow-hidden truncate">
-                    {project.projectName}
+                    <Link
+                      to={`/project/${project.id}`}
+                      className="block truncate hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedProject(project);
+                      }}
+                    >
+                      {project.projectName}
+                    </Link>
                   </td>
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
                     v{project.version}
