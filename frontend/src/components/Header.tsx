@@ -14,6 +14,7 @@ import NewProjectModal from "./NewProjectModal";
 import ConfirmModal from "./ConfirmModal";
 import useLanguage from "../hooks/useLanguage";
 import useTranslations from "../hooks/useTranslations";
+import { savePendingChanges } from "../lib/pendingSave";
 
 const showTestVersion = /localhost|testing/.test(window.location.href);
 
@@ -68,6 +69,7 @@ const Header = () => {
   };
 
   const tryLogout = async () => {
+    await savePendingChanges();
     await logout();
     navigate("/");
   };
