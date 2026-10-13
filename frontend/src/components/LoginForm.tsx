@@ -13,6 +13,7 @@ import {
 import useTranslations from "../hooks/useTranslations";
 import DotLoadingSpinner from "./DotLoadingSpinner";
 import { decodeJWT } from "../lib/jwtUtils";
+import { authStorage } from "../lib/authStorage";
 
 export default function LoginForm() {
   const [username, setUsername] = useState<string>("");
@@ -48,14 +49,9 @@ export default function LoginForm() {
       // Decode JWT to extract user ID
       const decodedToken = decodeJWT(loginToken);
       const userId = decodedToken?.userId;
-      // "Remember me" checkbox
-      const storage = rememberMe ? localStorage : sessionStorage;
-
-      storage.setItem("loginToken", loginToken);
-      storage.setItem("userInfo", username);
-      if (userId != null) {
-        storage.setItem("userId", userId.toString());
-      }
+      // Always stored in localStorage so all tabs share the login.
+      // "Remember me" only affects the token lifetime (see fetchJWT).
+      authStorage.setLogin(loginToken, username, userId);
 
       setInvalidSession(false);
       setSessionToken(loginToken);

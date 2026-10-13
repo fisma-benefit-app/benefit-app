@@ -16,6 +16,7 @@ import {
   deleteFunctionalComponent,
 } from "../api/project.ts";
 import { generateOverviewPDF } from "../lib/overviewReportUtils.ts";
+import { registerPendingSave } from "../lib/pendingSave.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 import {
   Project,
@@ -55,24 +56,51 @@ import {
 } from "../api/comments.ts";
 
 // Debounce hook for auto-saving projects
-function useDebounce<T extends (...args: unknown[]) => void>(
+function useDebounce<T extends (...args: unknown[]) => void | Promise<void>>(
   func: T,
   delay: number,
 ) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingCallRef = useRef<(() => void | Promise<void>) | null>(null);
+  const runningCallRef = useRef<Promise<void> | null>(null);
 
-  function debouncedFunction(...args: Parameters<T>) {
+  // Runs the waiting call now and resolves when it (or a call already
+  // running) has finished.
+  const flush = useCallback((): Promise<void> => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => func(...args), delay);
-  }
+    timeoutRef.current = null;
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
+    const call = pendingCallRef.current;
+    pendingCallRef.current = null;
+    if (call) {
+      const running = Promise.resolve(call()).finally(() => {
+        if (runningCallRef.current === running) runningCallRef.current = null;
+      });
+      runningCallRef.current = running;
+    }
+    return runningCallRef.current ?? Promise.resolve();
   }, []);
 
-  return debouncedFunction;
+  const isPending = useCallback(
+    () => pendingCallRef.current !== null || runningCallRef.current !== null,
+    [],
+  );
+
+  function debounced(...args: Parameters<T>) {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    pendingCallRef.current = () => func(...args);
+    timeoutRef.current = setTimeout(flush, delay);
+  }
+
+  // Leaving the page (e.g. to the project list) saves instead of dropping
+  // the waiting call.
+  useEffect(() => {
+    return () => {
+      void flush();
+    };
+  }, [flush]);
+
+  return { debounced, flush, isPending };
 }
 
 function sortFunctionalComponents(components: TGenericComponent[]) {
@@ -340,7 +368,11 @@ export default function ProjectPage() {
   }, [project?.id, sessionToken]);
 
   // Debounced auto-save function
-  const debouncedSaveProject = useDebounce(async () => {
+  const {
+    debounced: debouncedSaveProject,
+    flush: flushProjectSave,
+    isPending: isProjectSavePending,
+  } = useDebounce(async () => {
     const currentProject = projectRef.current;
     if (!currentProject || isManuallySaved.current) {
       return;
@@ -395,6 +427,23 @@ export default function ProjectPage() {
       );
     }
   }, 5000); // Auto-save every 5 seconds
+
+  // Let the header save waiting edits before a logout revokes the token.
+  useEffect(() => registerPendingSave(flushProjectSave), [flushProjectSave]);
+
+  // Closing or reloading the tab would drop the waiting save. Browsers show
+  // their own "Leave site?" text and ignore any custom message.
+  useEffect(() => {
+    const warnAboutUnsavedChanges = (event: BeforeUnloadEvent) => {
+      if (!isProjectSavePending()) return;
+      event.preventDefault();
+      event.returnValue = ""; // older Chrome needs this to show the prompt
+    };
+
+    window.addEventListener("beforeunload", warnAboutUnsavedChanges);
+    return () =>
+      window.removeEventListener("beforeunload", warnAboutUnsavedChanges);
+  }, [isProjectSavePending]);
 
   // multi-select, drag and click-to-place reordering of the component grid
   const reorder = useComponentReorder({

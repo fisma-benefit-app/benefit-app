@@ -5,6 +5,7 @@ import { extendSession, validateJWT } from "../api/authorization";
 import { decodeJWT, sessionTimeoutConfig } from "../lib/jwtUtils";
 import { useAlert } from "../hooks/useAlert";
 import useTranslations from "../hooks/useTranslations";
+import { authStorage, TOKEN_KEY } from "../lib/authStorage";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const MAX_TIMEOUT_DELAY = 2_147_483_647;
@@ -24,13 +25,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const translation = useTranslations().alert;
 
   const clearLocalSession = () => {
-    sessionStorage.removeItem("loginToken");
-    sessionStorage.removeItem("userInfo");
-    sessionStorage.removeItem("userId");
-
-    localStorage.removeItem("loginToken");
-    localStorage.removeItem("userInfo");
-    localStorage.removeItem("userId");
+    authStorage.clear();
 
     setSessionToken(null);
     setAppUser(null);
@@ -59,13 +54,9 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     const restoreSession = async () => {
       //need to track that items from sessionstorage are retrieved and state update for loggedIn is finished
       setLoadingAuth(true);
-      const loginToken =
-        sessionStorage.getItem("loginToken") ||
-        localStorage.getItem("loginToken");
-      const userInfo =
-        sessionStorage.getItem("userInfo") || localStorage.getItem("userInfo");
-      const userId =
-        sessionStorage.getItem("userId") || localStorage.getItem("userId");
+      const loginToken = authStorage.getToken();
+      const userInfo = authStorage.getUserInfo();
+      const userId = authStorage.getUserId();
 
       if (loginToken && userInfo) {
         const decoded = decodeJWT(loginToken);
@@ -104,17 +95,19 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     let logoutStarted = false;
     let validationInProgress = false;
     let pendingReplacementToken: string | null = null;
-    const tokenStorage =
-      sessionStorage.getItem("loginToken") === sessionToken
-        ? sessionStorage
-        : localStorage;
-
-    const getStoredToken = () => tokenStorage.getItem("loginToken");
+    const getStoredToken = authStorage.getToken;
 
     const logoutForInvalidToken = () => {
       if (logoutStarted) return;
       logoutStarted = true;
       setInvalidSession(true);
+      void logout();
+    };
+
+    // Another tab logged out: follow it without the invalid-session message.
+    const logoutWithOtherTab = () => {
+      if (logoutStarted) return;
+      logoutStarted = true;
       void logout();
     };
 
@@ -134,6 +127,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
       if (tokenIsValid === true) {
         pendingReplacementToken = null;
+        // The session was extended in another tab.
+        hideNotification("session-expiring");
         setSessionToken(token);
       } else {
         logoutForInvalidToken();
@@ -142,8 +137,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
 
     const handleStorageChange = (event: StorageEvent) => {
       if (
-        event.storageArea !== tokenStorage ||
-        (event.key !== "loginToken" && event.key !== null)
+        event.storageArea !== localStorage ||
+        (event.key !== TOKEN_KEY && event.key !== null)
       ) {
         return;
       }
@@ -151,7 +146,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       const storedToken = getStoredToken();
       if (storedToken === sessionToken) return;
       if (!storedToken) {
-        logoutForInvalidToken();
+        logoutWithOtherTab();
         return;
       }
 
@@ -168,7 +163,12 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
         return;
       }
 
-      if (storedToken && pendingReplacementToken === storedToken) {
+      if (!storedToken) {
+        logoutWithOtherTab();
+        return;
+      }
+
+      if (pendingReplacementToken === storedToken) {
         void validateReplacementToken(storedToken);
         return;
       }
@@ -184,7 +184,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
       window.clearInterval(intervalId);
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, [appUser?.username, logout, sessionToken]);
+  }, [appUser?.username, hideNotification, logout, sessionToken]);
 
   const showSessionWarning = useCallback(
     (expirationTime: number) => {
@@ -208,11 +208,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
             try {
               const renewedToken = await extendSession(sessionToken!);
 
-              if (localStorage.getItem("loginToken")) {
-                localStorage.setItem("loginToken", renewedToken);
-              } else {
-                sessionStorage.setItem("loginToken", renewedToken);
-              }
+              authStorage.setToken(renewedToken);
               setSessionToken(renewedToken);
               hideNotification("session-expiring");
             } catch (error) {
