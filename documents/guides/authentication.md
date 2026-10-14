@@ -226,15 +226,16 @@ Blacklist entries are needed only until the token would have expired anyway. The
 
 ## F) Signing keys
 
-| Key         | Where                                                                                                                                         | Used by                                      |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| Public key  | `backend/src/main/resources/jwt-keys/app.pub`, committed. `application.yaml` points to it with `jwt.public.key: classpath:./jwt-keys/app.pub` | `JwtDecoder` (verify), `JwtEncoder` (key id) |
-| Private key | `JWT_PRIVATE_KEY` environment variable: root `.env` locally, config vars on Heroku. Mapped to `jwt.private.key`                               | `JwtEncoder` (sign)                          |
+| Key         | Where                                                                                                           | Used by                                      |
+| ----------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Private key | `JWT_PRIVATE_KEY` environment variable: root `.env` locally, config vars on Heroku. Mapped to `jwt.private.key` | `JwtEncoder` (sign)                          |
+| Public key  | Derived from the private key at startup (`SecurityConfig.publicKey()`). Not stored anywhere                     | `JwtDecoder` (verify), `JwtEncoder` (key id) |
 
 - The private key must be a PKCS#8 PEM (`-----BEGIN PRIVATE KEY-----`). `SecurityConfig.parsePrivateKey()` accepts real newlines or literal `\n`, so the key can sit on one line in an env var. If the key can't be parsed, startup fails with `JWT_PRIVATE_KEY is not a valid RSA private key`.
 - The private key is not in this repository. Get it from the private `backend-credentials` repo. Never commit it or paste it anywhere.
-- The two keys must be a matching pair. Otherwise the backend signs tokens it can't verify, and every request after login returns `401 Invalid token`.
-- Tests never use the real key. The `test` profile has its own key pair (`application-test.yaml` and `jwt-keys-test/app-public.pem`), and `TokenServiceTest` generates a fresh RSA key for each run. CI (`run-checks-on-pr.yml`) also generates a throwaway `JWT_PRIVATE_KEY` with `openssl genpkey`.
+- **Every environment must have its own key.** A backend accepts any token signed with its key, so a shared key lets a token from testing log in to production (#679). Never copy a key from one environment to another. Generate a new one with `openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048`.
+- Changing an environment's key logs out everyone on that environment once.
+- Tests never use the real key. The `test` profile has its own key in `application-test.yaml`, and `TokenServiceTest` and `JwtSigningKeyTest` generate fresh RSA keys for each run. CI (`run-checks-on-pr.yml`) also generates a throwaway `JWT_PRIVATE_KEY` with `openssl genpkey`.
 
 ## Things to know
 

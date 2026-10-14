@@ -37,4 +37,3 @@ jwt:
     7kWtVa8hWB9T1c2qsToY/J/EE+jkya+axO/WpSX28b1ln3T+6f5IK/RXOxtMqJlh
     ejOC9P55K2X0oI7l08IyYQ==
     -----END PRIVATE KEY-----
-  public.key: classpath:jwt-keys-test/app-public.pem
