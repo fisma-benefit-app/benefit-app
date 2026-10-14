@@ -21,7 +21,7 @@ browser ──► :80  nginx (fisma_prod_frontend) ──► serves the frontend
 ## Before you start
 
 - **SSH access** to the server as `root` (or a user in the `docker` group).
-- **`JWT_PRIVATE_KEY`** from the private `backend-credentials` repository. It must be the key that matches `backend/src/main/resources/jwt-keys/app.pub`. With any other key, login looks like it works but every request after it returns `401`.
+- **`JWT_PRIVATE_KEY`**: this server's own key, from the private `backend-credentials` repository. Don't reuse another environment's key, or that environment's tokens are accepted here too. To make a new one: `openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048`.
 - **UpCloud firewall** (control panel → Servers → your server → Firewall): ports 22 and 80 open for inbound TCP. If you don't have control panel access, ask someone who does. Nothing you do over SSH can change it.
 - **Server size:** 2 vCPU / 4 GB RAM was plenty. The build peaks at around 3 GB of disk, so have **at least 4 GB free**. The first server had a 10 GB disk that was 94% full from earlier attempts. With 1 GB of RAM, add swap first or the Gradle build may be killed.
 - **Software:** `git`, and Docker with the Compose plugin. On Ubuntu:
@@ -129,16 +129,15 @@ If you use an editor such as `micro` or `nano` instead, paste with the **termina
 
 ### 4c. Check the key and `.env`
 
-This checks the key against `app.pub` and makes sure Compose can parse `.env`. It prints no secrets:
+This checks that the key parses and that Compose can parse `.env`. It prints no secrets:
 
 ```bash
-cd /opt/benefit-app && echo "JWT lines: $(grep -c '^JWT_PRIVATE_KEY=' .env), key block: $(awk '/^JWT_PRIVATE_KEY=/{f=1} f{n++; if(/-----END/) exit} END{print n+0}' .env) line(s)"; k=$(awk '/^JWT_PRIVATE_KEY=/{f=1; sub(/^JWT_PRIVATE_KEY=/,""); print; if (/-----END/) exit; next} f && /^[A-Za-z_]+=/{exit} f{print; if (/-----END/) exit}' .env | sed -e 's/\\n//g' -e 's/-----[A-Z ]*-----//g' | tr -d "\"' \t\r\n"); a=$({ echo "-----BEGIN PRIVATE KEY-----"; echo "$k" | fold -w 64; echo "-----END PRIVATE KEY-----"; } | openssl pkey -pubout 2>/dev/null | grep -v -- ----- | tr -d '\n'); b=$(grep -v -- ----- backend/src/main/resources/jwt-keys/app.pub | tr -d '\r\n'); echo "key body: ${#k} chars"; [ -n "$a" ] && [ "$a" = "$b" ] && echo "KEY MATCHES app.pub" || { [ -n "$a" ] && echo "KEY PARSES BUT IS A DIFFERENT KEY PAIR" || echo "KEY DOES NOT PARSE"; }; unset k a b; docker compose -f docker-compose.prod.yaml config --quiet 2>&1 | sed -E 's/"[^"]{12,}"/"<redacted>"/g'; echo "compose .env exit code: ${PIPESTATUS[0]}"
+cd /opt/benefit-app && echo "JWT lines: $(grep -c '^JWT_PRIVATE_KEY=' .env), key block: $(awk '/^JWT_PRIVATE_KEY=/{f=1} f{n++; if(/-----END/) exit} END{print n+0}' .env) line(s)"; k=$(awk '/^JWT_PRIVATE_KEY=/{f=1; sub(/^JWT_PRIVATE_KEY=/,""); print; if (/-----END/) exit; next} f && /^[A-Za-z_]+=/{exit} f{print; if (/-----END/) exit}' .env | sed -e 's/\\n//g' -e 's/-----[A-Z ]*-----//g' | tr -d "\"' \t\r\n"); a=$({ echo "-----BEGIN PRIVATE KEY-----"; echo "$k" | fold -w 64; echo "-----END PRIVATE KEY-----"; } | openssl pkey -pubout 2>/dev/null | grep -v -- ----- | tr -d '\n'); echo "key body: ${#k} chars"; [ -n "$a" ] && echo "KEY PARSES" || echo "KEY DOES NOT PARSE"; unset k a; docker compose -f docker-compose.prod.yaml config --quiet 2>&1 | sed -E 's/"[^"]{12,}"/"<redacted>"/g'; echo "compose .env exit code: ${PIPESTATUS[0]}"
 ```
 
-Continue only when you see `KEY MATCHES app.pub` and `compose .env exit code: 0`. What the other results mean:
+Continue only when you see `KEY PARSES` and `compose .env exit code: 0`. What the other results mean:
 
 - **`KEY DOES NOT PARSE`:** the paste went wrong, e.g. a line is missing, or the quotes or header are damaged. A correct key body is about 1600 characters.
-- **`KEY PARSES BUT IS A DIFFERENT KEY PAIR`:** you have the wrong key. For example, the key pair was rotated on 2026-09-04.
 - **Non-zero exit code:** Compose names the problem, e.g. a leftover key line or a missing variable.
 
 ## 5. Create the database, schema and first user
@@ -271,7 +270,7 @@ The first attempts (issues #718–#722, #738, #742) and the successful run on 20
 - **The disk was full.** Earlier builds had left 2.6 GB of images, 2.3 GB of build cache and host Gradle/npm caches on a 10 GB disk, leaving 647 MB free. Builds would have failed with `no space left on device`. Step 2 freed 4 GB. Upgrading an UpCloud plan doesn't grow the disk by itself.
 - **The JWT key seemed not to match.** A first version of the key check read only the first line of `JWT_PRIVATE_KEY`, but the key from `backend-credentials` is multi-line, so a correct key looked empty. Joining the lines by hand in an editor made it harder to tell what was wrong. Step 4c's check reads both formats and says *why* a key fails. Two other traps:
   - Pasting into micro needs the terminal's paste shortcut, not Ctrl+V.
-  - A wrong but valid key doesn't stop the backend. Login succeeds and then every request returns `401` (#643).
+  - A wrong but valid key didn't stop the backend. Login succeeded and then every request returned `401` (#643). This can no longer happen, since the public key is now derived from the private key (#679).
 - **Port 8080 was blocked by the UpCloud firewall.** The frontend loaded, but API calls to `:8080` timed out. `ufw` was already inactive, so nothing on the server was blocking it. How we proved the packets never arrived:
   - Port 443 answered "connection refused" at once: packets reach the server, and nothing listens there.
   - Port 8080 timed out: packets are dropped on the way.

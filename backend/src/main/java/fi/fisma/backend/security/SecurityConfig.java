@@ -9,9 +9,11 @@ import com.nimbusds.jose.proc.SecurityContext;
 import fi.fisma.backend.config.InvalidConfigurationException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.KeyFactory;
+import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -59,9 +61,6 @@ public class SecurityConfig {
    */
   private static final Pattern ORIGIN = Pattern.compile("https?://[^/\\s]+/?");
 
-  @Value("${jwt.public.key}")
-  RSAPublicKey key;
-
   @Value("${cors.allowed-origins}")
   List<String> allowedOrigins;
 
@@ -76,6 +75,21 @@ public class SecurityConfig {
               + " from the backend-credentials repository, quoted, with its line breaks.",
           exception);
     }
+  }
+
+  /**
+   * Derived from the private key, so each environment's {@code JWT_PRIVATE_KEY} is its whole key
+   * pair and a token signed by another environment fails verification.
+   */
+  @Bean
+  public RSAPublicKey publicKey(RSAPrivateKey privateKey) throws Exception {
+    if (!(privateKey instanceof RSAPrivateCrtKey crtKey)) {
+      throw new InvalidConfigurationException(
+          "JWT_PRIVATE_KEY doesn't contain its public key.",
+          "Generate a full key with: openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048");
+    }
+    var spec = new RSAPublicKeySpec(crtKey.getModulus(), crtKey.getPublicExponent());
+    return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
   }
 
   @Bean
@@ -160,13 +174,13 @@ public class SecurityConfig {
   }
 
   @Bean
-  JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withPublicKey(this.key).build();
+  JwtDecoder jwtDecoder(RSAPublicKey publicKey) {
+    return NimbusJwtDecoder.withPublicKey(publicKey).build();
   }
 
   @Bean
-  JwtEncoder jwtEncoder(RSAPrivateKey privateKey) {
-    JWK jwk = new RSAKey.Builder(this.key).privateKey(privateKey).build();
+  JwtEncoder jwtEncoder(RSAPrivateKey privateKey, RSAPublicKey publicKey) {
+    JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
     JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
     return new NimbusJwtEncoder(jwks);
   }
