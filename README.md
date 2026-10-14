@@ -424,7 +424,7 @@ You can change the values as you wish, but the dev environment should usually wo
 
 | Variable                     | Default                                    | Purpose                                                |
 | ---------------------------- | ------------------------------------------ | ------------------------------------------------------ |
-| `JWT_PRIVATE_KEY`            | _(none — required, see below)_             | Backend JWT signing key                                |
+| `JWT_PRIVATE_KEY`            | _(empty: dev uses a built-in key)_         | Backend JWT signing key, see below                     |
 | `POSTGRES_DB`                | `fisma_db`                                 | Local database name                                    |
 | `POSTGRES_USER`              | `myuser`                                   | Local database user                                    |
 | `POSTGRES_PASSWORD`          | `secret`                                   | Local database password                                |
@@ -453,17 +453,15 @@ See `.env.example` and `frontend/.env.example` for the source of truth — this 
 </details>
 <br>
 
-### You must include the JWT_PRIVATE_KEY in your .env:
+### JWT_PRIVATE_KEY
 
-The backend JWT signing key is supplied through the `JWT_PRIVATE_KEY` environment variable and is **not stored in the public repository**. Copy the key from the **backend-credentials** file `JWT private key for local enviroment.md` and set it in the root `.env` file before starting the backend. Use the actual PEM content with real line breaks, for example:
+For local development, leave `JWT_PRIVATE_KEY` empty. The `dev` profile signs tokens with a public, dev-only key from `application-dev.yaml`.
+
+Deployed environments (testing, production) must each set their own key. Never reuse a key between environments, and never use the dev key: the backend refuses to start with it outside the `dev` profile. Generate a key with:
 
 ```bash
-JWT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
-...
------END PRIVATE KEY-----"
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048
 ```
-
-Keep the key in your local `.env` only; do not commit it to the repository.
 
 ### 3) Run Options
 
