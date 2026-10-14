@@ -9,6 +9,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import fi.fisma.backend.config.InvalidConfigurationException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -61,18 +64,24 @@ public class SecurityConfig {
    */
   private static final Pattern ORIGIN = Pattern.compile("https?://[^/\\s]+/?");
 
+  /** SHA-256 of the public half of the committed dev key ({@code jwt.dev-private-key}). */
+  static final String DEV_KEY_FINGERPRINT = "FWDTlTwRVdCSucrIZKnkAU9Vpq6b6A8nEceECQ+EAmg=";
+
   @Value("${cors.allowed-origins}")
   List<String> allowedOrigins;
 
+  /** Uses the dev profile's committed key when {@code JWT_PRIVATE_KEY} is not set. */
   @Bean
-  public RSAPrivateKey privateKey(@Value("${jwt.private.key}") String privateKey) {
+  public RSAPrivateKey privateKey(
+      @Value("${jwt.private.key:}") String privateKey,
+      @Value("${jwt.dev-private-key:}") String devPrivateKey) {
     try {
-      return parsePrivateKey(privateKey);
+      return parsePrivateKey(privateKey.isBlank() ? devPrivateKey : privateKey);
     } catch (Exception exception) {
       throw new InvalidConfigurationException(
           "JWT_PRIVATE_KEY is not a valid RSA private key (" + exception + ").",
-          "Copy the whole PKCS#8 PEM (-----BEGIN PRIVATE KEY----- ... -----END PRIVATE KEY-----)"
-              + " from the backend-credentials repository, quoted, with its line breaks.",
+          "Set the whole PKCS#8 PEM (-----BEGIN PRIVATE KEY----- ... -----END PRIVATE KEY-----),"
+              + " quoted, with its line breaks.",
           exception);
     }
   }
@@ -82,14 +91,30 @@ public class SecurityConfig {
    * pair and a token signed by another environment fails verification.
    */
   @Bean
-  public RSAPublicKey publicKey(RSAPrivateKey privateKey) throws Exception {
+  public RSAPublicKey publicKey(RSAPrivateKey privateKey, Environment environment)
+      throws Exception {
     if (!(privateKey instanceof RSAPrivateCrtKey crtKey)) {
       throw new InvalidConfigurationException(
           "JWT_PRIVATE_KEY doesn't contain its public key.",
           "Generate a full key with: openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048");
     }
     var spec = new RSAPublicKeySpec(crtKey.getModulus(), crtKey.getPublicExponent());
-    return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
+    var publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
+
+    if (!environment.acceptsProfiles(Profiles.of("dev"))
+        && DEV_KEY_FINGERPRINT.equals(fingerprint(publicKey))) {
+      throw new InvalidConfigurationException(
+          "JWT_PRIVATE_KEY is the public dev key from application-dev.yaml, which anyone can use"
+              + " to sign tokens.",
+          "Generate this environment's own key with: openssl genpkey -algorithm RSA -pkeyopt"
+              + " rsa_keygen_bits:2048");
+    }
+    return publicKey;
+  }
+
+  static String fingerprint(RSAPublicKey publicKey) throws Exception {
+    byte[] hash = MessageDigest.getInstance("SHA-256").digest(publicKey.getEncoded());
+    return Base64.getEncoder().encodeToString(hash);
   }
 
   @Bean

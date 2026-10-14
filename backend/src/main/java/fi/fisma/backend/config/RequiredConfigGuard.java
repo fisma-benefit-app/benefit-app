@@ -27,12 +27,14 @@ public class RequiredConfigGuard implements EnvironmentPostProcessor, Ordered {
   @Override
   public void postProcessEnvironment(
       ConfigurableEnvironment environment, SpringApplication application) {
-    if (!hasValue(environment, "jwt.private.key")) {
+    if (!hasValue(environment, "jwt.private.key")
+        && !hasValue(environment, "jwt.dev-private-key")) {
       throw new InvalidConfigurationException(
           "JWT_PRIVATE_KEY is not set.",
-          "Set JWT_PRIVATE_KEY to the key from the backend-credentials repository. docker compose"
-              + " reads it from the root .env; ./gradlew bootRun and java -jar don't, so export it"
-              + " first, e.g. `set -a && source ../.env && set +a`.");
+          "For local development, run with the dev profile (SPRING_PROFILES_ACTIVE=dev), which"
+              + " has a built-in key. Elsewhere, set JWT_PRIVATE_KEY to this environment's own key."
+              + " docker compose reads it from the root .env; ./gradlew bootRun and java -jar"
+              + " don't, so export it first, e.g. `set -a && source ../.env && set +a`.");
     }
 
     String[] profiles = environment.getActiveProfiles();

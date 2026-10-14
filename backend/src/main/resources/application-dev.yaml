@@ -4,3 +4,36 @@ spring:
       mode: always
       schema-locations: classpath:schema-dev.sql
       data-locations: classpath:database-seed-dev.sql
+
+# Public, dev-only signing key so local development needs no secret. The backend refuses to
+# start with it outside the dev profile (SecurityConfig.DEV_KEY_FINGERPRINT).
+jwt:
+  dev-private-key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCknGcShDqQVC3a
+    1yXakFfCH9Xj30JDYfgDRh7Cqzx78y1PQU42VM4cp38OEY+mxl4zRxGgL/DEZ89V
+    VY7sprgVkfrVzM8z/UoKBW6NbDdKdHhdVPbmxYEazrgPDM8cG0RQg8Khm6IcXc+L
+    1rcDnqW86YGdpg5BfMGOQvz2mefX3mL0fyq0zpeg99vmwvfDxmur1shJAGrnaCRK
+    Ma8HU32eHsU6zvcAIkdj1QsRCMl3kyj0EdWSpBsko4LEUo9isIJZeHTPNHWmhpK7
+    yD7QBoQ34O2K/la7kN5zPijYmthXumyPxyKOm0Tjv4fgHKSEWqqB7f1jplA8xATH
+    qFNTRzRtAgMBAAECggEAAtEgXGtB201teXS8E5jrv4ku7lbYOfH3vgqZpSgsAU0A
+    hf4umfRqkIf3PyTiye5UF1mMfirD2oCSRjoQF5Gkzc2xNq5qD1Ayz6gXI7lp2s7S
+    bnpxPTK9ClnmQW+tLaRzz1Lp5j0VEZozXoe+mwPAf1KZorqAPPOnFkmkLY4lrwZ6
+    sTjkpw1MKpFwNnEvL1Si8AKc0GDp6oUFaMnxXMPtwOeQYfdqrUbUz8nUhJZaydJX
+    3WmpM07NyqqBVmwcvFp9B3GzIYgymhyQO39NjC3K0a9SbZ3QOb9Of+Ym14IhExHi
+    qSdrYagemhJH15NV48nl4HRjAFNlmfoBiZTNwhJQ+wKBgQDQST9GiFqtcRGoLJbM
+    T8dWGyIVMaNc0xw3pp9mOf5mydwfq6Zpn80HhXZCpY5aquhKZkLgUsJgexuEt7mJ
+    nDtuub/l+ypPqMByVnvvN45wNg2bfmZLQb8DwP7xsMHmtxtUo4tAERJJN9P7dufV
+    OWP4VkLtWV9khB8pZoRw0UPJywKBgQDKUd0x6SA0oeTh69gGW0U2+QMI69Ovl62G
+    MObSg07OvDhPJ1fieasr3jlHAxNmMwO8e+I4ex2gTe3MTcdwRN2I98d9/3MBgyhR
+    AJ/1xvUrETOCOjEiD3DI9W/H9CbgsLktXutMgJ3PdWQ052WNaOo3vVsQymLJKvsG
+    KMt3762TpwKBgD5HaJAifVqXEHyEuKJmyGfKvSoxKXO7/Bf3znm2pYb+nL8riBrV
+    GW1CTtYmwqYBrGtyoFSK6mwG43ePp/6ppGu7RtHxg/lFsCWADpa8ue57ex4fcV7X
+    TdJFhvWlsJTX82gfbqe9cwZJlyz9pNxwyJ+cy25E5u0bRGYQrVE+gVJ5AoGBAI4U
+    v4n1dbCAoQQnZCXSouDgLsltE9QUaL/8R50+qXF1rPWpY4agexzrir3b4xu6Z71O
+    IqgXjc6t63m2hYDKW+l8WJSbeGBvgziff7ZSaoo8IjgqNab9wO7frgh15XeVo/XA
+    2u12xVyTzDN67U5Jh3JtgC5ics1jabYBoCIyJ2uxAoGBAJT0yCjkufBUDsApgDf4
+    nnS9oJOZeEZtIlAW2bFZI+LR8rwR5uPlO6zRtzlaUUUOSkt6x33mdJVCR6IaiVI2
+    Qju1n5teUNkfvWnWOkVEf6yEAgVGHCQplZ2BwNK20BUpuaToEZ/k9cVhMFLdYY2o
+    5GYjnKdaK19UVX3mZO7+uni9
+    -----END PRIVATE KEY-----
