@@ -107,7 +107,11 @@ export default function FunctionalClassSubComponent({
                       htmlFor={key}
                       className="font-medium text-sm text-gray-700"
                     >
-                      {translation.parameters[key as CalculationParameter]}:
+                      {
+                        translation.parameters[key as CalculationParameter]
+                          .fullView
+                      }
+                      :
                     </label>
                     <input
                       id={key}

@@ -39,6 +39,7 @@ import ComponentClassIcons from "./ComponentClassIcons.tsx";
 import SubComponentsModal from "./SubComponentsModal.tsx";
 import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import FunctionalClassSubComponent from "./FunctionalClassSubComponent.tsx";
+import { compactViewStyles, fullViewStyles } from "../lib/uiStyles.ts";
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -97,6 +98,8 @@ export default function FunctionalClassComponent({
 
   const translation = useTranslations().functionalClassComponent;
   const descriptionLength = component.description?.length ?? 0;
+
+  const uiStyles = isCompactMode ? compactViewStyles : fullViewStyles;
 
   const componentTypeOptions = getComponentTypeOptions(component.className);
   const inputFields = getInputFields(component.className);
@@ -308,20 +311,22 @@ export default function FunctionalClassComponent({
         onMouseDown={(e) => {
           if (onCardClick && e.shiftKey) e.preventDefault();
         }}
-        className={`flex flex-col gap-4 border-2 ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"} w-full p-4 rounded-lg border-l-8`}
+        className={`${uiStyles.card} ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"}`}
         style={{
           borderLeftColor: classColors.border,
           backgroundColor: classColors.card,
         }}
       >
-        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2">
-          <div className="flex-1 min-w-[200px] flex items-center gap-2">
-            <ComponentClassIcons
-              componentClass={component.className}
-              componentType={component.componentType}
-            />
+        <div className={uiStyles.header}>
+          <div className={uiStyles.titleContainer}>
+            {!isCompactMode && (
+              <ComponentClassIcons
+                componentClass={component.className}
+                componentType={component.componentType}
+              />
+            )}
             <input
-              className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base"
+              className={uiStyles.titleInput}
               id="title"
               placeholder={translation.titlePlaceholder}
               value={component.title || ""}
@@ -330,13 +335,13 @@ export default function FunctionalClassComponent({
             />
           </div>
 
-          <div className="flex flex-wrap gap-2 items-center justify-start sm:justify-end">
-            <div className="flex gap-2 items-center">
+          <div className={uiStyles.headerActions}>
+            <div className={uiStyles.headerActionContainer}>
               {/* Collapse button */}
               <button
                 type="button"
                 onClick={toggleCollapse}
-                className="bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer"
+                className={uiStyles.collapseButton}
                 title={translation.collapseExpand}
               >
                 <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
@@ -430,12 +435,12 @@ export default function FunctionalClassComponent({
 
             {/* Metadata Section */}
             {(!isCompactMode || !component.className) && (
-              <div className="flex flex-row flex-wrap gap-3 items-center">
+              <div className={uiStyles.metadata}>
                 <select
                   id="className"
                   value={component.className || ""}
                   onChange={handleClassNameChange}
-                  className="border-2 border-fisma-light-gray bg-white p-2 flex-1 min-w-[180px] text-base rounded-md"
+                  className={uiStyles.select}
                   disabled={!isLatest}
                 >
                   <option value="">{translation.classNamePlaceholder}</option>
@@ -447,12 +452,12 @@ export default function FunctionalClassComponent({
                 </select>
 
                 {component.className && (
-                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                  <div className={uiStyles.componentTypeContainer}>
                     <select
                       id="componentType"
                       value={component.componentType || ""}
                       onChange={handleOptionTypeChange}
-                      className="border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md"
+                      className={uiStyles.componentTypeSelect}
                       disabled={!isLatest}
                     >
                       {component.className !==
@@ -519,20 +524,25 @@ export default function FunctionalClassComponent({
 
             {/* Parameters Section */}
             {component.className && (
-              <div className="flex flex-wrap gap-4 bg-white border-2 border-fisma-light-gray p-3 rounded-md mt-2">
+              <div className={uiStyles.paraMeterInputField}>
                 {Object.entries(component)
                   .filter(([key]) => inputFields.includes(key))
                   .map(([key, value]) => (
-                    <div key={key} className="flex flex-col gap-1 items-start">
-                      <label htmlFor={key} className="font-medium">
-                        {translation.parameters[key as CalculationParameter]}:
+                    <div key={key} className={uiStyles.parameterItem}>
+                      <label htmlFor={key} className={uiStyles.parameterLabel}>
+                        {isCompactMode
+                          ? translation.parameters[key as CalculationParameter]
+                              .compactView
+                          : translation.parameters[key as CalculationParameter]
+                              .fullView}
+                        :
                       </label>
                       <input
                         id={key}
                         type="number"
                         value={(value as number) || ""}
                         onChange={handleComponentChange}
-                        className="w-[120px] border-2 border-fisma-light-gray bg-white p-2 rounded-md"
+                        className={uiStyles.parameterInput}
                       />
                     </div>
                   ))}
@@ -542,7 +552,7 @@ export default function FunctionalClassComponent({
         )}
 
         {/* Component Points Progress Bar */}
-        <div className="border-t pt-3">
+        <div className={uiStyles.progressContainer}>
           {component.subComponents && component.subComponents.length > 0 ? (
             // Show toggle-able total for components with MLA
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-md p-3">
@@ -610,7 +620,7 @@ export default function FunctionalClassComponent({
           ) : (
             // Show simple progress bar for components without MLA
             <>
-              <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
+              <div className={uiStyles.progressText}>
                 <span>
                   {translation.functionalPointText}:{" "}
                   {pointsByDegreeOfCompletion.toFixed(2)} (
@@ -626,9 +636,9 @@ export default function FunctionalClassComponent({
                   {fullPoints.toFixed(2)} (100%)
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className={uiStyles.progressBar}>
                 <div
-                  className="bg-blue-400 h-2 rounded-full transition-all duration-300"
+                  className={uiStyles.progressBarFill}
                   style={{
                     width:
                       fullPoints > 0
@@ -680,7 +690,11 @@ export default function FunctionalClassComponent({
         {!collapsed && (
           <button
             type="button"
-            className={`${isLatest ? "bg-fisma-red hover:brightness-110 cursor-pointer" : "bg-fisma-gray"} text-white py-2 px-3`}
+            className={`${uiStyles.deleteButton} ${
+              isLatest
+                ? uiStyles.deleteButtonActive
+                : uiStyles.deleteButtonDisabled
+            }`}
             onClick={() => setConfirmModalOpen(true)}
             disabled={!isLatest}
             title={translation.delete}
