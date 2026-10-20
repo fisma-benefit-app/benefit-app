@@ -194,7 +194,7 @@ public class SecurityConfig {
           }
         };
     authProvider.setPasswordEncoder(passwordEncoder());
-    authProvider.setHideUserNotFoundExceptions(false);
+    authProvider.setHideUserNotFoundExceptions(true);
     return authProvider;
   }
 
@@ -224,7 +224,7 @@ public class SecurityConfig {
             HttpMethod.OPTIONS.name()));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setExposedHeaders(List.of("Location", "Authorization"));
-    configuration.setAllowCredentials(true);
+    // configuration.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
