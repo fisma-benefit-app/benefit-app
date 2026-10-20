@@ -39,6 +39,7 @@ class AuthFlowIntegrationTest {
   @Autowired private TokenBlacklistService tokenBlacklistService;
 
   private String username;
+  private String unknownUsername;
   private String revokedJti;
   private AppUser testUser;
 
@@ -66,6 +67,9 @@ class AuthFlowIntegrationTest {
   @AfterEach
   void deleteTestUser() {
     loginAttemptThrottleService.reset(username);
+    if (unknownUsername != null) {
+      loginAttemptThrottleService.reset(unknownUsername);
+    }
     if (revokedJti != null) {
       revokedTokenRepository.deleteById(revokedJti);
     }
@@ -108,7 +112,7 @@ class AuthFlowIntegrationTest {
 
     mockMvc
         .perform(post("/auth/logout").header("Authorization", bearer(token)))
-        .andExpect(status().isOk());
+        .andExpect(status().isNoContent());
     mockMvc
         .perform(get("/auth/validateJWT").header("Authorization", bearer(token)))
         .andExpect(status().isUnauthorized());
@@ -128,6 +132,34 @@ class AuthFlowIntegrationTest {
     mockMvc
         .perform(post("/token").with(httpBasic(username, PASSWORD)))
         .andExpect(status().isTooManyRequests());
+  }
+
+  @Test
+  void unknownUsernameIsThrottledAfterFiveFailedAttempts() throws Exception {
+    unknownUsername = "unknown-it-" + UUID.randomUUID();
+    String wrongPasswordBody =
+        mockMvc
+            .perform(post("/token").with(httpBasic(username, "wrong-password")))
+            .andExpect(status().isUnauthorized())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    for (int attempt = 1; attempt < 5; attempt++) {
+      var response =
+          mockMvc
+              .perform(post("/token").with(httpBasic(unknownUsername, "wrong-password")))
+              .andExpect(status().isUnauthorized())
+              .andReturn()
+              .getResponse();
+
+      assertThat(response.getContentAsString()).isEqualTo(wrongPasswordBody);
+    }
+
+    mockMvc
+        .perform(post("/token").with(httpBasic(unknownUsername, "wrong-password")))
+        .andExpect(status().isTooManyRequests());
+    assertThat(loginAttemptThrottleService.isBlocked(unknownUsername)).isTrue();
   }
 
   private String login(String password) throws Exception {

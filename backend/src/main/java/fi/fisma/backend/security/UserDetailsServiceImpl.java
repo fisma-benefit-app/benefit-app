@@ -32,7 +32,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.appUserRepository
             .findByUsernameActive(username)
             .orElseThrow(
-                () -> new UsernameNotFoundException("username " + username + " is not found"));
+                () -> {
+                  if (loginAttemptThrottleService.recordFailure(username)) {
+                    return new LockedException(
+                        "Too many failed login attempts. Please try again later.");
+                  }
+                  return new UsernameNotFoundException("username " + username + " is not found");
+                });
     return new AppUserDetails(appUser);
   }
 
