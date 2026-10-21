@@ -1,3 +1,6 @@
+const deleteButtonActive = "bg-fisma-red hover:brightness-110 cursor-pointer";
+const deleteButtonDisabled = "bg-fisma-gray";
+
 const compactViewStyles = {
   card: "flex flex-col gap-1 border-2 w-full p-1.5 rounded-md border-l-4",
   header: "flex flex-row flex-wrap items-center justify-between gap-1",
@@ -14,7 +17,7 @@ const compactViewStyles = {
   componentTypeSelect:
     "border border-fisma-light-gray bg-white px-1.5 py-1 text-xs rounded",
   componentTypeContainer: "flex flex-col gap-1 flex-1 min-w-[120px]",
-  paraMeterInputField:
+  parameterInputField:
     "flex flex-wrap gap-1 bg-white border border-fisma-light-gray p-1 rounded-md mt-0.5",
   parameterItem: "flex flex-row gap-1 items-center",
   parameterLabel: "font-medium text-[10px] leading-tight",
@@ -26,9 +29,9 @@ const compactViewStyles = {
   progressBar: "w-full bg-gray-200 rounded-full h-1",
   progressBarFill: "bg-blue-400 h-1 rounded-full transition-all duration-300",
   deleteButton: "text-white py-1 px-2 text-xs",
-  deleteButtonActive: "bg-fisma-red hover:brightness-110 cursor-pointer",
-  deleteButtonDisabled: "bg-fisma-gray",
-};
+  deleteButtonActive,
+  deleteButtonDisabled,
+} satisfies Record<keyof typeof fullViewStyles, string>;
 
 const fullViewStyles = {
   card: "flex flex-col gap-4 border-2 w-full p-4 rounded-lg border-l-8",
@@ -48,7 +51,7 @@ const fullViewStyles = {
   componentTypeSelect:
     "border-2 border-fisma-light-gray bg-white p-2 text-base rounded-md",
   componentTypeContainer: "flex flex-col gap-2 flex-1 min-w-[180px]",
-  paraMeterInputField:
+  parameterInputField:
     "flex flex-wrap gap-4 bg-white border-2 border-fisma-light-gray p-3 rounded-md mt-2",
   parameterItem: "flex flex-col gap-1 items-start",
   parameterLabel: "font-medium",
@@ -59,8 +62,8 @@ const fullViewStyles = {
   progressBar: "w-full bg-gray-200 rounded-full h-2",
   progressBarFill: "bg-blue-400 h-2 rounded-full transition-all duration-300",
   deleteButton: "text-white py-2 px-3",
-  deleteButtonActive: "bg-fisma-red hover:brightness-110 cursor-pointer",
-  deleteButtonDisabled: "bg-fisma-gray",
+  deleteButtonActive,
+  deleteButtonDisabled,
 };
 
 export { compactViewStyles, fullViewStyles };

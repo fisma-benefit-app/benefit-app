@@ -121,6 +121,14 @@ function localDateToIsoDate(date: Date): string {
   return format(date, "yyyy-MM-dd");
 }
 
+function getWideScreenColumnCount(
+  isCompactMode: boolean,
+  isPanelOpen: boolean,
+) {
+  if (isCompactMode) return isPanelOpen ? 4 : 5;
+  return isPanelOpen ? 3 : 4;
+}
+
 export default function ProjectPage() {
   const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
@@ -156,7 +164,7 @@ export default function ProjectPage() {
   const [commentsLoading, setCommentsLoading] = useState(false);
 
   const [columnCount, setColumnCount] = useState<number>(
-    isCompactMode ? (isPanelOpen ? 4 : 5) : isPanelOpen ? 3 : 4,
+    getWideScreenColumnCount(isCompactMode, isPanelOpen),
   );
 
   useEffect(() => {
@@ -167,9 +175,7 @@ export default function ProjectPage() {
       } else if (width < 1280) {
         setColumnCount(2);
       } else {
-        setColumnCount(
-          isCompactMode ? (isPanelOpen ? 4 : 5) : isPanelOpen ? 3 : 4,
-        );
+        setColumnCount(getWideScreenColumnCount(isCompactMode, isPanelOpen));
       }
     };
 
