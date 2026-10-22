@@ -21,10 +21,19 @@ export const PDF_COLORS = {
   // Calculation report sub-component rows: "to other applications" / "from other applications"
   sentFill: "#e6f4ea",
   receivedFill: "#fdf0e0",
+  // The same sent / received pair as strong colours, for borders and arrows.
+  sentAccent: "#2b8a57",
+  receivedAccent: "#c46a12",
   changedBlue: "#0000ff",
-  changedRed: "#b00020",
-  deltaGreen: "#087443",
 } as const;
+
+// "(+3.50)" / "(-2)": the difference to the previous report version as the reports print it.
+// Undefined when there is nothing to show; the threshold also keeps floating point noise from
+// printing as "(+0.00)".
+export const formatDelta = (difference: number, decimals: number) =>
+  Math.abs(difference) < 0.005
+    ? undefined
+    : `(${difference > 0 ? "+" : ""}${difference.toFixed(decimals)})`;
 
 // Style names usable as `style: "..."` on any content node.
 export const reportStyles: StyleDictionary = {

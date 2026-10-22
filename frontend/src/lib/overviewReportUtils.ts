@@ -5,9 +5,6 @@ import {
   calculateGrandTotalPoints,
   calculateGrandTotalPossiblePoints,
   getGroupedComponents,
-  calculateMLALayerDetails,
-  calculateMLAMessageCounts,
-  calculateExternalInterfaceDetails,
 } from "./centralizedCalculations";
 import { downloadPdfmakeDocument } from "./pdf/pdfmakeRuntime";
 import {
@@ -15,8 +12,13 @@ import {
   createArchitectureDiagram,
 } from "./pdf/architectureDiagram";
 import {
+  calculateDiagramFigures,
+  createArchitectureDiagramData,
+} from "./pdf/architectureDiagramData";
+import {
   PDF_COLORS,
   createReportDocument,
+  formatDelta,
   mmToPt,
   reportTable,
   spanningCell,
@@ -55,6 +57,7 @@ export const generateOverviewPDF = async (
           interfaces: "liittymää",
           functions: "toimintoa",
           concepts: "käsitettä",
+          algorithmicActivities: "Algoritmiset toiminnot",
           functionClass: "Toimintoluokka",
           functionPoints: "Toimintopisteet",
           percentDone: "Valmis %",
@@ -75,7 +78,7 @@ export const generateOverviewPDF = async (
           interface: "Liittymä",
           explanation: "Laskennan selitys ja tärkeät muutokset",
           changed:
-            "Muuttuneet arvot on korostettu. Suluissa oleva luku kertoo eron edelliseen versioon.",
+            "Muutokset edelliseen versioon on merkitty sinisellä suluissa.",
           sizeOverview: "toiminnallisen laajuuden yhteenveto",
           methodFooter:
             "FiSMA 1.1 Toiminnallisen koon mittaamisen menetelmä ISO/IEC 29881:2010",
@@ -93,6 +96,7 @@ export const generateOverviewPDF = async (
           interfaces: "interfaces",
           functions: "functions",
           concepts: "concepts",
+          algorithmicActivities: "Algorithmic activities",
           functionClass: "Function class",
           functionPoints: "Function points",
           percentDone: "% done",
@@ -113,7 +117,7 @@ export const generateOverviewPDF = async (
           interface: "Interface",
           explanation: "Calculation explanation and important changes",
           changed:
-            "Changed values are highlighted. The number in parentheses shows the difference from the previous version.",
+            "Changes from the previous version are shown in blue, in parentheses.",
           sizeOverview: "functional size overview",
           methodFooter:
             "FiSMA 1.1 Toiminnallisen koon mittaamisen menetelmä ISO/IEC 29881:2010",
@@ -123,20 +127,16 @@ export const generateOverviewPDF = async (
         };
 
   const formatNumber = (value: number) => value.toFixed(2);
-  // Difference to the previous version, shown in green; undefined when there is nothing to show.
+  // Difference to the previous version, shown in bold blue like the diagram's; undefined when
+  // there is nothing to show.
   const deltaPart = (
     current: number,
     previous?: number,
   ): PointsPart | undefined => {
     if (previous === undefined) return undefined;
-    const difference = current - previous;
-    // Ignore floating point noise that would otherwise be shown as "+0.00"
-    if (Math.abs(difference) < 0.005) return undefined;
-    return {
-      text: ` (${difference >= 0 ? "+" : ""}${formatNumber(difference)})`,
-      color: PDF_COLORS.deltaGreen,
-      bold: true,
-    };
+    const delta = formatDelta(current - previous, 2);
+    if (!delta) return undefined;
+    return { text: ` ${delta}`, color: PDF_COLORS.changedBlue, bold: true };
   };
   const pointsParts = (
     points: number,
@@ -426,18 +426,6 @@ export const generateOverviewPDF = async (
       margin: [0, 4, 0, 0],
     }) as Content;
 
-  const layers = calculateMLALayerDetails(project.functionalComponents);
-  const messages = calculateMLAMessageCounts(project.functionalComponents);
-  const externalInterfaces = calculateExternalInterfaceDetails(
-    project.functionalComponents,
-  );
-  const externalInterfacePoints =
-    externalInterfaces.toOtherApplications.points +
-    externalInterfaces.fromOtherApplications.points;
-  const externalInterfaceCount =
-    externalInterfaces.toOtherApplications.count +
-    externalInterfaces.fromOtherApplications.count;
-  const businessOnlyPoints = layers.business.points - externalInterfacePoints;
   const reportDate = project.calculationDate
     ? project.calculationDate.split("-").reverse().join(".")
     : "";
@@ -477,9 +465,6 @@ export const generateOverviewPDF = async (
     },
   ];
 
-  const connectorTexts = (count: number, direction: "in" | "out") =>
-    `${count} ${labels.interfaces} ${labels[direction]}`;
-
   const calculationPage: Content[] = [
     sectionHeading(labels.calculation),
     {
@@ -493,55 +478,12 @@ export const generateOverviewPDF = async (
       margin: [0, 0, 0, 10],
     },
     createArchitectureDiagram(
-      {
-        ui: {
-          title: labels.uiLayer,
-          points: `${layers.ui.points.toFixed(2)} ${pointUnit}`,
-          detail: `${layers.ui.count} ${labels.functions}`,
-        },
-        business: {
-          title: labels.businessLayer,
-          points: `${businessOnlyPoints.toFixed(2)} ${pointUnit}`,
-          detail:
-            language === "fi"
-              ? "Algoritmiset toiminnot"
-              : "Algorithmic activities",
-        },
-        database: {
-          title: labels.databaseLayer,
-          points: `${layers.database.points.toFixed(2)} ${pointUnit}`,
-          detail: `${layers.database.count} ${labels.concepts}`,
-        },
-        external: {
-          title: labels.externalLayer,
-          points: `${externalInterfacePoints.toFixed(2)} ${pointUnit}`,
-          detail: `${externalInterfaceCount} ${labels.interfaces}`,
-        },
-        uiBusiness: [
-          { arrow: "↓", text: connectorTexts(messages.uiToBusiness, "in") },
-          { arrow: "↑", text: connectorTexts(messages.businessToUi, "out") },
-        ],
-        businessDatabase: [
-          {
-            arrow: "↓",
-            text: connectorTexts(messages.businessToDatabase, "out"),
-          },
-          {
-            arrow: "↑",
-            text: connectorTexts(messages.databaseToBusiness, "in"),
-          },
-        ],
-        businessExternal: [
-          {
-            arrow: "→",
-            text: `${externalInterfaces.toOtherApplications.count} ${labels.out}`,
-          },
-          {
-            arrow: "←",
-            text: `${externalInterfaces.fromOtherApplications.count} ${labels.in}`,
-          },
-        ],
-      },
+      createArchitectureDiagramData(
+        calculateDiagramFigures(project.functionalComponents),
+        previousProject &&
+          calculateDiagramFigures(previousProject.functionalComponents),
+        labels,
+      ),
       [(CONTENT_WIDTH_PT - ARCHITECTURE_DIAGRAM_WIDTH) / 2, 4, 0, 0],
     ),
   ];
@@ -583,7 +525,16 @@ export const generateOverviewPDF = async (
     }),
     { text: labels.explanation, style: "h3" },
     textBox(project.reportNotes, 25),
-    { text: labels.changed, style: "small", margin: [0, 6, 0, 0] },
+    // Only a later version has anything to mark as changed.
+    ...(previousProject
+      ? [
+          {
+            text: labels.changed,
+            style: "small",
+            margin: [0, 6, 0, 0],
+          } as Content,
+        ]
+      : []),
   ];
 
   await downloadPdfmakeDocument(
