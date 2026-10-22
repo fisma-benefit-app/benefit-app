@@ -56,7 +56,7 @@ export const generateOverviewPDF = async (
           functions: "toimintoa",
           concepts: "käsitettä",
           functionClass: "Toimintoluokka",
-          actionPoints: "Toimintopisteet",
+          functionPoints: "Toimintopisteet",
           percentDone: "Valmis %",
           aggregates: "Koosteet ja tärkeät muutokset",
           classAggregate: "Toimintoluokat",
@@ -94,7 +94,7 @@ export const generateOverviewPDF = async (
           functions: "functions",
           concepts: "concepts",
           functionClass: "Function class",
-          actionPoints: "Action points",
+          functionPoints: "Function points",
           percentDone: "% done",
           aggregates: "Aggregates and important changes",
           classAggregate: "Function classes",
@@ -357,7 +357,7 @@ export const generateOverviewPDF = async (
           labels.functionName,
           labels.functionClass,
           labels.functionType,
-          labels.actionPoints,
+          labels.functionPoints,
           labels.percentDone,
         ],
         rows: [
@@ -553,7 +553,7 @@ export const generateOverviewPDF = async (
       headers: [
         labels.functionClass,
         labels.count,
-        labels.actionPoints,
+        labels.functionPoints,
         labels.percentDone,
       ],
       rows: groupedRows(),
@@ -564,7 +564,7 @@ export const generateOverviewPDF = async (
       headers: [
         labels.interface,
         labels.count,
-        labels.actionPoints,
+        labels.functionPoints,
         labels.percentDone,
       ],
       rows: [

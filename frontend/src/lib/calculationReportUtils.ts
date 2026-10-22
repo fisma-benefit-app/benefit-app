@@ -1,4 +1,4 @@
-import { Project, TGenericComponent } from "./types";
+import { MLAsubComponent, Project, TGenericComponent } from "./types";
 import {
   calculateComponentPointsWithMultiplier,
   calculateTotalPoints,
@@ -55,10 +55,31 @@ export const generateCalculationReportPDF = async (
 ): Promise<void> => {
   const isFirstVersion = project.version === 1;
 
-  // Maps functional components for previous project so that they can be compared to the current project
-  const previousComponentsMap = Object.fromEntries(
-    oldProject.functionalComponents.map((comp) => [comp.id, comp]),
-  );
+  // Maps functional components (including MLA subcomponents, which the API nests under their
+  // parent) of the previous project so that they can be compared to the current project
+  const previousComponentsMap: Record<number, TGenericComponent> =
+    Object.fromEntries(
+      oldProject.functionalComponents.flatMap((comp) => [
+        [comp.id, comp],
+        ...(comp.subComponents ?? []).map((sub) => [sub.id, sub]),
+      ]),
+    );
+
+  // Editing a parent regenerates its subcomponents without previousFCId, so those are matched to
+  // the previous parent's subcomponent of the same kind instead.
+  const findPreviousSub = (
+    sub: MLAsubComponent,
+    prevParent: TGenericComponent | null,
+  ): TGenericComponent | null => {
+    if (sub.previousFCId)
+      return previousComponentsMap[sub.previousFCId] ?? null;
+    const match = prevParent?.subComponents?.find(
+      (prevSub) =>
+        prevSub.subComponentType === sub.subComponentType &&
+        prevSub.className === sub.className,
+    );
+    return match ?? null;
+  };
 
   // Used for points calculation, so that even subcomponent points are added up. In case this isn't needed, easy to change
   const allCurrentComponents = getAllComponents(project.functionalComponents);
@@ -374,9 +395,11 @@ export const generateCalculationReportPDF = async (
           comp,
           comp.degreeOfCompletion,
         ).toFixed(2),
+        // Keep a degree of completion of 0 as 0; `|| null` would turn it into "no multiplier"
+        // and make an unchanged 0.00 look changed.
         calculateComponentPointsWithMultiplier(
           prevComp,
-          prevComp?.degreeOfCompletion || null,
+          prevComp?.degreeOfCompletion ?? null,
         ).toFixed(2),
         numberOptions,
       ),
@@ -399,9 +422,7 @@ export const generateCalculationReportPDF = async (
     componentRows.push(buildComponentRow(comp, prevComp));
 
     comp.subComponents?.forEach((sub) => {
-      const prevSub = sub.previousFCId
-        ? previousComponentsMap[sub.previousFCId]
-        : null;
+      const prevSub = findPreviousSub(sub, prevComp);
       mlaRows.push(buildComponentRow(sub, prevSub, comp));
     });
   });
