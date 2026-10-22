@@ -45,10 +45,11 @@ npx prettier . --write      # format
 npm run build:testing        # build for testing env (needs frontend/.env)
 npm run build:production     # build for production env
 npm run format:check         # check formatting, like CI does
+npm test                    # unit tests (Vitest)
 npm run knip                 # find unused files, exports and dependencies (needs frontend/.env; not run in CI)
 ```
 
-There is no frontend test suite (no test runner installed, no `*.test.ts(x)`/`*.spec.ts(x)` files) — don't invent an `npm test` command. Frontend correctness currently relies on TypeScript (`tsc -b`), ESLint, Prettier, `run-checks-on-pr.yml`, and manual verification.
+Frontend unit tests use Vitest (`npm test`, which runs `vitest run`) and live next to the code as `src/**/*.test.ts`. Coverage is thin so far — currently only the report's previous-version comparison logic in `lib/reportComparison.ts` — so frontend correctness still mostly relies on TypeScript (`tsc -b`), ESLint, Prettier, `run-checks-on-pr.yml` (which runs `npm test`), and manual verification. `vitest.config.ts` is separate from `vite.config.ts` on purpose: the latter throws when `VITE_API_URL` is unset.
 
 ### Formatting hook
 

@@ -1,4 +1,4 @@
-import { MLAsubComponent, Project, TGenericComponent } from "./types";
+import { Project, TGenericComponent } from "./types";
 import {
   calculateComponentPointsWithMultiplier,
   calculateTotalPoints,
@@ -20,9 +20,14 @@ import {
   spanningCell,
   textCell,
 } from "./pdf/pdfReportLayout";
+import {
+  CellValue,
+  buildPreviousComponentsMap,
+  componentPointsText,
+  findPreviousSubComponent,
+  isChanged,
+} from "./reportComparison";
 import type { Content, TableCell } from "pdfmake/interfaces";
-
-type CellValue = string | number | null | undefined;
 
 // Total columns in the main component table; the total rows' label spans all but the last two.
 const COMPONENT_COLUMN_COUNT = 10;
@@ -55,37 +60,10 @@ export const generateCalculationReportPDF = async (
 ): Promise<void> => {
   const isFirstVersion = project.version === 1;
 
-  // Maps functional components (including MLA subcomponents, which the API nests under their
-  // parent) of the previous project so that they can be compared to the current project
-  const previousComponentsMap: Record<number, TGenericComponent> =
-    Object.fromEntries(
-      oldProject.functionalComponents.flatMap((comp) => [
-        [comp.id, comp],
-        ...(comp.subComponents ?? []).map((sub) => [sub.id, sub]),
-      ]),
-    );
-
-  // Editing a parent regenerates its subcomponents without previousFCId, so those are matched to
-  // the previous parent's subcomponent of the same kind instead.
-  const findPreviousSub = (
-    sub: MLAsubComponent,
-    prevParent: TGenericComponent | null,
-  ): TGenericComponent | null => {
-    if (sub.previousFCId)
-      return previousComponentsMap[sub.previousFCId] ?? null;
-    const match = prevParent?.subComponents?.find(
-      (prevSub) =>
-        prevSub.subComponentType === sub.subComponentType &&
-        prevSub.className === sub.className,
-    );
-    return match ?? null;
-  };
+  const previousComponentsMap = buildPreviousComponentsMap(oldProject);
 
   // Used for points calculation, so that even subcomponent points are added up. In case this isn't needed, easy to change
   const allCurrentComponents = getAllComponents(project.functionalComponents);
-
-  const isChanged = (current: CellValue, prev: CellValue) =>
-    !isFirstVersion && prev !== current;
 
   // A value that differs from the previous version is shown in bold blue.
   const comparisonCell = (
@@ -95,7 +73,7 @@ export const generateCalculationReportPDF = async (
   ) =>
     changedCell(
       current,
-      isChanged(current, prev),
+      isChanged(current, prev, isFirstVersion),
       PDF_COLORS.changedBlue,
       options,
     );
@@ -391,16 +369,8 @@ export const generateCalculationReportPDF = async (
         numberOptions,
       ),
       comparisonCell(
-        calculateComponentPointsWithMultiplier(
-          comp,
-          comp.degreeOfCompletion,
-        ).toFixed(2),
-        // Keep a degree of completion of 0 as 0; `|| null` would turn it into "no multiplier"
-        // and make an unchanged 0.00 look changed.
-        calculateComponentPointsWithMultiplier(
-          prevComp,
-          prevComp?.degreeOfCompletion ?? null,
-        ).toFixed(2),
+        componentPointsText(comp),
+        componentPointsText(prevComp),
         numberOptions,
       ),
       comparisonCell(
@@ -422,7 +392,11 @@ export const generateCalculationReportPDF = async (
     componentRows.push(buildComponentRow(comp, prevComp));
 
     comp.subComponents?.forEach((sub) => {
-      const prevSub = findPreviousSub(sub, prevComp);
+      const prevSub = findPreviousSubComponent(
+        sub,
+        prevComp,
+        previousComponentsMap,
+      );
       mlaRows.push(buildComponentRow(sub, prevSub, comp));
     });
   });
