@@ -49,7 +49,16 @@ npm test                    # unit tests (Vitest)
 npm run knip                 # find unused files, exports and dependencies (needs frontend/.env; not run in CI)
 ```
 
-Frontend unit tests use Vitest (`npm test`, which runs `vitest run`) and live next to the code as `src/**/*.test.ts`. Coverage is thin so far — currently only the report's previous-version comparison logic in `lib/reportComparison.ts` — so frontend correctness still mostly relies on TypeScript (`tsc -b`), ESLint, Prettier, `run-checks-on-pr.yml` (which runs `npm test`), and manual verification. `vitest.config.ts` is separate from `vite.config.ts` on purpose: the latter throws when `VITE_API_URL` is unset.
+Frontend unit tests use Vitest (`npm test`, which runs `vitest run`) and live next to the code as `src/**/*.test.ts`. The suite is deliberately small: it covers the report's previous-version comparison (`lib/reportComparison.ts`) and the point math (`lib/centralizedCalculations.ts`). Everything else relies on TypeScript (`tsc -b`), ESLint, Prettier, `run-checks-on-pr.yml` (which runs `npm test`) and manual verification. `vitest.config.ts` is separate from `vite.config.ts` on purpose: the latter throws when `VITE_API_URL` is unset.
+
+**What earns a frontend test.** Add one only if all of these hold, otherwise leave it out:
+
+1. It is pure logic (inputs to output), so the test needs no mocks, DOM or React rendering.
+2. A wrong result would be silent: it ships in a number or a report and nothing crashes or looks off. Loud failures are already caught by `tsc`, ESLint and a glance at the screen.
+3. The expected value comes from outside the code (the FiSMA spec, hand arithmetic, or an invariant such as "layer totals sum to the grand total"), never from pasting what the code currently returns.
+4. It asserts behaviour through the module's exports, so a refactor that keeps behaviour does not touch it.
+
+When fixing a bug in logic that passes 1-4, add the regression test in the same PR. No snapshot tests, no component tests, no tests of `api/` fetch wrappers or of text and styling. If a test fails because behaviour was changed on purpose, update it deliberately; if that keeps happening, delete it.
 
 ### Formatting hook
 
