@@ -121,9 +121,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: benefit_test
+          POSTGRES_USER: benefit_test
+          POSTGRES_PASSWORD: benefit_test
         ports:
           - 5433:5432
         options: >-
@@ -150,9 +150,9 @@ jobs:
 
       - name: Run Spotless check and backend tests
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/${{ secrets.DB_NAME }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/benefit_test
+          SPRING_DATASOURCE_USERNAME: benefit_test
+          SPRING_DATASOURCE_PASSWORD: benefit_test
         run: |
           cd backend
           ./gradlew spotlessCheck test --continue
