@@ -45,6 +45,6 @@ public class TokenBlacklistService {
   @Scheduled(fixedRate = 3_600_000) // every hour
   @Transactional
   public void cleanupExpiredTokens() {
-    revokedTokenRepository.deleteByExpiresAtLessThanEqual(Instant.now());
+    revokedTokenRepository.deleteExpired(Instant.now());
   }
 }
