@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose logs)",
+      "Bash(docker compose logs *)",
+      "Bash(docker compose ps)",
+      "Bash(docker compose ps *)",
+      "mcp__Claude_Browser__find",
+      "mcp__Claude_Browser__read_console_messages",
+      "mcp__Claude_Browser__read_network_requests",
+      "mcp__Claude_Browser__read_page",
+      "mcp__Claude_Browser__get_page_text",
+      "mcp__ccd_pr__get_status"
+    ]
+  }
+}
