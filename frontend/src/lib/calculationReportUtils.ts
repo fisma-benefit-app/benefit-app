@@ -31,6 +31,11 @@ const COMPONENT_COLUMN_COUNT = 10;
 // table is why this report is landscape.
 const COMPONENT_TABLE_WIDTHS = ["*", 110, 90, 50, 52, 54, 52, 72, 52, 52];
 
+// The MLA components table has an extra "parent" column after the title, so the other columns
+// are a little narrower.
+const MLA_COLUMN_COUNT = COMPONENT_COLUMN_COUNT + 1;
+const MLA_TABLE_WIDTHS = ["*", 95, 100, 80, 42, 48, 50, 48, 62, 46, 46];
+
 // Columns from Data Elements onwards hold numbers and are right-aligned
 const FIRST_NUMBER_COLUMN = 3;
 
@@ -57,7 +62,6 @@ export const generateCalculationReportPDF = async (
 
   // Used for points calculation, so that even subcomponent points are added up. In case this isn't needed, easy to change
   const allCurrentComponents = getAllComponents(project.functionalComponents);
-  const allOldComponents = getAllComponents(oldProject.functionalComponents);
 
   const isChanged = (current: CellValue, prev: CellValue) =>
     !isFirstVersion && prev !== current;
@@ -106,6 +110,11 @@ export const generateCalculationReportPDF = async (
         projectDetails: "Projektin tiedot",
         functionList: "Toimintoluettelo",
         summaries: "Yhteenvedot",
+        mlaComponents: "MLA-alikomponentit",
+        mlaComponentsNote:
+          "Monikerrosarkkitehtuurin (MLA) pääkomponenteista generoidut alikomponentit. Pääkomponentit on listattu toimintoluettelossa.",
+        parentComponent: "Pääkomponentti",
+        totalSubcomponents: "MLA-alikomponentit yhteensä",
         completionNote:
           "Valmistumisaste on ajankohdan hetkellä olevien toiminnallisuuksien valmistumisaste, ei siis toiminnon määritysten mukaisen lopullisen valmistumisen aste.",
         changedNote: "Sinisellä värillä korostettu muuttuneet",
@@ -121,6 +130,11 @@ export const generateCalculationReportPDF = async (
         projectDetails: "Project details",
         functionList: "Function list",
         summaries: "Summaries",
+        mlaComponents: "MLA components",
+        mlaComponentsNote:
+          "Subcomponents generated from the multi-layered architecture (MLA) parent components. The parent components are listed in the function list.",
+        parentComponent: "Parent component",
+        totalSubcomponents: "Total MLA subcomponents",
         completionNote:
           "The degree of completion reflects the status of functionalities at the current time, not the final completion according to the specifications.",
         changedNote: "Changed values are highlighted in blue",
@@ -128,7 +142,12 @@ export const generateCalculationReportPDF = async (
       };
 
   // Section title with a rule under it, same look as the overview report's section headings
-  const sectionHeading = (text: string, marginTop = 14): Content => ({
+  const sectionHeading = (
+    text: string,
+    marginTop = 14,
+    startOnNewPage = false,
+  ): Content => ({
+    ...(startOnNewPage ? { pageBreak: "before" as const } : {}),
     stack: [
       { text, style: "h2", margin: [0, marginTop, 0, 4] },
       {
@@ -206,17 +225,25 @@ export const generateCalculationReportPDF = async (
     columnGap: 10,
   };
 
-  // Explains the degree of completion, the blue highlighting and the sub-component row colours,
-  // shown right above the function list
+  const changedNote: Content = {
+    text: texts.changedNote,
+    color: PDF_COLORS.changedBlue,
+    bold: true,
+    margin: [0, 2, 0, 0],
+  };
+
+  // Explains the degree of completion and the blue highlighting, shown right above the function list
   const notes: Content = {
+    stack: [{ text: texts.completionNote }, changedNote],
+    fontSize: 8,
+    color: PDF_COLORS.mutedText,
+  };
+
+  // Explains the MLA table and the sub-component row colours, shown right above it
+  const mlaNotes: Content = {
     stack: [
-      { text: texts.completionNote },
-      {
-        text: texts.changedNote,
-        color: PDF_COLORS.changedBlue,
-        bold: true,
-        margin: [0, 2, 0, 0],
-      },
+      { text: texts.mlaComponentsNote },
+      changedNote,
       {
         text: [
           `${texts.rowColours}:  `,
@@ -285,13 +312,15 @@ export const generateCalculationReportPDF = async (
   };
 
   // One table row for a component and (when it has a counterpart in the previous version) its
-  // previous values. Main component titles are bold; subcomponent rows get an indented title and
-  // a fill showing their direction (green "to", orange "from" other applications).
+  // previous values. Main component titles are bold; subcomponent rows (passed with their parent)
+  // get a parent column and a fill showing their direction (green "to", orange "from" other
+  // applications).
   const buildComponentRow = (
     comp: TGenericComponent,
     prevComp: TGenericComponent | null,
-    isSubComponent: boolean,
+    parent?: TGenericComponent,
   ): TableCell[] => {
+    const isSubComponent = parent !== undefined;
     const subRowFill =
       comp.className === SENT_CLASS_NAME
         ? PDF_COLORS.sentFill
@@ -299,13 +328,12 @@ export const generateCalculationReportPDF = async (
           ? PDF_COLORS.receivedFill
           : PDF_COLORS.subRowFill;
     const fill = isSubComponent ? { fillColor: subRowFill } : undefined;
-    const titleOptions = isSubComponent
-      ? { ...fill, indent: 10 }
-      : { bold: true };
+    const titleOptions = isSubComponent ? fill : { bold: true };
     const numberOptions = { ...fill, alignment: "right" as const };
 
     return [
       comparisonCell(comp.title, prevComp?.title ?? null, titleOptions),
+      ...(parent ? [textCell(parent.title, fill)] : []),
       comparisonCell(
         translateClassName(comp.className),
         prevComp ? translateClassName(prevComp.className) : null,
@@ -360,20 +388,28 @@ export const generateCalculationReportPDF = async (
     ];
   };
 
+  // The function list holds the parent components only; their generated MLA subcomponents go in
+  // their own table at the end of the report.
   const componentRows: TableCell[][] = [];
+  const mlaRows: TableCell[][] = [];
   project.functionalComponents.forEach((comp) => {
     const prevComp = comp.previousFCId
       ? previousComponentsMap[comp.previousFCId]
       : null;
-    componentRows.push(buildComponentRow(comp, prevComp, false));
+    componentRows.push(buildComponentRow(comp, prevComp));
 
     comp.subComponents?.forEach((sub) => {
       const prevSub = sub.previousFCId
         ? previousComponentsMap[sub.previousFCId]
         : null;
-      componentRows.push(buildComponentRow(sub, prevSub, true));
+      mlaRows.push(buildComponentRow(sub, prevSub, comp));
     });
   });
+
+  const subComponentsOf = (target: Project) =>
+    target.functionalComponents.flatMap((comp) => comp.subComponents ?? []);
+  const currentSubComponents = subComponentsOf(project);
+  const oldSubComponents = subComponentsOf(oldProject);
 
   // --- HELPER FUNCTION: Compare the change ---
   const formatTotalWithDiff = (current: number, previous: number) => {
@@ -395,10 +431,11 @@ export const generateCalculationReportPDF = async (
 
   const totalRow = (
     label: string,
+    columnCount: number,
     current: { actual: number; possible: number },
     previous: { actual: number; possible: number },
   ): TableCell[] => [
-    ...spanningCell(label, COMPONENT_COLUMN_COUNT - 2, {
+    ...spanningCell(label, columnCount - 2, {
       bold: true,
       fillColor: PDF_COLORS.tableHeaderFill,
     }),
@@ -408,18 +445,8 @@ export const generateCalculationReportPDF = async (
 
   componentRows.push(
     totalRow(
-      printUtilsTranslation.totalFunctionalPoints,
-      {
-        actual: calculateTotalPoints(allCurrentComponents),
-        possible: calculateTotalPossiblePoints(allCurrentComponents),
-      },
-      {
-        actual: calculateTotalPoints(allOldComponents),
-        possible: calculateTotalPossiblePoints(allOldComponents),
-      },
-    ),
-    totalRow(
       printUtilsTranslation.totalFunctionalPointsWithoutSubcomponents,
+      COMPONENT_COLUMN_COUNT,
       {
         actual: calculateTotalPoints(project.functionalComponents),
         possible: calculateTotalPossiblePoints(project.functionalComponents),
@@ -430,6 +457,26 @@ export const generateCalculationReportPDF = async (
       },
     ),
   );
+
+  mlaRows.push(
+    totalRow(
+      texts.totalSubcomponents,
+      MLA_COLUMN_COUNT,
+      {
+        actual: calculateTotalPoints(currentSubComponents),
+        possible: calculateTotalPossiblePoints(currentSubComponents),
+      },
+      {
+        actual: calculateTotalPoints(oldSubComponents),
+        possible: calculateTotalPossiblePoints(oldSubComponents),
+      },
+    ),
+  );
+
+  const alignNumberColumns = (columnCount: number, firstNumberColumn: number) =>
+    Array.from({ length: columnCount }, (_, i) =>
+      i >= firstNumberColumn ? ("right" as const) : ("left" as const),
+    );
 
   const componentTable = reportTable({
     headers: [
@@ -447,8 +494,32 @@ export const generateCalculationReportPDF = async (
     rows: componentRows,
     widths: COMPONENT_TABLE_WIDTHS,
     margin: [0, 8, 0, 0],
-    headerAlignments: Array.from({ length: COMPONENT_COLUMN_COUNT }, (_, i) =>
-      i >= FIRST_NUMBER_COLUMN ? "right" : "left",
+    headerAlignments: alignNumberColumns(
+      COMPONENT_COLUMN_COUNT,
+      FIRST_NUMBER_COLUMN,
+    ),
+  });
+
+  const mlaTable = reportTable({
+    headers: [
+      printUtilsTranslation.title,
+      texts.parentComponent,
+      printUtilsTranslation.className,
+      printUtilsTranslation.componentType,
+      printUtilsTranslation.dataElements,
+      printUtilsTranslation.readingReferences,
+      printUtilsTranslation.writingReferences,
+      printUtilsTranslation.operations,
+      printUtilsTranslation.degreeOfCompletion,
+      printUtilsTranslation.functionalPoints,
+      printUtilsTranslation.totalPossiblePoints,
+    ],
+    rows: mlaRows,
+    widths: MLA_TABLE_WIDTHS,
+    margin: [0, 8, 0, 0],
+    headerAlignments: alignNumberColumns(
+      MLA_COLUMN_COUNT,
+      FIRST_NUMBER_COLUMN + 1,
     ),
   });
 
@@ -615,6 +686,11 @@ export const generateCalculationReportPDF = async (
         componentTable,
         keepTogether(sectionHeading(texts.summaries, 22), firstSummaryTable),
         ...otherSummaryTables,
+        // Last in the report: the generated subcomponents are the least interesting part. Starts
+        // on its own page so the heading is never left alone at the bottom of one.
+        ...(mlaRows.length > 1
+          ? [sectionHeading(texts.mlaComponents, 0, true), mlaNotes, mlaTable]
+          : []),
       ],
     }),
     filename,
