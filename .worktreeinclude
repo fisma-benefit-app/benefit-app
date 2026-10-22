@@ -1,0 +1,5 @@
+# Gitignored files that Claude Code copies from the main checkout into every new worktree.
+# Only files that match a pattern here AND are gitignored are copied (.gitignore syntax).
+# Without these, `docker compose up` and `npm run dev` fail in a fresh worktree.
+.env
+frontend/.env
