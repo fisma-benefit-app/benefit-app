@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "lint": "eslint .",
+    "test": "vitest run",
     "format:check": "prettier --check .",
     "knip": "knip",
     "preview": "vite preview",
@@ -49,6 +50,7 @@
     "prettier": "3.4.2",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.3.6"
+    "vite": "^6.4.5",
+    "vitest": "^5.0.5"
   }
 }

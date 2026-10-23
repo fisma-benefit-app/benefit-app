@@ -524,28 +524,33 @@ export default function FunctionalClassComponent({
 
             {/* Parameters Section */}
             {component.className && (
-              <div className={uiStyles.paraMeterInputField}>
+              <div className={uiStyles.parameterInputField}>
                 {Object.entries(component)
                   .filter(([key]) => inputFields.includes(key))
-                  .map(([key, value]) => (
-                    <div key={key} className={uiStyles.parameterItem}>
-                      <label htmlFor={key} className={uiStyles.parameterLabel}>
-                        {isCompactMode
-                          ? translation.parameters[key as CalculationParameter]
-                              .compactView
-                          : translation.parameters[key as CalculationParameter]
-                              .fullView}
-                        :
-                      </label>
-                      <input
-                        id={key}
-                        type="number"
-                        value={(value as number) || ""}
-                        onChange={handleComponentChange}
-                        className={uiStyles.parameterInput}
-                      />
-                    </div>
-                  ))}
+                  .map(([key, value]) => {
+                    const parameterLabel =
+                      translation.parameters[key as CalculationParameter];
+                    return (
+                      <div key={key} className={uiStyles.parameterItem}>
+                        <label
+                          htmlFor={key}
+                          className={uiStyles.parameterLabel}
+                        >
+                          {isCompactMode
+                            ? parameterLabel.compactView
+                            : parameterLabel.fullView}
+                          :
+                        </label>
+                        <input
+                          id={key}
+                          type="number"
+                          value={(value as number) || ""}
+                          onChange={handleComponentChange}
+                          className={uiStyles.parameterInput}
+                        />
+                      </div>
+                    );
+                  })}
               </div>
             )}
           </>
@@ -687,7 +692,7 @@ export default function FunctionalClassComponent({
         )}
 
         {/* Delete button */}
-        {!collapsed && (
+        {!collapsed && !isCompactMode && (
           <button
             type="button"
             className={`${uiStyles.deleteButton} ${

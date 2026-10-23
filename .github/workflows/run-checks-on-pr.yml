@@ -86,6 +86,31 @@ jobs:
           cd frontend
           npx tsc -b
 
+  run-fe-tests:
+    name: Run FE unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run unit tests
+        run: |
+          cd frontend
+          npm test
+
   run-backend-tests:
     # Spotless runs here rather than in its own job: both jobs share one
     # setup-java cache key, and the faster Spotless job would save a cache
@@ -96,9 +121,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: benefit_test
+          POSTGRES_USER: benefit_test
+          POSTGRES_PASSWORD: benefit_test
         ports:
           - 5433:5432
         options: >-
@@ -125,9 +150,9 @@ jobs:
 
       - name: Run Spotless check and backend tests
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/${{ secrets.DB_NAME }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/benefit_test
+          SPRING_DATASOURCE_USERNAME: benefit_test
+          SPRING_DATASOURCE_PASSWORD: benefit_test
         run: |
           cd backend
           ./gradlew spotlessCheck test --continue

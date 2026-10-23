@@ -71,6 +71,18 @@ jobs:
           cd frontend
           npm run deploy:production
 
+          
+
+      - name: Deploy FE for Scalingo testing environment
+        env:
+          VITE_API_URL: ${{ secrets.SCALINGO_TESTING_URL }}
+          VITE_BASE_PATH: /benefit-app/
+        run: |
+          cd frontend
+          npm run deploy:production
+
+          
+
       - name: Wait for GitHub Pages deployment workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
