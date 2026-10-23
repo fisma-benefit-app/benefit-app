@@ -76,10 +76,10 @@ jobs:
       - name: Deploy FE for Scalingo testing environment
         env:
           VITE_API_URL: ${{ secrets.SCALINGO_TESTING_URL }}
-          VITE_BASE_PATH: /benefit-app/
+          VITE_BASE_PATH: /benefit-app/scalingo-testing/
         run: |
           cd frontend
-          npm run deploy:production
+          npm run deploy:scalingo-testing
 
           
 
