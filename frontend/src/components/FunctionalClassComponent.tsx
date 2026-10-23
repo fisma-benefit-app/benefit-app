@@ -692,7 +692,7 @@ export default function FunctionalClassComponent({
         )}
 
         {/* Delete button */}
-        {!collapsed && (
+        {!collapsed && !isCompactMode && (
           <button
             type="button"
             className={`${uiStyles.deleteButton} ${
