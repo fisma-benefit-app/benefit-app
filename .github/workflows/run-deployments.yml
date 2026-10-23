@@ -76,10 +76,10 @@ jobs:
       - name: Deploy FE for Scalingo testing environment
         env:
           VITE_API_URL: ${{ secrets.SCALINGO_TESTING_URL }}
-          VITE_BASE_PATH: /benefit-app/
+          VITE_BASE_PATH: /benefit-app/scalingo-testing/
         run: |
           cd frontend
-          npm run deploy:production
+          npm run deploy:scalingo-testing
 
           
 
@@ -119,6 +119,15 @@ jobs:
           echo "FE deployment to production resets testing environment, so we deploy FE testing again after production deployment"
           cd frontend
           npm run deploy:testing
+
+      - name: Deploy FE to GitHub Pages Scalingo testing environment
+        env:
+          VITE_API_URL: ${{ secrets.SCALINGO_TESTING_URL }}
+          VITE_BASE_PATH: /benefit-app/scalingo-testing/
+        run: |
+          echo "The Scalingo testing frontend is also erased by the production deployment, so we deploy it again"
+          cd frontend
+          npm run deploy:scalingo-testing
 
   deploy-backend-to-testing-environment:
     name: Deploy BE to testing environment

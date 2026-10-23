@@ -16,7 +16,9 @@
     "write:version": "node scripts/write-version.mjs",
     "predeploy:testing": "npm run build:testing && npm run write:version",
     "predeploy:production": "npm run build:production && npm run write:version",
+    "predeploy:scalingo-testing": "npm run build:testing && npm run write:version",
     "deploy:testing": "gh-pages -d dist -b gh-pages --dest testing",
+    "deploy:scalingo-testing": "gh-pages -d dist -b gh-pages --dest scalingo-testing",
     "deploy:production": "gh-pages -d dist"
   },
   "dependencies": {
