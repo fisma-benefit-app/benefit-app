@@ -1,6 +1,7 @@
 ---
 name: worktree-local-stack
 description: Get a fresh git worktree of this repo ready to run the app or its checks - env files, frontend node_modules, docker compose stack. Use when starting work in a new worktree, when compose or Vite fails on missing env vars, or when eslint/tsc/vitest fail because node_modules is missing.
+disable-model-invocation: true
 ---
 
 # Local stack in a fresh worktree
@@ -22,8 +23,6 @@ MAIN=$(git worktree list --porcelain | awk 'NR==1{print $2}')
 cp "$MAIN/.env" .env && cp "$MAIN/frontend/.env" frontend/.env
 ```
 
-- Without the root `.env`, compose refuses to start.
-- Without `frontend/.env`, the frontend container exits with "VITE_API_URL is not set", even though compose accepted the root `.env`.
 - If the main checkout has no `.env` either, copy `.env.example` and `frontend/.env.example`. The defaults work locally.
 - These files hold real local secrets. Never print, paste or commit their contents.
 
@@ -54,8 +53,7 @@ docker compose up --build -V -d
 (`-V` refreshes the anonymous `node_modules` volume so new npm deps show up.)
 
 - Frontend: http://localhost:5173/benefit-app/login. Backend health: http://localhost:8080/actuator/health. Dev login: `user` / `user`.
-- Compose uses fixed container names (`fisma_db`, `fisma_backend`, `fisma_frontend`), fixed ports and the shared `fisma-dev_pgdata` volume, so **only one stack can run at a time**, including the main checkout's. Check with `docker compose ps` and `docker ps` before starting; if another checkout's stack is up, ask the user before stopping it.
-- The backend's `dev` profile deletes and reseeds the database on every start. Tell the user this before starting.
+- Check `docker ps` before starting; if another checkout's stack is up, ask the user before stopping it. Tell the user the database will be reseeded.
 - Only the database is needed for backend tests and Gradle runs: `docker compose up -d db`.
 
 ## 4. Backend without a host JDK
@@ -70,3 +68,11 @@ docker run --rm --network host -v "$PWD/backend:/workspace" -v fisma-dev_gradle-
 ## 5. Cleanup
 
 When the work is merged: `docker compose down` (add `-v` only to wipe the DB), then remove the worktree and its branch.
+
+## Gotchas
+
+- Compose accepting the root `.env` does not mean `frontend/.env` exists. The frontend container then exits with "VITE_API_URL is not set".
+- Only one stack can run at a time (fixed container names, ports and the shared `fisma-dev_pgdata` volume), including the main checkout's.
+- The `dev` profile wipes and reseeds the database on every backend start.
+- `frontend/node_modules` is never copied into a worktree, and `.worktreeinclude` only copies the two `.env` files.
+- `docker compose down -v` deletes the shared database volume. Use plain `down` unless the user asks to wipe it.

@@ -29,10 +29,7 @@ npx tsc -b
 npm test
 ```
 
-- Use `tsc -b`, not `tsc --noEmit`: the root tsconfig only references the other two.
-- ESLint fails on any warning.
-- To fix formatting, run `npx prettier . --write`, then re-run the check.
-- If `tsc` complains about missing types such as `pdfmake`, `node_modules` is stale: `npm ci`.
+To fix formatting, run `npx prettier . --write`, then re-run the check.
 
 ## 3. Backend checks (from `backend/`)
 
@@ -56,8 +53,12 @@ docker run --rm --network host -v "$PWD/backend:/workspace" -v fisma-dev_gradle-
 
 State which checks ran, which passed, and which failed with the relevant output. Do not claim a check passed if you skipped it or could not run it (say why). Do not fix unrelated failures; mention them.
 
-## 5. PR hygiene (from AGENTS.md)
+## Gotchas
 
-- The branch is named `issue/#XXX-description`, `bugfix/#XXX-description` or `chore/description`.
-- The PR is scoped to one issue and linked to it.
-- A bug fix in pure calculation logic includes its regression test (see "What earns a frontend test" in AGENTS.md).
+- `tsc -b`, not `tsc --noEmit`: the root tsconfig only references `tsconfig.app.json` and `tsconfig.node.json`, so plain `tsc` checks nothing.
+- ESLint fails CI on any warning (`--max-warnings 0`). Fix the warning; do not disable the rule to get a pass.
+- Missing types such as `pdfmake` mean `node_modules` is stale, not that the code is wrong: `npm ci`.
+- Backend tests fail with connection errors if Postgres is not up on host port 5433. That is a setup problem, not a test failure.
+- Spotless runs inside `./gradlew` and needs it executable (`chmod +x backend/gradlew`).
+
+Branch naming, PR scope and when a regression test is required are in AGENTS.md ("CI/CD" and "What earns a frontend test").
