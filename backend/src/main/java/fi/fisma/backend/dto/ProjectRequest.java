@@ -1,6 +1,7 @@
 package fi.fisma.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -23,6 +24,7 @@ public class ProjectRequest {
   @Schema(description = "Version of the project", example = "1")
   private int version;
 
+  @Valid
   @Schema(description = "List of functional components in the project")
   private Set<FunctionalComponentRequest> functionalComponents = new HashSet<>();
 

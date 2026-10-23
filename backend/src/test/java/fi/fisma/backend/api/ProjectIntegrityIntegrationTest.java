@@ -139,6 +139,34 @@ class ProjectIntegrityIntegrationTest {
         .andExpect(status().isOk());
   }
 
+  // --- validation ---
+
+  @Test
+  void putRejectsComponentsThatBreakValidationRules() throws Exception {
+    long id = createProject(mallory, "validation-" + suffix);
+    String name = "validation-" + suffix;
+
+    Map<String, Object> completionTooHigh = component("Too done");
+    completionTooHigh.put("degreeOfCompletion", 1.5);
+    Map<String, Object> multiplierTooLow = component("Multiplier");
+    multiplierTooLow.put("functionalMultiplier", 0);
+    Map<String, Object> invalidSubComponent = component("Parent");
+    Map<String, Object> badChild = component("Child");
+    badChild.put("degreeOfCompletion", -0.1);
+    invalidSubComponent.put("subComponents", List.of(badChild));
+
+    for (var invalid : List.of(completionTooHigh, multiplierTooLow, invalidSubComponent)) {
+      mockMvc
+          .perform(
+              put("/projects/{id}", id)
+                  .header("Authorization", bearer(mallory))
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(body(name, 1, getProject(mallory, id), List.of(invalid), Set.of())))
+          .andExpect(status().isBadRequest());
+    }
+    assertThat(getProject(mallory, id).get("functionalComponents")).isEmpty();
+  }
+
   // --- helpers ---
 
   private String createUser(String username) {

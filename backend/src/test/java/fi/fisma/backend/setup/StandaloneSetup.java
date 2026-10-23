@@ -128,6 +128,7 @@ public class StandaloneSetup {
     dto.setDegreeOfCompletion(0.75);
     dto.setPreviousFCId(123L);
     dto.setOrderPosition(1);
+    dto.setIsMLA(false);
     return dto;
   }
 
