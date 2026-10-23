@@ -6,6 +6,22 @@ Guidance for AI coding agents (Claude Code, GitHub Copilot, Gemini, etc.) workin
 
 Benefit is a function point analysis tool (FiSMA 1.1 method / ISO/IEC 29881) built for FiSMA ry and Haaga-Helia UAS. It's a monorepo with a Spring Boot backend and a React/TypeScript frontend.
 
+## Coding approach
+
+Make the smallest change that fully solves the task. Before writing code, take the first option that works:
+
+1. Does it need to exist? Don't add features, options or flexibility nobody asked for, and say in one line what you left out.
+2. Is it already in the codebase (a helper, hook, component, `lib/` function, service)? Reuse it the way the surrounding code does.
+3. Does the language, framework or platform already do it (Java standard library, Spring, browser APIs)? Use that.
+4. Is it in an installed dependency? Use it, and don't add a dependency for a few lines.
+5. Otherwise write the minimum code that works.
+
+- No speculative abstraction, wrapper, config option or "for later" code. Deleting beats adding: remove code your change makes dead (`npm run knip` finds unused frontend files, exports and dependencies).
+- Be lazy about the solution, never about the change: update every caller, test and fixture it touches. For a bug, grep the callers and fix the root cause once, in the shared code.
+- Don't cut corners on validation of API input, JWT/auth checks, error handling that prevents data loss, or anything the user asked for. Keep business logic in `service/` as the ADR requires. Point math lives only in `lib/centralizedCalculations.ts`, and a wrong number ships silently, so correctness wins over brevity there.
+- Tests follow "What earns a frontend test" below: most changes need none.
+- End your reply with one or two lines on what you skipped or could not verify.
+
 ## Commands
 
 ### Running the app locally
@@ -22,7 +38,7 @@ docker compose down -v
 
 Frontend: http://localhost:5173/benefit-app/login · Backend: http://localhost:8080/actuator/health · Dev login: `user` / `user`
 
-Without Docker: run only the DB via `docker compose up db`, then `cd backend && SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun` and `cd frontend && npm install && npm run dev`. Plain `./gradlew bootRun` uses the default profile and never seeds; the `dev` profile deletes and reseeds the database, and the backend refuses to start under `dev` against a non-local database. Under `dev`, `JWT_PRIVATE_KEY` is optional: an empty value falls back to the public dev key in `application-dev.yaml`. Every other profile requires `JWT_PRIVATE_KEY`, and the backend refuses to start with the dev key outside `dev`.
+Without Docker: run only the DB via `docker compose up db`, then `cd backend && SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun` and `cd frontend && npm install && npm run dev`. The `dev` profile deletes and reseeds the database, and the backend refuses to start under it against a non-local database; plain `./gradlew bootRun` (default profile) never seeds. `JWT_PRIVATE_KEY` is optional only under `dev` (an empty value falls back to the public dev key in `application-dev.yaml`); every other profile requires it and rejects the dev key.
 
 ### Backend (`backend/`)
 
@@ -49,7 +65,7 @@ npm test                    # unit tests (Vitest)
 npm run knip                 # find unused files, exports and dependencies (needs frontend/.env; not run in CI)
 ```
 
-Frontend unit tests use Vitest (`npm test`, which runs `vitest run`) and live next to the code as `src/**/*.test.ts`. The suite is deliberately small: it covers the report's previous-version comparison (`lib/reportComparison.ts`) and the point math (`lib/centralizedCalculations.ts`). Everything else relies on TypeScript (`tsc -b`), ESLint, Prettier, `run-checks-on-pr.yml` (which runs `npm test`) and manual verification. `vitest.config.ts` is separate from `vite.config.ts` on purpose: the latter throws when `VITE_API_URL` is unset.
+Frontend unit tests use Vitest (`npm test`, which runs `vitest run`) and live next to the code as `src/**/*.test.ts`. The suite is deliberately small: it covers the report's previous-version comparison (`lib/reportComparison.ts`), the point math (`lib/centralizedCalculations.ts`) and the figures behind the overview report's architecture diagram (`lib/pdf/architectureDiagramData.ts`). Everything else relies on TypeScript (`tsc -b`), ESLint, Prettier, `run-checks-on-pr.yml` (which runs `npm test`) and manual verification. `vitest.config.ts` is separate from `vite.config.ts` on purpose: the latter throws when `VITE_API_URL` is unset.
 
 **What earns a frontend test.** Add one only if all of these hold, otherwise leave it out:
 
@@ -68,14 +84,6 @@ A pre-commit hook (`.githooks/pre-commit`) runs Prettier on staged frontend file
 git config core.hooksPath .githooks
 ```
 
-### Skills
-
-Repeatable multi-step procedures live as agent skills in `.claude/skills/<name>/SKILL.md`. Agents load them on demand (Claude Code reads them natively; other tools can read the files directly). This file stays the source of always-on facts; skills link here instead of repeating it.
-
-- `pre-pr-check`: run the CI checks locally before opening a PR.
-
-Add a skill only for a procedure that is repeated and has more than a couple of steps. Keep its `description` specific about when to use it, since that is all the agent sees until the skill loads.
-
 ## Architecture
 
 ### Backend — layered Spring Boot (`backend/src/main/java/fi/fisma/backend/`)
@@ -83,19 +91,20 @@ Add a skill only for a procedure that is repeated and has more than a couple of 
 Per the backend ADR (`documents/references/adr_backend.md`), the backend is intentionally organized by layer, not by feature:
 
 - `api/` — REST controllers (`ProjectController`, `FunctionalComponentController`, `CommentController`, `AppUserController`)
-- `domain/` — JPA entities (`Project`, `FunctionalComponent`, `AppUser`, `Comment`, `ProjectAppUser`)
+- `domain/` — JPA entities (`Project`, `FunctionalComponent`, `AppUser`, `Comment`, `ProjectAppUser`, `RevokedToken`)
 - `dto/` — request/response DTOs
 - `mapper/` — domain ↔ DTO conversion
 - `service/` — business logic orchestrating repositories/mappers
 - `repository/` — Spring Data JPA interfaces
-- `security/` — JWT auth (`TokenController`, `TokenService`, `JwtRevocationFilter`, `TokenBlacklistService`, `UserDetailsServiceImpl`, `SecurityConfig`)
+- `security/` — JWT auth (`TokenController`, `AuthController`, `TokenService`, `JwtRevocationFilter`, `TokenBlacklistService`, `LoginAttemptThrottleService`, `UserDetailsServiceImpl`, `SecurityConfig`)
 - `exception/` — `GlobalExceptionHandler` and custom exceptions
+- `config/` — startup guards (`DevProfileDatabaseGuard`, `RequiredConfigGuard`) and `OpenApiConfig`
 
 Keep business logic in `service/`, not in controllers or repositories — that discipline is the explicit tradeoff called out in the ADR for this layered structure.
 
-**Auth flow**: login uses HTTP Basic against `POST /token`; the backend returns a JWT in the `Authorization: Bearer <jwt>` response header (exposed via CORS). The JWT is RSA-signed with `JWT_PRIVATE_KEY` (the public key is derived from it, so each environment has its own key pair), carries the username as `sub` and `ROLE_USER` as `scope`, and is valid 24h (30 days with `?rememberMe=true`). Renewal ("extend session") is `POST /token` with the current Bearer token: it keeps the token's lifetime, revokes the old token, and can't extend a login past 30 days (`auth_time` claim). Usernames can't be changed, because `sub` is how the backend finds the user. Logout blacklists the token's `jti` in-memory via `TokenBlacklistService` until expiry. Full detail in `documents/guides/authentication.md`.
+**Auth flow** (read `documents/guides/authentication.md` before working on authentication, sessions or `security/`): login is HTTP Basic against `POST /token`; the backend returns an RSA-signed JWT (signed with `JWT_PRIVATE_KEY`, so each environment has its own key pair) in the `Authorization: Bearer <jwt>` response header. The username is the `sub` claim, which is how the backend finds the user, so usernames can't be changed. Renewal is `POST /token` with the current token, and logout blacklists its `jti` in memory (`TokenBlacklistService`). Token lifetimes, the 30-day cap and the other details are in the guide.
 
-**Database**: Postgres. Schema/seed data live in `backend/src/main/resources/` (`schema.sql`, `data.sql`, `database-seed-{dev,testing,production}.sql`); seeding is controlled by the `DATABASE_INIT_MODE`/`DATABASE_SEED_FILE` env vars (see `application.yaml`). **Migrations are manual, not run automatically** — new SQL files are added under `backend/src/main/resources/migrations/` and must be applied by hand against each environment (see `documents/guides/database.md`). The exception is the self-hosted server (`docker-compose.prod.yaml`), where `./update_server.sh` applies them and records them in a `schema_migrations` table.
+**Database**: Postgres. Only the `dev` profile initializes the database (`schema-dev.sql` and `database-seed-dev.sql` in `backend/src/main/resources/`, on every start); the shared `application.yaml` sets `spring.sql.init.mode: never` (do not change it), so testing and production are never seeded or changed automatically. **Migrations are manual**: add SQL files under `backend/src/main/resources/migrations/` and apply them by hand per environment (see `documents/guides/database.md`), so a schema change needs both a `schema-dev.sql` update and a new migration file. On the self-hosted server (`docker-compose.prod.yaml`), `./update_server.sh` applies them and records them in a `schema_migrations` table.
 
 ### Frontend — React + TypeScript + Vite (`frontend/src/`)
 
@@ -104,7 +113,7 @@ Keep business logic in `service/`, not in controllers or repositories — that d
 - `api/` — fetch wrappers per resource (`project.ts`, `comments.ts`, `authorization.ts`, `profile.ts`)
 - `lib/` — `centralizedCalculations.ts` (the single source of truth for point math, see `documents/references/centralized_calculations.md`), `calculations.ts`, `types.ts`, `calculationReportUtils.ts`/`overviewReportUtils.ts` (the two PDF reports, built as text-based pdfmake documents; shared layout helpers and the lazy pdfmake loader live in `lib/pdf/`), `csvExportUtils.ts`, `printUtils.ts` (date/component helpers), `jwtUtils.ts`, `translations.ts`, `fc-constants.ts`/`fc-service-functions.ts` (functional component class/type config)
 
-**Project versioning**: projects sharing a `projectName` are versions of each other; only the latest version is editable (`checkIfLatestVersion`), and archiving a project creates a new version rather than overwriting the old one. When `ProjectService.createProjectVersion` copies a project's components into the new version, each copy's `previousFCId` is set to the original component's ID — this links a component to its counterpart in the prior version, and is used to (a) remap parent/subcomponent relationships onto the new version's IDs, and (b) let the PDF export (`printUtils.ts`) show per-field diffs against the previous version. It's unrelated to `orderPosition` and is `null` for version-1 components and components added after a version was created.
+**Project versioning**: projects sharing a `projectName` are versions of each other; only the latest is editable (`checkIfLatestVersion`), and archiving creates a new version instead of overwriting. `ProjectService.createProjectVersion` sets each copied component's `previousFCId` to the original's ID, which remaps parent/subcomponent links and lets the PDF export show per-field diffs against the previous version. It is `null` for version-1 components and components added later, and unrelated to `orderPosition` (see `documents/references/state_management.md`).
 
 **Env vars**: `VITE_API_URL` is required (Vite build fails without it — see `vite.config.ts`); `VITE_BASE_PATH` is required for `testing`/`production` mode builds.
 
@@ -115,14 +124,24 @@ A `Project` contains `FunctionalComponent`s. Each component has a `className`/`c
 ## CI/CD
 
 - Trunk-based development: all work merges to `main` via PR (see `documents/guides/branching_strategy.md`). Development branches are named `issue/#XXX-description` (features), `bugfix/#XXX-description`, or `chore/description`; keep each PR scoped to one issue — unrelated changes get their own issue and PR.
-- `run-checks-on-pr.yml` (GitHub Actions) runs on every PR and must pass: backend Spotless check, frontend Prettier check, frontend ESLint (no warnings allowed), frontend type check (`tsc -b`), backend tests (against a Postgres service container). PR authors review their changes and merge after the required checks and appropriate testing pass. Peer review is encouraged for complex or high-risk changes, but is not generally required.
-- Before opening a PR: link it to its issue and make sure CI (Spotless, Prettier, ESLint, `tsc -b`, backend tests) passes locally first.
-- Merges to `main` auto-deploy to the testing environment (Heroku backend + GitHub Pages frontend). Production deploys are triggered manually from Heroku, then GitHub Actions rolls the frontend to GitHub Pages (`run-deployments.yml`).
+- `run-checks-on-pr.yml` (GitHub Actions) runs on every PR and must pass: backend Spotless check and tests (against a Postgres service container), frontend Prettier check, ESLint (no warnings allowed), type check (`tsc -b`) and unit tests (`npm test`). PR authors review their changes and merge after the required checks and appropriate testing pass. Peer review is encouraged for complex or high-risk changes, but is not generally required.
+- Before opening a PR: link it to its issue and run the same checks locally first (the `pre-pr-check` skill does this).
+- Merges to `main` auto-deploy the testing environments: Heroku backend + GitHub Pages frontend (`/benefit-app/testing/`), and the Scalingo testing environment (backend via Scalingo's own GitHub auto-deploy, frontend at `/benefit-app/scalingo-testing/` via `deploy-scalingo-testing-frontend.yml`); see `documents/guides/deployment_guide.md`. Production deploys are triggered manually from Heroku, then GitHub Actions rolls the frontend to GitHub Pages (`run-deployments.yml`).
 - Version bumps use `./update_version.sh X.Y.Z`, which opens a `chore/update-version-to-X.Y.Z` PR; merging it auto-creates the `vX.Y.Z` git tag (`create-release-tag.yml`). See `documents/guides/versioning.md`. Only run this when explicitly asked to cut a release — merging its PR is not easily reversible.
+
+## Skills and hooks
+
+Repeatable multi-step procedures live as agent skills in `.claude/skills/<name>/SKILL.md`. Agents load them on demand (Claude Code reads them natively; other tools can read the files directly). This file stays the source of always-on facts; skills link here instead of repeating it.
+
+- `pre-pr-check`: run the CI checks locally before opening a PR.
+
+Add a skill only for a procedure that is repeated and has more than a couple of steps. Keep its `description` specific about when to use it, since that is all the agent sees until the skill loads.
+
+A `SessionStart` hook (`.claude/hooks/ensure-frontend-deps.sh`, registered in `.claude/settings.json`) runs `npm ci` in `frontend/` when `node_modules` is missing, as in a fresh worktree, and does nothing otherwise. It only runs in Claude Code; with other tools run `npm ci` yourself.
 
 ## Notes
 
 - API docs are generated via SpringDoc + Widdershins; refresh with the steps in `documents/guides/generate_api_docs.md` (`npx widdershins`, not installed as a dependency because it causes `npm audit` issues).
 - Known local-dev issues and their fixes are tracked in `documents/notes/known_errors.md`.
 - Root `.env` and `frontend/.env` hold real local secrets (e.g. `JWT_PRIVATE_KEY`); both are gitignored — never print, paste, or commit their contents.
-- A fresh git worktree has none of the gitignored files. `.worktreeinclude` makes Claude Code copy `.env` and `frontend/.env` into new worktrees; if you create a worktree another way, copy them from the main checkout yourself. `frontend/node_modules` is not copied: in Claude Code sessions the `SessionStart` hook `.claude/hooks/ensure-frontend-deps.sh` runs `npm ci` in `frontend/` when it is missing (a no-op otherwise); with other tools run `npm ci` there yourself. Compose uses fixed container names and ports, so only one stack can run at a time; the `dev` profile reseeds the database on every start.
+- A fresh git worktree has none of the gitignored files. `.worktreeinclude` makes Claude Code copy `.env` and `frontend/.env` into new worktrees (copy them from the main checkout yourself if you create a worktree another way); `frontend/node_modules` is installed by the hook described under "Skills and hooks". Compose uses fixed container names and ports, so only one stack can run at a time, and the `dev` profile reseeds the database on every start.
