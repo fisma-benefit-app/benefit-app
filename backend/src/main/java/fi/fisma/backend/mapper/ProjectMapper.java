@@ -8,6 +8,7 @@ import fi.fisma.backend.dto.ProjectAppUserResponse;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.repository.AppUserRepository;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
@@ -19,11 +20,15 @@ public class ProjectMapper {
 
   private final AppUserRepository appUserRepository;
   private final FunctionalComponentMapper functionalComponentMapper;
+  private final Clock clock;
 
   public ProjectMapper(
-      AppUserRepository appUserRepository, FunctionalComponentMapper functionalComponentMapper) {
+      AppUserRepository appUserRepository,
+      FunctionalComponentMapper functionalComponentMapper,
+      Clock clock) {
     this.appUserRepository = appUserRepository;
     this.functionalComponentMapper = functionalComponentMapper;
+    this.clock = clock;
   }
 
   public ProjectResponse toResponse(Project project) {
@@ -56,16 +61,17 @@ public class ProjectMapper {
   }
 
   public Project toEntity(ProjectRequest request) {
+    LocalDateTime now = LocalDateTime.now(clock);
     return new Project(
         null,
         request.getProjectName(),
         request.getVersion(),
-        LocalDateTime.now().plusHours(2),
-        LocalDateTime.now().plusHours(2),
+        now,
+        now,
         request.getCalculationDate(),
         request.getReportContactDetails(),
         request.getReportNotes(),
-        LocalDateTime.now().plusHours(2),
+        now,
         null, // No deletion date initially
         Set.of(), // Empty functional components initially
         Set.of() // ProjectAppUsers will be set by service
@@ -101,7 +107,7 @@ public class ProjectMapper {
             request.getCalculationDate(),
             request.getReportContactDetails(),
             request.getReportNotes(),
-            LocalDateTime.now().plusHours(2), // new edited date
+            LocalDateTime.now(clock), // new edited date
             project.getDeletedAt(),
             functionalComponents,
             projectAppUsers);
@@ -109,17 +115,18 @@ public class ProjectMapper {
   }
 
   public Project createNewVersion(Project originalProject, ProjectRequest request) {
+    LocalDateTime now = LocalDateTime.now(clock);
     Project newVersion =
         new Project(
             null,
             request.getProjectName(),
             request.getVersion(),
             originalProject.getCreatedAt(), // keep original creation date
-            LocalDateTime.now().plusHours(2), // new version date
+            now, // new version date
             request.getCalculationDate(),
             request.getReportContactDetails(),
             request.getReportNotes(),
-            LocalDateTime.now().plusHours(2), // new edited date
+            now, // new edited date
             null, // No deletion date initially
             Set.of(), // FunctionalComponents will be set by service
             Set.of() // ProjectAppUsers will be set by service
