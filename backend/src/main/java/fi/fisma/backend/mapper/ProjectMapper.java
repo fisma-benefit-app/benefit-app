@@ -36,6 +36,7 @@ public class ProjectMapper {
             project.getReportContactDetails(),
             project.getReportNotes(),
             project.getUpdatedAt(),
+            project.getLockVersion(),
             project.getDeletedAt() == null,
             project.getFunctionalComponents().stream()
                 .filter(fc -> fc.getParentFCId() == null) // Only include top-level components
@@ -66,6 +67,7 @@ public class ProjectMapper {
         request.getReportNotes(),
         now,
         null, // No deletion date initially
+        null, // lockVersion is assigned when the project is first saved
         Set.of(), // Empty functional components initially
         Set.of() // ProjectAppUsers will be set by service
         );
@@ -90,6 +92,7 @@ public class ProjectMapper {
         request.getReportNotes(),
         LocalDateTime.now(clock), // new edited date
         project.getDeletedAt(),
+        request.getLockVersion(), // a stale value makes the save fail
         functionalComponents,
         project.getProjectAppUsers());
   }
@@ -108,6 +111,7 @@ public class ProjectMapper {
             request.getReportNotes(),
             now, // new edited date
             null, // No deletion date initially
+            null, // lockVersion is assigned when the project is first saved
             Set.of(), // FunctionalComponents will be set by service
             Set.of() // ProjectAppUsers will be set by service
             );

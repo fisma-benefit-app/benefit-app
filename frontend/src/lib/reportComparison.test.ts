@@ -48,6 +48,7 @@ const project = (functionalComponents: TGenericComponent[]): Project => ({
   createdAt: "2026-01-01",
   versionCreatedAt: "2026-01-01",
   updatedAt: "2026-01-01",
+  lockVersion: 0,
   active: true,
   functionalComponents,
   projectAppUsers: [],

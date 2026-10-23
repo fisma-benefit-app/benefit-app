@@ -242,6 +242,7 @@ const updateProject = async (
       mapComponentToRequest,
     ),
     calculationDate: project.calculationDate ?? null,
+    lockVersion: project.lockVersion,
   };
 
   const response = await fetch(fetchURL, {
@@ -253,6 +254,10 @@ const updateProject = async (
   if (!response.ok) {
     if (response.status === 401) {
       throw new Error("Unauthorized!");
+    }
+    // Not the latest version, or saved from an outdated copy of the project.
+    if (response.status === 409) {
+      throw new Error("Conflict!");
     }
     throw new Error(
       `Error updating project in updateProject! Status: ${response.status}`,

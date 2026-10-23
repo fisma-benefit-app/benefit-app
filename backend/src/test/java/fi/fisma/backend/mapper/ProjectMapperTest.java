@@ -92,6 +92,7 @@ class ProjectMapperTest {
         reportNotes,
         timestamp,
         null,
+        null,
         Set.of(),
         Set.of());
   }

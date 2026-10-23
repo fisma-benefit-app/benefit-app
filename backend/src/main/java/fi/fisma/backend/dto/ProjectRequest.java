@@ -38,4 +38,10 @@ public class ProjectRequest {
   @Size(max = 5000, message = "Report notes must not exceed 5000 characters")
   @Schema(description = "Optional calculation notes printed on the report")
   private String reportNotes;
+
+  @Schema(
+      description =
+          "The project's lockVersion from the response the edit is based on. Required when updating a project; the update is rejected with 409 if the project has changed since.",
+      example = "3")
+  private Long lockVersion;
 }

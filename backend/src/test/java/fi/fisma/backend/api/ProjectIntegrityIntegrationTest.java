@@ -248,6 +248,68 @@ class ProjectIntegrityIntegrationTest {
     assertThat(getProject(mallory, v1).path("projectName").asText()).isEqualTo(newName);
   }
 
+  // --- concurrent saves ---
+
+  @Test
+  void staleSaveIsRejectedInsteadOfOverwritingNewerChanges() throws Exception {
+    String name = "locking-" + suffix;
+    long id = createProject(mallory, name);
+    JsonNode tabA = getProject(mallory, id);
+    JsonNode tabB = getProject(mallory, id);
+
+    // Tab A saves first.
+    MvcResult saved =
+        mockMvc
+            .perform(
+                put("/projects/{id}", id)
+                    .header("Authorization", bearer(mallory))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body(name, 1, tabA, List.of(component("From tab A")), Set.of())))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode response = objectMapper.readTree(saved.getResponse().getContentAsString());
+    assertThat(response.path("lockVersion").asLong())
+        .isGreaterThan(tabA.path("lockVersion").asLong());
+
+    // Tab B still holds the old copy, so its save must not win.
+    mockMvc
+        .perform(
+            put("/projects/{id}", id)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, tabB, List.of(), Set.of(), "from tab B")))
+        .andExpect(status().isConflict());
+    assertThat(getProject(mallory, id).path("reportNotes").isNull()).isTrue();
+
+    // A client that carries the returned lockVersion forward can keep saving.
+    mockMvc
+        .perform(
+            put("/projects/{id}", id)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, response, List.of(), Set.of(), "second save")))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void putWithoutLockVersionIsRejected() throws Exception {
+    String name = "no-lock-" + suffix;
+    long id = createProject(mallory, name);
+
+    Map<String, Object> request = new HashMap<>();
+    request.put("projectName", name);
+    request.put("version", 1);
+    request.put("functionalComponents", List.of());
+
+    mockMvc
+        .perform(
+            put("/projects/{id}", id)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest());
+  }
+
   // --- helpers ---
 
   private String createUser(String username) {

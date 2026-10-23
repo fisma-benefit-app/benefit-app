@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -66,6 +67,12 @@ public class Project {
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
+
+  // Optimistic lock: a save made from an outdated copy of the project is rejected. Named
+  // lockVersion because `version` is the project's own version number.
+  @Version
+  @Column(name = "lock_version")
+  private Long lockVersion;
 
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
   private Set<FunctionalComponent> functionalComponents = new HashSet<>();

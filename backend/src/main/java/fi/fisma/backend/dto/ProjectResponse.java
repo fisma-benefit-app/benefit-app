@@ -27,6 +27,11 @@ public record ProjectResponse(
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         @Schema(description = "Last update timestamp", example = "2025-09-25T15:45:00")
         LocalDateTime updatedAt,
+    @Schema(
+            description =
+                "Optimistic-lock counter. Send it back unchanged when updating the project; a stale value is rejected with 409",
+            example = "3")
+        Long lockVersion,
     @Schema(description = "Whether the project is active") boolean active,
     @Schema(description = "Functional components in the project")
         Set<FunctionalComponentResponse> functionalComponents,

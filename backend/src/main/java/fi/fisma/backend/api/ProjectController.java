@@ -53,11 +53,13 @@ public class ProjectController {
   @Operation(
       summary = "Update a project",
       description =
-          "Updates an existing project if the authenticated user owns it. Only the latest version can be updated, and neither the version number nor the project's users can be changed")
+          "Updates an existing project if the authenticated user owns it. Only the latest version can be updated, the request must carry the lockVersion it is based on, and neither the version number nor the project's users can be changed")
   @ApiResponse(responseCode = "200", description = "Project updated successfully")
   @ApiResponse(responseCode = "400", description = "Invalid project data")
   @ApiResponse(responseCode = "404", description = "Project not found")
-  @ApiResponse(responseCode = "409", description = "Not the latest version")
+  @ApiResponse(
+      responseCode = "409",
+      description = "Not the latest version, or the project changed since lockVersion was read")
   @ApiResponse(
       responseCode = "403",
       description = "User does not have permission to update this project")

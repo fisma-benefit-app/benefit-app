@@ -68,12 +68,16 @@ public class ProjectService {
    * @param username the username of the user performing the update
    * @return the updated ProjectResponse
    * @throws EntityNotFoundException if the project is not found or does not belong to the user
-   * @throws ConflictException if the project is not the latest version
-   * @throws IllegalStateException if the request changes the version number
+   * @throws ConflictException if the project is not the latest version, or has changed since the
+   *     request's lockVersion was read
+   * @throws IllegalStateException if the request has no lockVersion or changes the version number
    */
   public ProjectResponse updateProject(
       Long projectId, ProjectRequest projectUpdate, String username) {
     var project = findEditableProject(projectId, username);
+    if (projectUpdate.getLockVersion() == null) {
+      throw new IllegalStateException("lockVersion is required when updating a project");
+    }
     if (projectUpdate.getVersion() != project.getVersion()) {
       throw new IllegalStateException("The version number of a project cannot be changed");
     }
@@ -85,7 +89,8 @@ public class ProjectService {
     }
 
     var updatedProject = projectMapper.updateEntityFromRequest(project, projectUpdate);
-    return projectMapper.toResponse(projectRepository.save(updatedProject));
+    // Flush so the response carries the incremented lockVersion.
+    return projectMapper.toResponse(projectRepository.saveAndFlush(updatedProject));
   }
 
   /**

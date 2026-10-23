@@ -13,6 +13,7 @@ export type ProjectRequest = {
   reportNotes: string | null;
   functionalComponents: FunctionalComponentRequest[];
   calculationDate?: string | null;
+  lockVersion?: number; // required when updating a project (PUT)
 };
 
 export type ProjectResponse = {
@@ -25,6 +26,7 @@ export type ProjectResponse = {
   versionCreatedAt: string;
   calculationDate?: string | null;
   updatedAt: string;
+  lockVersion: number;
   active: boolean;
   functionalComponents: FunctionalComponentResponse[];
   projectAppUsers: ProjectAppUserResponse[];
@@ -112,6 +114,7 @@ export type Project = {
   versionCreatedAt: string;
   calculationDate?: string | null;
   updatedAt: string;
+  lockVersion: number;
   active: boolean;
   functionalComponents: TGenericComponent[];
   projectAppUsers: ProjectAppUser[];
