@@ -210,27 +210,27 @@ const updateProject = async (
     isReadonly: false,
     subComponents: fc.subComponents
       ? fc.subComponents.map((subComp) => ({
-        // createSubComponents assigns negative temporary IDs to not-yet-saved sub-components;
-        // the backend only creates a sub-component when its id is null.
-        id: subComp.id > 0 ? subComp.id : undefined,
-        title: subComp.title,
-        description: subComp.description,
-        className: subComp.className,
-        componentType: subComp.componentType,
-        dataElements: subComp.dataElements,
-        readingReferences: subComp.readingReferences,
-        writingReferences: subComp.writingReferences,
-        functionalMultiplier: subComp.functionalMultiplier,
-        operations: subComp.operations,
-        degreeOfCompletion: subComp.degreeOfCompletion,
-        previousFCId: subComp.previousFCId,
-        orderPosition: subComp.orderPosition,
-        isMLA: false,
-        parentFCId: subComp.parentFCId,
-        subComponentType: subComp.subComponentType,
-        isReadonly: true,
-        subComponents: [], // Sub-components don't have nested sub-components
-      }))
+          // createSubComponents assigns negative temporary IDs to not-yet-saved sub-components;
+          // the backend only creates a sub-component when its id is null.
+          id: subComp.id > 0 ? subComp.id : undefined,
+          title: subComp.title,
+          description: subComp.description,
+          className: subComp.className,
+          componentType: subComp.componentType,
+          dataElements: subComp.dataElements,
+          readingReferences: subComp.readingReferences,
+          writingReferences: subComp.writingReferences,
+          functionalMultiplier: subComp.functionalMultiplier,
+          operations: subComp.operations,
+          degreeOfCompletion: subComp.degreeOfCompletion,
+          previousFCId: subComp.previousFCId,
+          orderPosition: subComp.orderPosition,
+          isMLA: false,
+          parentFCId: subComp.parentFCId,
+          subComponentType: subComp.subComponentType,
+          isReadonly: true,
+          subComponents: [], // Sub-components don't have nested sub-components
+        }))
       : [],
   });
 
@@ -362,7 +362,7 @@ const deleteFunctionalComponent = async (
 
 const duplicateProject = async (
   token: string | null,
-  projectId: number
+  projectId: number,
 ): Promise<Project> => {
   if (!token) {
     throw new Error("User needs to be logged in to duplicate project!");

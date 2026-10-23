@@ -194,7 +194,7 @@ export default function ProjectList() {
         "success",
       );
       navigate(`/project/${duplicatedProject.id}`);
-    } catch (error) {
+    } catch (_error) {
       updateNotification(
         "duplicate-project",
         "Error",
