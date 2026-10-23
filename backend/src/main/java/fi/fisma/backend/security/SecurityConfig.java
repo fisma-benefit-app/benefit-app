@@ -121,7 +121,7 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http, JwtRevocationFilter jwtRevocationFilter) throws Exception {
 
-    http.csrf((csrf) -> csrf.ignoringRequestMatchers("/token", "/auth/logout"))
+    http.csrf(csrf -> csrf.disable())
         .addFilterBefore(jwtRevocationFilter, SecurityContextHolderFilter.class)
         .authorizeHttpRequests(
             (authorize) ->
