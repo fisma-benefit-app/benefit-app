@@ -24,6 +24,40 @@ The workflow file is triggered when any backend deployment is done in Heroku. Te
 
 The workflow file recognizes which GitHub repository environment (`fisma-benefit-app` for production and `fisma-benefit-app-testing` for testing) is deployed in Heroku, and based on this deploys frontend to either production or testing.
 
+## Scalingo testing environment (alongside Heroku)
+
+A second testing environment runs the backend on Scalingo (with its own PostgreSQL database). It is meant to replace the Heroku testing environment once it has proven itself, so the two run side by side for now.
+
+- Frontend: https://fisma-benefit-app.github.io/benefit-app/scalingo-testing/ <-- "scalingo-testing" subpage under the production URL
+- Backend: deployed by Scalingo's GitHub auto-deploy on `main`. Scalingo does not report to the `run-deployments` workflow, so the frontend is deployed by its own workflow, [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml), on every push to `main` (it can also be run by hand from the Actions tab).
+- A production frontend deployment erases this subpage like it does the Heroku testing one, so `run-deployments` redeploys it at the end of the production job.
+
+### One-time setup
+
+In the Scalingo app:
+
+1. Code tab: connect `fisma-benefit-app/benefit-app` and enable Auto Deploy on `main`.
+2. Set these environment variables:
+
+| Variable                                                   | Value                                                                                                                                                                         |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PROJECT_DIR`                                              | `backend` (Scalingo builds only that directory, like `PROJECT_PATH` on Heroku)                                                                                                |
+| `SPRING_DATASOURCE_URL`                                    | JDBC form of the database URL, `jdbc:postgresql://<host>:<port>/<database>?sslmode=require`. Scalingo's `SCALINGO_POSTGRESQL_URL` is `postgres://...` and does not work as is |
+| `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | From `SCALINGO_POSTGRESQL_URL`                                                                                                                                                |
+| `JWT_PRIVATE_KEY`                                          | A key of its own for this environment, see [authentication](./authentication.md)                                                                                              |
+| `CORS_ALLOWED_ORIGINS`                                     | Optional. The default already allows `https://fisma-benefit-app.github.io`                                                                                                    |
+
+3. Java 21 comes from `backend/system.properties` and the start command from `backend/Procfile`. Do not set `SPRING_PROFILES_ACTIVE=dev`.
+4. The database starts empty and migrations are manual, as everywhere else. Load `schema-dev.sql` without its `DROP TABLE` line and add the first user, as in [step 5 of the UpCloud guide](./upcloud_deployment.md#5-create-the-database-schema-and-first-user), or restore a dump from the Heroku testing database.
+
+In the GitHub repository, add the Actions secret `SCALINGO_TESTING_URL`: the Scalingo backend URL (`https://<app>.osc-fr1.scalingo.io`, no trailing slash). The frontend is built with this URL baked in.
+
+### Logs
+
+```bash
+scalingo --app <scalingo-app-name> logs --follow
+```
+
 ## Backup Database
 
 Before any deployment, ensure a database backup is taken. There's two ways of doing this:

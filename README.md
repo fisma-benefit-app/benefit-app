@@ -95,6 +95,7 @@ The things people ask about most often:
 | -------------------- | --------------------------------------------------------------- |
 | Production frontend  | https://fisma-benefit-app.github.io/benefit-app/#/login         |
 | Testing frontend     | https://fisma-benefit-app.github.io/benefit-app/testing/#/login |
+| Scalingo testing frontend | https://fisma-benefit-app.github.io/benefit-app/scalingo-testing/#/login |
 | Local frontend (dev) | http://localhost:5173/benefit-app/login                         |
 | Local backend (dev)  | http://localhost:8080/actuator/health                           |
 
@@ -117,7 +118,7 @@ Database migrations are manual. See [migrations](/backend/src/main/resources/mig
 - Heroku account with CLI installed for logging (see the [logging guide](/documents/guides/logging.md) if needed)
 - Access to repo: https://github.com/fisma-benefit-app/benefit-app
 - Database credentials available in Heroku Config Vars
-- Heroku backend URLs set up in GitHub Actions repository secrets: `HEROKU_PRODUCTION_URL` and `HEROKU_TESTING_URL` (values can be found in the [backend-credentials repository](https://github.com/fisma-benefit-app/backend-credentials))
+- Heroku backend URLs set up in GitHub Actions repository secrets: `HEROKU_PRODUCTION_URL` and `HEROKU_TESTING_URL`, plus `SCALINGO_TESTING_URL` for the Scalingo testing environment (see the [deployment guide](/documents/guides/deployment_guide.md#scalingo-testing-environment-alongside-heroku)) (values can be found in the [backend-credentials repository](https://github.com/fisma-benefit-app/backend-credentials))
 
 ### Automatic deployments
 
