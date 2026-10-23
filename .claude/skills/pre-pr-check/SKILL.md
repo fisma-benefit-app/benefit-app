@@ -1,6 +1,6 @@
 ---
 name: pre-pr-check
-description: Run the same checks CI runs (Prettier, ESLint, tsc -b, Vitest, Spotless, backend tests) before opening or updating a PR. Use when the user asks to check, verify or prepare a branch for a PR, or before you open one.
+description: Run the same checks CI runs (Prettier, ESLint, tsc -b, Vitest, Spotless, backend tests) before opening or updating a PR. Use when the user asks to check, verify or prepare a branch for a PR, or before you open one. Do NOT use for reviewing code quality or correctness (use /code-review), or for fixing one failing check.
 ---
 
 # Pre-PR check
@@ -19,7 +19,7 @@ git fetch origin main && git diff --name-only origin/main...HEAD
 
 ## 2. Frontend checks
 
-Needs `frontend/node_modules`; if it is missing, see the `worktree-local-stack` skill. Run every command from the repo root: each block uses a subshell, so the shell's working directory is unchanged afterwards. The `;` keeps going after a failure, so the user gets the full list of problems in one go.
+Needs `frontend/node_modules`; if it is missing, run `(cd frontend && npm ci)` (Claude Code's `SessionStart` hook normally does this in fresh worktrees). Run every command from the repo root: each block uses a subshell, so the shell's working directory is unchanged afterwards. The `;` keeps going after a failure, so the user gets the full list of problems in one go.
 
 ```bash
 (cd frontend && npx prettier --check .; npx eslint . --max-warnings 0; npx tsc -b; npm test)
