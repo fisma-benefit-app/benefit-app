@@ -2,6 +2,7 @@ package fi.fisma.backend.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -165,6 +166,86 @@ class ProjectIntegrityIntegrationTest {
           .andExpect(status().isBadRequest());
     }
     assertThat(getProject(mallory, id).get("functionalComponents")).isEmpty();
+  }
+
+  // --- archived versions ---
+
+  @Test
+  void archivedVersionsCannotBeEditedThroughTheApi() throws Exception {
+    String name = "versioned-" + suffix;
+    long v1 = createProject(mallory, name);
+    long componentId = addComponent(mallory, v1, component("Kept")).path("id").asLong();
+    long v2 = createVersion(mallory, v1, name, 2);
+
+    // PUT
+    JsonNode archived = getProject(mallory, v1);
+    mockMvc
+        .perform(
+            put("/projects/{id}", v1)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, archived, List.of(), Set.of(), "edited notes")))
+        .andExpect(status().isConflict());
+    // component endpoints
+    mockMvc
+        .perform(
+            post("/functional-components/projects/{id}", v1)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(component("Late addition"))))
+        .andExpect(status().isConflict());
+    mockMvc
+        .perform(
+            delete("/functional-components/{cid}/projects/{id}", componentId, v1)
+                .header("Authorization", bearer(mallory)))
+        .andExpect(status().isConflict());
+    // a new version can only be started from the latest one
+    mockMvc
+        .perform(
+            post("/projects/{id}/versions", v1)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 3, archived, List.of(), Set.of())))
+        .andExpect(status().isConflict());
+
+    JsonNode after = getProject(mallory, v1);
+    assertThat(after.path("reportNotes").isNull()).isTrue();
+    assertThat(after.path("functionalComponents")).hasSize(1);
+    assertThat(v2).isNotEqualTo(v1);
+  }
+
+  @Test
+  void versionNumberCannotBeChangedByPut() throws Exception {
+    String name = "renumber-" + suffix;
+    long id = createProject(mallory, name);
+
+    mockMvc
+        .perform(
+            put("/projects/{id}", id)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 7, getProject(mallory, id), List.of(), Set.of())))
+        .andExpect(status().isBadRequest());
+
+    assertThat(getProject(mallory, id).path("version").asInt()).isEqualTo(1);
+  }
+
+  @Test
+  void renamingTheLatestVersionRenamesArchivedVersions() throws Exception {
+    String name = "rename-" + suffix;
+    long v1 = createProject(mallory, name);
+    long v2 = createVersion(mallory, v1, name, 2);
+    String newName = "renamed-" + suffix;
+
+    mockMvc
+        .perform(
+            put("/projects/{id}", v2)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(newName, 2, getProject(mallory, v2), List.of(), Set.of())))
+        .andExpect(status().isOk());
+
+    assertThat(getProject(mallory, v1).path("projectName").asText()).isEqualTo(newName);
   }
 
   // --- helpers ---

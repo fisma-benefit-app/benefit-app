@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   deleteProject,
   fetchAllProjects,
+  fetchProject,
   updateProject,
 } from "../api/project.ts";
 import { ProjectsContext } from "./ProjectsContext.ts";
@@ -72,18 +73,16 @@ export default function ProjectsProvider({
 
       if (!originalName) return;
 
-      const allVersionsToUpdate = projects.filter(
-        (p) => p.projectName === originalName,
-      );
+      // The backend only accepts edits to the latest version and renames the older
+      // versions with it. Fetch it fresh so the rename carries its current lockVersion.
+      const latestVersion = projects
+        .filter((p) => p.projectName === originalName)
+        .reduce((latest, p) => (p.version > latest.version ? p : latest));
 
-      const updatePromises = allVersionsToUpdate.map((project) =>
-        updateProject(sessionToken, {
-          ...project,
-          projectName: updatedProject.projectName,
-        }),
-      );
-
-      await Promise.all(updatePromises);
+      await updateProject(sessionToken, {
+        ...(await fetchProject(sessionToken, latestVersion.id)),
+        projectName: updatedProject.projectName,
+      });
 
       setProjects((prevProjects) =>
         prevProjects.map((project) => {
@@ -110,10 +109,10 @@ export default function ProjectsProvider({
     allProjectVersions: Project[],
   ) => {
     if (project && allProjectVersions?.length > 0) {
-      //projects from backend are sorted by editedTime, so latest project version is the one most recently edited
-      const isLatest =
-        project.version === allProjectVersions[0].version ? true : false;
-      return isLatest;
+      // the backend only accepts edits to the highest version number
+      return (
+        project.version >= Math.max(...allProjectVersions.map((p) => p.version))
+      );
     } else {
       return false;
     }

@@ -23,4 +23,9 @@ public class GlobalExceptionHandler {
       java.lang.IllegalStateException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
   }
+
+  @ExceptionHandler(ConflictException.class)
+  public ResponseEntity<String> handleConflictException(ConflictException exception) {
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+  }
 }

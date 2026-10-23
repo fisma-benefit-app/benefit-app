@@ -52,9 +52,12 @@ public class ProjectController {
   @PutMapping("/{id}")
   @Operation(
       summary = "Update a project",
-      description = "Updates an existing project if the authenticated user owns it")
+      description =
+          "Updates an existing project if the authenticated user owns it. Only the latest version can be updated, and neither the version number nor the project's users can be changed")
   @ApiResponse(responseCode = "200", description = "Project updated successfully")
+  @ApiResponse(responseCode = "400", description = "Invalid project data")
   @ApiResponse(responseCode = "404", description = "Project not found")
+  @ApiResponse(responseCode = "409", description = "Not the latest version")
   @ApiResponse(
       responseCode = "403",
       description = "User does not have permission to update this project")
@@ -87,6 +90,7 @@ public class ProjectController {
       description = "Creates a new version of an existing project")
   @ApiResponse(responseCode = "201", description = "Project version created successfully")
   @ApiResponse(responseCode = "404", description = "Original project not found")
+  @ApiResponse(responseCode = "409", description = "Original project is not the latest version")
   @ApiResponse(responseCode = "403", description = "User does not have permission")
   public ResponseEntity<Void> createProjectVersion(
       @Parameter(description = "ID of the project to version") @PathVariable("id") Long id,
