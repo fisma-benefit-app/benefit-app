@@ -2,12 +2,10 @@ package fi.fisma.backend.mapper;
 
 import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
-import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.dto.ProjectAppUserResponse;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
-import fi.fisma.backend.repository.AppUserRepository;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -18,15 +16,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectMapper {
 
-  private final AppUserRepository appUserRepository;
   private final FunctionalComponentMapper functionalComponentMapper;
   private final Clock clock;
 
-  public ProjectMapper(
-      AppUserRepository appUserRepository,
-      FunctionalComponentMapper functionalComponentMapper,
-      Clock clock) {
-    this.appUserRepository = appUserRepository;
+  public ProjectMapper(FunctionalComponentMapper functionalComponentMapper, Clock clock) {
     this.functionalComponentMapper = functionalComponentMapper;
     this.clock = clock;
   }
@@ -78,40 +71,27 @@ public class ProjectMapper {
         );
   }
 
+  /**
+   * Builds the project state to save from a request. Membership is never taken from the request:
+   * the project keeps the users it already has.
+   */
   public Project updateEntityFromRequest(Project project, ProjectRequest request) {
     Set<FunctionalComponent> functionalComponents =
         functionalComponentMapper.updateEntityFromRequest(project, request);
 
-    Set<ProjectAppUser> projectAppUsers =
-        request.getProjectAppUserIds().stream()
-            .map(
-                id ->
-                    new ProjectAppUser(
-                        id,
-                        project,
-                        appUserRepository
-                            .findByProjectAppUserIdActive(id)
-                            .orElseThrow(
-                                () ->
-                                    new IllegalArgumentException(
-                                        "AppUser not found with projectAppUser id: " + id))))
-            .collect(Collectors.toSet());
-
-    Project updatedProject =
-        new Project(
-            project.getId(),
-            request.getProjectName(),
-            request.getVersion(),
-            project.getCreatedAt(),
-            project.getVersionCreatedAt(),
-            request.getCalculationDate(),
-            request.getReportContactDetails(),
-            request.getReportNotes(),
-            LocalDateTime.now(clock), // new edited date
-            project.getDeletedAt(),
-            functionalComponents,
-            projectAppUsers);
-    return updatedProject;
+    return new Project(
+        project.getId(),
+        request.getProjectName(),
+        request.getVersion(),
+        project.getCreatedAt(),
+        project.getVersionCreatedAt(),
+        request.getCalculationDate(),
+        request.getReportContactDetails(),
+        request.getReportNotes(),
+        LocalDateTime.now(clock), // new edited date
+        project.getDeletedAt(),
+        functionalComponents,
+        project.getProjectAppUsers());
   }
 
   public Project createNewVersion(Project originalProject, ProjectRequest request) {

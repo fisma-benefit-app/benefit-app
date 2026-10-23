@@ -36,7 +36,4 @@ public class ProjectRequest {
   @Size(max = 5000, message = "Report notes must not exceed 5000 characters")
   @Schema(description = "Optional calculation notes printed on the report")
   private String reportNotes;
-
-  @Schema(description = "List of user IDs to associate with the project")
-  private Set<Long> projectAppUserIds = new HashSet<>();
 }

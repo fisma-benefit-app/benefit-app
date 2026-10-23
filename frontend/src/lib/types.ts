@@ -13,7 +13,6 @@ export type ProjectRequest = {
   reportNotes: string | null;
   functionalComponents: FunctionalComponentRequest[];
   calculationDate?: string | null;
-  projectAppUserIds: number[];
 };
 
 export type ProjectResponse = {

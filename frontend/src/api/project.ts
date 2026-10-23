@@ -83,7 +83,6 @@ const createProject = async (
     reportNotes: null,
     functionalComponents: [], // start empty
     calculationDate: null,
-    projectAppUserIds: [], // start with no users
   };
 
   const response = await fetch(fetchURL, {
@@ -136,7 +135,6 @@ const createNewProjectVersion = async (
     reportNotes: previousProject.reportNotes ?? null,
     functionalComponents: [],
     calculationDate: previousProject.calculationDate ?? null,
-    projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
 
   const response = await fetch(fetchURL, {
@@ -244,7 +242,6 @@ const updateProject = async (
       mapComponentToRequest,
     ),
     calculationDate: project.calculationDate ?? null,
-    projectAppUserIds: project.projectAppUsers.map((pau) => pau.id),
   };
 
   const response = await fetch(fetchURL, {

@@ -141,7 +141,6 @@ public class StandaloneSetup {
     dto.setVersion(1);
     dto.setReportContactDetails("Calculator");
     dto.setReportNotes("Calculation note");
-    dto.setProjectAppUserIds(Set.of(10L, 20L));
     return dto;
   }
 }

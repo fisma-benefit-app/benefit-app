@@ -7,7 +7,6 @@ import fi.fisma.backend.config.ClockConfig;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
-import fi.fisma.backend.repository.AppUserRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -27,8 +26,7 @@ class ProjectMapperTest {
 
   private static ProjectMapper mapperAt(String utcInstant) {
     Clock clock = Clock.fixed(Instant.parse(utcInstant), new ClockConfig().clock().getZone());
-    return new ProjectMapper(
-        mock(AppUserRepository.class), mock(FunctionalComponentMapper.class), clock);
+    return new ProjectMapper(mock(FunctionalComponentMapper.class), clock);
   }
 
   @Test
