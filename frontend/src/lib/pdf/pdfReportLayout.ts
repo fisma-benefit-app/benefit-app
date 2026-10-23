@@ -76,7 +76,7 @@ export const createReportDocument = ({
   title,
   pageOrientation = "portrait",
   pageMargins = [mmToPt(10), mmToPt(12), mmToPt(10), mmToPt(14)],
-  fontSize = 9,
+  fontSize = 11,
 }: ReportDocumentOptions): TDocumentDefinitions => ({
   info: { title },
   pageSize: "A4",

@@ -426,6 +426,12 @@ export const generateOverviewPDF = async (
       margin: [0, 4, 0, 0],
     }) as Content;
 
+  const notesText = (text: string | null | undefined): Content => ({
+    text: text ?? "",
+    fontSize: 12,
+    margin: [0, 4, 0, 0],
+  });
+
   const reportDate = project.calculationDate
     ? project.calculationDate.split("-").reverse().join(".")
     : "";
@@ -524,14 +530,14 @@ export const generateOverviewPDF = async (
       widths: ["*", 50, 130, 60],
     }),
     { text: labels.explanation, style: "h3" },
-    textBox(project.reportNotes, 25),
+    notesText(project.reportNotes),
     // Only a later version has anything to mark as changed.
     ...(previousProject
       ? [
           {
             text: labels.changed,
             style: "small",
-            margin: [0, 6, 0, 0],
+            margin: [0, 10, 0, 0],
           } as Content,
         ]
       : []),
