@@ -68,6 +68,15 @@ A pre-commit hook (`.githooks/pre-commit`) runs Prettier on staged frontend file
 git config core.hooksPath .githooks
 ```
 
+### Skills
+
+Repeatable multi-step procedures live as agent skills in `.claude/skills/<name>/SKILL.md`. Agents load them on demand (Claude Code reads them natively; other tools can read the files directly). This file stays the source of always-on facts; skills link here instead of repeating it.
+
+- `pre-pr-check`: run the CI checks locally before opening a PR.
+- `worktree-local-stack`: env files, `node_modules` and compose setup for a fresh git worktree.
+
+Add a skill only for a procedure that is repeated and has more than a couple of steps. Keep its `description` specific about when to use it, since that is all the agent sees until the skill loads.
+
 ## Architecture
 
 ### Backend — layered Spring Boot (`backend/src/main/java/fi/fisma/backend/`)
