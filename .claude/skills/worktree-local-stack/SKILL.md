@@ -31,7 +31,7 @@ cp "$MAIN/.env" .env && cp "$MAIN/frontend/.env" frontend/.env
 Needed for `eslint`, `prettier`, `tsc` and `vitest` on the host (not for the Docker stack):
 
 ```bash
-cd frontend && npm ci
+(cd frontend && npm ci)
 ```
 
 A symlink to the main checkout's `node_modules` is a faster alternative. It is gitignored, but remove the link (`rm frontend/node_modules`, not `rm -r`) before deleting the worktree so nothing follows it into the main checkout:

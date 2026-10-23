@@ -17,27 +17,22 @@ git fetch origin main && git diff --name-only origin/main...HEAD
 - Any path under `backend/` → run the backend checks.
 - Neither (docs, workflows only) → say so and skip both.
 
-## 2. Frontend checks (from `frontend/`)
+## 2. Frontend checks
 
-Needs `frontend/node_modules`; if it is missing, see the `worktree-local-stack` skill. Run all four even if one fails, so the user gets the full list of problems in one go.
+Needs `frontend/node_modules`; if it is missing, see the `worktree-local-stack` skill. Run every command from the repo root: each block uses a subshell, so the shell's working directory is unchanged afterwards. The `;` keeps going after a failure, so the user gets the full list of problems in one go.
 
 ```bash
-cd frontend
-npx prettier --check .
-npx eslint . --max-warnings 0
-npx tsc -b
-npm test
+(cd frontend && npx prettier --check .; npx eslint . --max-warnings 0; npx tsc -b; npm test)
 ```
 
 To fix formatting, run `npx prettier . --write`, then re-run the check.
 
-## 3. Backend checks (from `backend/`)
+## 3. Backend checks
 
 The tests need Postgres on host port 5433 (`HOST_DB_PORT`): `docker compose up -d db` from the repo root.
 
 ```bash
-cd backend
-./gradlew spotlessCheck test --continue
+(cd backend && ./gradlew spotlessCheck test --continue)
 ```
 
 `./gradlew spotlessApply` fixes formatting. If the host has no JDK (`which java` is empty), run Gradle in the dev image instead:
@@ -47,7 +42,7 @@ docker run --rm --network host -v "$PWD/backend:/workspace" -v fisma-dev_gradle-
   -w /workspace -e GRADLE_USER_HOME=/gradle-cache fisma-dev-backend ./gradlew spotlessCheck test --continue
 ```
 
-(Run from the repo root. The image `fisma-dev-backend` and the volume exist after the dev stack has been built once.)
+(The image `fisma-dev-backend` and the volume exist after the dev stack has been built once.)
 
 ## 4. Report
 
