@@ -11,6 +11,7 @@ import {
   faChevronUp,
   faPenToSquare,
   faTrash,
+  faCopy,
 } from "@fortawesome/free-solid-svg-icons";
 import { Project } from "../lib/types.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
@@ -19,7 +20,9 @@ import EditProjectModal from "./EditProjectModal.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
 import useCommitSha from "../hooks/useCommitSha";
-
+import { duplicateProject } from "../api/project.ts";
+import { useAlert } from "../hooks/useAlert.ts";
+import useAppUser from "../hooks/useAppUser.tsx";
 type SortKey =
   | "projectName"
   | "version"
@@ -43,6 +46,8 @@ export default function ProjectList() {
     },
   );
   const commitSha = useCommitSha();
+  const { sessionToken } = useAppUser();
+  const { showNotification, updateNotification } = useAlert();
 
   const navigate = useNavigate();
   const translation = useTranslations();
@@ -170,6 +175,34 @@ export default function ProjectList() {
   ];
 
   if (loading) return <LoadingSpinner />;
+
+  const handleDuplicate = async (projectId: number) => {
+    showNotification(
+      "Duplicating project...",
+      "Please wait",
+      "loading",
+      "duplicate-project",
+    );
+
+    try {
+      const duplicatedProject = await duplicateProject(sessionToken, projectId);
+
+      updateNotification(
+        "duplicate-project",
+        "Success",
+        "Project duplicated successfully",
+        "success",
+      );
+      navigate(`/project/${duplicatedProject.id}`);
+    } catch {
+      updateNotification(
+        "duplicate-project",
+        "Error",
+        "Failed to duplicate project",
+        "error",
+      );
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen p-4 pt-20">
@@ -301,6 +334,16 @@ export default function ProjectList() {
                       }}
                     >
                       <FontAwesomeIcon icon={faPenToSquare} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDuplicate(project.id);
+                      }}
+                      className="text-gray-500 hover:text-fisma-blue p-2 transition-colors"
+                      title="Duplicate Project"
+                    >
+                      <FontAwesomeIcon icon={faCopy} />
                     </button>
                     <button
                       className="bg-fisma-red hover:brightness-130 text-white py-2 px-3 ml-1"

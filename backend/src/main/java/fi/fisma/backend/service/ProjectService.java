@@ -14,6 +14,7 @@ import fi.fisma.backend.repository.FunctionalComponentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,9 @@ import org.springframework.validation.annotation.Validated;
 @RequiredArgsConstructor
 @Transactional
 public class ProjectService {
+
+  private static final String DUPLICATE_SUFFIX = " - Copy";
+  private static final int MAX_PROJECT_NAME_LENGTH = 255;
 
   private final ProjectRepository projectRepository;
   private final AppUserRepository appUserRepository;
@@ -91,7 +95,8 @@ public class ProjectService {
 
     var project = projectMapper.toEntity(newProjectRequest);
 
-    // Map + attach functional components from request (so they persist with the project)
+    // Map + attach functional components from request (so they persist with the
+    // project)
     var functionalComponents =
         functionalComponentMapper.updateEntityFromRequest(project, newProjectRequest);
     functionalComponents.forEach(fc -> fc.setProject(project)); // owning side
@@ -240,5 +245,64 @@ public class ProjectService {
     return projectRepository
         .findByProjectIdAndUsernameActive(projectId, username)
         .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
+  }
+
+  @Transactional
+  public Project duplicateProject(Long id, String username) {
+    // Find the initial project in database
+    Project originalProject = findProjectForUser(id, username);
+
+    var appUser =
+        appUserRepository
+            .findByUsernameActive(username)
+            .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
+
+    // Create a new Project
+    Project duplicatedProject = new Project();
+
+    // 3. Shallow copy
+    String originalName = originalProject.getProjectName();
+    int maxOriginalNameLength = MAX_PROJECT_NAME_LENGTH - DUPLICATE_SUFFIX.length();
+    String truncatedName =
+        originalName.length() > maxOriginalNameLength
+            ? originalName.substring(0, maxOriginalNameLength)
+            : originalName;
+    duplicatedProject.setProjectName(truncatedName + DUPLICATE_SUFFIX);
+    duplicatedProject.setReportContactDetails(originalProject.getReportContactDetails());
+    duplicatedProject.setReportNotes(originalProject.getReportNotes());
+    duplicatedProject.setCalculationDate(originalProject.getCalculationDate());
+    duplicatedProject.setVersion(1);
+    duplicatedProject.setCreatedAt(LocalDateTime.now());
+    duplicatedProject.setVersionCreatedAt(LocalDateTime.now());
+
+    // Set AppUser
+    duplicatedProject.setProjectAppUsers(Set.of(new ProjectAppUser(duplicatedProject, appUser)));
+
+    // 4. Copy the list of Functional Components (Deep copy)
+    if (originalProject.getFunctionalComponents() != null) {
+      Set<FunctionalComponent> duplicatedComponents = new HashSet<>();
+
+      for (FunctionalComponent originalComp : originalProject.getFunctionalComponents()) {
+        FunctionalComponent newComp = new FunctionalComponent();
+
+        newComp.setTitle(originalComp.getTitle());
+        newComp.setDescription(originalComp.getDescription());
+        newComp.setClassName(originalComp.getClassName());
+        newComp.setComponentType(originalComp.getComponentType());
+        newComp.setOrderPosition(originalComp.getOrderPosition());
+        newComp.setIsMLA(originalComp.getIsMLA());
+        newComp.setDegreeOfCompletion(originalComp.getDegreeOfCompletion());
+
+        newComp.setProject(duplicatedProject);
+
+        duplicatedComponents.add(newComp);
+      }
+      duplicatedProject.setFunctionalComponents(duplicatedComponents);
+    }
+
+    // Don't copy comments to the new project
+
+    // 6. Save in Database
+    return projectRepository.save(duplicatedProject);
   }
 }

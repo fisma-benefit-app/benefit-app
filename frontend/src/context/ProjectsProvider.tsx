@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Project } from "../lib/types.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   deleteProject,
   fetchAllProjects,
@@ -19,27 +19,28 @@ export default function ProjectsProvider({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    const getAllProjects = async () => {
-      setLoading(true);
-      try {
-        const allProjectsFromDb = await fetchAllProjects(sessionToken);
-        setProjects(allProjectsFromDb);
-      } catch (err) {
-        if (err instanceof Error && err.message === "Unauthorized!") {
-          await logout();
-        }
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Unexpected error occurred when getting projects from backend.",
-        );
-      } finally {
-        setLoading(false);
+  const fetchProjects = useCallback(async () => {
+    setLoading(true);
+    try {
+      const allProjectsFromDb = await fetchAllProjects(sessionToken);
+      setProjects(allProjectsFromDb);
+    } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized!") {
+        await logout();
       }
-    };
-    getAllProjects();
-  }, [sessionToken, logout]);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unexpected error occurred when getting projects from backend.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [logout, sessionToken]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const sortedProjects =
     projects?.sort(
@@ -139,6 +140,7 @@ export default function ProjectsProvider({
     sortedProjects,
     loading,
     error,
+    fetchProjects,
     handleDelete,
     handleUpdate,
     checkIfLatestVersion,

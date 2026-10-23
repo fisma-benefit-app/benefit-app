@@ -360,6 +360,31 @@ const deleteFunctionalComponent = async (
   }
 };
 
+const duplicateProject = async (
+  token: string | null,
+  projectId: number,
+): Promise<Project> => {
+  if (!token) {
+    throw new Error("User needs to be logged in to duplicate project!");
+  }
+
+  const fetchURL = `${API_URL}/projects/${projectId}/duplicate`;
+
+  const response = await fetch(fetchURL, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to duplicate project");
+  }
+
+  return response.json();
+};
+
 export {
   fetchAllProjects,
   fetchProject,
@@ -369,4 +394,5 @@ export {
   createNewProjectVersion,
   createFunctionalComponent,
   deleteFunctionalComponent,
+  duplicateProject,
 };

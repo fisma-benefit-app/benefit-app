@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/projects")
+@CrossOrigin
 @RequiredArgsConstructor
 @Tag(name = "Project Management", description = "Endpoints for managing projects")
 @SecurityRequirement(name = "bearerAuth")
@@ -113,5 +114,14 @@ public class ProjectController {
       Authentication authentication) {
     projectService.deleteProject(id, authentication.getName());
     return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/{id}/duplicate")
+  public ResponseEntity<ProjectResponse> duplicateProject(
+      @PathVariable("id") Long id, Authentication authentication) {
+    var duplicatedProject = projectService.duplicateProject(id, authentication.getName());
+    ProjectResponse response =
+        projectService.getProject(duplicatedProject.getId(), authentication.getName());
+    return ResponseEntity.ok(response);
   }
 }
