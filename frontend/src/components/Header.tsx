@@ -187,6 +187,12 @@ const Header = () => {
               {language.toUpperCase()}
             </button>
           )}
+          <button
+            className="flex items-center w-48 text-lg px-5 hover:bg-fisma-dark-blue"
+            onClick={() => navigate("/quickcalculation")}
+          >
+            {translation.quickcalculation}
+          </button>
         </div>
 
         {/* Mobile Menu Dropdown */}
