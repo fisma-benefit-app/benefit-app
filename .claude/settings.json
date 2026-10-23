@@ -12,5 +12,19 @@
       "mcp__Claude_Browser__get_page_text",
       "mcp__ccd_pr__get_status"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ensure-frontend-deps.sh",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
   }
 }
