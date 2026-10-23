@@ -68,6 +68,14 @@ A pre-commit hook (`.githooks/pre-commit`) runs Prettier on staged frontend file
 git config core.hooksPath .githooks
 ```
 
+### Skills
+
+Repeatable multi-step procedures live as agent skills in `.claude/skills/<name>/SKILL.md`. Agents load them on demand (Claude Code reads them natively; other tools can read the files directly). This file stays the source of always-on facts; skills link here instead of repeating it.
+
+- `pre-pr-check`: run the CI checks locally before opening a PR.
+
+Add a skill only for a procedure that is repeated and has more than a couple of steps. Keep its `description` specific about when to use it, since that is all the agent sees until the skill loads.
+
 ## Architecture
 
 ### Backend — layered Spring Boot (`backend/src/main/java/fi/fisma/backend/`)
@@ -117,4 +125,4 @@ A `Project` contains `FunctionalComponent`s. Each component has a `className`/`c
 - API docs are generated via SpringDoc + Widdershins; refresh with the steps in `documents/guides/generate_api_docs.md` (`npx widdershins`, not installed as a dependency because it causes `npm audit` issues).
 - Known local-dev issues and their fixes are tracked in `documents/notes/known_errors.md`.
 - Root `.env` and `frontend/.env` hold real local secrets (e.g. `JWT_PRIVATE_KEY`); both are gitignored — never print, paste, or commit their contents.
-- A fresh git worktree has none of the gitignored files. `.worktreeinclude` makes Claude Code copy `.env` and `frontend/.env` into new worktrees; if you create a worktree another way, copy them from the main checkout yourself. `frontend/node_modules` is not copied — run `npm ci` there, or symlink the main checkout's. Compose uses fixed container names and ports, so only one stack can run at a time; the `dev` profile reseeds the database on every start.
+- A fresh git worktree has none of the gitignored files. `.worktreeinclude` makes Claude Code copy `.env` and `frontend/.env` into new worktrees; if you create a worktree another way, copy them from the main checkout yourself. `frontend/node_modules` is not copied: in Claude Code sessions the `SessionStart` hook `.claude/hooks/ensure-frontend-deps.sh` runs `npm ci` in `frontend/` when it is missing (a no-op otherwise); with other tools run `npm ci` there yourself. Compose uses fixed container names and ports, so only one stack can run at a time; the `dev` profile reseeds the database on every start.
