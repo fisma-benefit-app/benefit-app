@@ -5,6 +5,10 @@ interface ConfirmProps {
   message: string;
   onConfirm: () => void;
   setOpen: (open: boolean) => void;
+  // Defaults are the generic Cancel / Confirm.
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onCancel?: () => void;
 }
 
 export default function ConfirmModal({
@@ -12,6 +16,9 @@ export default function ConfirmModal({
   open,
   setOpen,
   onConfirm,
+  confirmLabel,
+  cancelLabel,
+  onCancel,
 }: ConfirmProps) {
   const translation = useTranslations().confirmModal;
 
@@ -26,10 +33,13 @@ export default function ConfirmModal({
         <div className="flex justify-evenly items-center">
           <button
             type="button"
-            onClick={() => setOpen(false)}
-            className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
+            onClick={() => {
+              onCancel?.();
+              setOpen(false);
+            }}
+            className="min-w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
           >
-            {translation.cancel}
+            {cancelLabel ?? translation.cancel}
           </button>
           <button
             type="button"
@@ -37,9 +47,9 @@ export default function ConfirmModal({
               onConfirm();
               setOpen(false);
             }}
-            className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
+            className="min-w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
           >
-            {translation.confirm}
+            {confirmLabel ?? translation.confirm}
           </button>
         </div>
       </div>

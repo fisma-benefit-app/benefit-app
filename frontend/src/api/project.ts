@@ -83,7 +83,6 @@ const createProject = async (
     reportNotes: null,
     functionalComponents: [], // start empty
     calculationDate: null,
-    projectAppUserIds: [], // start with no users
   };
 
   const response = await fetch(fetchURL, {
@@ -136,7 +135,6 @@ const createNewProjectVersion = async (
     reportNotes: previousProject.reportNotes ?? null,
     functionalComponents: [],
     calculationDate: previousProject.calculationDate ?? null,
-    projectAppUserIds: previousProject.projectAppUsers.map((pau) => pau.id),
   };
 
   const response = await fetch(fetchURL, {
@@ -244,7 +242,7 @@ const updateProject = async (
       mapComponentToRequest,
     ),
     calculationDate: project.calculationDate ?? null,
-    projectAppUserIds: project.projectAppUsers.map((pau) => pau.id),
+    lockVersion: project.lockVersion,
   };
 
   const response = await fetch(fetchURL, {
@@ -256,6 +254,10 @@ const updateProject = async (
   if (!response.ok) {
     if (response.status === 401) {
       throw new Error("Unauthorized!");
+    }
+    // Not the latest version, or saved from an outdated copy of the project.
+    if (response.status === 409) {
+      throw new Error("Conflict!");
     }
     throw new Error(
       `Error updating project in updateProject! Status: ${response.status}`,

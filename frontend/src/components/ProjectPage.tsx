@@ -73,9 +73,14 @@ function useDebounce<T extends (...args: unknown[]) => void | Promise<void>>(
     const call = pendingCallRef.current;
     pendingCallRef.current = null;
     if (call) {
-      const running = Promise.resolve(call()).finally(() => {
-        if (runningCallRef.current === running) runningCallRef.current = null;
-      });
+      // Wait for a save already running: two overlapping saves would carry the same
+      // lockVersion and the second would be rejected as a conflict with the first.
+      const running = (runningCallRef.current ?? Promise.resolve())
+        .catch(() => undefined)
+        .then(call)
+        .finally(() => {
+          if (runningCallRef.current === running) runningCallRef.current = null;
+        });
       runningCallRef.current = running;
     }
     return runningCallRef.current ?? Promise.resolve();
@@ -343,7 +348,7 @@ export default function ProjectPage() {
       );
 
   // Alert functionality
-  const { showNotification, updateNotification } = useAlert();
+  const { showNotification, updateNotification, hideNotification } = useAlert();
 
   // Flag for tracking manual saves
   const isManuallySaved = useRef(false);
@@ -377,6 +382,39 @@ export default function ProjectPage() {
     loadProjectComments();
   }, [project?.id, sessionToken]);
 
+  // The backend rejects a save made from an outdated copy of the project, so carry the new
+  // lockVersion forward after each save. Edits made while the save was in flight stay as they are.
+  const applySavedLockVersion = (saved: {
+    id: number;
+    lockVersion: number;
+  }) => {
+    const carry = (p: Project | null) =>
+      p && p.id === saved.id ? { ...p, lockVersion: saved.lockVersion } : p;
+    projectRef.current = carry(projectRef.current);
+    setProject(carry);
+  };
+
+  // Another tab saved first. Nothing is discarded or overwritten until the user picks: this
+  // tab keeps its edits, auto-save pauses, and a dialog offers the two ways forward.
+  const [savedElsewhere, setSavedElsewhere] = useState<Project | null>(null);
+  const saveConflictRef = useRef(false);
+
+  const handleSaveConflict = async (
+    notificationId: string,
+    projectId: number,
+  ) => {
+    saveConflictRef.current = true;
+    // The dialog says what happened; an error toast would outlive it, since error toasts
+    // stay until closed.
+    hideNotification(notificationId);
+    try {
+      setSavedElsewhere(await fetchProject(sessionToken, projectId));
+    } catch (fetchErr) {
+      saveConflictRef.current = false;
+      console.error("Loading the project saved elsewhere failed:", fetchErr);
+    }
+  };
+
   // Debounced auto-save function
   const {
     debounced: debouncedSaveProject,
@@ -384,7 +422,7 @@ export default function ProjectPage() {
     isPending: isProjectSavePending,
   } = useDebounce(async () => {
     const currentProject = projectRef.current;
-    if (!currentProject || isManuallySaved.current) {
+    if (!currentProject || isManuallySaved.current || saveConflictRef.current) {
       return;
     }
 
@@ -416,7 +454,7 @@ export default function ProjectPage() {
         functionalComponents: normalized,
       };
 
-      await updateProject(sessionToken, editedProject);
+      applySavedLockVersion(await updateProject(sessionToken, editedProject));
 
       updateNotification(
         "auto-save",
@@ -428,6 +466,10 @@ export default function ProjectPage() {
       if (err instanceof Error && err.message === "Unauthorized") {
         await logout();
       }
+      if (err instanceof Error && err.message === "Conflict!") {
+        await handleSaveConflict("auto-save", currentProject.id);
+        return;
+      }
 
       updateNotification(
         "auto-save",
@@ -437,6 +479,21 @@ export default function ProjectPage() {
       );
     }
   }, 5000); // Auto-save every 5 seconds
+
+  const keepMyChanges = () => {
+    if (!savedElsewhere) return;
+    // Their lockVersion makes this tab's next save go through, replacing the other tab's save.
+    applySavedLockVersion(savedElsewhere);
+    saveConflictRef.current = false;
+    debouncedSaveProject();
+    void flushProjectSave();
+  };
+
+  const loadSavedVersion = () => {
+    if (!savedElsewhere) return;
+    setProject(savedElsewhere);
+    saveConflictRef.current = false;
+  };
 
   // Let the header save waiting edits before a logout revokes the token.
   useEffect(() => registerPendingSave(flushProjectSave), [flushProjectSave]);
@@ -753,7 +810,7 @@ export default function ProjectPage() {
           functionalComponents: normalized,
         };
 
-        await updateProject(sessionToken, editedProject);
+        applySavedLockVersion(await updateProject(sessionToken, editedProject));
 
         if (showNotif) {
           updateNotification(
@@ -766,6 +823,10 @@ export default function ProjectPage() {
       } catch (err) {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
+        }
+        if (err instanceof Error && err.message === "Conflict!") {
+          await handleSaveConflict("manual-save", currentProject.id);
+          return;
         }
         if (showNotif) {
           updateNotification(
@@ -790,6 +851,7 @@ export default function ProjectPage() {
       isManuallySaved.current = true;
       try {
         await saveProject();
+        if (saveConflictRef.current) return; // the user has to resolve the conflict first
         const idOfNewProjectVersion = await createNewProjectVersion(
           sessionToken,
           project,
@@ -1334,6 +1396,18 @@ export default function ProjectPage() {
             <p></p>
           )}
         </div>
+
+        <ConfirmModal
+          message={alertTranslation.saveConflictMessage}
+          open={savedElsewhere !== null}
+          setOpen={(open) => {
+            if (!open) setSavedElsewhere(null);
+          }}
+          confirmLabel={alertTranslation.keepMyChanges}
+          cancelLabel={alertTranslation.loadSavedVersion}
+          onConfirm={keepMyChanges}
+          onCancel={loadSavedVersion}
+        />
 
         <ConfirmModal
           message={`${translation.archiveVersionWarningBeginning} ${project?.version}? ${translation.archiveVersionWarningEnd}`}

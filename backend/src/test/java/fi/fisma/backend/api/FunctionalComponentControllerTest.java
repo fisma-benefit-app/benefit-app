@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fi.fisma.backend.dto.FunctionalComponentRequest;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.context.ActiveProfiles;
@@ -66,5 +68,24 @@ class FunctionalComponentControllerTest {
     verify(functionalComponentService)
         .createFunctionalComponent(
             eq(1L), argThat(req -> largeDescription.equals(req.getDescription())), eq("test-user"));
+  }
+
+  @Test
+  void testCreateFunctionalComponent_InvalidComponentIsRejected() throws Exception {
+    FunctionalComponentRequest request = new FunctionalComponentRequest();
+    StandaloneSetup.createFunctionalComponentRequest(request);
+    request.setDegreeOfCompletion(1.5);
+
+    var response =
+        mockMvcTester
+            .post()
+            .uri("/functional-components/projects/{projectId}", 1L)
+            .with(jwtAuth)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+            .exchange();
+
+    assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+    verifyNoInteractions(functionalComponentService);
   }
 }

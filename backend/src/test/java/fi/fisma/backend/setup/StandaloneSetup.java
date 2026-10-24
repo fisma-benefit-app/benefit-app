@@ -30,6 +30,7 @@ public class StandaloneSetup {
         null,
         null,
         LocalDateTime.now(),
+        0L,
         true,
         Set.of(),
         Set.of());
@@ -47,6 +48,7 @@ public class StandaloneSetup {
             null,
             null,
             LocalDateTime.now(),
+            0L,
             true,
             Set.of(),
             Set.of()),
@@ -60,6 +62,7 @@ public class StandaloneSetup {
             null,
             null,
             LocalDateTime.now(),
+            0L,
             true,
             Set.of(),
             Set.of()));
@@ -76,6 +79,7 @@ public class StandaloneSetup {
         null,
         null,
         LocalDateTime.now(),
+        0L,
         true,
         Set.of(),
         Set.of());
@@ -92,6 +96,7 @@ public class StandaloneSetup {
         null,
         null,
         LocalDateTime.now(),
+        0L,
         true,
         Set.of(),
         Set.of());
@@ -108,6 +113,7 @@ public class StandaloneSetup {
         null,
         null,
         LocalDateTime.now(),
+        0L,
         true,
         Set.of(),
         Set.of());
@@ -128,6 +134,7 @@ public class StandaloneSetup {
     dto.setDegreeOfCompletion(0.75);
     dto.setPreviousFCId(123L);
     dto.setOrderPosition(1);
+    dto.setIsMLA(false);
     return dto;
   }
 
@@ -141,7 +148,6 @@ public class StandaloneSetup {
     dto.setVersion(1);
     dto.setReportContactDetails("Calculator");
     dto.setReportNotes("Calculation note");
-    dto.setProjectAppUserIds(Set.of(10L, 20L));
     return dto;
   }
 }

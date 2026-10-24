@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -38,7 +39,7 @@ public class FunctionalComponentController {
       })
   public ResponseEntity<ProjectResponse> createFunctionalComponent(
       @PathVariable Long projectId,
-      @RequestBody FunctionalComponentRequest request,
+      @Valid @RequestBody FunctionalComponentRequest request,
       Authentication authentication) {
     ProjectResponse response =
         functionalComponentService.createFunctionalComponent(

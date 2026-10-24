@@ -5,6 +5,7 @@ import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
+import fi.fisma.backend.exception.ConflictException;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.FunctionalComponentMapper;
@@ -71,12 +72,29 @@ public class ProjectService {
    * @param username the username of the user performing the update
    * @return the updated ProjectResponse
    * @throws EntityNotFoundException if the project is not found or does not belong to the user
+   * @throws ConflictException if the project is not the latest version, or has changed since the
+   *     request's lockVersion was read
+   * @throws IllegalStateException if the request has no lockVersion or changes the version number
    */
   public ProjectResponse updateProject(
       Long projectId, ProjectRequest projectUpdate, String username) {
-    var project = findProjectForUser(projectId, username);
+    var project = findEditableProject(projectId, username);
+    if (projectUpdate.getLockVersion() == null) {
+      throw new IllegalStateException("lockVersion is required when updating a project");
+    }
+    if (projectUpdate.getVersion() != project.getVersion()) {
+      throw new IllegalStateException("The version number of a project cannot be changed");
+    }
+
+    // Versions are grouped by name, so renaming the latest version renames the archived ones too.
+    if (!project.getProjectName().equals(projectUpdate.getProjectName())) {
+      versionsOf(project, username)
+          .forEach(version -> version.setProjectName(projectUpdate.getProjectName()));
+    }
+
     var updatedProject = projectMapper.updateEntityFromRequest(project, projectUpdate);
-    return projectMapper.toResponse(projectRepository.save(updatedProject));
+    // Flush so the response carries the incremented lockVersion.
+    return projectMapper.toResponse(projectRepository.saveAndFlush(updatedProject));
   }
 
   /**
@@ -120,7 +138,7 @@ public class ProjectService {
   @Transactional
   public ProjectResponse createProjectVersion(
       Long projectId, ProjectRequest versionRequest, String username) {
-    var originalProject = findProjectForUser(projectId, username);
+    var originalProject = findEditableProject(projectId, username);
     var appUser =
         appUserRepository
             .findByUsernameActive(username)
@@ -230,6 +248,30 @@ public class ProjectService {
     // Soft delete the project
     project.setDeletedAt(deletionTime);
     projectRepository.save(project);
+  }
+
+  /**
+   * Like {@link #findProjectForUser}, but also requires the project to be the latest version: older
+   * versions are archived and must not change, because reports compare a version with the one
+   * before it.
+   *
+   * @throws ConflictException if a newer version of the project exists
+   */
+  public Project findEditableProject(Long projectId, String username) {
+    var project = findProjectForUser(projectId, username);
+    boolean hasNewerVersion =
+        versionsOf(project, username).stream().anyMatch(v -> v.getVersion() > project.getVersion());
+    if (hasNewerVersion) {
+      throw new ConflictException("Only the latest version of a project can be edited");
+    }
+    return project;
+  }
+
+  /** The user's projects that are versions of the given one (same name), the project included. */
+  private List<Project> versionsOf(Project project, String username) {
+    return projectRepository.findAllByUsernameActive(username).stream()
+        .filter(p -> p.getProjectName().equals(project.getProjectName()))
+        .toList();
   }
 
   /**

@@ -291,6 +291,10 @@ export const translations = {
       saveSuccessful: "Project saved successfully",
       error: "Error",
       saveFailed: "Save failed",
+      saveConflictMessage:
+        "This project was saved in another tab or window. Keeping your changes replaces that save; loading it discards your changes.",
+      keepMyChanges: "Keep my changes",
+      loadSavedVersion: "Load saved version",
       loading: "Loading...",
       creating: "Creating...",
       createSuccessful: "New functional component created successfully",
@@ -627,6 +631,10 @@ export const translations = {
       saveSuccessful: "Projekti tallennettu onnistuneesti",
       error: "Virhe",
       saveFailed: "Tallennus epäonnistui",
+      saveConflictMessage:
+        "Tämä projekti tallennettiin toisessa välilehdessä tai ikkunassa. Omien muutosten säilyttäminen korvaa sen tallennuksen; tallennetun version lataaminen hylkää muutoksesi.",
+      keepMyChanges: "Säilytä omani",
+      loadSavedVersion: "Lataa tallennettu",
       loading: "Ladataan...",
       creating: "Luodaan...",
       createSuccessful: "Uusi toiminnallinen komponentti luotu onnistuneesti",
