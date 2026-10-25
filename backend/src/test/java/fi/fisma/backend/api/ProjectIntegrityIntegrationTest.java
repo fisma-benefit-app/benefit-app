@@ -310,6 +310,63 @@ class ProjectIntegrityIntegrationTest {
         .andExpect(status().isBadRequest());
   }
 
+  @Test
+  void staleSaveIsRejectedAfterAnotherTabAddsAComponent() throws Exception {
+    String name = "stale-add-" + suffix;
+    long id = createProject(mallory, name);
+    JsonNode tabA = getProject(mallory, id);
+
+    postComponent(mallory, id, component("Added in tab B"));
+
+    mockMvc
+        .perform(
+            put("/projects/{id}", id)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, tabA, List.of(), Set.of(), "from tab A")))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void staleSaveIsRejectedAfterAnotherTabDeletesAComponent() throws Exception {
+    String name = "stale-delete-" + suffix;
+    long id = createProject(mallory, name);
+    long componentId = addComponent(mallory, id, component("To delete")).path("id").asLong();
+    JsonNode tabA = getProject(mallory, id);
+
+    mockMvc
+        .perform(
+            delete("/functional-components/{cid}/projects/{id}", componentId, id)
+                .header("Authorization", bearer(mallory)))
+        .andExpect(status().isNoContent());
+
+    mockMvc
+        .perform(
+            put("/projects/{id}", id)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, tabA, List.of(), Set.of(), "from tab A")))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void addingAComponentReturnsALockVersionTheNextSaveCanUse() throws Exception {
+    String name = "add-then-save-" + suffix;
+    long id = createProject(mallory, name);
+    long before = getProject(mallory, id).path("lockVersion").asLong();
+
+    JsonNode afterAdd = postComponent(mallory, id, component("First"));
+
+    assertThat(afterAdd.path("lockVersion").asLong()).isGreaterThan(before);
+    mockMvc
+        .perform(
+            put("/projects/{id}", id)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, afterAdd, List.of(), Set.of(), "saved after add")))
+        .andExpect(status().isOk());
+  }
+
   // --- helpers ---
 
   private String createUser(String username) {
@@ -362,6 +419,12 @@ class ProjectIntegrityIntegrationTest {
 
   private JsonNode addComponent(String username, long projectId, Map<String, Object> component)
       throws Exception {
+    return postComponent(username, projectId, component).path("functionalComponents").get(0);
+  }
+
+  /** Adds a component and returns the whole project from the response, like the frontend uses. */
+  private JsonNode postComponent(String username, long projectId, Map<String, Object> component)
+      throws Exception {
     MvcResult result =
         mockMvc
             .perform(
@@ -371,10 +434,7 @@ class ProjectIntegrityIntegrationTest {
                     .content(objectMapper.writeValueAsString(component)))
             .andExpect(status().isOk())
             .andReturn();
-    return objectMapper
-        .readTree(result.getResponse().getContentAsString())
-        .path("functionalComponents")
-        .get(0);
+    return objectMapper.readTree(result.getResponse().getContentAsString());
   }
 
   private JsonNode getProject(String username, long id) throws Exception {
