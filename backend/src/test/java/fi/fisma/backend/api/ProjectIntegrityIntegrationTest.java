@@ -384,9 +384,14 @@ class ProjectIntegrityIntegrationTest {
     JsonNode duplicate = objectMapper.readTree(result.getResponse().getContentAsString());
     projectIds.add(duplicate.path("id").asLong());
 
-    LocalDateTime created = LocalDateTime.parse(duplicate.path("createdAt").asText());
     LocalDateTime finlandNow = LocalDateTime.now(ZoneId.of("Europe/Helsinki"));
-    assertThat(Duration.between(created, finlandNow).abs()).isLessThan(Duration.ofMinutes(1));
+    for (String field : List.of("createdAt", "versionCreatedAt", "updatedAt")) {
+      assertThat(duplicate.path(field).isNull()).as(field + " is set").isFalse();
+      LocalDateTime time = LocalDateTime.parse(duplicate.path(field).asText());
+      assertThat(Duration.between(time, finlandNow).abs())
+          .as(field)
+          .isLessThan(Duration.ofMinutes(1));
+    }
   }
 
   // --- helpers ---
