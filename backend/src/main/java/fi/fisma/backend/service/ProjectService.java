@@ -319,6 +319,7 @@ public class ProjectService {
     LocalDateTime now = LocalDateTime.now(clock);
     duplicatedProject.setCreatedAt(now);
     duplicatedProject.setVersionCreatedAt(now);
+    duplicatedProject.setUpdatedAt(now);
 
     // Set AppUser
     duplicatedProject.setProjectAppUsers(Set.of(new ProjectAppUser(duplicatedProject, appUser)));
