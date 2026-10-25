@@ -38,8 +38,6 @@ class ProjectRequestTest {
 
     assertThat(json.write(dto)).hasJsonPathStringValue("$.reportContactDetails");
     assertThat(json.write(dto)).hasJsonPathStringValue("$.reportNotes");
-
-    assertThat(json.write(dto)).hasJsonPathArrayValue("$.projectAppUserIds");
   }
 
   @Test
@@ -52,6 +50,5 @@ class ProjectRequestTest {
     assertThat(dto.getVersion()).isEqualTo(1);
     assertThat(dto.getReportContactDetails()).isEqualTo("Calculator");
     assertThat(dto.getReportNotes()).isEqualTo("Calculation note");
-    assertThat(dto.getProjectAppUserIds()).containsExactlyInAnyOrder(10L, 20L);
   }
 }

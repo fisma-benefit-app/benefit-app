@@ -1,6 +1,7 @@
 package fi.fisma.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -23,6 +24,7 @@ public class ProjectRequest {
   @Schema(description = "Version of the project", example = "1")
   private int version;
 
+  @Valid
   @Schema(description = "List of functional components in the project")
   private Set<FunctionalComponentRequest> functionalComponents = new HashSet<>();
 
@@ -37,6 +39,9 @@ public class ProjectRequest {
   @Schema(description = "Optional calculation notes printed on the report")
   private String reportNotes;
 
-  @Schema(description = "List of user IDs to associate with the project")
-  private Set<Long> projectAppUserIds = new HashSet<>();
+  @Schema(
+      description =
+          "The project's lockVersion from the response the edit is based on. Required when updating a project; the update is rejected with 409 if the project has changed since.",
+      example = "3")
+  private Long lockVersion;
 }

@@ -4,6 +4,7 @@ import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.dto.FunctionalComponentRequest;
 import fi.fisma.backend.dto.ProjectResponse;
+import fi.fisma.backend.exception.ConflictException;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.FunctionalComponentMapper;
@@ -40,12 +41,13 @@ public class FunctionalComponentService {
    * @return Updated project response with the new component
    * @throws UnauthorizedException if user doesn't have access to the project
    * @throws EntityNotFoundException if project not found
+   * @throws ConflictException if the project is not the latest version
    */
   @Transactional
   public ProjectResponse createFunctionalComponent(
       Long projectId, FunctionalComponentRequest request, String username) {
 
-    var project = projectService.findProjectForUser(projectId, username);
+    var project = projectService.findEditableProject(projectId, username);
 
     // Add new component at the end
     request.setOrderPosition(project.getFunctionalComponents().size());
@@ -75,7 +77,7 @@ public class FunctionalComponentService {
   public ProjectResponse deleteFunctionalComponent(
       Long componentId, Long projectId, String username) {
 
-    var project = projectService.findProjectForUser(projectId, username);
+    var project = projectService.findEditableProject(projectId, username);
     var component =
         functionalComponentRepository
             .findByIdActive(componentId, projectId)

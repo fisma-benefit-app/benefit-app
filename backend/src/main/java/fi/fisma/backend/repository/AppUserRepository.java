@@ -12,8 +12,4 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
   @Query("SELECT u FROM AppUser u WHERE u.username = :username AND u.deletedAt IS NULL")
   Optional<AppUser> findByUsernameActive(@Param("username") String username);
-
-  @Query(
-      "SELECT pau.appUser FROM ProjectAppUser pau WHERE pau.id = :id AND pau.appUser.deletedAt IS NULL")
-  Optional<AppUser> findByProjectAppUserIdActive(@Param("id") Long id);
 }

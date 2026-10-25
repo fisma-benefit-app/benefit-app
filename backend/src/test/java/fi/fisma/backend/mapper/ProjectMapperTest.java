@@ -3,10 +3,12 @@ package fi.fisma.backend.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import fi.fisma.backend.config.ClockConfig;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
-import fi.fisma.backend.repository.AppUserRepository;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -19,8 +21,25 @@ class ProjectMapperTest {
 
   @BeforeEach
   void setUp() {
-    projectMapper =
-        new ProjectMapper(mock(AppUserRepository.class), mock(FunctionalComponentMapper.class));
+    projectMapper = mapperAt("2026-07-01T09:00:00Z");
+  }
+
+  private static ProjectMapper mapperAt(String utcInstant) {
+    Clock clock = Clock.fixed(Instant.parse(utcInstant), new ClockConfig().clock().getZone());
+    return new ProjectMapper(mock(FunctionalComponentMapper.class), clock);
+  }
+
+  @Test
+  void timestampsAreFinnishLocalTimeInSummerAndWinter() {
+    ProjectRequest request = new ProjectRequest();
+    request.setProjectName("Test Project");
+
+    // 09:00 UTC is 12:00 in Finland during summer time (UTC+3) and 11:00 in winter (UTC+2).
+    LocalDateTime summer = mapperAt("2026-07-01T09:00:00Z").toEntity(request).getUpdatedAt();
+    LocalDateTime winter = mapperAt("2026-12-01T09:00:00Z").toEntity(request).getUpdatedAt();
+
+    assertThat(summer).isEqualTo(LocalDateTime.of(2026, 7, 1, 12, 0));
+    assertThat(winter).isEqualTo(LocalDateTime.of(2026, 12, 1, 11, 0));
   }
 
   @Test
@@ -72,6 +91,7 @@ class ProjectMapperTest {
         reportContactDetails,
         reportNotes,
         timestamp,
+        null,
         null,
         Set.of(),
         Set.of());

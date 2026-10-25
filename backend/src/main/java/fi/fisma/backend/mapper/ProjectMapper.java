@@ -2,12 +2,11 @@ package fi.fisma.backend.mapper;
 
 import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
-import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.dto.ProjectAppUserResponse;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
-import fi.fisma.backend.repository.AppUserRepository;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
@@ -17,13 +16,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectMapper {
 
-  private final AppUserRepository appUserRepository;
   private final FunctionalComponentMapper functionalComponentMapper;
+  private final Clock clock;
 
-  public ProjectMapper(
-      AppUserRepository appUserRepository, FunctionalComponentMapper functionalComponentMapper) {
-    this.appUserRepository = appUserRepository;
+  public ProjectMapper(FunctionalComponentMapper functionalComponentMapper, Clock clock) {
     this.functionalComponentMapper = functionalComponentMapper;
+    this.clock = clock;
   }
 
   public ProjectResponse toResponse(Project project) {
@@ -38,6 +36,7 @@ public class ProjectMapper {
             project.getReportContactDetails(),
             project.getReportNotes(),
             project.getUpdatedAt(),
+            project.getLockVersion(),
             project.getDeletedAt() == null,
             project.getFunctionalComponents().stream()
                 .filter(fc -> fc.getParentFCId() == null) // Only include top-level components
@@ -56,71 +55,63 @@ public class ProjectMapper {
   }
 
   public Project toEntity(ProjectRequest request) {
+    LocalDateTime now = LocalDateTime.now(clock);
     return new Project(
         null,
         request.getProjectName(),
         request.getVersion(),
-        LocalDateTime.now().plusHours(2),
-        LocalDateTime.now().plusHours(2),
+        now,
+        now,
         request.getCalculationDate(),
         request.getReportContactDetails(),
         request.getReportNotes(),
-        LocalDateTime.now().plusHours(2),
+        now,
         null, // No deletion date initially
+        null, // lockVersion is assigned when the project is first saved
         Set.of(), // Empty functional components initially
         Set.of() // ProjectAppUsers will be set by service
         );
   }
 
+  /**
+   * Builds the project state to save from a request. Membership is never taken from the request:
+   * the project keeps the users it already has.
+   */
   public Project updateEntityFromRequest(Project project, ProjectRequest request) {
     Set<FunctionalComponent> functionalComponents =
         functionalComponentMapper.updateEntityFromRequest(project, request);
 
-    Set<ProjectAppUser> projectAppUsers =
-        request.getProjectAppUserIds().stream()
-            .map(
-                id ->
-                    new ProjectAppUser(
-                        id,
-                        project,
-                        appUserRepository
-                            .findByProjectAppUserIdActive(id)
-                            .orElseThrow(
-                                () ->
-                                    new IllegalArgumentException(
-                                        "AppUser not found with projectAppUser id: " + id))))
-            .collect(Collectors.toSet());
-
-    Project updatedProject =
-        new Project(
-            project.getId(),
-            request.getProjectName(),
-            request.getVersion(),
-            project.getCreatedAt(),
-            project.getVersionCreatedAt(),
-            request.getCalculationDate(),
-            request.getReportContactDetails(),
-            request.getReportNotes(),
-            LocalDateTime.now().plusHours(2), // new edited date
-            project.getDeletedAt(),
-            functionalComponents,
-            projectAppUsers);
-    return updatedProject;
+    return new Project(
+        project.getId(),
+        request.getProjectName(),
+        request.getVersion(),
+        project.getCreatedAt(),
+        project.getVersionCreatedAt(),
+        request.getCalculationDate(),
+        request.getReportContactDetails(),
+        request.getReportNotes(),
+        LocalDateTime.now(clock), // new edited date
+        project.getDeletedAt(),
+        request.getLockVersion(), // a stale value makes the save fail
+        functionalComponents,
+        project.getProjectAppUsers());
   }
 
   public Project createNewVersion(Project originalProject, ProjectRequest request) {
+    LocalDateTime now = LocalDateTime.now(clock);
     Project newVersion =
         new Project(
             null,
             request.getProjectName(),
             request.getVersion(),
             originalProject.getCreatedAt(), // keep original creation date
-            LocalDateTime.now().plusHours(2), // new version date
+            now, // new version date
             request.getCalculationDate(),
             request.getReportContactDetails(),
             request.getReportNotes(),
-            LocalDateTime.now().plusHours(2), // new edited date
+            now, // new edited date
             null, // No deletion date initially
+            null, // lockVersion is assigned when the project is first saved
             Set.of(), // FunctionalComponents will be set by service
             Set.of() // ProjectAppUsers will be set by service
             );
