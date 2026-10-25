@@ -38,7 +38,7 @@ Local state is used within individual components for UI-specific concerns (e.g.,
 
 ### Persistence
 
-- Session token and user info are stored in `sessionStorage`
+- Session token and user info are stored in `localStorage` (via `lib/authStorage.ts`), so all tabs share the login
 - Retrieved on app refresh via `useEffect` in `AppUserProvider`
 - Cleared on logout (manual or on 401 responses)
 
