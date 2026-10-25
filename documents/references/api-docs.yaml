@@ -132,7 +132,10 @@ paths:
       tags:
       - Project Management
       summary: Update a project
-      description: Updates an existing project if the authenticated user owns it
+      description: "Updates an existing project if the authenticated user owns it.\
+        \ Only the latest version can be updated, the request must carry the lockVersion\
+        \ it is based on, and neither the version number nor the project's users can\
+        \ be changed"
       operationId: updateProject
       parameters:
       - name: id
@@ -155,20 +158,27 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
+        "400":
+          description: Invalid project data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Project not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
-        "403":
-          description: User does not have permission to update this project
+        "409":
+          description: "Not the latest version, or the project changed since lockVersion\
+            \ was read"
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
-        "500":
-          description: Internal server error - update operation failed
+        "403":
+          description: User does not have permission to update this project
           content:
             '*/*':
               schema:
@@ -259,13 +269,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
-        "500":
-          description: Failed to update user due to database constraint violation
-            or internal error
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppUserSummary"
       security:
       - bearerAuth: []
     delete:
@@ -286,9 +289,6 @@ paths:
           description: Account deleted successfully
         "401":
           description: User not authenticated
-        "500":
-          description: Failed to delete user due to database integrity constraints
-            or cascading deletion errors
       security:
       - bearerAuth: []
   /appusers/password:
@@ -323,13 +323,6 @@ paths:
             '*/*':
               schema:
                 type: string
-        "500":
-          description: Password encryption failure or database error during password
-            update
-          content:
-            '*/*':
-              schema:
-                type: string
       security:
       - bearerAuth: []
   /token:
@@ -337,7 +330,11 @@ paths:
       tags:
       - Token Generation
       summary: Generate a JWT
-      description: Generates a signed JWT for an authenticated user
+      description: "Generates a signed JWT. With Basic credentials this is a login,\
+        \ and rememberMe picks a 30-day instead of a 24-hour token. With a Bearer\
+        \ token this renews the session: the new token keeps the current token's lifetime\
+        \ (rememberMe is ignored), the current token is revoked, and a login can't\
+        \ be renewed past 30 days."
       operationId: getToken
       parameters:
       - name: rememberMe
@@ -354,7 +351,7 @@ paths:
               schema:
                 type: object
         "401":
-          description: User not authenticated
+          description: "User not authenticated, or the session can no longer be renewed"
           content:
             '*/*':
               schema:
@@ -381,14 +378,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ProjectResponse"
-        "500":
-          description: Internal server error - database connection issues
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ProjectResponse"
       security:
       - bearerAuth: []
     post:
@@ -408,8 +397,6 @@ paths:
           description: Project created successfully
         "400":
           description: Invalid project data
-        "503":
-          description: Service unavailable - system resources exhausted
       security:
       - bearerAuth: []
   /projects/{projectId}/comments:
@@ -500,10 +487,31 @@ paths:
           description: Project version created successfully
         "404":
           description: Original project not found
+        "409":
+          description: Original project is not the latest version
         "403":
           description: User does not have permission
-        "507":
-          description: Insufficient storage - project size limit exceeded
+      security:
+      - bearerAuth: []
+  /projects/{id}/duplicate:
+    post:
+      tags:
+      - Project Management
+      operationId: duplicateProject
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
       security:
       - bearerAuth: []
   /functional-components/projects/{projectId}:
@@ -569,34 +577,18 @@ paths:
           description: Missing or invalid Authorization header
         "401":
           description: "Invalid, expired or blacklisted JWT"
-  /appusers:
-    post:
+  /auth/validateJWT:
+    get:
       tags:
-      - User Management
-      summary: Create new user
-      description: Creates a new user account
-      operationId: createAppUser
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AppUserRequest"
-        required: true
+      - Authentication
+      summary: Validate JWT
+      description: Dummy endpoint called by frontend to check JWT validity
+      operationId: validate
       responses:
-        "201":
-          description: User created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppUserSummary"
-        "400":
-          description: Invalid user data
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppUserSummary"
-      security:
-      - bearerAuth: []
+        "200":
+          description: Token is valid
+        "401":
+          description: "Token is invalid, expired, or revoked"
   /functional-components/{componentId}/projects/{projectId}:
     delete:
       tags:
@@ -690,7 +682,7 @@ components:
           type: string
           description: Detailed description of the functional component
           example: Handles user account creation process
-          maxLength: 1000
+          maxLength: 10000
           minLength: 0
         className:
           type: string
@@ -741,7 +733,10 @@ components:
         previousFCId:
           type: integer
           format: int64
-          description: ID of the previous functional component for ordering
+          description: "ID of this component's counterpart in the previous project\
+            \ version, used to diff versions in the PDF report and to carry over parent/subcomponent\
+            \ links when a new version is created. Not related to ordering; null if\
+            \ the component has no prior version."
           example: 123
         orderPosition:
           type: integer
@@ -824,13 +819,13 @@ components:
           description: Optional calculation notes printed on the report
           maxLength: 5000
           minLength: 0
-        projectAppUserIds:
-          type: array
-          description: List of user IDs to associate with the project
-          items:
-            type: integer
-            format: int64
-          uniqueItems: true
+        lockVersion:
+          type: integer
+          format: int64
+          description: The project's lockVersion from the response the edit is based
+            on. Required when updating a project; the update is rejected with 409
+            if the project has changed since.
+          example: 3
       required:
       - projectName
       - version
@@ -912,7 +907,10 @@ components:
         previousFCId:
           type: integer
           format: int64
-          description: ID of the previous functional component for ordering
+          description: "ID of this component's counterpart in the previous project\
+            \ version, used to diff versions in the PDF report and to carry over parent/subcomponent\
+            \ links when a new version is created. Not related to ordering; null if\
+            \ the component has no prior version."
           example: 123
         orderPosition:
           type: integer
@@ -1001,6 +999,12 @@ components:
           format: date-time
           description: Last update timestamp
           example: 2025-09-25T15:45:00
+        lockVersion:
+          type: integer
+          format: int64
+          description: Optimistic-lock counter. Send it back unchanged when updating
+            the project; a stale value is rejected with 409
+          example: 3
         active:
           type: boolean
           description: Whether the project is active
@@ -1034,12 +1038,14 @@ components:
       type: object
       description: Request object containing details on password change
       properties:
-        newPassword:
+        currentPassword:
           type: string
           maxLength: 64
           minLength: 0
+        newPassword:
+          type: string
       required:
-      - newPassword
+      - currentPassword
   securitySchemes:
     bearerAuth:
       type: http
