@@ -13,6 +13,7 @@ import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ public class ProjectService {
   private final FunctionalComponentRepository functionalComponentRepository;
   private final FunctionalComponentMapper functionalComponentMapper;
   private final ProjectMapper projectMapper;
+  private final Clock clock;
 
   /**
    * Retrieves a project by its ID for the specified user and maps it to a response DTO.
@@ -234,7 +236,7 @@ public class ProjectService {
       throw new IllegalStateException("Project is already deleted");
     }
 
-    LocalDateTime deletionTime = LocalDateTime.now();
+    LocalDateTime deletionTime = LocalDateTime.now(clock);
 
     // Soft delete components
     project
@@ -314,8 +316,9 @@ public class ProjectService {
     duplicatedProject.setReportNotes(originalProject.getReportNotes());
     duplicatedProject.setCalculationDate(originalProject.getCalculationDate());
     duplicatedProject.setVersion(1);
-    duplicatedProject.setCreatedAt(LocalDateTime.now());
-    duplicatedProject.setVersionCreatedAt(LocalDateTime.now());
+    LocalDateTime now = LocalDateTime.now(clock);
+    duplicatedProject.setCreatedAt(now);
+    duplicatedProject.setVersionCreatedAt(now);
 
     // Set AppUser
     duplicatedProject.setProjectAppUsers(Set.of(new ProjectAppUser(duplicatedProject, appUser)));
