@@ -14,6 +14,9 @@ import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.security.LoginAttemptThrottleService;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -365,6 +368,25 @@ class ProjectIntegrityIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body(name, 1, afterAdd, List.of(), Set.of(), "saved after add")))
         .andExpect(status().isOk());
+  }
+
+  // --- timestamps ---
+
+  @Test
+  void duplicatedProjectGetsFinnishLocalTimestamps() throws Exception {
+    long id = createProject(mallory, "duplicate-" + suffix);
+
+    MvcResult result =
+        mockMvc
+            .perform(post("/projects/{id}/duplicate", id).header("Authorization", bearer(mallory)))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode duplicate = objectMapper.readTree(result.getResponse().getContentAsString());
+    projectIds.add(duplicate.path("id").asLong());
+
+    LocalDateTime created = LocalDateTime.parse(duplicate.path("createdAt").asText());
+    LocalDateTime finlandNow = LocalDateTime.now(ZoneId.of("Europe/Helsinki"));
+    assertThat(Duration.between(created, finlandNow).abs()).isLessThan(Duration.ofMinutes(1));
   }
 
   // --- helpers ---

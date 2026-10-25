@@ -8,6 +8,7 @@ import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import jakarta.validation.constraints.NotBlank;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ public class AppUserService {
   private final ProjectRepository projectRepository;
   private final ProjectService projectService;
   private final PasswordEncoder passwordEncoder;
+  private final Clock clock;
 
   /**
    * Retrieves a user by their ID.
@@ -105,7 +107,7 @@ public class AppUserService {
       throw new UnauthorizedException("Users can only delete their own account");
     }
 
-    LocalDateTime deletionTime = LocalDateTime.now();
+    LocalDateTime deletionTime = LocalDateTime.now(clock);
 
     // Handle associated projects
     handleProjectsForUserDeletion(userToDelete, deletionTime);

@@ -13,6 +13,7 @@ import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import java.time.Clock;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,8 @@ class AppUserServiceTest {
             appUserRepository,
             mock(ProjectRepository.class),
             mock(ProjectService.class),
-            passwordEncoder);
+            passwordEncoder,
+            Clock.systemUTC());
 
     alice = new AppUser(1L, "alice", "old-hash", null);
     aliceAuth = new TestingAuthenticationToken("alice", null, "ROLE_USER");

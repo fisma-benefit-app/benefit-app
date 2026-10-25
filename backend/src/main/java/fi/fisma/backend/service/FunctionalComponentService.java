@@ -84,7 +84,7 @@ public class FunctionalComponentService {
             .orElseThrow(() -> new EntityNotFoundException("Component not found"));
 
     // Soft delete the component
-    LocalDateTime deletionTime = LocalDateTime.now();
+    LocalDateTime deletionTime = LocalDateTime.now(clock);
     component.setDeletedAt(deletionTime);
     functionalComponentRepository.save(component);
 
