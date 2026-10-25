@@ -21,7 +21,7 @@ sequenceDiagram
     DB-->>BE: id, username, BCrypt hash
     BE->>BE: BCrypt check, then sign JWT with RSA private key
     BE-->>FE: 200 with Authorization: Bearer <jwt> header and JSON body
-    FE->>FE: store in sessionStorage (or localStorage with "remember me")
+    FE->>FE: store in localStorage
 
     Note over FE,DB: 2. Every other request: token → database
     FE->>BE: GET /projects (Authorization: Bearer <jwt>)
@@ -87,7 +87,13 @@ fetch(`${API_URL}/token?rememberMe=${rememberMe}`, {
 });
 ```
 
-This is standard HTTP Basic auth: `username:password` encoded in Base64. The request only protects the password because it goes over HTTPS.
+This is standard HTTP Basic auth: `username:password` encoded in Base64. Base64 is an encoding, not encryption, so anyone who can read the request can read the password. It is protected only by the connection being HTTPS, and the app does no encryption of its own: the backend has no TLS, HSTS or HTTPS-redirect settings.
+
+| Environment                                    | Connection | Notes                                                                                                                                                                                                               |
+| ---------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Production (Heroku), testing (Scalingo)        | HTTPS      | The platforms terminate TLS. The frontend on GitHub Pages is HTTPS too, so the browser would block calls to a plain-HTTP API as mixed content.                                                                      |
+| Self-hosted stack (`docker-compose.prod.yaml`) | **HTTP**   | nginx only listens on port 80, so the password and every JWT cross the network unencrypted. Put a TLS reverse proxy (e.g. Caddy) in front before real users log in, see [deployment_guide.md](deployment_guide.md). |
+| Local development                              | HTTP       | `localhost` only.                                                                                                                                                                                                   |
 
 ### 2. Spring Security checks the database
 
@@ -158,7 +164,7 @@ The frontend reads the **header** value (the whole string, including `Bearer `).
 | `userInfo`   | username           |
 | `userId`     | the `userId` claim |
 
-They go into `sessionStorage` by default, which is cleared when the tab closes. With "remember me" checked they go into `localStorage`, which survives browser restarts. The same values are put into React state through `AppUserContext` (`context/AppUserProvider.tsx`).
+They always go into `localStorage` through `authStorage` (`lib/authStorage.ts`), so every tab shares the login and logging out in one tab logs out the others. "Remember me" only changes the token's lifetime, not where it is stored. Without it the login is not cleared when the browser closes, but the token still stops working after 24 hours. The keys are prefixed with the deployment's base path (`import.meta.env.BASE_URL`), so the production and testing frontends on the same GitHub Pages origin don't read each other's login (#679). The same values are put into React state through `AppUserContext` (`context/AppUserProvider.tsx`).
 
 ## D) Token → database: authenticated requests
 
@@ -201,7 +207,7 @@ Only the unauthenticated paths skip all of this: `/actuator/health`, the OpenAPI
 
 All of this lives in `context/AppUserProvider.tsx`.
 
-- **Page reload:** `restoreSession()` reads `loginToken`, `userInfo` and `userId` from sessionStorage/localStorage. It calls `GET /auth/validateJWT`, a dummy endpoint that returns `200` only if the token passes the checks in [D.2](#2-the-backend-verifies-it). On `401` the stored session is cleared. On a network error the session is kept.
+- **Page reload:** `restoreSession()` reads `loginToken`, `userInfo` and `userId` from localStorage. It calls `GET /auth/validateJWT`, a dummy endpoint that returns `200` only if the token passes the checks in [D.2](#2-the-backend-verifies-it). On `401` the stored session is cleared. On a network error the session is kept.
 - **Auto-logout:** a timer fires `logout()` at the token's `exp`.
 - **Expiry warning and renewal:** 30 minutes before `exp`, a notification appears and refreshes every 5 minutes (`sessionTimeoutConfig` in `lib/jwtUtils.ts`). Clicking "extend session" calls `extendSession()`, which sends `POST /token` **with the current Bearer token instead of Basic credentials**. The frontend then replaces the stored `loginToken` with the new token. If renewal is refused, the frontend logs the user out.
 - **Logout:** `logout()` sends `POST /auth/logout` with the token and then clears storage and state. It clears them even if the request fails.
@@ -246,7 +252,8 @@ These follow from the design above and are worth knowing when debugging or chang
 - **Changing the password doesn't revoke existing tokens, and doesn't ask for the current password** ([#725](https://github.com/fisma-benefit-app/benefit-app/issues/725)). Tokens issued before the change stay valid until they expire (24 h, or 30 days with "remember me").
 - **Deleting an account works through the database, not the token.** The token keeps passing signature and blacklist checks, but every lookup filters on `deleted_at IS NULL`, so the user's requests fail. For example, `/projects` returns an empty list and profile calls return "not found". Renewal is refused.
 - **A login lasts at most 30 days**, however often the session is extended. After that the user has to log in again.
-- **Tokens are readable by page JavaScript** (sessionStorage/localStorage), so an XSS bug would expose them. The prod and testing frontends share one GitHub Pages origin, which means they also share storage.
+- **Tokens are readable by page JavaScript** (localStorage), so an XSS bug would expose them. The prod and testing frontends share one GitHub Pages origin and so share localStorage, which is why the keys are prefixed with the base path.
+- **Credentials are only as private as the connection.** Basic auth and Bearer tokens are not encrypted by the app, so HTTPS is required ([#528](https://github.com/fisma-benefit-app/benefit-app/issues/528)). Heroku and Scalingo provide it. The self-hosted stack doesn't yet.
 - `/auth/logout` returns `200` with an empty body. Its OpenAPI annotation says `204` ([#729](https://github.com/fisma-benefit-app/benefit-app/issues/729)).
 
 ## Testing with Postman
