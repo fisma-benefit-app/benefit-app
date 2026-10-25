@@ -11,6 +11,7 @@ import fi.fisma.backend.mapper.FunctionalComponentMapper;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.FunctionalComponentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -30,6 +31,7 @@ public class FunctionalComponentService {
   private final FunctionalComponentMapper functionalComponentMapper;
   private final ProjectMapper projectMapper;
   private final ProjectService projectService;
+  private final Clock clock;
 
   /**
    * Creates a new functional component in a project. The component is added at the end of the list
@@ -57,9 +59,7 @@ public class FunctionalComponentService {
     project.getFunctionalComponents().add(newComponent);
     normalizeComponentOrder(project);
 
-    // Save and return updated project
-    Project updatedProject = projectRepository.save(project);
-    return projectMapper.toResponse(updatedProject);
+    return projectMapper.toResponse(saveAsNewProjectState(project));
   }
 
   /**
@@ -94,9 +94,7 @@ public class FunctionalComponentService {
     // Filter out deleted components when normalizing order
     normalizeComponentOrder(project);
 
-    // Save and return updated project
-    Project updatedProject = projectRepository.save(project);
-    return projectMapper.toResponse(updatedProject);
+    return projectMapper.toResponse(saveAsNewProjectState(project));
   }
 
   private void deleteSubcomponents(Long parentId, LocalDateTime deletionTime) {
@@ -112,6 +110,16 @@ public class FunctionalComponentService {
       // Recursively deletes subcomponents of subcomponents, if possible at some point
       deleteSubcomponents(subcomponent.getId(), deletionTime);
     }
+  }
+
+  /**
+   * Saves the project as changed even though only its components changed. Touching updatedAt makes
+   * the project row dirty, so its lockVersion increments and another tab holding the old copy has
+   * its next save rejected. The flush makes the increment visible in the response.
+   */
+  private Project saveAsNewProjectState(Project project) {
+    project.setUpdatedAt(LocalDateTime.now(clock));
+    return projectRepository.saveAndFlush(project);
   }
 
   /**
