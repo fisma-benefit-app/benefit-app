@@ -21,7 +21,7 @@ browser ──► :80  nginx (fisma_prod_frontend) ──► serves the frontend
 ## Before you start
 
 - **SSH access** to the server as `root` (or a user in the `docker` group).
-- **`JWT_PRIVATE_KEY`**: this server's own key, from the private `backend-credentials` repository. Don't reuse another environment's key, or that environment's tokens are accepted here too. To make a new one: `openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048`.
+- **`JWT_PRIVATE_KEY`**: this server's own key as an environment variable. Don't reuse another environment's key, or that environment's tokens are accepted here too. To make a new one (use Git Bash): `openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048`.
 - **UpCloud firewall** (control panel → Servers → your server → Firewall): ports 22 and 80 open for inbound TCP. If you don't have control panel access, ask someone who does. Nothing you do over SSH can change it.
 - **Server size:** 2 vCPU / 4 GB RAM was plenty. The build peaks at around 3 GB of disk, so have **at least 4 GB free**. The first server had a 10 GB disk that was 94% full from earlier attempts. With 1 GB of RAM, add swap first or the Gradle build may be killed.
 - **Software:** `git`, and Docker with the Compose plugin. On Ubuntu:
@@ -102,7 +102,7 @@ cd /opt/benefit-app && cp -p .env /root/env.bak && set_env() { if grep -q "^$1="
 
 ### 4b. The JWT key
 
-In `backend-credentials` the key spans several lines inside double quotes:
+A private key spans several lines inside double quotes:
 
 ```
 JWT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
@@ -268,7 +268,7 @@ The first attempts (issues #718–#722, #738, #742) and the successful run on 20
 
   It also published the database on `0.0.0.0:5433`, and the `dev` profile seeded it with test accounts. Fix: always use `-f docker-compose.prod.yaml` (#739).
 - **The disk was full.** Earlier builds had left 2.6 GB of images, 2.3 GB of build cache and host Gradle/npm caches on a 10 GB disk, leaving 647 MB free. Builds would have failed with `no space left on device`. Step 2 freed 4 GB. Upgrading an UpCloud plan doesn't grow the disk by itself.
-- **The JWT key seemed not to match.** A first version of the key check read only the first line of `JWT_PRIVATE_KEY`, but the key from `backend-credentials` is multi-line, so a correct key looked empty. Joining the lines by hand in an editor made it harder to tell what was wrong. Step 4c's check reads both formats and says *why* a key fails. Two other traps:
+- **The JWT key seemed not to match.** A first version of the key check read only the first line of `JWT_PRIVATE_KEY`, but the key is multi-line, so a correct key looked empty. Joining the lines by hand in an editor made it harder to tell what was wrong. Step 4c's check reads both formats and says *why* a key fails. Two other traps:
   - Pasting into micro needs the terminal's paste shortcut, not Ctrl+V.
   - A wrong but valid key didn't stop the backend. Login succeeded and then every request returned `401` (#643). This can no longer happen, since the public key is now derived from the private key (#679).
 - **Port 8080 was blocked by the UpCloud firewall.** The frontend loaded, but API calls to `:8080` timed out. `ufw` was already inactive, so nothing on the server was blocking it. How we proved the packets never arrived:

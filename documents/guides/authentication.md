@@ -234,7 +234,7 @@ Blacklist entries are needed only until the token would have expired anyway. The
 
 | Key         | Where                                                                                                           | Used by                                      |
 | ----------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| Private key | `JWT_PRIVATE_KEY` environment variable: root `.env` locally, config vars on Heroku. Mapped to `jwt.private.key` | `JwtEncoder` (sign)                          |
+| Private key | `JWT_PRIVATE_KEY` environment variable: root `.env` locally, config vars on Heroku, Environment tab on Scalingo. Mapped to `jwt.private.key` | `JwtEncoder` (sign)                          |
 | Public key  | Derived from the private key at startup (`SecurityConfig.publicKey()`). Not stored anywhere                     | `JwtDecoder` (verify), `JwtEncoder` (key id) |
 
 - The private key must be a PKCS#8 PEM (`-----BEGIN PRIVATE KEY-----`). `SecurityConfig.parsePrivateKey()` accepts real newlines or literal `\n`, so the key can sit on one line in an env var. If the key can't be parsed, startup fails with `JWT_PRIVATE_KEY is not a valid RSA private key`.
