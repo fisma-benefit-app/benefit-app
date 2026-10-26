@@ -15,6 +15,9 @@
 --   3 - [Edge case] Soft-deleted project               project + components with deleted_at set
 --   4 - [Kitchen sink] Every component type + MLA      one component per (class, type) combo, plus
 --                                                       real MLA parents with generated sub-components
+--   10 - [Kitchen sink] version 2                     v2 of project 4 (which becomes the archived v1),
+--                                                       with changed/added/removed components so the
+--                                                       PDF change highlighting is visible right away
 --   5 - [Scale] 300-component stress test              flat, bulk-generated: list rendering, drag/
 --                                                       reorder, PDF/CSV export performance
 --   6/7 - [Versioning] Benefit calculation history      two versions of "the same" project, to exercise
@@ -60,8 +63,8 @@ VALUES  -- 1: baseline smoke-test project
         -- 3: soft-deleted project (see matching functional_components deleted_at below)
         (3, '[Edge case] Soft-deleted project', 1, NOW() - INTERVAL '20 days', NOW() - INTERVAL '20 days', NULL, NULL, NULL, NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days'),
 
-        -- 4: kitchen sink - every component type + MLA
-        (4, '[Kitchen sink] Every component type + MLA', 1, NOW() - INTERVAL '15 days', NOW() - INTERVAL '15 days', NULL, 'Reference project - not a real benefit calculation.', 'Contains one component per (class, type) combination plus three real MLA parents with generated sub-components. See file header comment in database-seed-dev.sql.', NOW() - INTERVAL '1 days', NULL),
+        -- 4: kitchen sink - every component type + MLA (archived v1, see project 10 for v2)
+        (4, '[Kitchen sink] Every component type + MLA', 1, NOW() - INTERVAL '15 days', NOW() - INTERVAL '15 days', NULL, 'Reference project - not a real benefit calculation.', 'Contains one component per (class, type) combination plus three real MLA parents with generated sub-components. See file header comment in database-seed-dev.sql.', NOW() - INTERVAL '3 days', NULL),
 
         -- 5: scale / stress test (components generated further below)
         (5, '[Scale] 300-component stress test', 1, NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days', NULL, NULL, NULL, NOW() - INTERVAL '2 days', NULL),
@@ -77,7 +80,10 @@ VALUES  -- 1: baseline smoke-test project
         (9, LEFT('[Edge case] Max-length project name (255 chars) - ' || REPEAT('0123456789', 30), 255), 1, NOW() - INTERVAL '3 days', NOW() - INTERVAL '3 days', NULL,
          LEFT('[Edge case] Max-length report contact details (2000 chars). ' || REPEAT('Contact info line. ', 200), 2000),
          LEFT('[Edge case] Max-length report notes (5000 chars). ' || REPEAT('Note about scope, assumptions and calculation rationale. ', 300), 5000),
-         NOW() - INTERVAL '3 days', NULL);
+         NOW() - INTERVAL '3 days', NULL),
+
+        -- 10: kitchen sink v2 - same project_name and created_at as project 4, like createProjectVersion()
+        (10, '[Kitchen sink] Every component type + MLA', 2, NOW() - INTERVAL '15 days', NOW() - INTERVAL '2 days', NULL, 'Reference project - not a real benefit calculation.', 'Version 2 of the kitchen sink: some components changed, one removed and one added compared to version 1. See file header comment in database-seed-dev.sql.', NOW() - INTERVAL '1 days', NULL);
 
 -- ===========================================================================================
 -- Project 1: project-x - baseline smoke-test data (unchanged in spirit from the original seed)
@@ -177,6 +183,45 @@ VALUES
 (152, 'MLA entities or classes-B-D', NULL, 'Interface service from other applications', 'messages from other applications', 5, 1, 1, NULL, NULL, 0.9, NULL, 29, FALSE, 150, 'B-D', TRUE, 4, NULL),
 (153, 'MLA entities or classes-D-B', NULL, 'Interface service to other applications', 'messages to other applications', 5, 1, NULL, NULL, NULL, 0.9, NULL, 29, FALSE, 150, 'D-B', TRUE, 4, NULL),
 (154, 'MLA entities or classes-D-B', NULL, 'Interface service from other applications', 'messages from other applications', 5, NULL, 1, NULL, NULL, 0.9, NULL, 29, FALSE, 150, 'D-B', TRUE, 4, NULL);
+
+-- ===========================================================================================
+-- Project 10: kitchen sink v2 (#818). Copied from project 4 the same way
+-- ProjectService.createProjectVersion() does it: new id (old id + 400), previous_fc_id = old id,
+-- parent_fc_id remapped to the new parent. 126 is not copied (removed in v2). The UPDATEs below
+-- then change a handful of rows and 560 is added, so the version PDFs have highlights to show.
+-- ===========================================================================================
+INSERT INTO functional_components (
+    id, title, description, class_name, component_type, data_elements, reading_references,
+    writing_references, functional_multiplier, operations, degree_of_completion, previous_fc_id,
+    order_position, is_mla, parent_fc_id, sub_component_type, is_readonly, project_id, deleted_at
+)
+SELECT id + 400, title, description, class_name, component_type, data_elements, reading_references,
+       writing_references, functional_multiplier, operations, degree_of_completion, id,
+       order_position, is_mla, parent_fc_id + 400, sub_component_type, is_readonly, 10, deleted_at
+FROM functional_components
+WHERE project_id = 4 AND id <> 126;
+
+-- Changed: title only
+UPDATE functional_components SET title = 'Main menu function designators' WHERE id = 500;
+-- Changed: data elements
+UPDATE functional_components SET data_elements = 5 WHERE id = 502;
+UPDATE functional_components SET data_elements = 7 WHERE id = 519;
+-- Changed: writing references + degree of completion
+UPDATE functional_components SET writing_references = 4, degree_of_completion = 1.0 WHERE id = 509;
+-- Changed: reading references
+UPDATE functional_components SET reading_references = 3 WHERE id = 514;
+-- Changed: title + operations
+UPDATE functional_components SET title = 'Calculation routines (VAT and discounts)', operations = 4 WHERE id = 522;
+-- Changed: MLA parent degree of completion, carried to its sub-components as updateSubComponents() does
+UPDATE functional_components SET degree_of_completion = 1.0 WHERE id IN (530, 531, 532, 533, 534);
+
+-- Added: new in v2, so previous_fc_id is NULL
+INSERT INTO functional_components (
+    id, title, description, class_name, component_type, data_elements, reading_references,
+    writing_references, functional_multiplier, operations, degree_of_completion, previous_fc_id,
+    order_position, is_mla, parent_fc_id, sub_component_type, is_readonly, project_id, deleted_at
+)
+VALUES (560, 'Report data inquiry', 'New in version 2 of the kitchen sink.', 'Interactive end-user navigation and query service', 'data inquiries', 3, 2, NULL, NULL, NULL, 0.3, NULL, 30, FALSE, NULL, NULL, FALSE, 10, NULL);
 
 -- ===========================================================================================
 -- Project 5: 300-component scale/stress test, generated instead of hand-written so it's
@@ -312,7 +357,9 @@ VALUES  (1, 1, 1),
         (15, 8, 7),
         (16, 8, 8),
         (17, 8, 9),
-        (18, 9, 1);
+        (18, 9, 1),
+        (19, 10, 1),
+        (20, 10, 6);
 
 INSERT INTO comments (id, text, project_id)
 VALUES  (1, 'This is a comment for project-x', 1),
