@@ -28,6 +28,8 @@ The workflow file recognizes which GitHub repository environment (`fisma-benefit
 
 A second testing environment runs the backend on Scalingo (with its own PostgreSQL database). It is meant to replace the Heroku testing environment once it has proven itself, so the two run side by side for now.
 
+For setting up the Scalingo app and its database step by step (CLI, environment variables, schema, first user), see the [Scalingo deployment guide](./scalingo_deployment.md).
+
 - Frontend: https://fisma-benefit-app.github.io/benefit-app/scalingo-testing/ <-- "scalingo-testing" subpage under the production URL
 - Backend: deployed by Scalingo's GitHub auto-deploy on `main`. Scalingo does not report to the `run-deployments` workflow, so the frontend is deployed by its own workflow, [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml), on every push to `main` (it can also be run by hand from the Actions tab).
 - A production frontend deployment erases this subpage like it does the Heroku testing one, so `run-deployments` redeploys it at the end of the production job.
@@ -270,7 +272,7 @@ The production stack:
 Set these in the root `.env` (see `.env.example`). Compose refuses to start and names the variable if one is missing:
 
 - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
-- `JWT_PRIVATE_KEY` from the `backend-credentials` repo
+- `JWT_PRIVATE_KEY`, this server's own private key. Don't reuse another environment's key. To make a new one: `openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048`
 - `CORS_ALLOWED_ORIGINS`, the exact origin the frontend is opened from, e.g. `http://<server-ip>` (scheme, host and port only, no path). The API calls go through nginx, but the backend still checks the browser's `Origin`, so without it login fails with `403`.
 
 Only port 80 (and 22 for SSH) has to be open in the UpCloud firewall. The backend's 8080 and the Vite dev server's 5173 aren't used from outside.
