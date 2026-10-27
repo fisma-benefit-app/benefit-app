@@ -2,7 +2,6 @@ import { ChangeEvent, useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faFilePdf,
   faBars,
   faTimes,
   faChevronRight,
@@ -32,14 +31,14 @@ import ConfirmModal from "./ConfirmModal.tsx";
 import useCommitSha from "../hooks/useCommitSha";
 import useFunctionalComponents from "../hooks/useFunctionalComponents.ts";
 import useViewMode from "../hooks/useViewMode.ts";
+import ProjectViewControls from "./ProjectViewControls.tsx";
+import ProjectSaveControls from "./ProjectSaveControls.tsx";
+import ProjectReportFields from "./ProjectReportFields.tsx";
 import useColumnCount from "../hooks/useColumnCount.ts";
 import useComponentCollapseStates from "../hooks/useComponentCollapseStates.ts";
 import useDebounce from "../hooks/useDebounce.ts";
 import useLanguage from "../hooks/useLanguage.tsx";
 
-import DatePicker from "react-datepicker";
-import { format } from "date-fns";
-import { enUS, fi } from "date-fns/locale";
 import ShortcutTooltip from "./ShortcutTooltip.tsx";
 
 import { DndContext, DragOverlay } from "@dnd-kit/core";
@@ -64,34 +63,14 @@ function sortFunctionalComponents(components: TGenericComponent[]) {
   return components.slice().sort((a, b) => a.orderPosition - b.orderPosition);
 }
 
-function isoDateToLocalDate(isoDate: string): Date {
-  const parts = isoDate.split("-").map((p) => Number(p));
-  if (parts.length !== 3) {
-    return new Date(isoDate);
-  }
-
-  const [year, month, day] = parts;
-  return new Date(year, month - 1, day);
-}
-
-function localDateToIsoDate(date: Date): string {
-  return format(date, "yyyy-MM-dd");
-}
-
 export default function ProjectPage() {
   const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true);
-  const {
-    collapseAll,
-    setCollapseAll,
-    descriptionRowsExpanded,
-    toggleDescriptionRows,
-    isCompactMode,
-    toggleCompactMode,
-  } = useViewMode();
+  const viewMode = useViewMode();
+  const { collapseAll, descriptionRowsExpanded, isCompactMode } = viewMode;
   const [componentSearchQuery, setComponentSearchQuery] = useState<string>("");
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [includeFunctionsInReport, setIncludeFunctionsInReport] =
@@ -555,191 +534,26 @@ export default function ProjectPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-row gap-2 w-full">
-                <button
-                  className={`${isCompactMode ? "w-full" : "w-[49%]"} bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis`}
-                  onClick={() => {
-                    setCollapseAll((prev) => !prev);
-                  }}
-                >
-                  {collapseAll
-                    ? translation.expandAll
-                    : translation.collapseAll}
-                </button>
-                {!isCompactMode && (
-                  <button
-                    className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
-                    onClick={toggleDescriptionRows}
-                  >
-                    {descriptionRowsExpanded
-                      ? translation.collapseDescriptions
-                      : translation.expandDescriptions}
-                  </button>
-                )}
-              </div>
-              <div className="flex w-full">
-                <button
-                  className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
-                  onClick={toggleCompactMode}
-                >
-                  {isCompactMode
-                    ? translation.disableCompactMode
-                    : translation.enableCompactMode}
-                </button>
-              </div>
-              {isLatest ? (
-                <div className="flex flex-col gap-2 w-full">
-                  <div className="flex flex-row gap-2 w-full">
-                    <button
-                      className={`w-full ${
-                        !loadingProject
-                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                          : "bg-fisma-gray"
-                      } text-white text-xs py-3 px-4`}
-                      onClick={() => saveProject()}
-                      disabled={loadingProject}
-                    >
-                      {translation.saveProject}
-                    </button>
-                    <button
-                      className={`w-full ${
-                        !loadingProject
-                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                          : "bg-fisma-gray"
-                      } text-white text-xs py-3 px-4`}
-                      onClick={() => setConfirmModalOpen(true)}
-                      disabled={loadingProject}
-                    >
-                      {translation.archiveProjectAsVersion} {project?.version}
-                    </button>
-                  </div>
-                  <button
-                    className={`w-full ${
-                      !loadingProject
-                        ? "bg-red-600 hover:bg-red-700 cursor-pointer"
-                        : "bg-fisma-gray"
-                    } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
-                    onClick={handlePrintProjectSummaryPDF}
-                    disabled={loadingProject}
-                  >
-                    <FontAwesomeIcon icon={faFilePdf} />
-                    {translation.overviewSummaryReport}
-                  </button>
-                  <label className="flex items-center gap-2 text-xs cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={includeFunctionsInReport}
-                      onChange={(e) =>
-                        setIncludeFunctionsInReport(e.target.checked)
-                      }
-                    />
-                    {translation.includeFunctionsInReport}
-                  </label>
-                </div>
-              ) : (
-                <div className="flex flex-row gap-2 w-full">
-                  <div
-                    role="status"
-                    className="text-center w-full bg-fisma-red text-white text-xs py-3 px-4"
-                  >
-                    {translation.cannotEditOrSaveArchivedVersion}
-                  </div>
-                </div>
-              )}
+              <ProjectViewControls viewMode={viewMode} />
+              <ProjectSaveControls
+                isLatest={isLatest}
+                loadingProject={loadingProject}
+                version={project?.version}
+                saveProject={saveProject}
+                onArchive={() => setConfirmModalOpen(true)}
+                onPrintSummary={handlePrintProjectSummaryPDF}
+                includeFunctionsInReport={includeFunctionsInReport}
+                setIncludeFunctionsInReport={setIncludeFunctionsInReport}
+              />
 
-              <div className="mt-2">
-                <div className="text-left font-medium">
-                  {translation.calculationDate}
-                </div>
-                <DatePicker
-                  key={language}
-                  selected={
-                    project?.calculationDate
-                      ? isoDateToLocalDate(project.calculationDate)
-                      : null
-                  }
-                  onChange={(date: Date | null) => {
-                    const isoDate = date ? localDateToIsoDate(date) : null;
-
-                    setProject((prev) => {
-                      if (!prev) return prev;
-                      const updated = { ...prev, calculationDate: isoDate };
-                      projectRef.current = updated;
-                      return updated;
-                    });
-
-                    if (isLatest) {
-                      debouncedSaveProject();
-                    }
-                  }}
-                  locale={language === "fi" ? fi : enUS}
-                  dateFormat={language === "fi" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
-                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
-                  disabled={!isLatest || loadingProject}
-                  isClearable
-                />
-              </div>
-
-              <div className="mt-2">
-                <label
-                  htmlFor="report-contact-details"
-                  className="text-left font-medium"
-                >
-                  {translation.reportContactDetails}
-                </label>
-                <textarea
-                  id="report-contact-details"
-                  value={project?.reportContactDetails ?? ""}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setProject((prev) => {
-                      if (!prev) return prev;
-                      const updated = { ...prev, reportContactDetails: value };
-                      projectRef.current = updated;
-                      return updated;
-                    });
-
-                    if (isLatest) {
-                      debouncedSaveProject();
-                    }
-                  }}
-                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
-                  rows={3}
-                  maxLength={2000}
-                  disabled={!isLatest || loadingProject}
-                />
-              </div>
-
-              <div className="mt-2">
-                <label
-                  htmlFor="report-calculation-notes"
-                  className="text-left font-medium"
-                >
-                  {translation.reportNotes}
-                </label>
-                <textarea
-                  id="report-calculation-notes"
-                  value={project?.reportNotes ?? ""}
-                  onChange={(event) => {
-                    const value = event.target.value;
-
-                    setProject((prev) => {
-                      if (!prev) return prev;
-                      const updated = { ...prev, reportNotes: value };
-                      projectRef.current = updated;
-                      return updated;
-                    });
-
-                    if (isLatest) {
-                      debouncedSaveProject();
-                    }
-                  }}
-                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
-                  rows={5}
-                  maxLength={5000}
-                  disabled={!isLatest || loadingProject}
-                />
-              </div>
+              <ProjectReportFields
+                project={project}
+                setProject={setProject}
+                projectRef={projectRef}
+                isLatest={isLatest}
+                loadingProject={loadingProject}
+                debouncedSaveProject={debouncedSaveProject}
+              />
 
               <label
                 htmlFor="version-select"
