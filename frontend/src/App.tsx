@@ -7,6 +7,7 @@ import ProjectList from "./components/ProjectList.tsx";
 import ProfilePage from "./components/ProfilePage.tsx";
 import ScrollToTopButton from "./components/ScrollToTopButton.tsx";
 import useAppUser from "./hooks/useAppUser.tsx";
+import QuickCalculation from "./components/QuickCalculation.tsx";
 
 const showTestVersion = /localhost|testing/.test(window.location.href);
 
@@ -43,6 +44,7 @@ export default function App() {
               path="/project/:selectedProjectId"
               element={loggedIn ? <ProjectPage /> : <Navigate to="/login" />}
             />
+            <Route path="/quickcalculation" element={<QuickCalculation />} />
 
             <Route
               path="*"

@@ -22,6 +22,7 @@ export const translations = {
       profile: "Profile",
       menu: "Menu",
       testVersion: "Test Version",
+      quickcalculation: "Quick Calculation",
     },
     loginForm: {
       header: "Sign in",
@@ -360,6 +361,7 @@ export const translations = {
       profile: "Profiili",
       menu: "Valikko",
       testVersion: "Testiversio",
+      quickcalculation: "Pikalaskuri",
     },
     loginForm: {
       header: "Kirjaudu sisään",
