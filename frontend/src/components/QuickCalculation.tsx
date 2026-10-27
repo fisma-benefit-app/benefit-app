@@ -198,22 +198,32 @@ const QuickCalculation = () => {
 
   return (
     <div className="pt-24">
-      <div className="calculator-form">
+      <div className="max-w-[800px] my-8 mx-auto">
         <form name="FPFastCalculator" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="platformList">Arkkitehtuuri</label>
-            <select id="platformList" name="platformList">
+          <div className="mb-6">
+            <label
+              htmlFor="platformList"
+              className="block mb-2 font-medium text-[#333]"
+            >
+              Arkkitehtuuri
+            </label>
+            <select
+              disabled
+              id="platformList"
+              name="platformList"
+              className="w-full max-w-[200px] p-2 border bg-gray-400 border-[#ccc] rounded text-base"
+            >
+              <option value="4">Kolmikerroksinen</option>
               <option value="1">Koko sovellus yhdellä alustalla</option>
               <option value="2">Client-server, eristetty käyttöliittymä</option>
               <option value="3">Client server, eristetty tietokanta</option>
-              <option value="4">Kolmikerroksinen</option>
             </select>
           </div>
 
-          <div className="form-group">
+          <div className="mb-6">
             <h3>Toiminnallisuus</h3>
 
-            <div className="input-with-label">
+            <div className="flex items-center gap-4 mb-4">
               <input
                 type="number"
                 id="numQuery"
@@ -221,13 +231,17 @@ const QuickCalculation = () => {
                 value={quickCalculationData.numQuery}
                 min="0"
                 onChange={handleChange}
+                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
               />
-              <label htmlFor="numQuery">
+              <label
+                htmlFor="numQuery"
+                className="block m-0 font-normal text-[#333]"
+              >
                 kpl hakunäyttöjä, joita ei päivitetä
               </label>
             </div>
 
-            <div className="input-with-label">
+            <div className="flex items-center gap-4 mb-4">
               <input
                 type="number"
                 id="numInput"
@@ -235,11 +249,17 @@ const QuickCalculation = () => {
                 value={quickCalculationData.numInput}
                 min="0"
                 onChange={handleChange}
+                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
               />
-              <label htmlFor="numInput">kpl päivitysnäyttöjä</label>
+              <label
+                htmlFor="numInput"
+                className="block m-0 font-normal text-[#333]"
+              >
+                kpl päivitysnäyttöjä
+              </label>
             </div>
 
-            <div className="input-with-label">
+            <div className="flex items-center gap-4 mb-4">
               <input
                 type="number"
                 id="numOutput"
@@ -247,13 +267,17 @@ const QuickCalculation = () => {
                 value={quickCalculationData.numOutput}
                 min="0"
                 onChange={handleChange}
+                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
               />
-              <label htmlFor="numOutput">
+              <label
+                htmlFor="numOutput"
+                className="block m-0 font-normal text-[#333]"
+              >
                 kpl raportteja ja muita tulosteita
               </label>
             </div>
 
-            <div className="input-with-label">
+            <div className="flex items-center gap-4 mb-4">
               <input
                 type="number"
                 id="numIFaceTo"
@@ -261,13 +285,17 @@ const QuickCalculation = () => {
                 value={quickCalculationData.numIFaceTo}
                 min="0"
                 onChange={handleChange}
+                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
               />
-              <label htmlFor="numIFaceTo">
+              <label
+                htmlFor="numIFaceTo"
+                className="block m-0 font-normal text-[#333]"
+              >
                 kpl liittymiä muihin järjestelmiin
               </label>
             </div>
 
-            <div className="input-with-label">
+            <div className="flex items-center gap-4 mb-4">
               <input
                 type="number"
                 id="numIFaceFrom"
@@ -275,13 +303,17 @@ const QuickCalculation = () => {
                 value={quickCalculationData.numIFaceFrom}
                 min="0"
                 onChange={handleChange}
+                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
               />
-              <label htmlFor="numIFaceFrom">
+              <label
+                htmlFor="numIFaceFrom"
+                className="block m-0 font-normal text-[#333]"
+              >
                 kpl liittymiä muista järjestelmistä
               </label>
             </div>
 
-            <div className="input-with-label">
+            <div className="flex items-center gap-4 mb-4">
               <input
                 type="number"
                 id="numEntity"
@@ -289,11 +321,17 @@ const QuickCalculation = () => {
                 value={quickCalculationData.numEntity}
                 min="0"
                 onChange={handleChange}
+                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
               />
-              <label htmlFor="numEntity">kpl käsitteitä tietomallissa</label>
+              <label
+                htmlFor="numEntity"
+                className="block m-0 font-normal text-[#333]"
+              >
+                kpl käsitteitä tietomallissa
+              </label>
             </div>
 
-            <div className="input-with-label">
+            <div className="flex items-center gap-4 mb-4">
               <input
                 type="number"
                 id="numRule"
@@ -301,17 +339,29 @@ const QuickCalculation = () => {
                 value={quickCalculationData.numRule}
                 min="0"
                 onChange={handleChange}
+                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
               />
-              <label htmlFor="numRule">kpl vaativia käsittelysääntöjä</label>
+              <label
+                htmlFor="numRule"
+                className="block m-0 font-normal text-[#333]"
+              >
+                kpl vaativia käsittelysääntöjä
+              </label>
             </div>
           </div>
 
-          <button type="submit" className="calculate-btn">
+          <button
+            type="submit"
+            className="bg-[#1e73be] hover:bg-[#13517a] text-white py-3 px-8 border-0 rounded text-base cursor-pointer my-6"
+          >
             Laske
           </button>
         </form>
 
-        <div className="result-box" id="Tulosalue">
+        <div
+          className="bg-[#f8f9fa] border-2 border-[#1e73be] rounded-lg p-6 mt-8 text-2xl font-bold text-[#1e73be] text-center"
+          id="Tulosalue"
+        >
           Toiminnallinen koko: {quickCalculationResult} fp
         </div>
       </div>
