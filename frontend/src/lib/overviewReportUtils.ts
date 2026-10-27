@@ -27,9 +27,6 @@ import {
 import type { CellOptions } from "./pdf/pdfReportLayout";
 import type { Content, TableCell } from "pdfmake/interfaces";
 
-const INCOMING_INTERFACE_CLASS = "Interface service from other applications";
-const OUTGOING_INTERFACE_CLASS = "Interface service to other applications";
-
 const PAGE_MARGIN_PT = mmToPt(12);
 const A4_PORTRAIT_WIDTH_PT = 595.28;
 const A4_PORTRAIT_HEIGHT_PT = 841.89;
@@ -72,10 +69,6 @@ export const generateOverviewPDF = async (
           functionListNote:
             "MLA-alikomponentit on listattu vanhempansa alla. Pisteet ovat tehdyt / mahdolliset pisteet.",
           unspecified: "Ei valittu",
-          inCount: "Saapuvat",
-          outCount: "Lähtevät",
-          interfaceSummary: "Liittymät",
-          interface: "Liittymä",
           explanation: "Laskennan selitys ja tärkeät muutokset",
           changed:
             "Muutokset edelliseen versioon on merkitty sinisellä suluissa.",
@@ -111,10 +104,6 @@ export const generateOverviewPDF = async (
           functionListNote:
             "MLA subcomponents are listed under their parent. Points are done / possible points.",
           unspecified: "Not selected",
-          inCount: "Incoming",
-          outCount: "Outgoing",
-          interfaceSummary: "Interfaces",
-          interface: "Interface",
           explanation: "Calculation explanation and important changes",
           changed:
             "Changes from the previous version are shown in blue, in parentheses.",
@@ -262,38 +251,6 @@ export const generateOverviewPDF = async (
       }),
     ];
   };
-
-  // Incoming and outgoing interfaces: standalone interface components plus the generated message subcomponents
-  const interfaceTotals = (target: Project) => {
-    const { parentGroups, subComponentGroups } = getGroupedComponents(
-      target.functionalComponents,
-    );
-    const totalsFor = (className: string) =>
-      [...parentGroups, ...subComponentGroups]
-        .filter((group) => group.className === className)
-        .flatMap((group) => group.components)
-        .reduce(
-          (sum, entry) => ({
-            count: sum.count + entry.count,
-            points: sum.points + entry.points,
-            possiblePoints: sum.possiblePoints + entry.possiblePoints,
-          }),
-          { count: 0, points: 0, possiblePoints: 0 },
-        );
-    return {
-      incoming: totalsFor(INCOMING_INTERFACE_CLASS),
-      outgoing: totalsFor(OUTGOING_INTERFACE_CLASS),
-    };
-  };
-  const currentInterfaces = interfaceTotals(project);
-  const previousInterfaces = previousProject
-    ? interfaceTotals(previousProject)
-    : undefined;
-  const interfaceRow = (
-    label: string,
-    current: Omit<SummaryRow, "name">,
-    previous?: { points: number },
-  ) => summaryTableRow(label, current, previous?.points);
 
   // Optional per-function listing; MLA subcomponents follow their parent so the rows add up to the
   // total size. Previous-version values are matched through previousFCId.
@@ -505,28 +462,6 @@ export const generateOverviewPDF = async (
         labels.percentDone,
       ],
       rows: groupedRows(),
-      widths: ["*", 50, 130, 60],
-    }),
-    { text: labels.interfaceSummary, style: "h3" },
-    reportTable({
-      headers: [
-        labels.interface,
-        labels.count,
-        labels.functionPoints,
-        labels.percentDone,
-      ],
-      rows: [
-        interfaceRow(
-          labels.inCount,
-          currentInterfaces.incoming,
-          previousInterfaces?.incoming,
-        ),
-        interfaceRow(
-          labels.outCount,
-          currentInterfaces.outgoing,
-          previousInterfaces?.outgoing,
-        ),
-      ],
       widths: ["*", 50, 130, 60],
     }),
     { text: labels.explanation, style: "h3" },
