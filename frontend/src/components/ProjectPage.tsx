@@ -31,6 +31,7 @@ import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 import useCommitSha from "../hooks/useCommitSha";
 import useFunctionalComponents from "../hooks/useFunctionalComponents.ts";
+import useDebounce from "../hooks/useDebounce.ts";
 import useLanguage from "../hooks/useLanguage.tsx";
 
 import DatePicker from "react-datepicker";
@@ -44,57 +45,16 @@ import { updateSubComponents } from "../lib/fc-service-functions.ts";
 import CommentsPanel from "./CommentsPanel.tsx";
 import useProjectComments from "../hooks/useProjectComments.ts";
 
-// Debounce hook for auto-saving projects
-function useDebounce<T extends (...args: unknown[]) => void | Promise<void>>(
-  func: T,
-  delay: number,
-) {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingCallRef = useRef<(() => void | Promise<void>) | null>(null);
-  const runningCallRef = useRef<Promise<void> | null>(null);
-
-  // Runs the waiting call now and resolves when it (or a call already
-  // running) has finished.
-  const flush = useCallback((): Promise<void> => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = null;
-
-    const call = pendingCallRef.current;
-    pendingCallRef.current = null;
-    if (call) {
-      // Wait for a save already running: two overlapping saves would carry the same
-      // lockVersion and the second would be rejected as a conflict with the first.
-      const running = (runningCallRef.current ?? Promise.resolve())
-        .catch(() => undefined)
-        .then(call)
-        .finally(() => {
-          if (runningCallRef.current === running) runningCallRef.current = null;
-        });
-      runningCallRef.current = running;
-    }
-    return runningCallRef.current ?? Promise.resolve();
-  }, []);
-
-  const isPending = useCallback(
-    () => pendingCallRef.current !== null || runningCallRef.current !== null,
-    [],
+// Keeps the sub-components of MLA components in step with their parent.
+function updateMlaSubComponents(components: TGenericComponent[]) {
+  return components.map((comp) =>
+    comp.isMLA && comp.subComponents
+      ? {
+          ...comp,
+          subComponents: updateSubComponents(comp, comp.subComponents),
+        }
+      : comp,
   );
-
-  function debounced(...args: Parameters<T>) {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    pendingCallRef.current = () => func(...args);
-    timeoutRef.current = setTimeout(flush, delay);
-  }
-
-  // Leaving the page (e.g. to the project list) saves instead of dropping
-  // the waiting call.
-  useEffect(() => {
-    return () => {
-      void flush();
-    };
-  }, [flush]);
-
-  return { debounced, flush, isPending };
 }
 
 function sortFunctionalComponents(components: TGenericComponent[]) {
@@ -282,6 +242,65 @@ export default function ProjectPage() {
     }
   };
 
+  // The one place the project is sent to the backend, for both auto-save and manual save.
+  // Failures are reported through the notification (when `notify`), not thrown.
+  const persistProject = async (
+    currentProject: Project,
+    notificationId: "auto-save" | "manual-save",
+    notify: boolean,
+    prepareComponents: (
+      components: TGenericComponent[],
+    ) => TGenericComponent[] = (components) => components,
+  ) => {
+    if (notify) {
+      showNotification(
+        alertTranslation.save,
+        alertTranslation.saving,
+        "loading",
+        notificationId,
+      );
+    }
+
+    try {
+      // normalize before saving
+      const normalized = prepareComponents(currentProject.functionalComponents)
+        .slice()
+        .sort((a, b) => a.orderPosition - b.orderPosition)
+        .map((c, idx) => ({ ...c, orderPosition: idx }));
+      const editedProject = {
+        ...currentProject,
+        functionalComponents: normalized,
+      };
+
+      applySavedLockVersion(await updateProject(sessionToken, editedProject));
+
+      if (notify) {
+        updateNotification(
+          notificationId,
+          alertTranslation.success,
+          alertTranslation.saveSuccessful,
+          "success",
+        );
+      }
+    } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized!") {
+        await logout();
+      }
+      if (err instanceof ConflictError) {
+        await handleSaveConflict(notificationId, currentProject.id, err.reason);
+        return;
+      }
+      if (notify) {
+        updateNotification(
+          notificationId,
+          alertTranslation.error,
+          alertTranslation.saveFailed,
+          "error",
+        );
+      }
+    }
+  };
+
   // Debounced auto-save function
   const {
     debounced: debouncedSaveProject,
@@ -293,58 +312,12 @@ export default function ProjectPage() {
       return;
     }
 
-    showNotification(
-      alertTranslation.save,
-      alertTranslation.saving,
-      "loading",
+    await persistProject(
+      currentProject,
       "auto-save",
+      true,
+      updateMlaSubComponents,
     );
-
-    try {
-      // normalize before saving
-      const normalized = currentProject.functionalComponents
-        .slice()
-        .map((comp) => {
-          // Update sub-components if MLA is enabled
-          if (comp.isMLA && comp.subComponents) {
-            return {
-              ...comp,
-              subComponents: updateSubComponents(comp, comp.subComponents),
-            };
-          }
-          return comp;
-        })
-        .sort((a, b) => a.orderPosition - b.orderPosition)
-        .map((c, idx) => ({ ...c, orderPosition: idx }));
-      const editedProject = {
-        ...currentProject,
-        functionalComponents: normalized,
-      };
-
-      applySavedLockVersion(await updateProject(sessionToken, editedProject));
-
-      updateNotification(
-        "auto-save",
-        alertTranslation.success,
-        alertTranslation.saveSuccessful,
-        "success",
-      );
-    } catch (err) {
-      if (err instanceof Error && err.message === "Unauthorized!") {
-        await logout();
-      }
-      if (err instanceof ConflictError) {
-        await handleSaveConflict("auto-save", currentProject.id, err.reason);
-        return;
-      }
-
-      updateNotification(
-        "auto-save",
-        alertTranslation.error,
-        alertTranslation.saveFailed,
-        "error",
-      );
-    }
   }, 5000); // Auto-save every 5 seconds
 
   const keepMyChanges = () => {
@@ -530,55 +503,8 @@ export default function ProjectPage() {
     // project does not have yet.
     const currentProject = projectRef.current;
     if (currentProject) {
-      if (showNotif) {
-        showNotification(
-          alertTranslation.save,
-          alertTranslation.saving,
-          "loading",
-          "manual-save",
-        );
-      }
       try {
-        const normalized = currentProject.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
-
-        const editedProject = {
-          ...currentProject,
-          functionalComponents: normalized,
-        };
-
-        applySavedLockVersion(await updateProject(sessionToken, editedProject));
-
-        if (showNotif) {
-          updateNotification(
-            "manual-save",
-            alertTranslation.success,
-            alertTranslation.saveSuccessful,
-            "success",
-          );
-        }
-      } catch (err) {
-        if (err instanceof Error && err.message === "Unauthorized!") {
-          await logout();
-        }
-        if (err instanceof ConflictError) {
-          await handleSaveConflict(
-            "manual-save",
-            currentProject.id,
-            err.reason,
-          );
-          return;
-        }
-        if (showNotif) {
-          updateNotification(
-            "manual-save",
-            alertTranslation.error,
-            alertTranslation.saveFailed,
-            "error",
-          );
-        }
+        await persistProject(currentProject, "manual-save", showNotif);
       } finally {
         setTimeout(() => {
           isManuallySaved.current = false;
