@@ -473,7 +473,7 @@ export default function ProjectPage() {
         "success",
       );
     } catch (err) {
-      if (err instanceof Error && err.message === "Unauthorized") {
+      if (err instanceof Error && err.message === "Unauthorized!") {
         await logout();
       }
       if (err instanceof ConflictError) {
