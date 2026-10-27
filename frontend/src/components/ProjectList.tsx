@@ -20,7 +20,7 @@ import EditProjectModal from "./EditProjectModal.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
 import useCommitSha from "../hooks/useCommitSha";
-import { duplicateProject } from "../api/project.ts";
+import { duplicateProject, fetchAllProjects } from "../api/project.ts";
 import { useAlert } from "../hooks/useAlert.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 type SortKey =
@@ -33,7 +33,8 @@ type SortKey =
 type SortDirection = "asc" | "desc";
 
 export default function ProjectList() {
-  const { sortedProjects, loading, handleDelete, handleUpdate } = useProjects();
+  const { sortedProjects, loading, handleDelete, handleUpdate, setProjects } =
+    useProjects();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
@@ -186,6 +187,14 @@ export default function ProjectList() {
 
     try {
       const duplicatedProject = await duplicateProject(sessionToken, projectId);
+
+      // The project page finds a project's versions in this list, so without the copy in it the
+      // page treats the copy as an archived version and its version list stays empty.
+      try {
+        setProjects(await fetchAllProjects(sessionToken));
+      } catch (err) {
+        console.error("Refreshing the projects failed:", err);
+      }
 
       updateNotification(
         "duplicate-project",
