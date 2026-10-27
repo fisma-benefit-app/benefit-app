@@ -13,17 +13,11 @@ import {
   fetchProject,
   updateProject,
   ConflictError,
-  createFunctionalComponent,
-  deleteFunctionalComponent,
 } from "../api/project.ts";
 import { generateOverviewPDF } from "../lib/overviewReportUtils.ts";
 import { registerPendingSave } from "../lib/pendingSave.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import {
-  Project,
-  TGenericComponentNoId,
-  TGenericComponent,
-} from "../lib/types.ts";
+import { Project, TGenericComponent } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
 import DraggableFunctionalComponent from "./DraggableFunctionalComponent.tsx";
 import MasonryComponentGrid from "./MasonryComponentGrid.tsx";
@@ -36,6 +30,7 @@ import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 import useCommitSha from "../hooks/useCommitSha";
+import useFunctionalComponents from "../hooks/useFunctionalComponents.ts";
 import useViewMode from "../hooks/useViewMode.ts";
 import useColumnCount from "../hooks/useColumnCount.ts";
 import useComponentCollapseStates from "../hooks/useComponentCollapseStates.ts";
@@ -49,10 +44,7 @@ import ShortcutTooltip from "./ShortcutTooltip.tsx";
 
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { useAlert } from "../hooks/useAlert.ts";
-import {
-  createSubComponents,
-  updateSubComponents,
-} from "../lib/fc-service-functions.ts";
+import { updateSubComponents } from "../lib/fc-service-functions.ts";
 import CommentsPanel from "./CommentsPanel.tsx";
 import useProjectComments from "../hooks/useProjectComments.ts";
 
@@ -109,9 +101,6 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [lastAddedComponentId, setLastAddedComponentId] = useState<
-    number | null
-  >(null);
   const projectComments = useProjectComments(sessionToken, project?.id);
   const {
     commentsOpen,
@@ -159,42 +148,6 @@ export default function ProjectPage() {
 
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
-
-  // MLA sub-component handler
-  const handleMLAToggle = (componentId: number, newMLAValue: boolean) => {
-    if (!project) return;
-
-    const updatedComponents = project.functionalComponents.map((comp) => {
-      if (comp.id === componentId) {
-        if (newMLAValue && !comp.subComponents) {
-          return {
-            ...comp,
-            isMLA: true,
-            subComponents: createSubComponents(comp),
-          };
-        } else if (!newMLAValue) {
-          return {
-            ...comp,
-            isMLA: false,
-            subComponents: undefined,
-          };
-        }
-        return { ...comp, isMLA: newMLAValue };
-      }
-      return comp;
-    });
-
-    const updatedProject = {
-      ...project,
-      functionalComponents: updatedComponents,
-    };
-
-    setProject(updatedProject);
-
-    if (isLatest) {
-      debouncedSaveProject();
-    }
-  };
 
   // sort functional components by order (ascending)
   const sortedComponents = project
@@ -419,9 +372,6 @@ export default function ProjectPage() {
   const canReorder = isLatest && componentSearchQueryEmpty;
   const isPlacingSelected = canReorder && reorder.selectedCount > 0;
 
-  const { updateComponentCollapseState, getComponentCollapseState } =
-    useComponentCollapseStates(collapseAll, lastAddedComponentId);
-
   useEffect(() => {
     const getProject = async () => {
       setLoadingProject(true);
@@ -467,157 +417,6 @@ export default function ProjectPage() {
     };
     getProject();
   }, [selectedProjectId, sessionToken, logout]);
-
-  const handleCreateFunctionalComponent = async () => {
-    await saveProject(false);
-
-    isManuallySaved.current = true;
-    setLoadingProject(true);
-    setComponentSearchQuery("");
-
-    if (project) {
-      const newFunctionalComponent: TGenericComponentNoId = {
-        className: null,
-        componentType: null,
-        dataElements: null,
-        readingReferences: null,
-        writingReferences: null,
-        functionalMultiplier: null,
-        operations: null,
-        degreeOfCompletion: 1,
-        title: null,
-        description: null,
-        previousFCId: null,
-        orderPosition: project.functionalComponents.length,
-        isMLA: false,
-        parentFCId: null,
-      };
-
-      showNotification(
-        alertTranslation.creating,
-        alertTranslation.creating,
-        "loading",
-        "create-functional-component",
-      );
-
-      try {
-        const updatedProject = await createFunctionalComponent(
-          sessionToken,
-          project.id,
-          newFunctionalComponent,
-        );
-
-        // Find the new component by comparing IDs
-        const prevIds = new Set(project.functionalComponents.map((c) => c.id));
-        const newComponent = updatedProject.functionalComponents.find(
-          (c) => !prevIds.has(c.id),
-        );
-
-        if (newComponent) {
-          setLastAddedComponentId(newComponent.id);
-        }
-
-        // Normalize and sort before setting state
-        const normalized = updatedProject.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
-
-        setProject({ ...updatedProject, functionalComponents: normalized });
-
-        updateNotification(
-          "create-functional-component",
-          alertTranslation.success,
-          alertTranslation.createSuccessful,
-          "success",
-        );
-
-        setTimeout(() => {
-          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-      } catch (err) {
-        if (err instanceof Error && err.message === "Unauthorized!") {
-          await logout();
-        }
-        updateNotification(
-          "create-functional-component",
-          alertTranslation.error,
-          alertTranslation.createFailed,
-          "error",
-        );
-      } finally {
-        setLoadingProject(false);
-        setTimeout(() => {
-          isManuallySaved.current = false;
-        }, 2000);
-      }
-    }
-  };
-
-  const handleDeleteFunctionalComponent = async (
-    componentId: number,
-  ): Promise<void> => {
-    isManuallySaved.current = true;
-    setLoadingProject(true);
-
-    showNotification(
-      alertTranslation.deleting,
-      alertTranslation.deleting,
-      "loading",
-      "delete-functional-component",
-    );
-
-    if (project) {
-      try {
-        await deleteFunctionalComponent(sessionToken, componentId, project.id);
-
-        const updatedProject = await fetchProject(sessionToken, project.id);
-        setProject(updatedProject);
-
-        updateNotification(
-          "delete-functional-component",
-          alertTranslation.success,
-          alertTranslation.deleteSuccessful,
-          "success",
-        );
-      } catch (err) {
-        console.error("Delete component error:", err);
-
-        if (err instanceof Error && err.message.includes("JSON")) {
-          try {
-            const updatedProject = await fetchProject(sessionToken, project.id);
-            setProject(updatedProject);
-
-            updateNotification(
-              "delete-functional-component",
-              alertTranslation.success,
-              alertTranslation.deleteSuccessful,
-              "success",
-            );
-            return;
-          } catch (fetchErr) {
-            console.error("Refetch failed:", fetchErr);
-          }
-        }
-
-        if (err instanceof Error && err.message === "Unauthorized!") {
-          await logout();
-        }
-
-        updateNotification(
-          "delete-functional-component",
-          alertTranslation.error,
-          alertTranslation.deleteFailed,
-          "error",
-        );
-      } finally {
-        setLoadingProject(false);
-        setTimeout(() => {
-          isManuallySaved.current = false;
-        }, 2000);
-      }
-    }
-  };
 
   const saveProject = async (showNotif: boolean = true) => {
     isManuallySaved.current = true;
@@ -667,6 +466,24 @@ export default function ProjectPage() {
     }
   };
 
+  const {
+    lastAddedComponentId,
+    setLastAddedComponentId,
+    handleMLAToggle,
+    handleCreateFunctionalComponent,
+    handleDeleteFunctionalComponent,
+  } = useFunctionalComponents({
+    project,
+    setProject,
+    setLoadingProject,
+    setComponentSearchQuery,
+    isLatest,
+    isManuallySaved,
+    bottomRef,
+    saveProject,
+    debouncedSaveProject,
+  });
+
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
     const selectedProject = sortedProjects.find(
@@ -678,9 +495,12 @@ export default function ProjectPage() {
     }
   };
 
+  const { updateComponentCollapseState, getComponentCollapseState } =
+    useComponentCollapseStates(collapseAll, lastAddedComponentId);
+
   useEffect(() => {
     setLastAddedComponentId(null);
-  }, [collapseAll]);
+  }, [collapseAll, setLastAddedComponentId]);
 
   if (loadingProject) return <LoadingSpinner />;
 
