@@ -294,7 +294,13 @@ export const translations = {
       saveFailed: "Save failed",
       saveConflictMessage:
         "This project was saved in another tab or window. Keeping your changes replaces that save; loading it discards your changes.",
+      versionArchivedMessage:
+        "This version was archived in another tab or window and can no longer be edited. Loading the saved version discards your changes.",
+      saveConflictArchiveMessage:
+        "This project was saved in another tab or window. Keep my changes replaces that save and archives your version. Load saved version discards your changes and does not archive. Cancel archiving returns to editing.",
       keepMyChanges: "Keep my changes",
+      keepMyChangesAndArchive: "Keep my changes and archive",
+      cancelArchiving: "Cancel archiving",
       loadSavedVersion: "Load saved version",
       loading: "Loading...",
       creating: "Creating...",
@@ -635,7 +641,13 @@ export const translations = {
       saveFailed: "Tallennus epäonnistui",
       saveConflictMessage:
         "Tämä projekti tallennettiin toisessa välilehdessä tai ikkunassa. Omien muutosten säilyttäminen korvaa sen tallennuksen; tallennetun version lataaminen hylkää muutoksesi.",
+      versionArchivedMessage:
+        "Tämä versio arkistoitiin toisessa välilehdessä tai ikkunassa, eikä sitä voi enää muokata. Tallennetun version lataaminen hylkää muutoksesi.",
+      saveConflictArchiveMessage:
+        "Tämä projekti tallennettiin toisessa välilehdessä tai ikkunassa. Säilytä omani ja arkistoi korvaa sen tallennuksen ja arkistoi sinun versiosi. Lataa tallennettu hylkää muutoksesi eikä arkistoi. Peru arkistointi palaa muokkaamaan.",
       keepMyChanges: "Säilytä omani",
+      keepMyChangesAndArchive: "Säilytä omani ja arkistoi",
+      cancelArchiving: "Peru arkistointi",
       loadSavedVersion: "Lataa tallennettu",
       loading: "Ladataan...",
       creating: "Luodaan...",

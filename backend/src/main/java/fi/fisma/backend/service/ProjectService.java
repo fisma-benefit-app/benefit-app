@@ -264,7 +264,9 @@ public class ProjectService {
     boolean hasNewerVersion =
         versionsOf(project, username).stream().anyMatch(v -> v.getVersion() > project.getVersion());
     if (hasNewerVersion) {
-      throw new ConflictException("Only the latest version of a project can be edited");
+      throw new ConflictException(
+          ConflictException.NOT_LATEST_VERSION,
+          "Only the latest version of a project can be edited");
     }
     return project;
   }
