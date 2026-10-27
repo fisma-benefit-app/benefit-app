@@ -26,13 +26,17 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(ConflictException.class)
-  public ResponseEntity<String> handleConflictException(ConflictException exception) {
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+  public ResponseEntity<ConflictResponse> handleConflictException(ConflictException exception) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(new ConflictResponse(exception.getCode(), exception.getMessage()));
   }
 
   @ExceptionHandler(OptimisticLockingFailureException.class)
-  public ResponseEntity<String> handleOptimisticLockingFailure() {
+  public ResponseEntity<ConflictResponse> handleOptimisticLockingFailure() {
     return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body("The project was changed by someone else. Reload it and try again.");
+        .body(
+            new ConflictResponse(
+                ConflictException.STALE_LOCK_VERSION,
+                "The project was changed by someone else. Reload it and try again."));
   }
 }

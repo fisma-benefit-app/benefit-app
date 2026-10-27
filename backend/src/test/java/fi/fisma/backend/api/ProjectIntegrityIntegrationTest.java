@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -188,7 +189,8 @@ class ProjectIntegrityIntegrationTest {
                 .header("Authorization", bearer(mallory))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body(name, 1, archived, List.of(), Set.of(), "edited notes")))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("NOT_LATEST_VERSION"));
     // component endpoints
     mockMvc
         .perform(
@@ -281,7 +283,8 @@ class ProjectIntegrityIntegrationTest {
                 .header("Authorization", bearer(mallory))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body(name, 1, tabB, List.of(), Set.of(), "from tab B")))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("STALE_LOCK_VERSION"));
     assertThat(getProject(mallory, id).path("reportNotes").isNull()).isTrue();
 
     // A client that carries the returned lockVersion forward can keep saving.

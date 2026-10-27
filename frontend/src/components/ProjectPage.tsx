@@ -12,6 +12,7 @@ import {
   fetchAllProjects,
   fetchProject,
   updateProject,
+  ConflictError,
   createFunctionalComponent,
   deleteFunctionalComponent,
 } from "../api/project.ts";
@@ -395,20 +396,29 @@ export default function ProjectPage() {
   };
 
   // Another tab saved first. Nothing is discarded or overwritten until the user picks: this
-  // tab keeps its edits, auto-save pauses, and a dialog offers the two ways forward.
+  // tab keeps its edits, auto-save pauses, and a dialog offers the two ways forward. If the
+  // other tab archived this version instead, keeping the edits cannot work, so the only way
+  // forward is loading the saved version.
   const [savedElsewhere, setSavedElsewhere] = useState<Project | null>(null);
+  const [versionArchivedElsewhere, setVersionArchivedElsewhere] =
+    useState(false);
+  // The conflict came up while archiving this version, so keeping the edits carries on with it.
+  const [archivingVersion, setArchivingVersion] = useState(false);
   const saveConflictRef = useRef(false);
 
   const handleSaveConflict = async (
     notificationId: string,
     projectId: number,
+    reason: ConflictError["reason"],
   ) => {
     saveConflictRef.current = true;
     // The dialog says what happened; an error toast would outlive it, since error toasts
     // stay until closed.
     hideNotification(notificationId);
     try {
-      setSavedElsewhere(await fetchProject(sessionToken, projectId));
+      const saved = await fetchProject(sessionToken, projectId);
+      setVersionArchivedElsewhere(reason === "notLatestVersion");
+      setSavedElsewhere(saved);
     } catch (fetchErr) {
       saveConflictRef.current = false;
       console.error("Loading the project saved elsewhere failed:", fetchErr);
@@ -466,8 +476,8 @@ export default function ProjectPage() {
       if (err instanceof Error && err.message === "Unauthorized") {
         await logout();
       }
-      if (err instanceof Error && err.message === "Conflict!") {
-        await handleSaveConflict("auto-save", currentProject.id);
+      if (err instanceof ConflictError) {
+        await handleSaveConflict("auto-save", currentProject.id, err.reason);
         return;
       }
 
@@ -485,14 +495,35 @@ export default function ProjectPage() {
     // Their lockVersion makes this tab's next save go through, replacing the other tab's save.
     applySavedLockVersion(savedElsewhere);
     saveConflictRef.current = false;
+    if (archivingVersion) {
+      setArchivingVersion(false);
+      void saveProjectVersion();
+      return;
+    }
     debouncedSaveProject();
     void flushProjectSave();
   };
 
-  const loadSavedVersion = () => {
+  // Back to editing without choosing: nothing is saved or archived, and the conflict comes up
+  // again with the next save.
+  const cancelArchiving = () => {
+    saveConflictRef.current = false;
+    setArchivingVersion(false);
+  };
+
+  const loadSavedVersion = async () => {
     if (!savedElsewhere) return;
     setProject(savedElsewhere);
     saveConflictRef.current = false;
+    setArchivingVersion(false);
+    if (versionArchivedElsewhere) {
+      // The version list is stale, so refresh it to make this version read-only.
+      try {
+        setProjects(await fetchAllProjects(sessionToken));
+      } catch (err) {
+        console.error("Refreshing the projects failed:", err);
+      }
+    }
   };
 
   // Let the header save waiting edits before a logout revokes the token.
@@ -789,7 +820,9 @@ export default function ProjectPage() {
 
   const saveProject = async (showNotif: boolean = true) => {
     isManuallySaved.current = true;
-    const currentProject = project;
+    // The ref carries the lockVersion applied after a save conflict, which this render's
+    // project does not have yet.
+    const currentProject = projectRef.current;
     if (currentProject) {
       if (showNotif) {
         showNotification(
@@ -824,8 +857,12 @@ export default function ProjectPage() {
         if (err instanceof Error && err.message === "Unauthorized!") {
           await logout();
         }
-        if (err instanceof Error && err.message === "Conflict!") {
-          await handleSaveConflict("manual-save", currentProject.id);
+        if (err instanceof ConflictError) {
+          await handleSaveConflict(
+            "manual-save",
+            currentProject.id,
+            err.reason,
+          );
           return;
         }
         if (showNotif) {
@@ -851,7 +888,11 @@ export default function ProjectPage() {
       isManuallySaved.current = true;
       try {
         await saveProject();
-        if (saveConflictRef.current) return; // the user has to resolve the conflict first
+        if (saveConflictRef.current) {
+          // The user has to resolve the conflict first; keeping their changes resumes this.
+          setArchivingVersion(true);
+          return;
+        }
         const idOfNewProjectVersion = await createNewProjectVersion(
           sessionToken,
           project,
@@ -1398,15 +1439,36 @@ export default function ProjectPage() {
         </div>
 
         <ConfirmModal
-          message={alertTranslation.saveConflictMessage}
+          message={
+            versionArchivedElsewhere
+              ? alertTranslation.versionArchivedMessage
+              : archivingVersion
+                ? alertTranslation.saveConflictArchiveMessage
+                : alertTranslation.saveConflictMessage
+          }
           open={savedElsewhere !== null}
           setOpen={(open) => {
             if (!open) setSavedElsewhere(null);
           }}
-          confirmLabel={alertTranslation.keepMyChanges}
+          confirmLabel={
+            versionArchivedElsewhere
+              ? alertTranslation.loadSavedVersion
+              : archivingVersion
+                ? alertTranslation.keepMyChangesAndArchive
+                : alertTranslation.keepMyChanges
+          }
           cancelLabel={alertTranslation.loadSavedVersion}
-          onConfirm={keepMyChanges}
+          onConfirm={
+            versionArchivedElsewhere ? loadSavedVersion : keepMyChanges
+          }
           onCancel={loadSavedVersion}
+          hideCancel={versionArchivedElsewhere}
+          dismissLabel={alertTranslation.cancelArchiving}
+          onDismiss={
+            archivingVersion && !versionArchivedElsewhere
+              ? cancelArchiving
+              : undefined
+          }
         />
 
         <ConfirmModal
