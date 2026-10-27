@@ -178,16 +178,44 @@ public class ProjectService {
                           null, // Temporarily set parent fc to null
                           fc.getSubComponentType(),
                           fc.getIsReadonly(),
-                          null, // Subcomponents are intentionally not copied when creating a new
-                          // project version.
-                          // This is by design: subcomponents are either not used in this context,
-                          // or are handled separately.
-                          // If subcomponent copying is required in the future, update this logic to
-                          // clone subcomponents as well.
+                          null,
                           savedProject,
                           null);
                   var savedComponent = functionalComponentRepository.save(newComponent);
                   oldToNewIdMap.put(fc.getId(), savedComponent.getId());
+
+                  fc.getSubComponents().stream()
+                      .filter(subComponent -> subComponent.getDeletedAt() == null)
+                      .map(
+                          subComponent ->
+                              new FunctionalComponent(
+                                  null,
+                                  subComponent.getTitle(),
+                                  subComponent.getDescription(),
+                                  subComponent.getClassName(),
+                                  subComponent.getComponentType(),
+                                  subComponent.getDataElements(),
+                                  subComponent.getReadingReferences(),
+                                  subComponent.getWritingReferences(),
+                                  subComponent.getFunctionalMultiplier(),
+                                  subComponent.getOperations(),
+                                  subComponent.getDegreeOfCompletion(),
+                                  subComponent.getId(),
+                                  subComponent.getOrderPosition(),
+                                  subComponent.getIsMLA(),
+                                  savedComponent.getId(),
+                                  subComponent.getSubComponentType(),
+                                  subComponent.getIsReadonly(),
+                                  null,
+                                  savedProject,
+                                  null))
+                      .forEach(
+                          newSubComponent -> {
+                            var savedSubComponent =
+                                functionalComponentRepository.save(newSubComponent);
+                            savedComponent.getSubComponents().add(savedSubComponent);
+                          });
+
                   return savedComponent;
                 })
             .collect(Collectors.toSet());
@@ -324,26 +352,33 @@ public class ProjectService {
     duplicatedProject.setUpdatedAt(now);
 
     // Set AppUser
-    duplicatedProject.setProjectAppUsers(Set.of(new ProjectAppUser(duplicatedProject, appUser)));
+    duplicatedProject.setProjectAppUsers(
+        new HashSet<>(Set.of(new ProjectAppUser(duplicatedProject, appUser))));
+    projectRepository.save(duplicatedProject);
 
-    // 4. Copy the list of Functional Components (Deep copy)
+    // 4. Copy active top-level components and their active MLA subcomponents.
     if (originalProject.getFunctionalComponents() != null) {
       Set<FunctionalComponent> duplicatedComponents = new HashSet<>();
 
       for (FunctionalComponent originalComp : originalProject.getFunctionalComponents()) {
-        FunctionalComponent newComp = new FunctionalComponent();
+        if (originalComp.getDeletedAt() != null || originalComp.getParentFCId() != null) {
+          continue;
+        }
 
-        newComp.setTitle(originalComp.getTitle());
-        newComp.setDescription(originalComp.getDescription());
-        newComp.setClassName(originalComp.getClassName());
-        newComp.setComponentType(originalComp.getComponentType());
-        newComp.setOrderPosition(originalComp.getOrderPosition());
-        newComp.setIsMLA(originalComp.getIsMLA());
-        newComp.setDegreeOfCompletion(originalComp.getDegreeOfCompletion());
-
-        newComp.setProject(duplicatedProject);
-
+        FunctionalComponent newComp =
+            functionalComponentRepository.save(
+                duplicateComponent(originalComp, duplicatedProject, null));
         duplicatedComponents.add(newComp);
+
+        if (originalComp.getSubComponents() != null) {
+          originalComp.getSubComponents().stream()
+              .filter(subComponent -> subComponent.getDeletedAt() == null)
+              .map(
+                  subComponent ->
+                      duplicateComponent(subComponent, duplicatedProject, newComp.getId()))
+              .map(functionalComponentRepository::save)
+              .forEach(newComp.getSubComponents()::add);
+        }
       }
       duplicatedProject.setFunctionalComponents(duplicatedComponents);
     }
@@ -352,5 +387,29 @@ public class ProjectService {
 
     // 6. Save in Database
     return projectRepository.save(duplicatedProject);
+  }
+
+  private FunctionalComponent duplicateComponent(
+      FunctionalComponent original, Project project, Long parentId) {
+    FunctionalComponent duplicate = new FunctionalComponent();
+    duplicate.setTitle(original.getTitle());
+    duplicate.setDescription(original.getDescription());
+    duplicate.setClassName(original.getClassName());
+    duplicate.setComponentType(original.getComponentType());
+    duplicate.setDataElements(original.getDataElements());
+    duplicate.setReadingReferences(original.getReadingReferences());
+    duplicate.setWritingReferences(original.getWritingReferences());
+    duplicate.setFunctionalMultiplier(original.getFunctionalMultiplier());
+    duplicate.setOperations(original.getOperations());
+    duplicate.setDegreeOfCompletion(original.getDegreeOfCompletion());
+    duplicate.setPreviousFCId(null);
+    duplicate.setOrderPosition(original.getOrderPosition());
+    duplicate.setIsMLA(original.getIsMLA());
+    duplicate.setParentFCId(parentId);
+    duplicate.setSubComponentType(original.getSubComponentType());
+    duplicate.setIsReadonly(original.getIsReadonly());
+    duplicate.setProject(project);
+    duplicate.setDeletedAt(null);
+    return duplicate;
   }
 }

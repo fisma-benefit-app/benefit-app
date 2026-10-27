@@ -35,7 +35,7 @@ public class ProjectMapper {
             project.getCalculationDate(),
             project.getReportContactDetails(),
             project.getReportNotes(),
-            project.getUpdatedAt(),
+            project.getUpdatedAt() != null ? project.getUpdatedAt() : project.getCreatedAt(),
             project.getLockVersion(),
             project.getDeletedAt() == null,
             project.getFunctionalComponents().stream()
