@@ -36,6 +36,9 @@ import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 import useCommitSha from "../hooks/useCommitSha";
+import useViewMode from "../hooks/useViewMode.ts";
+import useColumnCount from "../hooks/useColumnCount.ts";
+import useComponentCollapseStates from "../hooks/useComponentCollapseStates.ts";
 import useLanguage from "../hooks/useLanguage.tsx";
 
 import DatePicker from "react-datepicker";
@@ -123,25 +126,21 @@ function localDateToIsoDate(date: Date): string {
   return format(date, "yyyy-MM-dd");
 }
 
-function getWideScreenColumnCount(
-  isCompactMode: boolean,
-  isPanelOpen: boolean,
-) {
-  if (isCompactMode) return isPanelOpen ? 4 : 5;
-  return isPanelOpen ? 3 : 4;
-}
-
 export default function ProjectPage() {
   const { sessionToken, logout } = useAppUser();
   const { selectedProjectId } = useParams();
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true);
-  const [collapseAll, setCollapseAll] = useState<boolean>(true);
+  const {
+    collapseAll,
+    setCollapseAll,
+    descriptionRowsExpanded,
+    toggleDescriptionRows,
+    isCompactMode,
+    toggleCompactMode,
+  } = useViewMode();
   const [componentSearchQuery, setComponentSearchQuery] = useState<string>("");
-  const [descriptionRowsExpanded, setDescriptionRowsExpanded] =
-    useState<boolean>(true);
-  const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [includeFunctionsInReport, setIncludeFunctionsInReport] =
     useState<boolean>(false);
@@ -162,27 +161,7 @@ export default function ProjectPage() {
     handleDeleteComment,
   } = projectComments;
 
-  const [columnCount, setColumnCount] = useState<number>(
-    getWideScreenColumnCount(isCompactMode, isPanelOpen),
-  );
-
-  useEffect(() => {
-    const updateColumns = () => {
-      const width = window.innerWidth;
-      if (width < 768) {
-        setColumnCount(1);
-      } else if (width < 1280) {
-        setColumnCount(2);
-      } else {
-        setColumnCount(getWideScreenColumnCount(isCompactMode, isPanelOpen));
-      }
-    };
-
-    updateColumns();
-
-    window.addEventListener("resize", updateColumns);
-    return () => window.removeEventListener("resize", updateColumns);
-  }, [isPanelOpen, isCompactMode]);
+  const columnCount = useColumnCount(isCompactMode, isPanelOpen);
 
   const translations = useTranslations();
   const translation = translations.projectPage;
@@ -467,63 +446,8 @@ export default function ProjectPage() {
   const canReorder = isLatest && componentSearchQueryEmpty;
   const isPlacingSelected = canReorder && reorder.selectedCount > 0;
 
-  // Collapse state management for preventing components collapsing during auto-save
-  const [componentCollapseStates, setComponentCollapseStates] = useState<
-    Map<number, boolean>
-  >(new Map());
-
-  const updateComponentCollapseState = (
-    componentId: number,
-    collapsed: boolean,
-  ) => {
-    setComponentCollapseStates((prev) => {
-      const newMap = new Map(prev);
-      newMap.set(componentId, collapsed);
-      return newMap;
-    });
-  };
-
-  const getComponentCollapseState = (componentId: number): boolean => {
-    if (componentCollapseStates.has(componentId)) {
-      return componentCollapseStates.get(componentId)!;
-    }
-    return collapseAll ? componentId !== lastAddedComponentId : false;
-  };
-
-  const toggleDescriptionRows = () => {
-    setDescriptionRowsExpanded((prev) => !prev);
-  };
-
-  const toggleCompactMode = useCallback(() => {
-    if (isCompactMode) {
-      setIsCompactMode(false);
-      setCollapseAll(true);
-    } else {
-      setIsCompactMode(true);
-      setCollapseAll(false);
-    }
-  }, [isCompactMode]);
-
-  //keyboard shortcut for toggling between compact and full view
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-
-      //guard against toggling view when typing in an input/textarea field or using keyboard shortcuts
-      const isTyping =
-        target.tagName === "INPUT" || target.tagName === "TEXTAREA";
-      if (isTyping) return;
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
-
-      if (e.key.toLowerCase() === "v") {
-        e.preventDefault();
-        toggleCompactMode();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [toggleCompactMode]);
+  const { updateComponentCollapseState, getComponentCollapseState } =
+    useComponentCollapseStates(collapseAll, lastAddedComponentId);
 
   useEffect(() => {
     const getProject = async () => {
@@ -830,9 +754,6 @@ export default function ProjectPage() {
 
   useEffect(() => {
     setLastAddedComponentId(null);
-    // Clear individual collapse states when collapseAll is toggled
-    // so that all components follow the global collapse state
-    setComponentCollapseStates(new Map());
   }, [collapseAll]);
 
   if (loadingProject) return <LoadingSpinner />;
