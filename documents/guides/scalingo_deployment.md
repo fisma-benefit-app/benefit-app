@@ -234,12 +234,15 @@ Do this whenever a secret has been pasted somewhere it shouldn't be, and once af
 
 ## 9. Link frontend to the backend
 
-The frontend is hosted on GitHub Pages serves it at
+The current frontend (as of 2026-10-28) is hosted on GitHub Pages at
 `https://fisma-benefit-app.github.io/benefit-app/scalingo-testing/`.
 
-The GitHub Actions workflow builds the frontend with `VITE_API_URL` set to the
-Scalingo backend URL. Vite embeds this value in the build, so the browser uses the
-Scalingo API rather than the Heroku API. To configure it:
+The GitHub Actions workflow [sets `VITE_API_URL` from the
+`SCALINGO_TESTING_URL` secret](../../.github/workflows/deploy-scalingo-testing-frontend.yml#L46).
+The [frontend API code](../../frontend/src/api/authorization.ts#L3) reads
+`VITE_API_URL`, and [Vite checks that it is set](../../frontend/vite.config.ts#L14).
+Vite embeds the value in the build, so the browser uses the Scalingo API rather
+than the Heroku API. To configure it:
 
 1. In the GitHub repository, add the Actions secret `SCALINGO_TESTING_URL` with
    the backend URL, such as `https://<app>.osc-fr1.scalingo.io`. Do not include
