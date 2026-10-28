@@ -135,16 +135,11 @@ public class ProjectService {
    * @return the created ProjectResponse representing the new version
    * @throws EntityNotFoundException if the original project is not found or does not belong to the
    *     user
-   * @throws UnauthorizedException if the user is not found
    */
   @Transactional
   public ProjectResponse createProjectVersion(
       Long projectId, ProjectRequest versionRequest, String username) {
     var originalProject = findEditableProject(projectId, username);
-    var appUser =
-        appUserRepository
-            .findByUsernameActive(username)
-            .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
 
@@ -242,8 +237,11 @@ public class ProjectService {
     // Associate the project with the copied functional components
     savedProject.setFunctionalComponents(functionalComponents);
 
-    // Associate the project with the requesting user
-    savedProject.setProjectAppUsers(Set.of(new ProjectAppUser(savedProject, appUser)));
+    // The new version belongs to everyone who had access to the version it was made from.
+    savedProject.setProjectAppUsers(
+        originalProject.getProjectAppUsers().stream()
+            .map(pau -> new ProjectAppUser(savedProject, pau.getAppUser()))
+            .collect(Collectors.toSet()));
 
     return projectMapper.toResponse(savedProject);
   }
@@ -278,6 +276,86 @@ public class ProjectService {
     // Soft delete the project
     project.setDeletedAt(deletionTime);
     projectRepository.save(project);
+  }
+
+  /**
+   * Gives another user access to the project and to its other versions, so the new member sees the
+   * same version history as the rest. Every member has the same rights, including deleting the
+   * project.
+   *
+   * @param projectId the ID of the project to share
+   * @param newMemberUsername the username of the user to add
+   * @param username the username of the user sharing the project, who must already be a member
+   * @return the ProjectResponse with the updated member list
+   * @throws EntityNotFoundException if the project does not belong to the user, or no active user
+   *     has the given username
+   * @throws ConflictException if the user is already a member of the project
+   */
+  public ProjectResponse addUserToProject(
+      Long projectId, String newMemberUsername, String username) {
+    var project = findProjectForUser(projectId, username);
+    var newMember =
+        appUserRepository
+            .findByUsernameActive(newMemberUsername)
+            .orElseThrow(() -> new EntityNotFoundException("User not found: " + newMemberUsername));
+
+    if (isMember(project, newMember.getId())) {
+      throw new ConflictException(
+          ConflictException.ALREADY_MEMBER, "User is already a member of this project");
+    }
+
+    versionsOf(project, username).stream()
+        .filter(version -> !isMember(version, newMember.getId()))
+        .forEach(
+            version -> version.getProjectAppUsers().add(new ProjectAppUser(version, newMember)));
+    // The new rows are persisted by the cascade from the managed projects; flush so the response
+    // carries their IDs.
+    projectRepository.flush();
+
+    return projectMapper.toResponse(project);
+  }
+
+  /**
+   * Removes a user's access to the project and to its other versions. A member can remove anyone,
+   * including themselves; the project's data stays for the remaining members.
+   *
+   * @param projectId the ID of the project
+   * @param appUserId the ID of the user to remove
+   * @param username the username of the member removing the user
+   * @throws EntityNotFoundException if the project does not belong to the caller, or the user is
+   *     not a member of it
+   * @throws ConflictException if no other active member would be left, in which case the project
+   *     should be deleted instead
+   */
+  public void removeUserFromProject(Long projectId, Long appUserId, String username) {
+    var project = findProjectForUser(projectId, username);
+    if (!isMember(project, appUserId)) {
+      throw new EntityNotFoundException("User " + appUserId + " is not a member of this project");
+    }
+
+    boolean otherActiveMemberRemains =
+        project.getProjectAppUsers().stream()
+            .map(ProjectAppUser::getAppUser)
+            .anyMatch(user -> !user.getId().equals(appUserId) && user.getDeletedAt() == null);
+    if (!otherActiveMemberRemains) {
+      throw new ConflictException(
+          ConflictException.LAST_MEMBER,
+          "The last member cannot be removed from a project; delete the project instead");
+    }
+
+    versionsOf(project, username)
+        .forEach(
+            version ->
+                version
+                    .getProjectAppUsers()
+                    .removeIf(pau -> pau.getAppUser().getId().equals(appUserId)));
+    // orphanRemoval deletes the removed rows on flush.
+    projectRepository.flush();
+  }
+
+  private boolean isMember(Project project, Long appUserId) {
+    return project.getProjectAppUsers().stream()
+        .anyMatch(pau -> pau.getAppUser().getId().equals(appUserId));
   }
 
   /**

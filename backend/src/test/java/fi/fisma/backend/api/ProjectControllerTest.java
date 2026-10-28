@@ -176,6 +176,51 @@ class ProjectControllerTest {
   }
 
   @Test
+  void testAddUserToProject() {
+    when(projectService.addUserToProject(1L, "new-member", "test-user")).thenReturn(project);
+
+    var response =
+        mockMvcTester
+            .post()
+            .uri("/projects/{id}/users", 1L)
+            .with(jwtAuth)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"username\": \" new-member \"}")
+            .exchange();
+
+    assertThat(response).hasStatus(HttpStatus.OK);
+  }
+
+  @Test
+  void testAddUserToProject_BlankUsername() {
+    var response =
+        mockMvcTester
+            .post()
+            .uri("/projects/{id}/users", 1L)
+            .with(jwtAuth)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"username\": \"\"}")
+            .exchange();
+
+    assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
+  void testRemoveUserFromProject() {
+    doNothing().when(projectService).removeUserFromProject(1L, 5L, "test-user");
+
+    var response =
+        mockMvcTester
+            .delete()
+            .uri("/projects/{id}/users/{appUserId}", 1L, 5L)
+            .with(jwtAuth)
+            .exchange();
+
+    assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
+    verify(projectService).removeUserFromProject(1L, 5L, "test-user");
+  }
+
+  @Test
   void testDeleteProject() {
     doNothing().when(projectService).deleteProject(1L, "test-user");
 

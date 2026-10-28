@@ -1,5 +1,6 @@
 package fi.fisma.backend.api;
 
+import fi.fisma.backend.dto.ProjectMemberRequest;
 import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import fi.fisma.backend.service.ProjectService;
@@ -119,6 +120,43 @@ public class ProjectController {
       @Parameter(description = "ID of the project to delete") @PathVariable("id") Long id,
       Authentication authentication) {
     projectService.deleteProject(id, authentication.getName());
+    return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/{id}/users")
+  @Operation(
+      summary = "Add a user to a project",
+      description =
+          "Gives another user access to the project and all of its versions. The authenticated user must already have access. Every member has the same rights, including editing and deleting the project")
+  @ApiResponse(responseCode = "200", description = "User added; the updated project is returned")
+  @ApiResponse(responseCode = "400", description = "Invalid username")
+  @ApiResponse(responseCode = "404", description = "Project or user not found")
+  @ApiResponse(responseCode = "409", description = "User is already a member of the project")
+  public ResponseEntity<ProjectResponse> addUserToProject(
+      @Parameter(description = "ID of the project to share") @PathVariable("id") Long id,
+      @Valid @RequestBody ProjectMemberRequest memberRequest,
+      Authentication authentication) {
+    return ResponseEntity.ok(
+        projectService.addUserToProject(
+            id, memberRequest.getUsername().trim(), authentication.getName()));
+  }
+
+  @DeleteMapping("/{id}/users/{appUserId}")
+  @Operation(
+      summary = "Remove a user from a project",
+      description =
+          "Removes a user's access to the project and all of its versions. The authenticated user must have access and may remove themselves. The project is kept for the remaining members")
+  @ApiResponse(responseCode = "204", description = "User removed")
+  @ApiResponse(responseCode = "404", description = "Project not found, or user is not a member")
+  @ApiResponse(
+      responseCode = "409",
+      description = "The user is the last member; delete the project instead")
+  public ResponseEntity<Void> removeUserFromProject(
+      @Parameter(description = "ID of the project") @PathVariable("id") Long id,
+      @Parameter(description = "ID of the user to remove") @PathVariable("appUserId")
+          Long appUserId,
+      Authentication authentication) {
+    projectService.removeUserFromProject(id, appUserId, authentication.getName());
     return ResponseEntity.noContent().build();
   }
 
