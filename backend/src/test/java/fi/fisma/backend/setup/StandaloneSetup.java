@@ -1,8 +1,6 @@
 package fi.fisma.backend.setup;
 
 import fi.fisma.backend.dto.FunctionalComponentRequest;
-import fi.fisma.backend.dto.PasswordChangeRequest;
-import fi.fisma.backend.dto.ProjectRequest;
 import fi.fisma.backend.dto.ProjectResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -135,19 +133,6 @@ public class StandaloneSetup {
     dto.setPreviousFCId(123L);
     dto.setOrderPosition(1);
     dto.setIsMLA(false);
-    return dto;
-  }
-
-  public static PasswordChangeRequest createPasswordChangeRequest(PasswordChangeRequest dto) {
-    dto.setNewPassword("mySecret123");
-    return dto;
-  }
-
-  public static ProjectRequest createProjectRequest(ProjectRequest dto) {
-    dto.setProjectName("User Authentication System");
-    dto.setVersion(1);
-    dto.setReportContactDetails("Calculator");
-    dto.setReportNotes("Calculation note");
     return dto;
   }
 }
