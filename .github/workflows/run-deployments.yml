@@ -91,15 +91,16 @@ jobs:
           echo "Waiting for GitHub Pages deployment workflow to start..."
           sleep 20
 
-          # Take the earliest "pages build and deployment" run created at or
-          # after this deployment started, not the newest overall -- this job
-          # triggers a second Pages deploy (testing) right after this one, so
-          # "newest" can match the wrong run once both are in flight.
+          # Take the newest "pages build and deployment" run created at or
+          # after this deployment started. The two pushes above (production,
+          # then Scalingo testing) each start a Pages run, and Pages cancels
+          # the older one when the newer arrives, so the earliest run ends up
+          # 'cancelled' and the newest is the one that actually deploys.
           RUN_ID=$(gh run list \
             --repo "${{ github.repository }}" \
             --workflow "pages-build-deployment" \
             --json databaseId,createdAt \
-            --jq '[.[] | select(.createdAt >= "'"${{ github.event.deployment.created_at }}"'")] | sort_by(.createdAt) | .[0].databaseId')
+            --jq '[.[] | select(.createdAt >= "'"${{ github.event.deployment.created_at }}"'")] | sort_by(.createdAt) | last | .databaseId')
 
           if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
             echo "Error: Could not find a GitHub Pages deployment workflow run. The workflow may not have started yet or the API call failed."
