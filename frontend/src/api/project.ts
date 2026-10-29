@@ -212,7 +212,8 @@ const updateProject = async (
   const mapComponentToRequest = (
     fc: TGenericComponent,
   ): FunctionalComponentRequest => ({
-    id: fc.id,
+    // A component that has not been saved yet has id 0 (see the sub-component ids below)
+    id: fc.id > 0 ? fc.id : undefined,
     title: fc.title,
     description: fc.description,
     className: fc.className,

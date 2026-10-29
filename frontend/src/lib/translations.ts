@@ -48,6 +48,56 @@ export const translations = {
       createNew: "Create new",
       nameTakenError: "Name is already in use!",
     },
+    quickCalculation: {
+      architecture: "Architecture",
+      architectureOptions: {
+        threeLayer: "Three-layer",
+        singlePlatform: "Whole application on one platform",
+        isolatedUi: "Client-server, isolated user interface",
+        isolatedDatabase: "Client-server, isolated database",
+      },
+      functionality: "Functionality",
+      unit: "pcs",
+      items: {
+        query: {
+          label: "query screens that are not updated",
+          title: "Query screen",
+        },
+        input: { label: "update screens", title: "Update screen" },
+        output: {
+          label: "reports and other printouts",
+          title: "Report or printout",
+        },
+        interfaceTo: {
+          label: "interfaces to other systems",
+          title: "Interface to other systems",
+        },
+        interfaceFrom: {
+          label: "interfaces from other systems",
+          title: "Interface from other systems",
+        },
+        entity: {
+          label: "entities in the data model",
+          title: "Entity",
+        },
+        rule: {
+          label: "complex processing rules",
+          title: "Processing rule",
+        },
+      },
+      averagesHeader: "Average values of an item",
+      averagesDescription:
+        "Each item is sized with these values. The defaults are from the original FiSMA quick calculator.",
+      resetAverages: "Reset to defaults",
+      result: "Functional size",
+      createProjectHeader: "Create a project from this calculation",
+      createProjectDescription:
+        "Creates a new project with one component for each counted item, using the average values above.",
+      markAllComplete:
+        "Mark all components as complete (otherwise they start at 0 %)",
+      createProject: "Create project",
+      tooLarge: "What are you building, Skynet? This project is way too big.",
+    },
     projectList: {
       confirmDelete: "Are you sure you want to delete project",
       searchPlaceholder: "Find a project by name...",
@@ -411,6 +461,56 @@ export const translations = {
       cancel: "Peruuta",
       createNew: "Luo uusi",
       nameTakenError: "Nimi on jo käytössä!",
+    },
+    quickCalculation: {
+      architecture: "Arkkitehtuuri",
+      architectureOptions: {
+        threeLayer: "Kolmikerroksinen",
+        singlePlatform: "Koko sovellus yhdellä alustalla",
+        isolatedUi: "Client-server, eristetty käyttöliittymä",
+        isolatedDatabase: "Client-server, eristetty tietokanta",
+      },
+      functionality: "Toiminnallisuus",
+      unit: "kpl",
+      items: {
+        query: {
+          label: "hakunäyttöjä, joita ei päivitetä",
+          title: "Hakunäyttö",
+        },
+        input: { label: "päivitysnäyttöjä", title: "Päivitysnäyttö" },
+        output: {
+          label: "raportteja ja muita tulosteita",
+          title: "Raportti tai tuloste",
+        },
+        interfaceTo: {
+          label: "liittymiä muihin järjestelmiin",
+          title: "Liittymä muihin järjestelmiin",
+        },
+        interfaceFrom: {
+          label: "liittymiä muista järjestelmistä",
+          title: "Liittymä muista järjestelmistä",
+        },
+        entity: {
+          label: "käsitteitä tietomallissa",
+          title: "Käsite",
+        },
+        rule: {
+          label: "vaativia käsittelysääntöjä",
+          title: "Käsittelysääntö",
+        },
+      },
+      averagesHeader: "Yksittäisen kohteen keskiarvot",
+      averagesDescription:
+        "Jokaisen kohteen koko lasketaan näillä arvoilla. Oletusarvot ovat alkuperäisestä FiSMA-pikalaskurista.",
+      resetAverages: "Palauta oletusarvot",
+      result: "Toiminnallinen koko",
+      createProjectHeader: "Luo projekti tästä laskelmasta",
+      createProjectDescription:
+        "Luo uuden projektin, jossa on yksi komponentti jokaista laskettua kohdetta kohti ylläolevilla keskiarvoilla.",
+      markAllComplete:
+        "Merkitse kaikki komponentit valmiiksi (muuten ne alkavat 0 %:sta)",
+      createProject: "Luo projekti",
+      tooLarge: "Mitä sä rakennat, Skynetiä? Tämä projekti on aivan liian iso.",
     },
     projectList: {
       confirmDelete: "Oletko varma, että haluat poistaa projektin",

@@ -1,369 +1,350 @@
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { useNavigate } from "react-router";
+import {
+  createProject,
+  fetchAllProjects,
+  fetchProject,
+  updateProject,
+} from "../api/project.ts";
+import useAppUser from "../hooks/useAppUser.tsx";
+import useProjects from "../hooks/useProjects.tsx";
+import useTranslations from "../hooks/useTranslations.ts";
+import {
+  getComponentTypeOptions,
+  getInputFields,
+} from "../lib/fc-service-functions.ts";
+import {
+  MAX_GENERATED_COMPONENTS,
+  QuickCalculationAverage,
+  QuickCalculationCounts,
+  QuickCalculationKey,
+  buildQuickCalculationComponents,
+  calculateQuickCalculationSize,
+  countGeneratedComponents,
+  defaultQuickCalculationAverages,
+  quickCalculationItems,
+} from "../lib/quickCalculation.ts";
+import { ComponentType, TGenericComponent } from "../lib/types.ts";
+import DotLoadingSpinner from "./DotLoadingSpinner.tsx";
+
+const parameterFields = [
+  "dataElements",
+  "readingReferences",
+  "writingReferences",
+  "operations",
+] as const;
+
+const inputClassName =
+  "w-full max-w-[120px] sm:max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base";
+
+const toCount = (value: string) => Math.max(0, parseInt(value) || 0);
 
 const QuickCalculation = () => {
-  type QuickCalculationType = {
-    numQuery: string;
-    numInput: string;
-    numOutput: string;
-    numIFaceTo: string;
-    numIFaceFrom: string;
-    numEntity: string;
-    numRule: string;
-  };
+  const navigate = useNavigate();
+  const { loggedIn, sessionToken, logout } = useAppUser();
+  const { sortedProjects, setProjects } = useProjects();
+  const translations = useTranslations();
+  const translation = translations.quickCalculation;
+  const classTranslation = translations.functionalClassComponent;
+  const newProjectTranslation = translations.newProjectModal;
 
-  const [quickCalculationData, setQuickCalculationData] =
-    useState<QuickCalculationType>({
-      numQuery: "",
-      numInput: "",
-      numOutput: "",
-      numIFaceTo: "",
-      numIFaceFrom: "",
-      numEntity: "",
-      numRule: "",
-    });
-  const [quickCalculationResult, setQuickCalculationResult] =
-    useState<number>(0);
+  const [countInputs, setCountInputs] = useState<
+    Record<QuickCalculationKey, string>
+  >({
+    query: "",
+    input: "",
+    output: "",
+    interfaceTo: "",
+    interfaceFrom: "",
+    entity: "",
+    rule: "",
+  });
+  const [averages, setAverages] = useState(defaultQuickCalculationAverages);
+  const [projectName, setProjectName] = useState("");
+  const [markAllComplete, setMarkAllComplete] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const counts = Object.fromEntries(
+    quickCalculationItems.map(({ key }) => [key, toCount(countInputs[key])]),
+  ) as QuickCalculationCounts;
+  const size = Math.round(calculateQuickCalculationSize(counts, averages));
+  const tooLarge =
+    countGeneratedComponents(counts, averages) > MAX_GENERATED_COMPONENTS;
+
+  const handleCountChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setQuickCalculationData({ ...quickCalculationData, [name]: value });
+    setCountInputs({ ...countInputs, [name]: value });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const updateAverage = (
+    key: QuickCalculationKey,
+    change: Partial<QuickCalculationAverage>,
+  ) => {
+    setAverages({ ...averages, [key]: { ...averages[key], ...change } });
+  };
+
+  const handleCreateProject = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    countTotalSize();
-  };
+    setError(null);
 
-  // FiSMA Pikalaskuri JavaScript
-  function countTotalSize() {
-    let fpSize = 0;
-    //currently spec is that only mla is needed
-    const platformSelection = 4;
-    let numQuery = 0;
-    let numInput = 0;
-    let numOutput = 0;
-    let numIFaceTo = 0;
-    let numIFaceFrom = 0;
-    let numEntity = 0;
-    let numRule = 0;
-
-    const SingleQrySize = countQuerySize(0.2, 12, 7, 2, 2);
-    const SingleInpSize = countInputSize(2, 0.2, 12, 5, 2, 1.5, 1, 2);
-    const SingleOutSize = countOutputSize(1, 20, 5, 3, 2);
-    const SingleIFToSize = countIFaceToSize(0.5, 15, 7, 2, 2);
-    const SingleIFFromSize = countIFaceFromSize(0.2, 15, 5, 2, 1.5, 1, 2);
-    const SingleEntSize = countEntitySize(1.5, 12, 4);
-    const SingleRuleSize = countRuleSize(0.1, 10, 5, 9, 3);
-    let architectureMsgSize = 0;
-
-    numQuery = parseInt(quickCalculationData.numQuery) || 0;
-    numInput = parseInt(quickCalculationData.numInput) || 0;
-    numOutput = parseInt(quickCalculationData.numOutput) || 0;
-    numIFaceTo = parseInt(quickCalculationData.numIFaceTo) || 0;
-    numIFaceFrom = parseInt(quickCalculationData.numIFaceFrom) || 0;
-    numEntity = parseInt(quickCalculationData.numEntity) || 0;
-    numRule = parseInt(quickCalculationData.numRule) || 0;
-
-    fpSize = fpSize + SingleQrySize * numQuery;
-    fpSize = fpSize + SingleInpSize * numInput;
-    fpSize = fpSize + SingleOutSize * numOutput;
-    fpSize = fpSize + SingleIFToSize * numIFaceTo;
-    fpSize = fpSize + SingleIFFromSize * numIFaceFrom;
-    fpSize = fpSize + SingleEntSize * numEntity;
-    fpSize = fpSize + SingleRuleSize * numRule;
-
-    architectureMsgSize = countLayerMsgSize(
-      platformSelection,
-      numQuery,
-      numInput,
-      numEntity,
-      SingleIFToSize,
-      SingleIFFromSize,
+    const nameTaken = sortedProjects.some(
+      (project) =>
+        project.projectName.toLowerCase() === projectName.toLowerCase(),
     );
-    fpSize = fpSize + architectureMsgSize;
-    setQuickCalculationResult(Math.round(fpSize));
-  }
-
-  function countQuerySize(
-    cEstQ: number,
-    nDataElemQ: number,
-    cDataElemQ: number,
-    nReadRefQ: number,
-    cReadRefQ: number,
-  ) {
-    const QuerySize = cEstQ + nDataElemQ / cDataElemQ + nReadRefQ / cReadRefQ;
-    return QuerySize;
-  }
-
-  function countInputSize(
-    nFunc: number,
-    cEstI: number,
-    nDataElemI: number,
-    cDataElemI: number,
-    nReadRefI: number,
-    cReadRefI: number,
-    nWriteRefI: number,
-    cWriteRefI: number,
-  ) {
-    const InputSize =
-      nFunc *
-      (cEstI +
-        nDataElemI / cDataElemI +
-        nReadRefI / cReadRefI +
-        nWriteRefI / cWriteRefI);
-    return InputSize;
-  }
-
-  function countOutputSize(
-    cEstO: number,
-    nDataElemO: number,
-    cDataElemO: number,
-    nReadRefO: number,
-    cReadRefO: number,
-  ) {
-    const OutputSize = cEstO + nDataElemO / cDataElemO + nReadRefO / cReadRefO;
-    return OutputSize;
-  }
-
-  function countIFaceToSize(
-    cEstIt: number,
-    nDataElemIt: number,
-    cDataElemIt: number,
-    nReadRefIt: number,
-    cReadRefIt: number,
-  ) {
-    const IFaceToSize =
-      cEstIt + nDataElemIt / cDataElemIt + nReadRefIt / cReadRefIt;
-    return IFaceToSize;
-  }
-
-  function countIFaceFromSize(
-    cEstIf: number,
-    nDataElemIf: number,
-    cDataElemIf: number,
-    nReadRefIf: number,
-    cReadRefIf: number,
-    nWriteRefIf: number,
-    cWriteRefIf: number,
-  ) {
-    const IFaceFromSize =
-      cEstIf +
-      nDataElemIf / cDataElemIf +
-      nReadRefIf / cReadRefIf +
-      nWriteRefIf / cWriteRefIf;
-    return IFaceFromSize;
-  }
-
-  function countEntitySize(
-    cEstEnt: number,
-    nDataElemEnt: number,
-    cDataElemEnt: number,
-  ) {
-    const EntitySize = cEstEnt + nDataElemEnt / cDataElemEnt;
-    return EntitySize;
-  }
-
-  function countRuleSize(
-    cEstR: number,
-    nDataElemR: number,
-    cDataElemR: number,
-    nOperR: number,
-    cOperR: number,
-  ) {
-    const RuleSize = cEstR + nDataElemR / cDataElemR + nOperR / cOperR;
-    return RuleSize;
-  }
-
-  function countLayerMsgSize(
-    platformSel: number,
-    nQry: number,
-    nInp: number,
-    nEnt: number,
-    IFToSize: number,
-    IFFromSize: number,
-  ) {
-    if (platformSel == 2) {
-      // Client-server with isolated UI
-      return 2 * (nQry + nInp) * IFToSize + 2 * (nQry + nInp) * IFFromSize;
-    } else if (platformSel == 3) {
-      // Client-server with isolated DB
-      return 2 * nEnt * (IFToSize + IFFromSize);
-    } else if (platformSel == 4) {
-      // Multi-layer platform (3-tier architecture)
-      return 2 * (nQry + nInp + nEnt) * (IFToSize + IFFromSize);
-    } else {
-      return 0;
+    if (!projectName.trim() || nameTaken) {
+      setError(
+        nameTaken
+          ? newProjectTranslation.nameTakenError
+          : newProjectTranslation.noNameError,
+      );
+      setProjectName("");
+      return;
     }
-  }
+
+    setLoading(true);
+    try {
+      const titles = Object.fromEntries(
+        quickCalculationItems.map(({ key }) => [
+          key,
+          translation.items[key].title,
+        ]),
+      ) as Record<QuickCalculationKey, string>;
+      const components = buildQuickCalculationComponents(
+        counts,
+        averages,
+        titles,
+        markAllComplete ? 1 : 0,
+      );
+
+      // Same two steps as the CSV import: the sub-components can only be attached once their
+      // parents have been saved and have ids.
+      const idOfNewProject = Number(
+        await createProject(sessionToken, projectName),
+      );
+      const emptyProject = await fetchProject(sessionToken, idOfNewProject);
+      await updateProject(sessionToken, {
+        ...emptyProject,
+        functionalComponents: components.map((component) => ({
+          ...component,
+          subComponents: undefined,
+        })),
+      });
+
+      const savedProject = await fetchProject(sessionToken, idOfNewProject);
+      await updateProject(sessionToken, {
+        ...savedProject,
+        functionalComponents: components.map((component) => {
+          const savedComponent = savedProject.functionalComponents.find(
+            (saved: TGenericComponent) => saved.title === component.title,
+          );
+          if (!savedComponent) {
+            throw new Error(`Component ${component.title} was not saved!`);
+          }
+          return {
+            ...component,
+            id: savedComponent.id,
+            subComponents: component.subComponents?.map((subComponent) => ({
+              ...subComponent,
+              parentFCId: savedComponent.id,
+            })),
+          };
+        }),
+      });
+
+      await fetchAllProjects(sessionToken).then(setProjects);
+      navigate(`/project/${idOfNewProject}`);
+    } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized!") {
+        await logout();
+      }
+      setError(err instanceof Error ? err.message : "Unexpected error.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="pt-24">
-      <div className="max-w-[800px] my-8 mx-auto">
-        <form name="FPFastCalculator" onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label
-              htmlFor="platformList"
-              className="block mb-2 font-medium text-[#333]"
-            >
-              Arkkitehtuuri
-            </label>
-            <select
-              disabled
-              id="platformList"
-              name="platformList"
-              className="w-full max-w-[200px] p-2 border bg-gray-400 border-[#ccc] rounded text-base"
-            >
-              <option value="4">Kolmikerroksinen</option>
-              <option value="1">Koko sovellus yhdellä alustalla</option>
-              <option value="2">Client-server, eristetty käyttöliittymä</option>
-              <option value="3">Client server, eristetty tietokanta</option>
-            </select>
-          </div>
-
-          <div className="mb-6">
-            <h3>Toiminnallisuus</h3>
-
-            <div className="flex items-center gap-4 mb-4">
-              <input
-                type="number"
-                id="numQuery"
-                name="numQuery"
-                value={quickCalculationData.numQuery}
-                min="0"
-                onChange={handleChange}
-                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
-              />
-              <label
-                htmlFor="numQuery"
-                className="block m-0 font-normal text-[#333]"
-              >
-                kpl hakunäyttöjä, joita ei päivitetä
-              </label>
-            </div>
-
-            <div className="flex items-center gap-4 mb-4">
-              <input
-                type="number"
-                id="numInput"
-                name="numInput"
-                value={quickCalculationData.numInput}
-                min="0"
-                onChange={handleChange}
-                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
-              />
-              <label
-                htmlFor="numInput"
-                className="block m-0 font-normal text-[#333]"
-              >
-                kpl päivitysnäyttöjä
-              </label>
-            </div>
-
-            <div className="flex items-center gap-4 mb-4">
-              <input
-                type="number"
-                id="numOutput"
-                name="numOutput"
-                value={quickCalculationData.numOutput}
-                min="0"
-                onChange={handleChange}
-                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
-              />
-              <label
-                htmlFor="numOutput"
-                className="block m-0 font-normal text-[#333]"
-              >
-                kpl raportteja ja muita tulosteita
-              </label>
-            </div>
-
-            <div className="flex items-center gap-4 mb-4">
-              <input
-                type="number"
-                id="numIFaceTo"
-                name="numIFaceTo"
-                value={quickCalculationData.numIFaceTo}
-                min="0"
-                onChange={handleChange}
-                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
-              />
-              <label
-                htmlFor="numIFaceTo"
-                className="block m-0 font-normal text-[#333]"
-              >
-                kpl liittymiä muihin järjestelmiin
-              </label>
-            </div>
-
-            <div className="flex items-center gap-4 mb-4">
-              <input
-                type="number"
-                id="numIFaceFrom"
-                name="numIFaceFrom"
-                value={quickCalculationData.numIFaceFrom}
-                min="0"
-                onChange={handleChange}
-                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
-              />
-              <label
-                htmlFor="numIFaceFrom"
-                className="block m-0 font-normal text-[#333]"
-              >
-                kpl liittymiä muista järjestelmistä
-              </label>
-            </div>
-
-            <div className="flex items-center gap-4 mb-4">
-              <input
-                type="number"
-                id="numEntity"
-                name="numEntity"
-                value={quickCalculationData.numEntity}
-                min="0"
-                onChange={handleChange}
-                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
-              />
-              <label
-                htmlFor="numEntity"
-                className="block m-0 font-normal text-[#333]"
-              >
-                kpl käsitteitä tietomallissa
-              </label>
-            </div>
-
-            <div className="flex items-center gap-4 mb-4">
-              <input
-                type="number"
-                id="numRule"
-                name="numRule"
-                value={quickCalculationData.numRule}
-                min="0"
-                onChange={handleChange}
-                className="w-full max-w-[200px] shrink-0 p-2 border border-[#ccc] bg-white rounded text-base"
-              />
-              <label
-                htmlFor="numRule"
-                className="block m-0 font-normal text-[#333]"
-              >
-                kpl vaativia käsittelysääntöjä
-              </label>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="bg-[#1e73be] hover:bg-[#13517a] text-white py-3 px-8 border-0 rounded text-base cursor-pointer my-6"
+    <div className="pt-24 pb-8">
+      <div className="max-w-[800px] mt-8 mx-auto px-4">
+        <div className="mb-6">
+          <label
+            htmlFor="platformList"
+            className="block mb-2 font-medium text-[#333]"
           >
-            Laske
+            {translation.architecture}
+          </label>
+          <select
+            disabled
+            id="platformList"
+            name="platformList"
+            className="w-full max-w-[200px] p-2 border bg-gray-400 border-[#ccc] rounded text-base"
+          >
+            <option value="4">
+              {translation.architectureOptions.threeLayer}
+            </option>
+            <option value="1">
+              {translation.architectureOptions.singlePlatform}
+            </option>
+            <option value="2">
+              {translation.architectureOptions.isolatedUi}
+            </option>
+            <option value="3">
+              {translation.architectureOptions.isolatedDatabase}
+            </option>
+          </select>
+        </div>
+
+        <div className="mb-6">
+          <h3>{translation.functionality}</h3>
+
+          {quickCalculationItems.map(({ key }) => (
+            <div key={key} className="flex items-center gap-4 mb-4">
+              <input
+                type="number"
+                id={key}
+                name={key}
+                value={countInputs[key]}
+                min="0"
+                onChange={handleCountChange}
+                className={inputClassName}
+              />
+              <label
+                htmlFor={key}
+                className="block m-0 font-normal text-[#333]"
+              >
+                {translation.unit} {translation.items[key].label}
+              </label>
+            </div>
+          ))}
+        </div>
+
+        <details className="mb-6">
+          <summary className="cursor-pointer font-medium text-[#333]">
+            {translation.averagesHeader}
+          </summary>
+          <p className="my-3 text-[#333]">{translation.averagesDescription}</p>
+          <button
+            type="button"
+            onClick={() => setAverages(defaultQuickCalculationAverages)}
+            className="mb-4 bg-[#1e73be] hover:bg-[#13517a] text-white py-2 px-4 border-0 rounded text-base cursor-pointer"
+          >
+            {translation.resetAverages}
           </button>
-        </form>
+          {quickCalculationItems.map(({ key, className }) => {
+            const inputFields = getInputFields(className);
+            return (
+              <div key={key} className="mb-4">
+                <div className="mb-1 font-medium text-[#333]">
+                  {translation.items[key].title}
+                </div>
+                <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:items-end">
+                  {key === "input" && (
+                    <select
+                      aria-label={classTranslation.componentTypePlaceholder}
+                      value={averages[key].componentType}
+                      onChange={(e) =>
+                        updateAverage(key, {
+                          componentType: e.target.value as ComponentType,
+                        })
+                      }
+                      className="col-span-2 sm:col-span-1 p-2 border border-[#ccc] bg-white rounded text-base"
+                    >
+                      {getComponentTypeOptions(className).map((option) => (
+                        <option key={option} value={option}>
+                          {classTranslation.componentTypeOptions[option]}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  {parameterFields
+                    .filter((field) => inputFields.includes(field))
+                    .map((field) => (
+                      <div key={field} className="flex flex-col">
+                        <label
+                          htmlFor={`${key}-${field}`}
+                          className="text-sm text-[#333]"
+                        >
+                          {classTranslation.parameters[field].fullView}
+                        </label>
+                        <input
+                          type="number"
+                          id={`${key}-${field}`}
+                          value={averages[key][field]}
+                          min="0"
+                          onChange={(e) =>
+                            updateAverage(key, {
+                              [field]: Math.max(
+                                0,
+                                Math.trunc(Number(e.target.value)) || 0,
+                              ),
+                            })
+                          }
+                          className="w-full sm:w-28 p-2 border border-[#ccc] bg-white rounded text-base"
+                        />
+                      </div>
+                    ))}
+                </div>
+              </div>
+            );
+          })}
+        </details>
 
         <div
           className="bg-[#f8f9fa] border-2 border-[#1e73be] rounded-lg p-6 mt-8 text-2xl font-bold text-[#1e73be] text-center"
           id="Tulosalue"
         >
-          Toiminnallinen koko: {quickCalculationResult} fp
+          {translation.result}: {size} fp
         </div>
+
+        {loggedIn && (
+          <form onSubmit={handleCreateProject} className="mt-8">
+            <h3>{translation.createProjectHeader}</h3>
+            <p className="my-3 text-[#333]">
+              {translation.createProjectDescription}
+            </p>
+            <div className="flex flex-col gap-4 max-w-[400px]">
+              <input
+                type="text"
+                maxLength={60}
+                placeholder={newProjectTranslation.placeholderText}
+                value={projectName}
+                onChange={(e) => {
+                  setProjectName(e.target.value);
+                  setError(null);
+                }}
+                required
+                className="w-full p-2 border border-[#ccc] bg-white rounded text-base"
+              />
+              <label className="flex items-center gap-2 text-[#333]">
+                <input
+                  type="checkbox"
+                  checked={markAllComplete}
+                  onChange={(e) => setMarkAllComplete(e.target.checked)}
+                />
+                {translation.markAllComplete}
+              </label>
+              {tooLarge && (
+                <p className="m-0 text-fisma-red">{translation.tooLarge}</p>
+              )}
+              {error && <p className="m-0 text-fisma-red">{error}</p>}
+              <div className="flex items-center gap-4">
+                <button
+                  type="submit"
+                  disabled={loading || tooLarge || size === 0}
+                  className="bg-[#1e73be] hover:bg-[#13517a] disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 px-8 border-0 rounded text-base cursor-pointer"
+                >
+                  {translation.createProject}
+                </button>
+                {loading && (
+                  <span className="bg-fisma-blue rounded p-1">
+                    <DotLoadingSpinner />
+                  </span>
+                )}
+              </div>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
