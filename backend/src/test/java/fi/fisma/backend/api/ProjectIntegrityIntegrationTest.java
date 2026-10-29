@@ -527,7 +527,34 @@ class ProjectIntegrityIntegrationTest {
     }
   }
 
+  // --- duplicate naming ---
+
+  @Test
+  void duplicatingAgainPicksAFreeNameInsteadOfJoiningTheFirstCopysVersions() throws Exception {
+    String name = "dupname-" + suffix;
+    long id = createProject(mallory, name);
+
+    String first = duplicate(id).path("projectName").asText();
+    String second = duplicate(id).path("projectName").asText();
+    String third = duplicate(id).path("projectName").asText();
+
+    assertThat(first).isEqualTo(name + " - Copy");
+    assertThat(second).isEqualTo(name + " - Copy 2");
+    assertThat(third).isEqualTo(name + " - Copy 3");
+  }
+
   // --- helpers ---
+
+  private JsonNode duplicate(long id) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(post("/projects/{id}/duplicate", id).header("Authorization", bearer(mallory)))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode duplicate = objectMapper.readTree(result.getResponse().getContentAsString());
+    projectIds.add(duplicate.path("id").asLong());
+    return duplicate;
+  }
 
   private String createUser(String username) {
     AppUser user =

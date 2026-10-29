@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -399,6 +400,31 @@ public class ProjectService {
         .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
   }
 
+  /**
+   * Picks "<name> - Copy", or "<name> - Copy 2", "<name> - Copy 3", ... for the first one that none
+   * of the user's projects has (case-insensitively), because a shared name would make the copy a
+   * version of that project. The original name is truncated to keep the result within the maximum
+   * length.
+   */
+  private String freeDuplicateName(String originalName, String username) {
+    Set<String> takenNames =
+        projectRepository.findAllByUsernameActive(username).stream()
+            .map(p -> p.getProjectName().toLowerCase(Locale.ROOT))
+            .collect(Collectors.toSet());
+    for (int copyNumber = 1; ; copyNumber++) {
+      String suffix = copyNumber == 1 ? DUPLICATE_SUFFIX : DUPLICATE_SUFFIX + " " + copyNumber;
+      int maxOriginalNameLength = MAX_PROJECT_NAME_LENGTH - suffix.length();
+      String truncatedName =
+          originalName.length() > maxOriginalNameLength
+              ? originalName.substring(0, maxOriginalNameLength)
+              : originalName;
+      String candidate = truncatedName + suffix;
+      if (!takenNames.contains(candidate.toLowerCase(Locale.ROOT))) {
+        return candidate;
+      }
+    }
+  }
+
   @Transactional
   public Project duplicateProject(Long id, String username) {
     // Find the initial project in database
@@ -413,13 +439,7 @@ public class ProjectService {
     Project duplicatedProject = new Project();
 
     // 3. Shallow copy
-    String originalName = originalProject.getProjectName();
-    int maxOriginalNameLength = MAX_PROJECT_NAME_LENGTH - DUPLICATE_SUFFIX.length();
-    String truncatedName =
-        originalName.length() > maxOriginalNameLength
-            ? originalName.substring(0, maxOriginalNameLength)
-            : originalName;
-    duplicatedProject.setProjectName(truncatedName + DUPLICATE_SUFFIX);
+    duplicatedProject.setProjectName(freeDuplicateName(originalProject.getProjectName(), username));
     duplicatedProject.setReportContactDetails(originalProject.getReportContactDetails());
     duplicatedProject.setReportNotes(originalProject.getReportNotes());
     duplicatedProject.setCalculationDate(originalProject.getCalculationDate());
