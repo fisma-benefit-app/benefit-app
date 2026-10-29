@@ -22,6 +22,7 @@ export const translations = {
       profile: "Profile",
       menu: "Menu",
       testVersion: "Test Version",
+      quickcalculation: "Quick Calculation",
     },
     loginForm: {
       header: "Sign in",
@@ -47,6 +48,56 @@ export const translations = {
       createNew: "Create new",
       nameTakenError: "Name is already in use!",
     },
+    quickCalculation: {
+      architecture: "Architecture",
+      architectureOptions: {
+        threeLayer: "Three-layer",
+        singlePlatform: "Whole application on one platform",
+        isolatedUi: "Client-server, isolated user interface",
+        isolatedDatabase: "Client-server, isolated database",
+      },
+      functionality: "Functionality",
+      unit: "pcs",
+      items: {
+        query: {
+          label: "query screens that are not updated",
+          title: "Query screen",
+        },
+        input: { label: "update screens", title: "Update screen" },
+        output: {
+          label: "reports and other printouts",
+          title: "Report or printout",
+        },
+        interfaceTo: {
+          label: "interfaces to other systems",
+          title: "Interface to other systems",
+        },
+        interfaceFrom: {
+          label: "interfaces from other systems",
+          title: "Interface from other systems",
+        },
+        entity: {
+          label: "entities in the data model",
+          title: "Entity",
+        },
+        rule: {
+          label: "complex processing rules",
+          title: "Processing rule",
+        },
+      },
+      averagesHeader: "Average values of an item",
+      averagesDescription:
+        "Each item is sized with these values. The defaults are from the original FiSMA quick calculator.",
+      resetAverages: "Reset to defaults",
+      result: "Functional size",
+      createProjectHeader: "Create a project from this calculation",
+      createProjectDescription:
+        "Creates a new project with one component for each counted item, using the average values above.",
+      markAllComplete:
+        "Mark all components as complete (otherwise they start at 0 %)",
+      createProject: "Create project",
+      tooLarge: "What are you building, Skynet? This project is way too big.",
+    },
     projectList: {
       confirmDelete: "Are you sure you want to delete project",
       searchPlaceholder: "Find a project by name...",
@@ -61,6 +112,25 @@ export const translations = {
       delete: "Delete",
       actions: "Actions",
       githubCommitSha: "GitHub commit SHA: ",
+      share: "Share",
+      shareProject: "Share project",
+      shareDescription:
+        "Everyone with access can view, edit and delete the project and its versions.",
+      shareMembers: "People with access",
+      shareUsername: "Username",
+      shareAdd: "Add",
+      shareUserNotFound: "No user was found with that username.",
+      shareAlreadyMember: "That user already has access to this project.",
+      shareFailed: "Adding the user failed. Please try again.",
+      shareClose: "Close",
+      shareRemove: "Remove access",
+      shareLeave: "Leave project",
+      shareYou: "you",
+      shareConfirmRemove: "Remove access from",
+      shareConfirmLeave:
+        "Leave this project? You will no longer be able to open it.",
+      shareLastMember:
+        "The last person with access cannot be removed. Delete the project instead.",
     },
     csvHeaders: {
       title: "Title",
@@ -293,7 +363,13 @@ export const translations = {
       saveFailed: "Save failed",
       saveConflictMessage:
         "This project was saved in another tab or window. Keeping your changes replaces that save; loading it discards your changes.",
+      versionArchivedMessage:
+        "This version was archived in another tab or window and can no longer be edited. Loading the saved version discards your changes.",
+      saveConflictArchiveMessage:
+        "This project was saved in another tab or window. Keep my changes replaces that save and archives your version. Load saved version discards your changes and does not archive. Cancel archiving returns to editing.",
       keepMyChanges: "Keep my changes",
+      keepMyChangesAndArchive: "Keep my changes and archive",
+      cancelArchiving: "Cancel archiving",
       loadSavedVersion: "Load saved version",
       loading: "Loading...",
       creating: "Creating...",
@@ -360,6 +436,7 @@ export const translations = {
       profile: "Profiili",
       menu: "Valikko",
       testVersion: "Testiversio",
+      quickcalculation: "Pikalaskuri",
     },
     loginForm: {
       header: "Kirjaudu sisään",
@@ -385,6 +462,56 @@ export const translations = {
       createNew: "Luo uusi",
       nameTakenError: "Nimi on jo käytössä!",
     },
+    quickCalculation: {
+      architecture: "Arkkitehtuuri",
+      architectureOptions: {
+        threeLayer: "Kolmikerroksinen",
+        singlePlatform: "Koko sovellus yhdellä alustalla",
+        isolatedUi: "Client-server, eristetty käyttöliittymä",
+        isolatedDatabase: "Client-server, eristetty tietokanta",
+      },
+      functionality: "Toiminnallisuus",
+      unit: "kpl",
+      items: {
+        query: {
+          label: "hakunäyttöjä, joita ei päivitetä",
+          title: "Hakunäyttö",
+        },
+        input: { label: "päivitysnäyttöjä", title: "Päivitysnäyttö" },
+        output: {
+          label: "raportteja ja muita tulosteita",
+          title: "Raportti tai tuloste",
+        },
+        interfaceTo: {
+          label: "liittymiä muihin järjestelmiin",
+          title: "Liittymä muihin järjestelmiin",
+        },
+        interfaceFrom: {
+          label: "liittymiä muista järjestelmistä",
+          title: "Liittymä muista järjestelmistä",
+        },
+        entity: {
+          label: "käsitteitä tietomallissa",
+          title: "Käsite",
+        },
+        rule: {
+          label: "vaativia käsittelysääntöjä",
+          title: "Käsittelysääntö",
+        },
+      },
+      averagesHeader: "Yksittäisen kohteen keskiarvot",
+      averagesDescription:
+        "Jokaisen kohteen koko lasketaan näillä arvoilla. Oletusarvot ovat alkuperäisestä FiSMA-pikalaskurista.",
+      resetAverages: "Palauta oletusarvot",
+      result: "Toiminnallinen koko",
+      createProjectHeader: "Luo projekti tästä laskelmasta",
+      createProjectDescription:
+        "Luo uuden projektin, jossa on yksi komponentti jokaista laskettua kohdetta kohti ylläolevilla keskiarvoilla.",
+      markAllComplete:
+        "Merkitse kaikki komponentit valmiiksi (muuten ne alkavat 0 %:sta)",
+      createProject: "Luo projekti",
+      tooLarge: "Mitä sä rakennat, Skynetiä? Tämä projekti on aivan liian iso.",
+    },
     projectList: {
       confirmDelete: "Oletko varma, että haluat poistaa projektin",
       searchPlaceholder: "Etsi projekti nimellä...",
@@ -399,6 +526,24 @@ export const translations = {
       delete: "Poista",
       actions: "Toiminnot",
       githubCommitSha: "GitHub kommitti SHA: ",
+      share: "Jaa",
+      shareProject: "Jaa projekti",
+      shareDescription:
+        "Kaikki, joilla on pääsy, voivat katsoa, muokata ja poistaa projektin ja sen versiot.",
+      shareMembers: "Käyttäjät, joilla on pääsy",
+      shareUsername: "Käyttäjätunnus",
+      shareAdd: "Lisää",
+      shareUserNotFound: "Käyttäjää ei löytynyt tällä käyttäjätunnuksella.",
+      shareAlreadyMember: "Käyttäjällä on jo pääsy tähän projektiin.",
+      shareFailed: "Käyttäjän lisääminen epäonnistui. Yritä uudelleen.",
+      shareClose: "Sulje",
+      shareRemove: "Poista pääsy",
+      shareLeave: "Poistu projektista",
+      shareYou: "sinä",
+      shareConfirmRemove: "Poistetaanko pääsy käyttäjältä",
+      shareConfirmLeave: "Poistutaanko projektista? Et voi enää avata sitä.",
+      shareLastMember:
+        "Viimeistä käyttäjää ei voi poistaa. Poista projekti sen sijaan.",
     },
     csvHeaders: {
       title: "Otsikko",
@@ -633,7 +778,13 @@ export const translations = {
       saveFailed: "Tallennus epäonnistui",
       saveConflictMessage:
         "Tämä projekti tallennettiin toisessa välilehdessä tai ikkunassa. Omien muutosten säilyttäminen korvaa sen tallennuksen; tallennetun version lataaminen hylkää muutoksesi.",
+      versionArchivedMessage:
+        "Tämä versio arkistoitiin toisessa välilehdessä tai ikkunassa, eikä sitä voi enää muokata. Tallennetun version lataaminen hylkää muutoksesi.",
+      saveConflictArchiveMessage:
+        "Tämä projekti tallennettiin toisessa välilehdessä tai ikkunassa. Säilytä omani ja arkistoi korvaa sen tallennuksen ja arkistoi sinun versiosi. Lataa tallennettu hylkää muutoksesi eikä arkistoi. Peru arkistointi palaa muokkaamaan.",
       keepMyChanges: "Säilytä omani",
+      keepMyChangesAndArchive: "Säilytä omani ja arkistoi",
+      cancelArchiving: "Peru arkistointi",
       loadSavedVersion: "Lataa tallennettu",
       loading: "Ladataan...",
       creating: "Luodaan...",

@@ -9,6 +9,11 @@ interface ConfirmProps {
   confirmLabel?: string;
   cancelLabel?: string;
   onCancel?: () => void;
+  // For a decision with only one way forward.
+  hideCancel?: boolean;
+  // A third button that backs out of the decision itself, e.g. "Cancel archiving".
+  dismissLabel?: string;
+  onDismiss?: () => void;
 }
 
 export default function ConfirmModal({
@@ -19,6 +24,9 @@ export default function ConfirmModal({
   confirmLabel,
   cancelLabel,
   onCancel,
+  hideCancel,
+  dismissLabel,
+  onDismiss,
 }: ConfirmProps) {
   const translation = useTranslations().confirmModal;
 
@@ -30,24 +38,38 @@ export default function ConfirmModal({
         <h2 className="text-white text-2xl font-medium text-center overflow-hidden overflow-ellipsis bg-fisma-dark-blue mb-4 -mx-4 -mt-4 px-4 py-4">
           {message}
         </h2>
-        <div className="flex justify-evenly items-center">
-          <button
-            type="button"
-            onClick={() => {
-              onCancel?.();
-              setOpen(false);
-            }}
-            className="min-w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
-          >
-            {cancelLabel ?? translation.cancel}
-          </button>
+        <div className="flex flex-wrap justify-evenly items-center gap-2">
+          {!hideCancel && (
+            <button
+              type="button"
+              onClick={() => {
+                onCancel?.();
+                setOpen(false);
+              }}
+              className="min-w-30 text-white bg-fisma-dark-blue hover:brightness-70 px-4 py-2"
+            >
+              {cancelLabel ?? translation.cancel}
+            </button>
+          )}
+          {onDismiss && (
+            <button
+              type="button"
+              onClick={() => {
+                onDismiss();
+                setOpen(false);
+              }}
+              className="min-w-30 text-white bg-fisma-dark-blue hover:brightness-70 px-4 py-2"
+            >
+              {dismissLabel ?? translation.cancel}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {
               onConfirm();
               setOpen(false);
             }}
-            className="min-w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
+            className="min-w-30 text-white bg-fisma-dark-blue hover:brightness-70 px-4 py-2"
           >
             {confirmLabel ?? translation.confirm}
           </button>

@@ -232,6 +232,34 @@ Do this whenever a secret has been pasted somewhere it shouldn't be, and once af
 2. **Reset the database password:** app → **Resources** → PostgreSQL add-on → **Users** → reset. Then update `SPRING_DATASOURCE_PASSWORD` and restart.
 3. **Never commit** connection strings, tokens or keys. Keep them in Scalingo's Environment tab.
 
+## 9. Link frontend to the backend
+
+The current frontend (as of 2026-10-28) is hosted on GitHub Pages at
+`https://fisma-benefit-app.github.io/benefit-app/scalingo-testing/`.
+
+The GitHub Actions workflow [sets `VITE_API_URL` from the
+`SCALINGO_TESTING_URL` secret](../../.github/workflows/deploy-scalingo-testing-frontend.yml#L46).
+The [frontend API code](../../frontend/src/api/authorization.ts#L3) reads
+`VITE_API_URL`, and [Vite checks that it is set](../../frontend/vite.config.ts#L14).
+Vite embeds the value in the build, so the browser uses the Scalingo API rather
+than the Heroku API. To configure it:
+
+1. In the GitHub repository, add the Actions secret `SCALINGO_TESTING_URL` with
+   the backend URL, such as `https://<app>.osc-fr1.scalingo.io`. Do not include
+   a trailing slash. This is the backend's public URL, not the database URL.
+2. Ensure the Scalingo app is connected to this repository and configured to
+   deploy `main` (step 7). Scalingo deploys the backend; it does not deploy the
+   frontend.
+3. The workflow [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml)
+   builds and publishes the frontend on every push to `main`. It can also be
+   started manually from the GitHub Actions tab. The frontend build and publish
+   commands are `build:testing` and `deploy:scalingo-testing` in
+   [frontend/package.json](../../frontend/package.json).
+
+The Scalingo frontend is published to the `scalingo-testing` subdirectory of the
+shared GitHub Pages site. Production deployments also publish to that site and
+can replace the testing frontend, so [run-deployments.yml](../../.github/workflows/run-deployments.yml) publishes the Scalingo frontend again at the end of the production deployment.
+
 ## What went wrong on the way
 
 Each entry says how to recognise the problem.

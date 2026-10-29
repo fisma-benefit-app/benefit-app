@@ -1,5 +1,6 @@
 package fi.fisma.backend.service;
 
+import fi.fisma.backend.domain.EnumProjectRole;
 import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
@@ -18,7 +19,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -122,7 +125,7 @@ public class ProjectService {
     functionalComponents.forEach(fc -> fc.setProject(project)); // owning side
     project.setFunctionalComponents(functionalComponents);
 
-    project.setProjectAppUsers(Set.of(new ProjectAppUser(project, appUser)));
+    project.setProjectAppUsers(Set.of(new ProjectAppUser(project, appUser, EnumProjectRole.owner)));
     return projectMapper.toResponse(projectRepository.save(project));
   }
 
@@ -135,16 +138,11 @@ public class ProjectService {
    * @return the created ProjectResponse representing the new version
    * @throws EntityNotFoundException if the original project is not found or does not belong to the
    *     user
-   * @throws UnauthorizedException if the user is not found
    */
   @Transactional
   public ProjectResponse createProjectVersion(
       Long projectId, ProjectRequest versionRequest, String username) {
     var originalProject = findEditableProject(projectId, username);
-    var appUser =
-        appUserRepository
-            .findByUsernameActive(username)
-            .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
 
@@ -178,16 +176,44 @@ public class ProjectService {
                           null, // Temporarily set parent fc to null
                           fc.getSubComponentType(),
                           fc.getIsReadonly(),
-                          null, // Subcomponents are intentionally not copied when creating a new
-                          // project version.
-                          // This is by design: subcomponents are either not used in this context,
-                          // or are handled separately.
-                          // If subcomponent copying is required in the future, update this logic to
-                          // clone subcomponents as well.
+                          null,
                           savedProject,
                           null);
                   var savedComponent = functionalComponentRepository.save(newComponent);
                   oldToNewIdMap.put(fc.getId(), savedComponent.getId());
+
+                  fc.getSubComponents().stream()
+                      .filter(subComponent -> subComponent.getDeletedAt() == null)
+                      .map(
+                          subComponent ->
+                              new FunctionalComponent(
+                                  null,
+                                  subComponent.getTitle(),
+                                  subComponent.getDescription(),
+                                  subComponent.getClassName(),
+                                  subComponent.getComponentType(),
+                                  subComponent.getDataElements(),
+                                  subComponent.getReadingReferences(),
+                                  subComponent.getWritingReferences(),
+                                  subComponent.getFunctionalMultiplier(),
+                                  subComponent.getOperations(),
+                                  subComponent.getDegreeOfCompletion(),
+                                  subComponent.getId(),
+                                  subComponent.getOrderPosition(),
+                                  subComponent.getIsMLA(),
+                                  savedComponent.getId(),
+                                  subComponent.getSubComponentType(),
+                                  subComponent.getIsReadonly(),
+                                  null,
+                                  savedProject,
+                                  null))
+                      .forEach(
+                          newSubComponent -> {
+                            var savedSubComponent =
+                                functionalComponentRepository.save(newSubComponent);
+                            savedComponent.getSubComponents().add(savedSubComponent);
+                          });
+
                   return savedComponent;
                 })
             .collect(Collectors.toSet());
@@ -214,8 +240,17 @@ public class ProjectService {
     // Associate the project with the copied functional components
     savedProject.setFunctionalComponents(functionalComponents);
 
-    // Associate the project with the requesting user
-    savedProject.setProjectAppUsers(Set.of(new ProjectAppUser(savedProject, appUser)));
+    // The new version keeps everyone’s access and their role from the previous version.
+    savedProject.setProjectAppUsers(
+        originalProject.getProjectAppUsers().stream()
+            .map(
+                projectAppUser ->
+                    new ProjectAppUser(
+                        savedProject,
+                        projectAppUser.getAppUser(),
+                        Objects.requireNonNullElse(
+                            projectAppUser.getRoleInProject(), EnumProjectRole.member)))
+            .collect(Collectors.toSet()));
 
     return projectMapper.toResponse(savedProject);
   }
@@ -253,6 +288,89 @@ public class ProjectService {
   }
 
   /**
+   * Gives another user access to the project and to its other versions, so the new member sees the
+   * same version history as the rest. Every member has the same rights, including deleting the
+   * project.
+   *
+   * @param projectId the ID of the project to share
+   * @param newMemberUsername the username of the user to add
+   * @param username the username of the user sharing the project, who must already be a member
+   * @return the ProjectResponse with the updated member list
+   * @throws EntityNotFoundException if the project does not belong to the user, or no active user
+   *     has the given username
+   * @throws ConflictException if the user is already a member of the project
+   */
+  public ProjectResponse addUserToProject(
+      Long projectId, String newMemberUsername, String username) {
+    var project = findProjectForUser(projectId, username);
+    var newMember =
+        appUserRepository
+            .findByUsernameActive(newMemberUsername)
+            .orElseThrow(() -> new EntityNotFoundException("User not found: " + newMemberUsername));
+
+    if (isMember(project, newMember.getId())) {
+      throw new ConflictException(
+          ConflictException.ALREADY_MEMBER, "User is already a member of this project");
+    }
+
+    versionsOf(project, username).stream()
+        .filter(version -> !isMember(version, newMember.getId()))
+        .forEach(
+            version ->
+                version
+                    .getProjectAppUsers()
+                    .add(new ProjectAppUser(version, newMember, EnumProjectRole.member)));
+    // The new rows are persisted by the cascade from the managed projects; flush so the response
+    // carries their IDs.
+    projectRepository.flush();
+
+    return projectMapper.toResponse(project);
+  }
+
+  /**
+   * Removes a user's access to the project and to its other versions. A member can remove anyone,
+   * including themselves; the project's data stays for the remaining members.
+   *
+   * @param projectId the ID of the project
+   * @param appUserId the ID of the user to remove
+   * @param username the username of the member removing the user
+   * @throws EntityNotFoundException if the project does not belong to the caller, or the user is
+   *     not a member of it
+   * @throws ConflictException if no other active member would be left, in which case the project
+   *     should be deleted instead
+   */
+  public void removeUserFromProject(Long projectId, Long appUserId, String username) {
+    var project = findProjectForUser(projectId, username);
+    if (!isMember(project, appUserId)) {
+      throw new EntityNotFoundException("User " + appUserId + " is not a member of this project");
+    }
+
+    boolean otherActiveMemberRemains =
+        project.getProjectAppUsers().stream()
+            .map(ProjectAppUser::getAppUser)
+            .anyMatch(user -> !user.getId().equals(appUserId) && user.getDeletedAt() == null);
+    if (!otherActiveMemberRemains) {
+      throw new ConflictException(
+          ConflictException.LAST_MEMBER,
+          "The last member cannot be removed from a project; delete the project instead");
+    }
+
+    versionsOf(project, username)
+        .forEach(
+            version ->
+                version
+                    .getProjectAppUsers()
+                    .removeIf(pau -> pau.getAppUser().getId().equals(appUserId)));
+    // orphanRemoval deletes the removed rows on flush.
+    projectRepository.flush();
+  }
+
+  private boolean isMember(Project project, Long appUserId) {
+    return project.getProjectAppUsers().stream()
+        .anyMatch(pau -> pau.getAppUser().getId().equals(appUserId));
+  }
+
+  /**
    * Like {@link #findProjectForUser}, but also requires the project to be the latest version: older
    * versions are archived and must not change, because reports compare a version with the one
    * before it.
@@ -264,7 +382,9 @@ public class ProjectService {
     boolean hasNewerVersion =
         versionsOf(project, username).stream().anyMatch(v -> v.getVersion() > project.getVersion());
     if (hasNewerVersion) {
-      throw new ConflictException("Only the latest version of a project can be edited");
+      throw new ConflictException(
+          ConflictException.NOT_LATEST_VERSION,
+          "Only the latest version of a project can be edited");
     }
     return project;
   }
@@ -291,6 +411,31 @@ public class ProjectService {
         .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
   }
 
+  /**
+   * Picks "<name> - Copy", or "<name> - Copy 2", "<name> - Copy 3", ... for the first one that none
+   * of the user's projects has (case-insensitively), because a shared name would make the copy a
+   * version of that project. The original name is truncated to keep the result within the maximum
+   * length.
+   */
+  private String freeDuplicateName(String originalName, String username) {
+    Set<String> takenNames =
+        projectRepository.findAllByUsernameActive(username).stream()
+            .map(p -> p.getProjectName().toLowerCase(Locale.ROOT))
+            .collect(Collectors.toSet());
+    for (int copyNumber = 1; ; copyNumber++) {
+      String suffix = copyNumber == 1 ? DUPLICATE_SUFFIX : DUPLICATE_SUFFIX + " " + copyNumber;
+      int maxOriginalNameLength = MAX_PROJECT_NAME_LENGTH - suffix.length();
+      String truncatedName =
+          originalName.length() > maxOriginalNameLength
+              ? originalName.substring(0, maxOriginalNameLength)
+              : originalName;
+      String candidate = truncatedName + suffix;
+      if (!takenNames.contains(candidate.toLowerCase(Locale.ROOT))) {
+        return candidate;
+      }
+    }
+  }
+
   @Transactional
   public Project duplicateProject(Long id, String username) {
     // Find the initial project in database
@@ -305,13 +450,7 @@ public class ProjectService {
     Project duplicatedProject = new Project();
 
     // 3. Shallow copy
-    String originalName = originalProject.getProjectName();
-    int maxOriginalNameLength = MAX_PROJECT_NAME_LENGTH - DUPLICATE_SUFFIX.length();
-    String truncatedName =
-        originalName.length() > maxOriginalNameLength
-            ? originalName.substring(0, maxOriginalNameLength)
-            : originalName;
-    duplicatedProject.setProjectName(truncatedName + DUPLICATE_SUFFIX);
+    duplicatedProject.setProjectName(freeDuplicateName(originalProject.getProjectName(), username));
     duplicatedProject.setReportContactDetails(originalProject.getReportContactDetails());
     duplicatedProject.setReportNotes(originalProject.getReportNotes());
     duplicatedProject.setCalculationDate(originalProject.getCalculationDate());
@@ -322,26 +461,34 @@ public class ProjectService {
     duplicatedProject.setUpdatedAt(now);
 
     // Set AppUser
-    duplicatedProject.setProjectAppUsers(Set.of(new ProjectAppUser(duplicatedProject, appUser)));
+    duplicatedProject.setProjectAppUsers(
+        new HashSet<>(
+            Set.of(new ProjectAppUser(duplicatedProject, appUser, EnumProjectRole.owner))));
+    projectRepository.save(duplicatedProject);
 
-    // 4. Copy the list of Functional Components (Deep copy)
+    // 4. Copy active top-level components and their active MLA subcomponents.
     if (originalProject.getFunctionalComponents() != null) {
       Set<FunctionalComponent> duplicatedComponents = new HashSet<>();
 
       for (FunctionalComponent originalComp : originalProject.getFunctionalComponents()) {
-        FunctionalComponent newComp = new FunctionalComponent();
+        if (originalComp.getDeletedAt() != null || originalComp.getParentFCId() != null) {
+          continue;
+        }
 
-        newComp.setTitle(originalComp.getTitle());
-        newComp.setDescription(originalComp.getDescription());
-        newComp.setClassName(originalComp.getClassName());
-        newComp.setComponentType(originalComp.getComponentType());
-        newComp.setOrderPosition(originalComp.getOrderPosition());
-        newComp.setIsMLA(originalComp.getIsMLA());
-        newComp.setDegreeOfCompletion(originalComp.getDegreeOfCompletion());
-
-        newComp.setProject(duplicatedProject);
-
+        FunctionalComponent newComp =
+            functionalComponentRepository.save(
+                duplicateComponent(originalComp, duplicatedProject, null));
         duplicatedComponents.add(newComp);
+
+        if (originalComp.getSubComponents() != null) {
+          originalComp.getSubComponents().stream()
+              .filter(subComponent -> subComponent.getDeletedAt() == null)
+              .map(
+                  subComponent ->
+                      duplicateComponent(subComponent, duplicatedProject, newComp.getId()))
+              .map(functionalComponentRepository::save)
+              .forEach(newComp.getSubComponents()::add);
+        }
       }
       duplicatedProject.setFunctionalComponents(duplicatedComponents);
     }
@@ -350,5 +497,29 @@ public class ProjectService {
 
     // 6. Save in Database
     return projectRepository.save(duplicatedProject);
+  }
+
+  private FunctionalComponent duplicateComponent(
+      FunctionalComponent original, Project project, Long parentId) {
+    FunctionalComponent duplicate = new FunctionalComponent();
+    duplicate.setTitle(original.getTitle());
+    duplicate.setDescription(original.getDescription());
+    duplicate.setClassName(original.getClassName());
+    duplicate.setComponentType(original.getComponentType());
+    duplicate.setDataElements(original.getDataElements());
+    duplicate.setReadingReferences(original.getReadingReferences());
+    duplicate.setWritingReferences(original.getWritingReferences());
+    duplicate.setFunctionalMultiplier(original.getFunctionalMultiplier());
+    duplicate.setOperations(original.getOperations());
+    duplicate.setDegreeOfCompletion(original.getDegreeOfCompletion());
+    duplicate.setPreviousFCId(null);
+    duplicate.setOrderPosition(original.getOrderPosition());
+    duplicate.setIsMLA(original.getIsMLA());
+    duplicate.setParentFCId(parentId);
+    duplicate.setSubComponentType(original.getSubComponentType());
+    duplicate.setIsReadonly(original.getIsReadonly());
+    duplicate.setProject(project);
+    duplicate.setDeletedAt(null);
+    return duplicate;
   }
 }

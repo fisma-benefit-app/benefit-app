@@ -48,7 +48,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Collections.unmodifiableList(AuthorityUtils.createAuthorityList("ROLE_USER"));
 
     AppUserDetails(AppUser appUser) {
-      super(appUser.getId(), appUser.getUsername(), appUser.getPassword(), appUser.getDeletedAt());
+      super(
+          appUser.getId(),
+          appUser.getUsername(),
+          appUser.getPassword(),
+          appUser.getRole(),
+          appUser.getDeletedAt());
     }
 
     @Override

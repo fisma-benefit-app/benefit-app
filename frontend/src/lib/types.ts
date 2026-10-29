@@ -81,12 +81,6 @@ export type AppUser = {
   username: string;
 };
 
-// Remove if needed
-export type ProjectAppUser = {
-  id: number;
-  appUserId?: number; // wtf is this?
-};
-
 export type TGenericComponentNoId = {
   title: string | null;
   description: string | null;
@@ -117,7 +111,7 @@ export type Project = {
   lockVersion: number;
   active: boolean;
   functionalComponents: TGenericComponent[];
-  projectAppUsers: ProjectAppUser[];
+  projectAppUsers: ProjectAppUserResponse[];
 };
 
 export type MLAsubComponent = TGenericComponent & {

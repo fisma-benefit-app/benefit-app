@@ -6,11 +6,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.EnumUserRole;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.security.LoginAttemptThrottleService;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +41,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * Runs the project API end to end against Postgres to check that the backend, not the browser,
@@ -143,6 +146,135 @@ class ProjectIntegrityIntegrationTest {
         .andExpect(status().isOk());
   }
 
+  @Test
+  void memberCanAddAnotherUserToAllVersionsOfAProject() throws Exception {
+    String name = "shared-" + suffix;
+    long v1 = createProject(alice, name);
+    long v2 = createVersion(alice, v1, name, 2);
+
+    addMember(alice, v2, mallory)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.projectAppUsers.length()").value(2));
+
+    assertThat(membershipIds(v1)).hasSize(2);
+    assertThat(membershipIds(v2)).hasSize(2);
+    mockMvc
+        .perform(get("/projects/{id}", v1).header("Authorization", bearer(mallory)))
+        .andExpect(status().isOk());
+
+    // The new member can edit the latest version like the one who shared it.
+    mockMvc
+        .perform(
+            put("/projects/{id}", v2)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    body(name, 2, getProject(mallory, v2), List.of(), Set.of(), "from mallory")))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void newVersionKeepsEveryMemberOfTheProject() throws Exception {
+    String name = "shared-version-" + suffix;
+    long v1 = createProject(alice, name);
+    addMember(alice, v1, mallory).andExpect(status().isOk());
+
+    long v2 = createVersion(mallory, v1, name, 2);
+
+    assertThat(membershipIds(v2)).hasSize(2);
+    mockMvc
+        .perform(get("/projects/{id}", v2).header("Authorization", bearer(alice)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void nonMemberCannotAddUsersToAProject() throws Exception {
+    long alicesProject = createProject(alice, "alice-project-" + suffix);
+    List<Long> before = membershipIds(alicesProject);
+
+    addMember(mallory, alicesProject, mallory).andExpect(status().isNotFound());
+
+    assertThat(membershipIds(alicesProject)).isEqualTo(before);
+  }
+
+  @Test
+  void addingAnExistingMemberOrUnknownUserIsRejected() throws Exception {
+    long id = createProject(alice, "reject-" + suffix);
+    addMember(alice, id, mallory).andExpect(status().isOk());
+
+    addMember(alice, id, mallory)
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("ALREADY_MEMBER"));
+    addMember(alice, id, "nobody-" + suffix).andExpect(status().isNotFound());
+    addMember(alice, id, " ").andExpect(status().isBadRequest());
+
+    assertThat(membershipIds(id)).hasSize(2);
+  }
+
+  @Test
+  void memberCanRemoveAnotherMemberFromAllVersions() throws Exception {
+    String name = "remove-" + suffix;
+    long v1 = createProject(alice, name);
+    long v2 = createVersion(alice, v1, name, 2);
+    addMember(alice, v2, mallory).andExpect(status().isOk());
+
+    removeMember(alice, v2, mallory).andExpect(status().isNoContent());
+
+    assertThat(membershipIds(v1)).hasSize(1);
+    assertThat(membershipIds(v2)).hasSize(1);
+    for (long id : List.of(v1, v2)) {
+      mockMvc
+          .perform(get("/projects/{id}", id).header("Authorization", bearer(mallory)))
+          .andExpect(status().isNotFound());
+      mockMvc
+          .perform(get("/projects/{id}", id).header("Authorization", bearer(alice)))
+          .andExpect(status().isOk());
+    }
+  }
+
+  @Test
+  void memberCanLeaveAProjectThatOthersKeep() throws Exception {
+    long id = createProject(alice, "leave-" + suffix);
+    addMember(alice, id, mallory).andExpect(status().isOk());
+
+    removeMember(mallory, id, mallory).andExpect(status().isNoContent());
+
+    mockMvc
+        .perform(get("/projects/{id}", id).header("Authorization", bearer(mallory)))
+        .andExpect(status().isNotFound());
+    mockMvc
+        .perform(get("/projects/{id}", id).header("Authorization", bearer(alice)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void lastActiveMemberCannotBeRemoved() throws Exception {
+    long id = createProject(alice, "last-" + suffix);
+
+    removeMember(alice, id, alice)
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("LAST_MEMBER"));
+    assertThat(membershipIds(id)).hasSize(1);
+
+    // A member whose account was deleted cannot open the project, so they don't count.
+    addMember(alice, id, mallory).andExpect(status().isOk());
+    jdbcTemplate.update("UPDATE app_users SET deleted_at = now() WHERE username = ?", mallory);
+
+    removeMember(alice, id, alice).andExpect(status().isConflict());
+    assertThat(membershipIds(id)).hasSize(2);
+  }
+
+  @Test
+  void nonMemberCannotRemoveUsersAndNonMembersCannotBeRemoved() throws Exception {
+    long id = createProject(alice, "remove-guard-" + suffix);
+    List<Long> before = membershipIds(id);
+
+    removeMember(mallory, id, alice).andExpect(status().isNotFound());
+    removeMember(alice, id, mallory).andExpect(status().isNotFound());
+
+    assertThat(membershipIds(id)).isEqualTo(before);
+  }
+
   // --- validation ---
 
   @Test
@@ -188,7 +320,8 @@ class ProjectIntegrityIntegrationTest {
                 .header("Authorization", bearer(mallory))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body(name, 1, archived, List.of(), Set.of(), "edited notes")))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("NOT_LATEST_VERSION"));
     // component endpoints
     mockMvc
         .perform(
@@ -281,7 +414,8 @@ class ProjectIntegrityIntegrationTest {
                 .header("Authorization", bearer(mallory))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body(name, 1, tabB, List.of(), Set.of(), "from tab B")))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("STALE_LOCK_VERSION"));
     assertThat(getProject(mallory, id).path("reportNotes").isNull()).isTrue();
 
     // A client that carries the returned lockVersion forward can keep saving.
@@ -394,11 +528,39 @@ class ProjectIntegrityIntegrationTest {
     }
   }
 
+  // --- duplicate naming ---
+
+  @Test
+  void duplicatingAgainPicksAFreeNameInsteadOfJoiningTheFirstCopysVersions() throws Exception {
+    String name = "dupname-" + suffix;
+    long id = createProject(mallory, name);
+
+    String first = duplicate(id).path("projectName").asText();
+    String second = duplicate(id).path("projectName").asText();
+    String third = duplicate(id).path("projectName").asText();
+
+    assertThat(first).isEqualTo(name + " - Copy");
+    assertThat(second).isEqualTo(name + " - Copy 2");
+    assertThat(third).isEqualTo(name + " - Copy 3");
+  }
+
   // --- helpers ---
+
+  private JsonNode duplicate(long id) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(post("/projects/{id}/duplicate", id).header("Authorization", bearer(mallory)))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode duplicate = objectMapper.readTree(result.getResponse().getContentAsString());
+    projectIds.add(duplicate.path("id").asLong());
+    return duplicate;
+  }
 
   private String createUser(String username) {
     AppUser user =
-        appUserRepository.save(new AppUser(null, username, passwordEncoder.encode(PASSWORD), null));
+        appUserRepository.save(
+            new AppUser(null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.user, null));
     users.add(user);
     return username;
   }
@@ -471,6 +633,28 @@ class ProjectIntegrityIntegrationTest {
             .andExpect(status().isOk())
             .andReturn();
     return objectMapper.readTree(result.getResponse().getContentAsString());
+  }
+
+  private ResultActions addMember(String caller, long projectId, String newMember)
+      throws Exception {
+    return mockMvc.perform(
+        post("/projects/{id}/users", projectId)
+            .header("Authorization", bearer(caller))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(Map.of("username", newMember))));
+  }
+
+  private ResultActions removeMember(String caller, long projectId, String member)
+      throws Exception {
+    long memberId =
+        users.stream()
+            .filter(u -> u.getUsername().equals(member))
+            .findFirst()
+            .orElseThrow()
+            .getId();
+    return mockMvc.perform(
+        delete("/projects/{id}/users/{appUserId}", projectId, memberId)
+            .header("Authorization", bearer(caller)));
   }
 
   private List<Long> membershipIds(long projectId) {

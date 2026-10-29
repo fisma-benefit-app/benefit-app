@@ -8,6 +8,29 @@ import {
 } from "../lib/types";
 const API_URL = import.meta.env.VITE_API_URL;
 
+// "notLatestVersion": another tab archived this version as a new one, so it can no longer be
+// edited. "savedElsewhere": another tab saved this version first.
+export class ConflictError extends Error {
+  constructor(readonly reason: "notLatestVersion" | "savedElsewhere") {
+    super("Conflict!");
+  }
+}
+
+// "userNotFound": no user has the given username. "alreadyMember": the user can already open the
+// project.
+export class AddMemberError extends Error {
+  constructor(readonly reason: "userNotFound" | "alreadyMember") {
+    super("Adding the user to the project failed!");
+  }
+}
+
+// "lastMember": the user is the only one left with access, so the project would be orphaned.
+export class RemoveMemberError extends Error {
+  constructor(readonly reason: "lastMember") {
+    super("Removing the user from the project failed!");
+  }
+}
+
 const fetchAllProjects = async (sessionToken: string | null) => {
   if (!sessionToken)
     throw new Error("User needs to be logged in to fetch projects!");
@@ -189,7 +212,8 @@ const updateProject = async (
   const mapComponentToRequest = (
     fc: TGenericComponent,
   ): FunctionalComponentRequest => ({
-    id: fc.id,
+    // A component that has not been saved yet has id 0 (see the sub-component ids below)
+    id: fc.id > 0 ? fc.id : undefined,
     title: fc.title,
     description: fc.description,
     className: fc.className,
@@ -255,9 +279,13 @@ const updateProject = async (
     if (response.status === 401) {
       throw new Error("Unauthorized!");
     }
-    // Not the latest version, or saved from an outdated copy of the project.
     if (response.status === 409) {
-      throw new Error("Conflict!");
+      const body = await response.json().catch(() => null);
+      throw new ConflictError(
+        body?.code === "NOT_LATEST_VERSION"
+          ? "notLatestVersion"
+          : "savedElsewhere",
+      );
     }
     throw new Error(
       `Error updating project in updateProject! Status: ${response.status}`,
@@ -387,6 +415,73 @@ const duplicateProject = async (
   return response.json();
 };
 
+const addUserToProject = async (
+  token: string | null,
+  projectId: number,
+  username: string,
+): Promise<ProjectResponse> => {
+  if (!token) {
+    throw new Error("User needs to be logged in to add a user to a project!");
+  }
+
+  const response = await fetch(`${API_URL}/projects/${projectId}/users`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
+    }
+    if (response.status === 404) {
+      // The project is one the user can open, so a 404 means the username does not exist.
+      throw new AddMemberError("userNotFound");
+    }
+    if (response.status === 409) {
+      throw new AddMemberError("alreadyMember");
+    }
+    throw new Error(
+      `Error adding a user in addUserToProject! Status: ${response.status}`,
+    );
+  }
+
+  return response.json();
+};
+
+const removeUserFromProject = async (
+  token: string | null,
+  projectId: number,
+  appUserId: number,
+): Promise<void> => {
+  if (!token) {
+    throw new Error(
+      "User needs to be logged in to remove a user from a project!",
+    );
+  }
+
+  const response = await fetch(
+    `${API_URL}/projects/${projectId}/users/${appUserId}`,
+    { method: "DELETE", headers: { Authorization: token } },
+  );
+
+  // A 404 means the user no longer has access, which is what was asked for.
+  if (!response.ok && response.status !== 404) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized!");
+    }
+    if (response.status === 409) {
+      throw new RemoveMemberError("lastMember");
+    }
+    throw new Error(
+      `Error removing a user in removeUserFromProject! Status: ${response.status}`,
+    );
+  }
+};
+
 export {
   fetchAllProjects,
   fetchProject,
@@ -397,4 +492,6 @@ export {
   createFunctionalComponent,
   deleteFunctionalComponent,
   duplicateProject,
+  addUserToProject,
+  removeUserFromProject,
 };

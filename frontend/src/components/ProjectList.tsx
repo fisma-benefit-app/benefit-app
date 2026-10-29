@@ -12,15 +12,22 @@ import {
   faPenToSquare,
   faTrash,
   faCopy,
+  faUserPlus,
 } from "@fortawesome/free-solid-svg-icons";
-import { Project } from "../lib/types.ts";
+import { AppUserSummary, Project } from "../lib/types.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 import EditProjectModal from "./EditProjectModal.tsx";
+import ShareProjectModal from "./ShareProjectModal.tsx";
 import useTranslations from "../hooks/useTranslations.ts";
 import useProjects from "../hooks/useProjects.tsx";
 import useCommitSha from "../hooks/useCommitSha";
-import { duplicateProject } from "../api/project.ts";
+import {
+  addUserToProject,
+  duplicateProject,
+  fetchAllProjects,
+  removeUserFromProject,
+} from "../api/project.ts";
 import { useAlert } from "../hooks/useAlert.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
 type SortKey =
@@ -33,12 +40,14 @@ type SortKey =
 type SortDirection = "asc" | "desc";
 
 export default function ProjectList() {
-  const { sortedProjects, loading, handleDelete, handleUpdate } = useProjects();
+  const { sortedProjects, loading, handleDelete, handleUpdate, setProjects } =
+    useProjects();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [editProjectName, setEditProjectName] = useState<string>("");
+  const [shareProjectId, setShareProjectId] = useState<number | null>(null);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDirection } | null>(
     {
       key: "updatedAt",
@@ -46,7 +55,7 @@ export default function ProjectList() {
     },
   );
   const commitSha = useCommitSha();
-  const { sessionToken } = useAppUser();
+  const { sessionToken, appUser } = useAppUser();
   const { showNotification, updateNotification } = useAlert();
 
   const navigate = useNavigate();
@@ -176,6 +185,23 @@ export default function ProjectList() {
 
   if (loading) return <LoadingSpinner />;
 
+  // Looked up from the list so the member list updates once a user has been added.
+  const shareProject =
+    sortedProjects.find((project) => project.id === shareProjectId) ?? null;
+
+  const handleAddUser = async (project: Project, username: string) => {
+    await addUserToProject(sessionToken, project.id, username);
+    // Every version of the project gains the member, so reload the whole list.
+    setProjects(await fetchAllProjects(sessionToken));
+  };
+
+  const handleRemoveUser = async (project: Project, member: AppUserSummary) => {
+    await removeUserFromProject(sessionToken, project.id, member.id);
+    // Removing yourself takes the project out of your list.
+    if (member.username === appUser?.username) setShareProjectId(null);
+    setProjects(await fetchAllProjects(sessionToken));
+  };
+
   const handleDuplicate = async (projectId: number) => {
     showNotification(
       "Duplicating project...",
@@ -186,6 +212,14 @@ export default function ProjectList() {
 
     try {
       const duplicatedProject = await duplicateProject(sessionToken, projectId);
+
+      // The project page finds a project's versions in this list, so without the copy in it the
+      // page treats the copy as an archived version and its version list stays empty.
+      try {
+        setProjects(await fetchAllProjects(sessionToken));
+      } catch (err) {
+        console.error("Refreshing the projects failed:", err);
+      }
 
       updateNotification(
         "duplicate-project",
@@ -338,6 +372,16 @@ export default function ProjectList() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        setShareProjectId(project.id);
+                      }}
+                      className="text-gray-500 hover:text-fisma-blue p-2 transition-colors"
+                      title={projectListTranslation.share}
+                    >
+                      <FontAwesomeIcon icon={faUserPlus} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleDuplicate(project.id);
                       }}
                       className="text-gray-500 hover:text-fisma-blue p-2 transition-colors"
@@ -383,6 +427,13 @@ export default function ProjectList() {
           if (selectedProject) handleDelete(selectedProject.id);
           setSelectedProject(null);
         }}
+      />
+      <ShareProjectModal
+        project={shareProject}
+        onClose={() => setShareProjectId(null)}
+        currentUsername={appUser?.username}
+        onAddUser={handleAddUser}
+        onRemoveUser={handleRemoveUser}
       />
       <EditProjectModal
         isOpen={isEditModalOpen}

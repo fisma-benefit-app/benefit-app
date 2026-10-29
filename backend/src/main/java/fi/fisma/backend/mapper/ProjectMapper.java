@@ -35,7 +35,7 @@ public class ProjectMapper {
             project.getCalculationDate(),
             project.getReportContactDetails(),
             project.getReportNotes(),
-            project.getUpdatedAt(),
+            project.getUpdatedAt() != null ? project.getUpdatedAt() : project.getCreatedAt(),
             project.getLockVersion(),
             project.getDeletedAt() == null,
             project.getFunctionalComponents().stream()
@@ -73,10 +73,6 @@ public class ProjectMapper {
         );
   }
 
-  /**
-   * Builds the project state to save from a request. Membership is never taken from the request:
-   * the project keeps the users it already has.
-   */
   public Project updateEntityFromRequest(Project project, ProjectRequest request) {
     Set<FunctionalComponent> functionalComponents =
         functionalComponentMapper.updateEntityFromRequest(project, request);

@@ -1,8 +1,7 @@
-import { ChangeEvent, useEffect, useState, useRef, useCallback } from "react";
+import { ChangeEvent, useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faFilePdf,
   faBars,
   faTimes,
   faChevronRight,
@@ -12,17 +11,12 @@ import {
   fetchAllProjects,
   fetchProject,
   updateProject,
-  createFunctionalComponent,
-  deleteFunctionalComponent,
+  ConflictError,
 } from "../api/project.ts";
 import { generateOverviewPDF } from "../lib/overviewReportUtils.ts";
 import { registerPendingSave } from "../lib/pendingSave.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
-import {
-  Project,
-  TGenericComponentNoId,
-  TGenericComponent,
-} from "../lib/types.ts";
+import { Project, TGenericComponent } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
 import DraggableFunctionalComponent from "./DraggableFunctionalComponent.tsx";
 import MasonryComponentGrid from "./MasonryComponentGrid.tsx";
@@ -35,103 +29,38 @@ import LoadingSpinner from "./LoadingSpinner.tsx";
 import useProjects from "../hooks/useProjects.tsx";
 import ConfirmModal from "./ConfirmModal.tsx";
 import useCommitSha from "../hooks/useCommitSha";
+import useFunctionalComponents from "../hooks/useFunctionalComponents.ts";
+import useViewMode from "../hooks/useViewMode.ts";
+import ProjectViewControls from "./ProjectViewControls.tsx";
+import ProjectSaveControls from "./ProjectSaveControls.tsx";
+import ProjectReportFields from "./ProjectReportFields.tsx";
+import useColumnCount from "../hooks/useColumnCount.ts";
+import useComponentCollapseStates from "../hooks/useComponentCollapseStates.ts";
+import useDebounce from "../hooks/useDebounce.ts";
 import useLanguage from "../hooks/useLanguage.tsx";
 
-import DatePicker from "react-datepicker";
-import { format } from "date-fns";
-import { enUS, fi } from "date-fns/locale";
 import ShortcutTooltip from "./ShortcutTooltip.tsx";
 
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { useAlert } from "../hooks/useAlert.ts";
-import {
-  createSubComponents,
-  updateSubComponents,
-} from "../lib/fc-service-functions.ts";
-import {
-  fetchProjectComments,
-  createProjectComment,
-  updateProjectComment,
-  deleteProjectComment,
-} from "../api/comments.ts";
+import { updateSubComponents } from "../lib/fc-service-functions.ts";
+import CommentsPanel from "./CommentsPanel.tsx";
+import useProjectComments from "../hooks/useProjectComments.ts";
 
-// Debounce hook for auto-saving projects
-function useDebounce<T extends (...args: unknown[]) => void | Promise<void>>(
-  func: T,
-  delay: number,
-) {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingCallRef = useRef<(() => void | Promise<void>) | null>(null);
-  const runningCallRef = useRef<Promise<void> | null>(null);
-
-  // Runs the waiting call now and resolves when it (or a call already
-  // running) has finished.
-  const flush = useCallback((): Promise<void> => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = null;
-
-    const call = pendingCallRef.current;
-    pendingCallRef.current = null;
-    if (call) {
-      // Wait for a save already running: two overlapping saves would carry the same
-      // lockVersion and the second would be rejected as a conflict with the first.
-      const running = (runningCallRef.current ?? Promise.resolve())
-        .catch(() => undefined)
-        .then(call)
-        .finally(() => {
-          if (runningCallRef.current === running) runningCallRef.current = null;
-        });
-      runningCallRef.current = running;
-    }
-    return runningCallRef.current ?? Promise.resolve();
-  }, []);
-
-  const isPending = useCallback(
-    () => pendingCallRef.current !== null || runningCallRef.current !== null,
-    [],
+// Keeps the sub-components of MLA components in step with their parent.
+function updateMlaSubComponents(components: TGenericComponent[]) {
+  return components.map((comp) =>
+    comp.isMLA && comp.subComponents
+      ? {
+          ...comp,
+          subComponents: updateSubComponents(comp, comp.subComponents),
+        }
+      : comp,
   );
-
-  function debounced(...args: Parameters<T>) {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    pendingCallRef.current = () => func(...args);
-    timeoutRef.current = setTimeout(flush, delay);
-  }
-
-  // Leaving the page (e.g. to the project list) saves instead of dropping
-  // the waiting call.
-  useEffect(() => {
-    return () => {
-      void flush();
-    };
-  }, [flush]);
-
-  return { debounced, flush, isPending };
 }
 
 function sortFunctionalComponents(components: TGenericComponent[]) {
   return components.slice().sort((a, b) => a.orderPosition - b.orderPosition);
-}
-
-function isoDateToLocalDate(isoDate: string): Date {
-  const parts = isoDate.split("-").map((p) => Number(p));
-  if (parts.length !== 3) {
-    return new Date(isoDate);
-  }
-
-  const [year, month, day] = parts;
-  return new Date(year, month - 1, day);
-}
-
-function localDateToIsoDate(date: Date): string {
-  return format(date, "yyyy-MM-dd");
-}
-
-function getWideScreenColumnCount(
-  isCompactMode: boolean,
-  isPanelOpen: boolean,
-) {
-  if (isCompactMode) return isPanelOpen ? 4 : 5;
-  return isPanelOpen ? 3 : 4;
 }
 
 export default function ProjectPage() {
@@ -140,11 +69,9 @@ export default function ProjectPage() {
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true);
-  const [collapseAll, setCollapseAll] = useState<boolean>(true);
+  const viewMode = useViewMode();
+  const { collapseAll, descriptionRowsExpanded, isCompactMode } = viewMode;
   const [componentSearchQuery, setComponentSearchQuery] = useState<string>("");
-  const [descriptionRowsExpanded, setDescriptionRowsExpanded] =
-    useState<boolean>(true);
-  const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
   const [includeFunctionsInReport, setIncludeFunctionsInReport] =
     useState<boolean>(false);
@@ -153,42 +80,16 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [lastAddedComponentId, setLastAddedComponentId] = useState<
-    number | null
-  >(null);
-  const [commentsOpen, setCommentsOpen] = useState(false);
-  const [commentText, setCommentText] = useState("");
-  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
-  const [editingText, setEditingText] = useState("");
-  const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(
-    null,
-  );
-  const [comments, setComments] = useState<
-    Array<{ id: number; text: string; projectId: number }>
-  >([]);
-  const [commentsLoading, setCommentsLoading] = useState(false);
+  const projectComments = useProjectComments(sessionToken, project?.id);
+  const {
+    commentsOpen,
+    setCommentsOpen,
+    commentToDeleteId,
+    setCommentToDeleteId,
+    handleDeleteComment,
+  } = projectComments;
 
-  const [columnCount, setColumnCount] = useState<number>(
-    getWideScreenColumnCount(isCompactMode, isPanelOpen),
-  );
-
-  useEffect(() => {
-    const updateColumns = () => {
-      const width = window.innerWidth;
-      if (width < 768) {
-        setColumnCount(1);
-      } else if (width < 1280) {
-        setColumnCount(2);
-      } else {
-        setColumnCount(getWideScreenColumnCount(isCompactMode, isPanelOpen));
-      }
-    };
-
-    updateColumns();
-
-    window.addEventListener("resize", updateColumns);
-    return () => window.removeEventListener("resize", updateColumns);
-  }, [isPanelOpen, isCompactMode]);
+  const columnCount = useColumnCount(isCompactMode, isPanelOpen);
 
   const translations = useTranslations();
   const translation = translations.projectPage;
@@ -197,74 +98,6 @@ export default function ProjectPage() {
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const commitSha = useCommitSha();
-
-  const handleCreateComment = async () => {
-    if (!project || !commentText.trim()) return;
-
-    try {
-      const createdComment = await createProjectComment(
-        sessionToken,
-        project.id,
-        { text: commentText.trim() },
-      );
-      setComments((prev) => [...prev, createdComment]);
-      setCommentText("");
-      setCommentsOpen(true);
-    } catch (error) {
-      console.error("Failed to create comment", error);
-    }
-  };
-
-  const handleStartEditingComment = (
-    commentId: number,
-    existingText: string,
-  ) => {
-    setEditingCommentId(commentId);
-    setEditingText(existingText);
-  };
-
-  const handleCancelEditingComment = () => {
-    setEditingCommentId(null);
-    setEditingText("");
-  };
-
-  const handleUpdateComment = async () => {
-    if (!project || editingCommentId == null || !editingText.trim()) return;
-
-    try {
-      const updatedComment = await updateProjectComment(
-        sessionToken,
-        project.id,
-        editingCommentId,
-        { text: editingText.trim() },
-      );
-
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === updatedComment.id ? updatedComment : comment,
-        ),
-      );
-      handleCancelEditingComment();
-    } catch (error) {
-      console.error("Failed to update comment", error);
-    }
-  };
-
-  const handleDeleteComment = async (commentId: number) => {
-    if (!project) return;
-
-    try {
-      await deleteProjectComment(sessionToken, project.id, commentId);
-      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
-      if (editingCommentId === commentId) {
-        handleCancelEditingComment();
-      }
-    } catch (error) {
-      console.error("Failed to delete comment", error);
-    } finally {
-      setCommentToDeleteId(null);
-    }
-  };
 
   const handlePrintProjectSummaryPDF = async () => {
     if (!project) return;
@@ -294,42 +127,6 @@ export default function ProjectPage() {
 
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
-
-  // MLA sub-component handler
-  const handleMLAToggle = (componentId: number, newMLAValue: boolean) => {
-    if (!project) return;
-
-    const updatedComponents = project.functionalComponents.map((comp) => {
-      if (comp.id === componentId) {
-        if (newMLAValue && !comp.subComponents) {
-          return {
-            ...comp,
-            isMLA: true,
-            subComponents: createSubComponents(comp),
-          };
-        } else if (!newMLAValue) {
-          return {
-            ...comp,
-            isMLA: false,
-            subComponents: undefined,
-          };
-        }
-        return { ...comp, isMLA: newMLAValue };
-      }
-      return comp;
-    });
-
-    const updatedProject = {
-      ...project,
-      functionalComponents: updatedComponents,
-    };
-
-    setProject(updatedProject);
-
-    if (isLatest) {
-      debouncedSaveProject();
-    }
-  };
 
   // sort functional components by order (ascending)
   const sortedComponents = project
@@ -361,27 +158,6 @@ export default function ProjectPage() {
     projectRef.current = project;
   }, [project]);
 
-  useEffect(() => {
-    if (!project?.id || !sessionToken) return;
-
-    const loadProjectComments = async () => {
-      setCommentsLoading(true);
-      try {
-        const projectComments = await fetchProjectComments(
-          sessionToken,
-          project.id,
-        );
-        setComments(projectComments);
-      } catch (error) {
-        console.error("Failed to load project comments", error);
-      } finally {
-        setCommentsLoading(false);
-      }
-    };
-
-    loadProjectComments();
-  }, [project?.id, sessionToken]);
-
   // The backend rejects a save made from an outdated copy of the project, so carry the new
   // lockVersion forward after each save. Edits made while the save was in flight stay as they are.
   const applySavedLockVersion = (saved: {
@@ -395,23 +171,91 @@ export default function ProjectPage() {
   };
 
   // Another tab saved first. Nothing is discarded or overwritten until the user picks: this
-  // tab keeps its edits, auto-save pauses, and a dialog offers the two ways forward.
+  // tab keeps its edits, auto-save pauses, and a dialog offers the two ways forward. If the
+  // other tab archived this version instead, keeping the edits cannot work, so the only way
+  // forward is loading the saved version.
   const [savedElsewhere, setSavedElsewhere] = useState<Project | null>(null);
+  const [versionArchivedElsewhere, setVersionArchivedElsewhere] =
+    useState(false);
+  // The conflict came up while archiving this version, so keeping the edits carries on with it.
+  const [archivingVersion, setArchivingVersion] = useState(false);
   const saveConflictRef = useRef(false);
 
   const handleSaveConflict = async (
     notificationId: string,
     projectId: number,
+    reason: ConflictError["reason"],
   ) => {
     saveConflictRef.current = true;
     // The dialog says what happened; an error toast would outlive it, since error toasts
     // stay until closed.
     hideNotification(notificationId);
     try {
-      setSavedElsewhere(await fetchProject(sessionToken, projectId));
+      const saved = await fetchProject(sessionToken, projectId);
+      setVersionArchivedElsewhere(reason === "notLatestVersion");
+      setSavedElsewhere(saved);
     } catch (fetchErr) {
       saveConflictRef.current = false;
       console.error("Loading the project saved elsewhere failed:", fetchErr);
+    }
+  };
+
+  // The one place the project is sent to the backend, for both auto-save and manual save.
+  // Failures are reported through the notification (when `notify`), not thrown.
+  const persistProject = async (
+    currentProject: Project,
+    notificationId: "auto-save" | "manual-save",
+    notify: boolean,
+    prepareComponents: (
+      components: TGenericComponent[],
+    ) => TGenericComponent[] = (components) => components,
+  ) => {
+    if (notify) {
+      showNotification(
+        alertTranslation.save,
+        alertTranslation.saving,
+        "loading",
+        notificationId,
+      );
+    }
+
+    try {
+      // normalize before saving
+      const normalized = prepareComponents(currentProject.functionalComponents)
+        .slice()
+        .sort((a, b) => a.orderPosition - b.orderPosition)
+        .map((c, idx) => ({ ...c, orderPosition: idx }));
+      const editedProject = {
+        ...currentProject,
+        functionalComponents: normalized,
+      };
+
+      applySavedLockVersion(await updateProject(sessionToken, editedProject));
+
+      if (notify) {
+        updateNotification(
+          notificationId,
+          alertTranslation.success,
+          alertTranslation.saveSuccessful,
+          "success",
+        );
+      }
+    } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized!") {
+        await logout();
+      }
+      if (err instanceof ConflictError) {
+        await handleSaveConflict(notificationId, currentProject.id, err.reason);
+        return;
+      }
+      if (notify) {
+        updateNotification(
+          notificationId,
+          alertTranslation.error,
+          alertTranslation.saveFailed,
+          "error",
+        );
+      }
     }
   };
 
@@ -426,58 +270,12 @@ export default function ProjectPage() {
       return;
     }
 
-    showNotification(
-      alertTranslation.save,
-      alertTranslation.saving,
-      "loading",
+    await persistProject(
+      currentProject,
       "auto-save",
+      true,
+      updateMlaSubComponents,
     );
-
-    try {
-      // normalize before saving
-      const normalized = currentProject.functionalComponents
-        .slice()
-        .map((comp) => {
-          // Update sub-components if MLA is enabled
-          if (comp.isMLA && comp.subComponents) {
-            return {
-              ...comp,
-              subComponents: updateSubComponents(comp, comp.subComponents),
-            };
-          }
-          return comp;
-        })
-        .sort((a, b) => a.orderPosition - b.orderPosition)
-        .map((c, idx) => ({ ...c, orderPosition: idx }));
-      const editedProject = {
-        ...currentProject,
-        functionalComponents: normalized,
-      };
-
-      applySavedLockVersion(await updateProject(sessionToken, editedProject));
-
-      updateNotification(
-        "auto-save",
-        alertTranslation.success,
-        alertTranslation.saveSuccessful,
-        "success",
-      );
-    } catch (err) {
-      if (err instanceof Error && err.message === "Unauthorized") {
-        await logout();
-      }
-      if (err instanceof Error && err.message === "Conflict!") {
-        await handleSaveConflict("auto-save", currentProject.id);
-        return;
-      }
-
-      updateNotification(
-        "auto-save",
-        alertTranslation.error,
-        alertTranslation.saveFailed,
-        "error",
-      );
-    }
   }, 5000); // Auto-save every 5 seconds
 
   const keepMyChanges = () => {
@@ -485,14 +283,35 @@ export default function ProjectPage() {
     // Their lockVersion makes this tab's next save go through, replacing the other tab's save.
     applySavedLockVersion(savedElsewhere);
     saveConflictRef.current = false;
+    if (archivingVersion) {
+      setArchivingVersion(false);
+      void saveProjectVersion();
+      return;
+    }
     debouncedSaveProject();
     void flushProjectSave();
   };
 
-  const loadSavedVersion = () => {
+  // Back to editing without choosing: nothing is saved or archived, and the conflict comes up
+  // again with the next save.
+  const cancelArchiving = () => {
+    saveConflictRef.current = false;
+    setArchivingVersion(false);
+  };
+
+  const loadSavedVersion = async () => {
     if (!savedElsewhere) return;
     setProject(savedElsewhere);
     saveConflictRef.current = false;
+    setArchivingVersion(false);
+    if (versionArchivedElsewhere) {
+      // The version list is stale, so refresh it to make this version read-only.
+      try {
+        setProjects(await fetchAllProjects(sessionToken));
+      } catch (err) {
+        console.error("Refreshing the projects failed:", err);
+      }
+    }
   };
 
   // Let the header save waiting edits before a logout revokes the token.
@@ -531,64 +350,6 @@ export default function ProjectPage() {
   });
   const canReorder = isLatest && componentSearchQueryEmpty;
   const isPlacingSelected = canReorder && reorder.selectedCount > 0;
-
-  // Collapse state management for preventing components collapsing during auto-save
-  const [componentCollapseStates, setComponentCollapseStates] = useState<
-    Map<number, boolean>
-  >(new Map());
-
-  const updateComponentCollapseState = (
-    componentId: number,
-    collapsed: boolean,
-  ) => {
-    setComponentCollapseStates((prev) => {
-      const newMap = new Map(prev);
-      newMap.set(componentId, collapsed);
-      return newMap;
-    });
-  };
-
-  const getComponentCollapseState = (componentId: number): boolean => {
-    if (componentCollapseStates.has(componentId)) {
-      return componentCollapseStates.get(componentId)!;
-    }
-    return collapseAll ? componentId !== lastAddedComponentId : false;
-  };
-
-  const toggleDescriptionRows = () => {
-    setDescriptionRowsExpanded((prev) => !prev);
-  };
-
-  const toggleCompactMode = useCallback(() => {
-    if (isCompactMode) {
-      setIsCompactMode(false);
-      setCollapseAll(true);
-    } else {
-      setIsCompactMode(true);
-      setCollapseAll(false);
-    }
-  }, [isCompactMode]);
-
-  //keyboard shortcut for toggling between compact and full view
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-
-      //guard against toggling view when typing in an input/textarea field or using keyboard shortcuts
-      const isTyping =
-        target.tagName === "INPUT" || target.tagName === "TEXTAREA";
-      if (isTyping) return;
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
-
-      if (e.key.toLowerCase() === "v") {
-        e.preventDefault();
-        toggleCompactMode();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [toggleCompactMode]);
 
   useEffect(() => {
     const getProject = async () => {
@@ -636,206 +397,14 @@ export default function ProjectPage() {
     getProject();
   }, [selectedProjectId, sessionToken, logout]);
 
-  const handleCreateFunctionalComponent = async () => {
-    await saveProject(false);
-
-    isManuallySaved.current = true;
-    setLoadingProject(true);
-    setComponentSearchQuery("");
-
-    if (project) {
-      const newFunctionalComponent: TGenericComponentNoId = {
-        className: null,
-        componentType: null,
-        dataElements: null,
-        readingReferences: null,
-        writingReferences: null,
-        functionalMultiplier: null,
-        operations: null,
-        degreeOfCompletion: 1,
-        title: null,
-        description: null,
-        previousFCId: null,
-        orderPosition: project.functionalComponents.length,
-        isMLA: false,
-        parentFCId: null,
-      };
-
-      showNotification(
-        alertTranslation.creating,
-        alertTranslation.creating,
-        "loading",
-        "create-functional-component",
-      );
-
-      try {
-        const updatedProject = await createFunctionalComponent(
-          sessionToken,
-          project.id,
-          newFunctionalComponent,
-        );
-
-        // Find the new component by comparing IDs
-        const prevIds = new Set(project.functionalComponents.map((c) => c.id));
-        const newComponent = updatedProject.functionalComponents.find(
-          (c) => !prevIds.has(c.id),
-        );
-
-        if (newComponent) {
-          setLastAddedComponentId(newComponent.id);
-        }
-
-        // Normalize and sort before setting state
-        const normalized = updatedProject.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
-
-        setProject({ ...updatedProject, functionalComponents: normalized });
-
-        updateNotification(
-          "create-functional-component",
-          alertTranslation.success,
-          alertTranslation.createSuccessful,
-          "success",
-        );
-
-        setTimeout(() => {
-          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-      } catch (err) {
-        if (err instanceof Error && err.message === "Unauthorized!") {
-          await logout();
-        }
-        updateNotification(
-          "create-functional-component",
-          alertTranslation.error,
-          alertTranslation.createFailed,
-          "error",
-        );
-      } finally {
-        setLoadingProject(false);
-        setTimeout(() => {
-          isManuallySaved.current = false;
-        }, 2000);
-      }
-    }
-  };
-
-  const handleDeleteFunctionalComponent = async (
-    componentId: number,
-  ): Promise<void> => {
-    isManuallySaved.current = true;
-    setLoadingProject(true);
-
-    showNotification(
-      alertTranslation.deleting,
-      alertTranslation.deleting,
-      "loading",
-      "delete-functional-component",
-    );
-
-    if (project) {
-      try {
-        await deleteFunctionalComponent(sessionToken, componentId, project.id);
-
-        const updatedProject = await fetchProject(sessionToken, project.id);
-        setProject(updatedProject);
-
-        updateNotification(
-          "delete-functional-component",
-          alertTranslation.success,
-          alertTranslation.deleteSuccessful,
-          "success",
-        );
-      } catch (err) {
-        console.error("Delete component error:", err);
-
-        if (err instanceof Error && err.message.includes("JSON")) {
-          try {
-            const updatedProject = await fetchProject(sessionToken, project.id);
-            setProject(updatedProject);
-
-            updateNotification(
-              "delete-functional-component",
-              alertTranslation.success,
-              alertTranslation.deleteSuccessful,
-              "success",
-            );
-            return;
-          } catch (fetchErr) {
-            console.error("Refetch failed:", fetchErr);
-          }
-        }
-
-        if (err instanceof Error && err.message === "Unauthorized!") {
-          await logout();
-        }
-
-        updateNotification(
-          "delete-functional-component",
-          alertTranslation.error,
-          alertTranslation.deleteFailed,
-          "error",
-        );
-      } finally {
-        setLoadingProject(false);
-        setTimeout(() => {
-          isManuallySaved.current = false;
-        }, 2000);
-      }
-    }
-  };
-
   const saveProject = async (showNotif: boolean = true) => {
     isManuallySaved.current = true;
-    const currentProject = project;
+    // The ref carries the lockVersion applied after a save conflict, which this render's
+    // project does not have yet.
+    const currentProject = projectRef.current;
     if (currentProject) {
-      if (showNotif) {
-        showNotification(
-          alertTranslation.save,
-          alertTranslation.saving,
-          "loading",
-          "manual-save",
-        );
-      }
       try {
-        const normalized = currentProject.functionalComponents
-          .slice()
-          .sort((a, b) => a.orderPosition - b.orderPosition)
-          .map((c, idx) => ({ ...c, orderPosition: idx }));
-
-        const editedProject = {
-          ...currentProject,
-          functionalComponents: normalized,
-        };
-
-        applySavedLockVersion(await updateProject(sessionToken, editedProject));
-
-        if (showNotif) {
-          updateNotification(
-            "manual-save",
-            alertTranslation.success,
-            alertTranslation.saveSuccessful,
-            "success",
-          );
-        }
-      } catch (err) {
-        if (err instanceof Error && err.message === "Unauthorized!") {
-          await logout();
-        }
-        if (err instanceof Error && err.message === "Conflict!") {
-          await handleSaveConflict("manual-save", currentProject.id);
-          return;
-        }
-        if (showNotif) {
-          updateNotification(
-            "manual-save",
-            alertTranslation.error,
-            alertTranslation.saveFailed,
-            "error",
-          );
-        }
+        await persistProject(currentProject, "manual-save", showNotif);
       } finally {
         setTimeout(() => {
           isManuallySaved.current = false;
@@ -851,7 +420,11 @@ export default function ProjectPage() {
       isManuallySaved.current = true;
       try {
         await saveProject();
-        if (saveConflictRef.current) return; // the user has to resolve the conflict first
+        if (saveConflictRef.current) {
+          // The user has to resolve the conflict first; keeping their changes resumes this.
+          setArchivingVersion(true);
+          return;
+        }
         const idOfNewProjectVersion = await createNewProjectVersion(
           sessionToken,
           project,
@@ -872,6 +445,24 @@ export default function ProjectPage() {
     }
   };
 
+  const {
+    lastAddedComponentId,
+    setLastAddedComponentId,
+    handleMLAToggle,
+    handleCreateFunctionalComponent,
+    handleDeleteFunctionalComponent,
+  } = useFunctionalComponents({
+    project,
+    setProject,
+    setLoadingProject,
+    setComponentSearchQuery,
+    isLatest,
+    isManuallySaved,
+    bottomRef,
+    saveProject,
+    debouncedSaveProject,
+  });
+
   const handleVersionSelect = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedId: number = Number(e.target.value);
     const selectedProject = sortedProjects.find(
@@ -883,12 +474,12 @@ export default function ProjectPage() {
     }
   };
 
+  const { updateComponentCollapseState, getComponentCollapseState } =
+    useComponentCollapseStates(collapseAll, lastAddedComponentId);
+
   useEffect(() => {
     setLastAddedComponentId(null);
-    // Clear individual collapse states when collapseAll is toggled
-    // so that all components follow the global collapse state
-    setComponentCollapseStates(new Map());
-  }, [collapseAll]);
+  }, [collapseAll, setLastAddedComponentId]);
 
   if (loadingProject) return <LoadingSpinner />;
 
@@ -943,191 +534,26 @@ export default function ProjectPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-row gap-2 w-full">
-                <button
-                  className={`${isCompactMode ? "w-full" : "w-[49%]"} bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis`}
-                  onClick={() => {
-                    setCollapseAll((prev) => !prev);
-                  }}
-                >
-                  {collapseAll
-                    ? translation.expandAll
-                    : translation.collapseAll}
-                </button>
-                {!isCompactMode && (
-                  <button
-                    className="w-[49%] bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
-                    onClick={toggleDescriptionRows}
-                  >
-                    {descriptionRowsExpanded
-                      ? translation.collapseDescriptions
-                      : translation.expandDescriptions}
-                  </button>
-                )}
-              </div>
-              <div className="flex w-full">
-                <button
-                  className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 text-xs text-center whitespace-nowrap overflow-hidden text-ellipsis"
-                  onClick={toggleCompactMode}
-                >
-                  {isCompactMode
-                    ? translation.disableCompactMode
-                    : translation.enableCompactMode}
-                </button>
-              </div>
-              {isLatest ? (
-                <div className="flex flex-col gap-2 w-full">
-                  <div className="flex flex-row gap-2 w-full">
-                    <button
-                      className={`w-full ${
-                        !loadingProject
-                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                          : "bg-fisma-gray"
-                      } text-white text-xs py-3 px-4`}
-                      onClick={() => saveProject()}
-                      disabled={loadingProject}
-                    >
-                      {translation.saveProject}
-                    </button>
-                    <button
-                      className={`w-full ${
-                        !loadingProject
-                          ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                          : "bg-fisma-gray"
-                      } text-white text-xs py-3 px-4`}
-                      onClick={() => setConfirmModalOpen(true)}
-                      disabled={loadingProject}
-                    >
-                      {translation.archiveProjectAsVersion} {project?.version}
-                    </button>
-                  </div>
-                  <button
-                    className={`w-full ${
-                      !loadingProject
-                        ? "bg-red-600 hover:bg-red-700 cursor-pointer"
-                        : "bg-fisma-gray"
-                    } text-white text-xs py-3 px-4 flex items-center justify-center gap-2`}
-                    onClick={handlePrintProjectSummaryPDF}
-                    disabled={loadingProject}
-                  >
-                    <FontAwesomeIcon icon={faFilePdf} />
-                    {translation.overviewSummaryReport}
-                  </button>
-                  <label className="flex items-center gap-2 text-xs cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={includeFunctionsInReport}
-                      onChange={(e) =>
-                        setIncludeFunctionsInReport(e.target.checked)
-                      }
-                    />
-                    {translation.includeFunctionsInReport}
-                  </label>
-                </div>
-              ) : (
-                <div className="flex flex-row gap-2 w-full">
-                  <div
-                    role="status"
-                    className="text-center w-full bg-fisma-red text-white text-xs py-3 px-4"
-                  >
-                    {translation.cannotEditOrSaveArchivedVersion}
-                  </div>
-                </div>
-              )}
+              <ProjectViewControls viewMode={viewMode} />
+              <ProjectSaveControls
+                isLatest={isLatest}
+                loadingProject={loadingProject}
+                version={project?.version}
+                saveProject={saveProject}
+                onArchive={() => setConfirmModalOpen(true)}
+                onPrintSummary={handlePrintProjectSummaryPDF}
+                includeFunctionsInReport={includeFunctionsInReport}
+                setIncludeFunctionsInReport={setIncludeFunctionsInReport}
+              />
 
-              <div className="mt-2">
-                <div className="text-left font-medium">
-                  {translation.calculationDate}
-                </div>
-                <DatePicker
-                  key={language}
-                  selected={
-                    project?.calculationDate
-                      ? isoDateToLocalDate(project.calculationDate)
-                      : null
-                  }
-                  onChange={(date: Date | null) => {
-                    const isoDate = date ? localDateToIsoDate(date) : null;
-
-                    setProject((prev) => {
-                      if (!prev) return prev;
-                      const updated = { ...prev, calculationDate: isoDate };
-                      projectRef.current = updated;
-                      return updated;
-                    });
-
-                    if (isLatest) {
-                      debouncedSaveProject();
-                    }
-                  }}
-                  locale={language === "fi" ? fi : enUS}
-                  dateFormat={language === "fi" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
-                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
-                  disabled={!isLatest || loadingProject}
-                  isClearable
-                />
-              </div>
-
-              <div className="mt-2">
-                <label
-                  htmlFor="report-contact-details"
-                  className="text-left font-medium"
-                >
-                  {translation.reportContactDetails}
-                </label>
-                <textarea
-                  id="report-contact-details"
-                  value={project?.reportContactDetails ?? ""}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setProject((prev) => {
-                      if (!prev) return prev;
-                      const updated = { ...prev, reportContactDetails: value };
-                      projectRef.current = updated;
-                      return updated;
-                    });
-
-                    if (isLatest) {
-                      debouncedSaveProject();
-                    }
-                  }}
-                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
-                  rows={3}
-                  maxLength={2000}
-                  disabled={!isLatest || loadingProject}
-                />
-              </div>
-
-              <div className="mt-2">
-                <label
-                  htmlFor="report-calculation-notes"
-                  className="text-left font-medium"
-                >
-                  {translation.reportNotes}
-                </label>
-                <textarea
-                  id="report-calculation-notes"
-                  value={project?.reportNotes ?? ""}
-                  onChange={(event) => {
-                    const value = event.target.value;
-
-                    setProject((prev) => {
-                      if (!prev) return prev;
-                      const updated = { ...prev, reportNotes: value };
-                      projectRef.current = updated;
-                      return updated;
-                    });
-
-                    if (isLatest) {
-                      debouncedSaveProject();
-                    }
-                  }}
-                  className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
-                  rows={5}
-                  maxLength={5000}
-                  disabled={!isLatest || loadingProject}
-                />
-              </div>
+              <ProjectReportFields
+                project={project}
+                setProject={setProject}
+                projectRef={projectRef}
+                isLatest={isLatest}
+                loadingProject={loadingProject}
+                debouncedSaveProject={debouncedSaveProject}
+              />
 
               <label
                 htmlFor="version-select"
@@ -1169,113 +595,7 @@ export default function ProjectPage() {
               </button>
 
               {commentsOpen && project && (
-                <div className="mt-3 border border-gray-300 p-3 bg-gray-50 rounded">
-                  <div className="mb-2 text-sm font-medium">
-                    {translation.commentsTitle}
-                  </div>
-
-                  {!isLatest && (
-                    <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
-                      {translation.archivedVersionReadOnly}
-                    </div>
-                  )}
-
-                  {commentsLoading ? (
-                    <div className="text-xs text-gray-500">
-                      {alertTranslation.loading}
-                    </div>
-                  ) : comments.length === 0 ? (
-                    <div className="text-xs text-gray-500">
-                      {translation.noCommentsYet}
-                    </div>
-                  ) : (
-                    <ul className="space-y-2 text-sm">
-                      {comments.map((comment) => (
-                        <li
-                          key={comment.id}
-                          className="bg-white p-2 rounded border border-gray-200"
-                        >
-                          {editingCommentId === comment.id && isLatest ? (
-                            <div className="space-y-2">
-                              <textarea
-                                value={editingText}
-                                onChange={(event) =>
-                                  setEditingText(event.target.value)
-                                }
-                                rows={3}
-                                className="w-full border border-gray-300 p-2 text-sm"
-                              />
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={handleUpdateComment}
-                                  className="bg-fisma-blue hover:bg-fisma-dark-blue text-white px-3 py-1.5 text-xs rounded"
-                                  disabled={!editingText.trim()}
-                                >
-                                  {translation.save}
-                                </button>
-                                <button
-                                  onClick={handleCancelEditingComment}
-                                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1.5 text-xs rounded"
-                                >
-                                  {translation.cancel}
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="space-y-2">
-                              <div className="whitespace-pre-wrap break-words">
-                                {comment.text}
-                              </div>
-                              {isLatest && (
-                                <div className="flex justify-end gap-2">
-                                  <button
-                                    onClick={() =>
-                                      handleStartEditingComment(
-                                        comment.id,
-                                        comment.text,
-                                      )
-                                    }
-                                    className="text-xs text-fisma-blue underline"
-                                  >
-                                    {translation.edit}
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      setCommentToDeleteId(comment.id)
-                                    }
-                                    className="text-xs text-red-600 underline"
-                                  >
-                                    {translation.delete}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {isLatest && editingCommentId === null && (
-                    <>
-                      <textarea
-                        value={commentText}
-                        onChange={(event) => setCommentText(event.target.value)}
-                        rows={3}
-                        placeholder={translation.addCommentPlaceholder}
-                        className="w-full border border-gray-300 p-2 mt-3 text-sm"
-                      />
-
-                      <button
-                        onClick={handleCreateComment}
-                        className="mt-2 w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-4 rounded"
-                        disabled={!commentText.trim() || !project}
-                      >
-                        {translation.addComment}
-                      </button>
-                    </>
-                  )}
-                </div>
+                <CommentsPanel comments={projectComments} isLatest={isLatest} />
               )}
             </div>
 
@@ -1398,15 +718,36 @@ export default function ProjectPage() {
         </div>
 
         <ConfirmModal
-          message={alertTranslation.saveConflictMessage}
+          message={
+            versionArchivedElsewhere
+              ? alertTranslation.versionArchivedMessage
+              : archivingVersion
+                ? alertTranslation.saveConflictArchiveMessage
+                : alertTranslation.saveConflictMessage
+          }
           open={savedElsewhere !== null}
           setOpen={(open) => {
             if (!open) setSavedElsewhere(null);
           }}
-          confirmLabel={alertTranslation.keepMyChanges}
+          confirmLabel={
+            versionArchivedElsewhere
+              ? alertTranslation.loadSavedVersion
+              : archivingVersion
+                ? alertTranslation.keepMyChangesAndArchive
+                : alertTranslation.keepMyChanges
+          }
           cancelLabel={alertTranslation.loadSavedVersion}
-          onConfirm={keepMyChanges}
+          onConfirm={
+            versionArchivedElsewhere ? loadSavedVersion : keepMyChanges
+          }
           onCancel={loadSavedVersion}
+          hideCancel={versionArchivedElsewhere}
+          dismissLabel={alertTranslation.cancelArchiving}
+          onDismiss={
+            archivingVersion && !versionArchivedElsewhere
+              ? cancelArchiving
+              : undefined
+          }
         />
 
         <ConfirmModal
