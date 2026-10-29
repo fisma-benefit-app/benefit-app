@@ -12,10 +12,12 @@ CREATE TABLE IF NOT EXISTS revoked_tokens
 
 CREATE TABLE IF NOT EXISTS app_users
 (
-    id              BIGSERIAL PRIMARY KEY,
-    username        VARCHAR(50) NOT NULL,
-    password        VARCHAR(64) NOT NULL,
-    deleted_at      TIMESTAMP(0) -- no fractions of seconds
+    id                  BIGSERIAL PRIMARY KEY,
+    username            VARCHAR(50) NOT NULL,
+    password            VARCHAR(64) NOT NULL,
+    deleted_at          TIMESTAMP(0), -- no fractions of seconds
+    failed_login_count  INTEGER NOT NULL DEFAULT 0,
+    locked_until        TIMESTAMP WITH TIME ZONE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS app_users_username_lower_key ON app_users (LOWER(username));

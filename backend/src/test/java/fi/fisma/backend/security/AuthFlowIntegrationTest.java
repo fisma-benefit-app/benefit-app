@@ -54,7 +54,9 @@ class AuthFlowIntegrationTest {
             + "id BIGSERIAL PRIMARY KEY, "
             + "username VARCHAR(50) NOT NULL, "
             + "password VARCHAR(64) NOT NULL, "
-            + "deleted_at TIMESTAMP(0))");
+            + "deleted_at TIMESTAMP(0), "
+            + "failed_login_count INTEGER NOT NULL DEFAULT 0, "
+            + "locked_until TIMESTAMP WITH TIME ZONE)");
     jdbcTemplate.execute(
         "CREATE UNIQUE INDEX IF NOT EXISTS app_users_username_lower_key "
             + "ON app_users (LOWER(username))");
@@ -189,5 +191,17 @@ class AuthFlowIntegrationTest {
     TokenBlacklistService recreatedService = new TokenBlacklistService(revokedTokenRepository);
 
     assertThat(recreatedService.isTokenBlacklisted(revokedJti)).isTrue();
+  }
+
+  @Test
+  void failedAttemptsSurviveServiceRecreation() {
+    for (int attempt = 1; attempt < 5; attempt++) {
+      assertThat(loginAttemptThrottleService.recordFailure(username)).isFalse();
+    }
+
+    var recreated = new LoginAttemptThrottleService(appUserRepository);
+
+    assertThat(recreated.recordFailure(username)).isTrue();
+    assertThat(recreated.isBlocked(username)).isTrue();
   }
 }
