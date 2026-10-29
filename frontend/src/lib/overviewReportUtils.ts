@@ -67,7 +67,7 @@ export const generateOverviewPDF = async (
           functionName: "Toiminto",
           functionType: "Toimintotyyppi",
           functionListNote:
-            "MLA-alikomponentit on listattu vanhempansa alla. Pisteet ovat tehdyt / mahdolliset pisteet.",
+            "MLA-alikomponentit on listattu varsinaisten toimintojen jälkeen. Pisteet ovat tehdyt / mahdolliset pisteet.",
           unspecified: "Ei valittu",
           explanation: "Laskennan selitys ja tärkeät muutokset",
           changed:
@@ -102,7 +102,7 @@ export const generateOverviewPDF = async (
           functionName: "Function",
           functionType: "Function type",
           functionListNote:
-            "MLA subcomponents are listed under their parent. Points are done / possible points.",
+            "MLA subcomponents are listed after the actual functions. Points are done / possible points.",
           unspecified: "Not selected",
           explanation: "Calculation explanation and important changes",
           changed:
@@ -252,8 +252,8 @@ export const generateOverviewPDF = async (
     ];
   };
 
-  // Optional per-function listing; MLA subcomponents follow their parent so the rows add up to the
-  // total size. Previous-version values are matched through previousFCId.
+  // Optional per-function listing; all MLA subcomponents follow the actual functions so the rows add
+  // up to the total size. Previous-version values are matched through previousFCId.
   const functionListContent = (): Content[] => {
     const previousPoints = new Map<number, number>();
     previousProject?.functionalComponents.forEach((component) => {
@@ -294,14 +294,17 @@ export const generateOverviewPDF = async (
         textCell(percentDone(points, possible), fill),
       ];
     };
-    const rows = [...project.functionalComponents]
-      .sort((a, b) => a.orderPosition - b.orderPosition)
-      .flatMap((component) => [
-        row(component, false),
-        ...(component.subComponents ?? []).map((sub) =>
+    const components = [...project.functionalComponents].sort(
+      (a, b) => a.orderPosition - b.orderPosition,
+    );
+    const rows = [
+      ...components.map((component) => row(component, false)),
+      ...components.flatMap((component) =>
+        (component.subComponents ?? []).map((sub) =>
           row(sub as TGenericComponent, true),
         ),
-      ]);
+      ),
+    ];
     const totalOptions = {
       bold: true,
       fillColor: PDF_COLORS.tableHeaderFill,
