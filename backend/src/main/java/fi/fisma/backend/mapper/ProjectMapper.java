@@ -73,10 +73,6 @@ public class ProjectMapper {
         );
   }
 
-  /**
-   * Builds the project state to save from a request. Membership is never taken from the request:
-   * the project keeps the users it already has.
-   */
   public Project updateEntityFromRequest(Project project, ProjectRequest request) {
     Set<FunctionalComponent> functionalComponents =
         functionalComponentMapper.updateEntityFromRequest(project, request);

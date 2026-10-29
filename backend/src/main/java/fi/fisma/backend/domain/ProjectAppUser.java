@@ -1,6 +1,9 @@
 package fi.fisma.backend.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,8 +38,14 @@ public class ProjectAppUser {
   @JoinColumn(name = "app_user_id")
   private AppUser appUser;
 
-  public ProjectAppUser(Project project, AppUser appUser) {
+  @NotNull(message = "Role is required")
+  @Column(name = "role_in_project")
+  @Enumerated(EnumType.STRING)
+  private EnumProjectRole roleInProject;
+
+  public ProjectAppUser(Project project, AppUser appUser, EnumProjectRole roleInProject) {
     this.project = project;
     this.appUser = appUser;
+    this.roleInProject = roleInProject;
   }
 }

@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.EnumUserRole;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.RevokedTokenRepository;
 import java.time.Instant;
@@ -61,7 +62,8 @@ class AuthFlowIntegrationTest {
 
     username = "auth-it-" + UUID.randomUUID();
     testUser =
-        appUserRepository.save(new AppUser(null, username, passwordEncoder.encode(PASSWORD), null));
+        appUserRepository.save(
+            new AppUser(null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.user, null));
   }
 
   @AfterEach

@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.EnumUserRole;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.security.LoginAttemptThrottleService;
 import java.nio.charset.StandardCharsets;
@@ -558,7 +559,8 @@ class ProjectIntegrityIntegrationTest {
 
   private String createUser(String username) {
     AppUser user =
-        appUserRepository.save(new AppUser(null, username, passwordEncoder.encode(PASSWORD), null));
+        appUserRepository.save(
+            new AppUser(null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.user, null));
     users.add(user);
     return username;
   }
