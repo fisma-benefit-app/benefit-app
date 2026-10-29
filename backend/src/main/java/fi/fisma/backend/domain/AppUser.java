@@ -2,11 +2,14 @@ package fi.fisma.backend.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -36,6 +39,11 @@ public class AppUser {
   @Size(max = 64, message = "Password must not exceed 64 characters")
   @Column(name = "password")
   private String password;
+
+  @Enumerated(EnumType.STRING)
+  @NotNull(message = "Role is required")
+  @Column(name = "role")
+  private EnumUserRole role;
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;

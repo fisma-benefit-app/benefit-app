@@ -13,6 +13,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.EnumUserRole;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.security.UserDetailsServiceImpl.AppUserDetails;
 import java.security.KeyPairGenerator;
@@ -37,7 +38,7 @@ class TokenServiceTest {
   private TokenService tokenService;
   private JwtDecoder decoder;
 
-  private final AppUser alice = new AppUser(42L, "alice", "hash", null);
+  private final AppUser alice = new AppUser(42L, "alice", "hash", EnumUserRole.user, null);
 
   @BeforeEach
   void setUp() throws Exception {

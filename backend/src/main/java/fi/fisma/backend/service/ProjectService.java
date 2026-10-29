@@ -1,5 +1,6 @@
 package fi.fisma.backend.service;
 
+import fi.fisma.backend.domain.EnumProjectRole;
 import fi.fisma.backend.domain.FunctionalComponent;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -123,7 +125,7 @@ public class ProjectService {
     functionalComponents.forEach(fc -> fc.setProject(project)); // owning side
     project.setFunctionalComponents(functionalComponents);
 
-    project.setProjectAppUsers(Set.of(new ProjectAppUser(project, appUser)));
+    project.setProjectAppUsers(Set.of(new ProjectAppUser(project, appUser, EnumProjectRole.owner)));
     return projectMapper.toResponse(projectRepository.save(project));
   }
 
@@ -238,10 +240,16 @@ public class ProjectService {
     // Associate the project with the copied functional components
     savedProject.setFunctionalComponents(functionalComponents);
 
-    // The new version belongs to everyone who had access to the version it was made from.
+    // The new version keeps everyone’s access and their role from the previous version.
     savedProject.setProjectAppUsers(
         originalProject.getProjectAppUsers().stream()
-            .map(pau -> new ProjectAppUser(savedProject, pau.getAppUser()))
+            .map(
+                projectAppUser ->
+                    new ProjectAppUser(
+                        savedProject,
+                        projectAppUser.getAppUser(),
+                        Objects.requireNonNullElse(
+                            projectAppUser.getRoleInProject(), EnumProjectRole.member)))
             .collect(Collectors.toSet()));
 
     return projectMapper.toResponse(savedProject);
@@ -308,7 +316,10 @@ public class ProjectService {
     versionsOf(project, username).stream()
         .filter(version -> !isMember(version, newMember.getId()))
         .forEach(
-            version -> version.getProjectAppUsers().add(new ProjectAppUser(version, newMember)));
+            version ->
+                version
+                    .getProjectAppUsers()
+                    .add(new ProjectAppUser(version, newMember, EnumProjectRole.member)));
     // The new rows are persisted by the cascade from the managed projects; flush so the response
     // carries their IDs.
     projectRepository.flush();
@@ -451,7 +462,8 @@ public class ProjectService {
 
     // Set AppUser
     duplicatedProject.setProjectAppUsers(
-        new HashSet<>(Set.of(new ProjectAppUser(duplicatedProject, appUser))));
+        new HashSet<>(
+            Set.of(new ProjectAppUser(duplicatedProject, appUser, EnumProjectRole.owner))));
     projectRepository.save(duplicatedProject);
 
     // 4. Copy active top-level components and their active MLA subcomponents.

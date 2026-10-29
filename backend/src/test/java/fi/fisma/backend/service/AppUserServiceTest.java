@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.EnumUserRole;
 import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
@@ -42,7 +43,7 @@ class AppUserServiceTest {
             passwordEncoder,
             Clock.systemUTC());
 
-    alice = new AppUser(1L, "alice", "old-hash", null);
+    alice = new AppUser(1L, "alice", "old-hash", EnumUserRole.user, null);
     aliceAuth = new TestingAuthenticationToken("alice", null, "ROLE_USER");
 
     when(appUserRepository.findByUsernameActive("alice")).thenReturn(Optional.of(alice));
