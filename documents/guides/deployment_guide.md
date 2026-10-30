@@ -24,15 +24,35 @@ The workflow file is triggered when any backend deployment is done in Heroku. Te
 
 The workflow file recognizes which GitHub repository environment (`fisma-benefit-app` for production and `fisma-benefit-app-testing` for testing) is deployed in Heroku, and based on this deploys frontend to either production or testing.
 
+## Testing GitHub Pages site
+
+The testing frontends are published to their own GitHub Pages site, separate from production, so a production deployment never touches them and testing and production don't share a browser origin.
+
+- Site: https://fisma-benefit-app-testing.github.io, from the repo [fisma-benefit-app-testing/benefit-app-testing](https://github.com/fisma-benefit-app-testing/benefit-app-testing) in the separate GitHub organization `fisma-benefit-app-testing`
+- Heroku testing frontend: https://fisma-benefit-app-testing.github.io/benefit-app-testing/testing/
+- Scalingo testing frontend: https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/
+- The repo holds only the built sites, on its `gh-pages` branch. Don't edit it by hand: every testing deployment overwrites its own folder.
+
+How the workflows publish there:
+
+- The repo has a deploy key with write access. Its private half is the Actions secret `TESTING_PAGES_DEPLOY_KEY` in this repo. `run-deployments.yml` and `deploy-scalingo-testing-frontend.yml` load it and push over SSH (`npm run deploy:testing` / `deploy:scalingo-testing`, see `frontend/package.json`).
+- New organizations have deploy keys disabled by default. They are allowed in the `fisma-benefit-app-testing` organization settings.
+- The repo's Settings → Pages deploys from the `gh-pages` branch, root.
+
+Both testing backends must allow the testing site in CORS. Set `CORS_ALLOWED_ORIGINS=https://fisma-benefit-app-testing.github.io` on the Heroku testing app (Config Vars) and on the Scalingo app (Environment tab), then restart them. The backend default allows only the production site.
+
+To replace the deploy key (if it leaks, or someone removes it), generate a new pair with `ssh-keygen -t ed25519 -C "benefit-app testing deploy" -f testing_deploy_key -N ""`, add `testing_deploy_key.pub` to the testing repo's Settings → Deploy keys with **Allow write access**, put the contents of `testing_deploy_key` in the `TESTING_PAGES_DEPLOY_KEY` secret, delete both files and remove the old deploy key.
+
+When the team changes, update the owners of the `fisma-benefit-app-testing` organization together with the main organization.
+
 ## Scalingo testing environment (alongside Heroku)
 
 A second testing environment runs the backend on Scalingo (with its own PostgreSQL database). It is meant to replace the Heroku testing environment once it has proven itself, so the two run side by side for now.
 
 For setting up the Scalingo app and its database step by step (CLI, environment variables, schema, first user), see the [Scalingo deployment guide](./scalingo_deployment.md).
 
-- Frontend: https://fisma-benefit-app.github.io/benefit-app/scalingo-testing/ <-- "scalingo-testing" subpage under the production URL
+- Frontend: https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/ <-- on the [testing GitHub Pages site](#testing-github-pages-site)
 - Backend: deployed by Scalingo's GitHub auto-deploy on `main`. Scalingo does not report to the `run-deployments` workflow, so the frontend is deployed by its own workflow, [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml), on every push to `main` (it can also be run by hand from the Actions tab).
-- A production frontend deployment erases this subpage like it does the Heroku testing one, so `run-deployments` redeploys it at the end of the production job.
 
 ### One-time setup
 
@@ -47,7 +67,7 @@ In the Scalingo app:
 | `SPRING_DATASOURCE_URL`                                    | JDBC form of the database URL, `jdbc:postgresql://<host>:<port>/<database>?sslmode=require`. Scalingo's `SCALINGO_POSTGRESQL_URL` is `postgres://...` and does not work as is |
 | `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | From `SCALINGO_POSTGRESQL_URL`                                                                                                                                                |
 | `JWT_PRIVATE_KEY`                                          | A key of its own for this environment, see [authentication](./authentication.md)                                                                                              |
-| `CORS_ALLOWED_ORIGINS`                                     | Optional. The default already allows `https://fisma-benefit-app.github.io`                                                                                                    |
+| `CORS_ALLOWED_ORIGINS`                                     | `https://fisma-benefit-app-testing.github.io`, the [testing GitHub Pages site](#testing-github-pages-site). The default allows only the production site                       |
 
 3. Java 21 comes from `backend/system.properties` and the start command from `backend/Procfile`. Do not set `SPRING_PROFILES_ACTIVE=dev`.
 4. The database starts empty and migrations are manual, as everywhere else. Load `schema-dev.sql` without its `DROP TABLE` line and add the first user, as in [step 5 of the UpCloud guide](./upcloud_deployment.md#5-create-the-database-schema-and-first-user), or restore a dump from the Heroku testing database.
@@ -103,7 +123,7 @@ Testing deployment is initiated **automatically**, and it runs **automatically**
 2. Heroku's automatic deployment triggers the `run-deployments` GitHub Actions workflow which
 
 - echos a message that backend testing deployment is handled by Heroku and not the workflow itself
-- deploys frontend to GitHub Pages testing environment
+- deploys frontend to the [testing GitHub Pages site](#testing-github-pages-site)
 
 Heroku deploys only the `backend` directory thanks to the `subdir-heroku-buildpack` using the `PROJECT_PATH` config variable.
 
@@ -130,15 +150,13 @@ Production deployment is initiated **manually**, but it runs **automatically**. 
 
 - echos a message that backend production deployment is handled by Heroku and not the workflow itself
 - deploys frontend to GitHub Pages production environment
-- waits for the frontend production deployment to finish
-- deploys frontend to GitHub Pages testing environment
 
 Heroku deploys only the `backend` directory thanks to the `subdir-heroku-buildpack` using the `PROJECT_PATH` config variable.
 
-**IMPORTANT:** We need to deploy frontend to testing environment after doing the production deployment. This is due to GitHub Pages limitations: the production deployment erases the frontend testing environment. This is because the frontend testing environment is a subpage in our GitHub Pages production page, so deployment to production deploys the whole page again. Running frontend testing deployment re-creates this subpage.
+The testing frontends are on a [separate GitHub Pages site](#testing-github-pages-site), so a production deployment doesn't affect them.
 
 - Production URL: https://fisma-benefit-app.github.io/benefit-app/
-- Testing URL: https://fisma-benefit-app.github.io/benefit-app/testing/ <-- "testing" subpage under production URL
+- Testing URL: https://fisma-benefit-app-testing.github.io/benefit-app-testing/testing/
 
 ### Production logging
 
@@ -206,7 +224,7 @@ VITE_BASE_PATH=/benefit-app/
 ```bash
 # .env.testing
 VITE_API_URL=https://fisma-benefit-app-testing-XXXXXXXXX.herokuapp.com
-VITE_BASE_PATH=/benefit-app/testing/
+VITE_BASE_PATH=/benefit-app-testing/testing/
 ```
 
 `VITE_BASE_PATH` must be set here so that Vite knows to dynamically set the base path according to the run deployment script. Without `VITE_BASE_PATH`, deployment fails. You also need the correct backend URLs for `VITE_API_URL`. You can find the URLs in the `backend-credentials` repository.
@@ -229,13 +247,9 @@ git switch main
 git pull
 cd frontend
 npm run deploy:production
-# Wait for GitHub Pages deployment to finish (takes maybe 3 minutes)
-npm run deploy:testing
-
-# NOTE: After running production deployment, you need to run testing deployment again!
-# This is because frontend production deployment erases frontend testing environment
-# This is a GitHub Pages limitation, and the automated workflow takes this into account
 ```
+
+`deploy:testing` pushes to the [testing GitHub Pages site](#testing-github-pages-site) over SSH, so your own SSH key needs write access to `fisma-benefit-app-testing/benefit-app-testing`.
 
 These run:
 
@@ -243,13 +257,13 @@ These run:
 - production:
   - deploy → publishes `dist/` to GitHub Pages (`gh-pages` branch)
 - testing:
-  - deploy → publishes `dist/` to GitHub Pages (`gh-pages` branch, `testing` directory)
+  - deploy → publishes `dist/` to the testing GitHub Pages site (`fisma-benefit-app-testing/benefit-app-testing`, `gh-pages` branch, `testing` directory)
 
 ### 4. Verify deployment
 
-- Check GitHub repo Settings → Pages to confirm deployment
+- Check the GitHub repo's Settings → Pages to confirm deployment (`benefit-app` for production, `benefit-app-testing` for testing)
 - Access production frontend at: https://fisma-benefit-app.github.io/benefit-app/
-- Access testing frontend at: https://fisma-benefit-app.github.io/benefit-app/testing/
+- Access testing frontend at: https://fisma-benefit-app-testing.github.io/benefit-app-testing/testing/
 
 ## Self-hosted server with Docker
 

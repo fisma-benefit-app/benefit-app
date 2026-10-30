@@ -1,9 +1,10 @@
 // Login storage shared by all tabs (localStorage), so a new tab is already
 // logged in and logging out in one tab is seen by the others.
 //
-// Keys are prefixed with the deployment's base path. Testing
-// (/benefit-app/testing/) and production (/benefit-app/) share one GitHub
-// Pages origin, so without the prefix they would read each other's login (#679).
+// Keys are prefixed with the deployment's base path. The two testing
+// frontends (/benefit-app-testing/testing/ and /benefit-app-testing/scalingo-testing/)
+// share one GitHub Pages origin, so without the prefix they would read each
+// other's login (#679).
 const PREFIX = import.meta.env.BASE_URL;
 
 export const TOKEN_KEY = `${PREFIX}loginToken`;
