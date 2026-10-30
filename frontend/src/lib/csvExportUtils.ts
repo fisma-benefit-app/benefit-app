@@ -113,7 +113,8 @@ export const encodeComponentForCSV = (
   const componentWithMLA = component as TGenericComponent & {
     subComponentType?: string;
   };
-  const { subComponentType, subComponents, ...restComponent } = componentWithMLA;
+  const { subComponentType, subComponents, ...restComponent } =
+    componentWithMLA;
 
   return {
     ...restComponent,
