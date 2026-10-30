@@ -63,7 +63,7 @@ class AuthFlowIntegrationTest {
     username = "auth-it-" + UUID.randomUUID();
     testUser =
         appUserRepository.save(
-            new AppUser(null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.user, null));
+            new AppUser(null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.USER, null));
   }
 
   @AfterEach

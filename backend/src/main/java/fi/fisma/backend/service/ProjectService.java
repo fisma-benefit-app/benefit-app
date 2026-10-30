@@ -125,7 +125,7 @@ public class ProjectService {
     functionalComponents.forEach(fc -> fc.setProject(project)); // owning side
     project.setFunctionalComponents(functionalComponents);
 
-    project.setProjectAppUsers(Set.of(new ProjectAppUser(project, appUser, EnumProjectRole.owner)));
+    project.setProjectAppUsers(Set.of(new ProjectAppUser(project, appUser, EnumProjectRole.OWNER)));
     return projectMapper.toResponse(projectRepository.save(project));
   }
 
@@ -249,7 +249,7 @@ public class ProjectService {
                         savedProject,
                         projectAppUser.getAppUser(),
                         Objects.requireNonNullElse(
-                            projectAppUser.getRoleInProject(), EnumProjectRole.member)))
+                            projectAppUser.getRoleInProject(), EnumProjectRole.MEMBER)))
             .collect(Collectors.toSet()));
 
     return projectMapper.toResponse(savedProject);
@@ -319,7 +319,7 @@ public class ProjectService {
             version ->
                 version
                     .getProjectAppUsers()
-                    .add(new ProjectAppUser(version, newMember, EnumProjectRole.member)));
+                    .add(new ProjectAppUser(version, newMember, EnumProjectRole.MEMBER)));
     // The new rows are persisted by the cascade from the managed projects; flush so the response
     // carries their IDs.
     projectRepository.flush();
@@ -463,7 +463,7 @@ public class ProjectService {
     // Set AppUser
     duplicatedProject.setProjectAppUsers(
         new HashSet<>(
-            Set.of(new ProjectAppUser(duplicatedProject, appUser, EnumProjectRole.owner))));
+            Set.of(new ProjectAppUser(duplicatedProject, appUser, EnumProjectRole.OWNER))));
     projectRepository.save(duplicatedProject);
 
     // 4. Copy active top-level components and their active MLA subcomponents.

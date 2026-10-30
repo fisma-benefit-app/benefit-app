@@ -560,7 +560,7 @@ class ProjectIntegrityIntegrationTest {
   private String createUser(String username) {
     AppUser user =
         appUserRepository.save(
-            new AppUser(null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.user, null));
+            new AppUser(null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.USER, null));
     users.add(user);
     return username;
   }

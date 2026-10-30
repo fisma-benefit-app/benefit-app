@@ -72,6 +72,6 @@ class ProjectServiceTest {
 
     assertThat(projectUsers.get()).hasSize(1);
     assertThat(projectUsers.get().iterator().next().getRoleInProject())
-        .isEqualTo(EnumProjectRole.owner);
+        .isEqualTo(EnumProjectRole.OWNER);
   }
 }
