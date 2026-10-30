@@ -110,7 +110,10 @@ export const encodeComponentForCSV = (
   };
 
   // Extract subComponents so it can be appended at the very end of the object
-  const { subComponentType, subComponents, ...restComponent } = component;
+  const componentWithMLA = component as TGenericComponent & {
+    subComponentType?: string;
+  };
+  const { subComponentType, subComponents, ...restComponent } = componentWithMLA;
 
   return {
     ...restComponent,
