@@ -43,7 +43,7 @@ class AppUserServiceTest {
             passwordEncoder,
             Clock.systemUTC());
 
-    alice = new AppUser(1L, "alice", "old-hash", EnumUserRole.user, null);
+    alice = new AppUser(1L, "alice", "old-hash", EnumUserRole.USER, null);
     aliceAuth = new TestingAuthenticationToken("alice", null, "ROLE_USER");
 
     when(appUserRepository.findByUsernameActive("alice")).thenReturn(Optional.of(alice));

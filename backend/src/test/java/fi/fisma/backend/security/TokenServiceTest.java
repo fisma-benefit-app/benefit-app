@@ -38,7 +38,7 @@ class TokenServiceTest {
   private TokenService tokenService;
   private JwtDecoder decoder;
 
-  private final AppUser alice = new AppUser(42L, "alice", "hash", EnumUserRole.user, null);
+  private final AppUser alice = new AppUser(42L, "alice", "hash", EnumUserRole.USER, null);
 
   @BeforeEach
   void setUp() throws Exception {

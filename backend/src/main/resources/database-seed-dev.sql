@@ -40,18 +40,18 @@ DELETE FROM functional_components;
 DELETE FROM projects;
 DELETE FROM app_users;
 
-INSERT INTO app_users (id, username, password, deleted_at)
-VALUES  (1, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue', NULL),
-        (2, 'user2', '$2a$12$4JuHucPwX0CfxAeRD87I/OMrD8SndXaptn3Yp2MJeOiLklIbJ3XjW', NULL),
-        (3, 'user3', '$2a$12$tJY5QjbeRPU4HN0hGV48HOu2tIV9dMVCqyqJxNOtjsuNQCbNkUeza', NULL),
-        (4, 'user4', '$2a$12$RTbuJ9r1PLJxd.anzqEzGuxNMlnRe0DylL0v6fgrzNzCTEVDzz1ci', NULL),
-        (5, 'user5', '$2a$12$kHh09CQz9p0RLGMXnBkyS.fueTfRcOqI9Q2MvI8eyNcDjiC7a5Ada', NULL),
-        (6, 'jukka', '$2a$12$HalfqF43RCkPeRRJ7EkQMOjWcjDqLZ4udbTC6DYZRR7C6P0kRpoCm', NULL),
-        (7, 'heikki', '$2a$12$VvPmVx1yxpPVHAEerqvO1.Pmsp96pxLlsw622r9Zun5r0X9NIuNhy', NULL),
-        (8, 'altti', '$2a$12$UVmCG.ySaTe6rWo4X5G2yOFpMuu.Mo89GbmmxJzJOUHpnKUAcXfJ.', NULL),
+INSERT INTO app_users (id, username, password, role, deleted_at)
+VALUES  (1, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue', 'USER', NULL),
+        (2, 'user2', '$2a$12$4JuHucPwX0CfxAeRD87I/OMrD8SndXaptn3Yp2MJeOiLklIbJ3XjW', 'USER', NULL),
+        (3, 'user3', '$2a$12$tJY5QjbeRPU4HN0hGV48HOu2tIV9dMVCqyqJxNOtjsuNQCbNkUeza', 'USER', NULL),
+        (4, 'user4', '$2a$12$RTbuJ9r1PLJxd.anzqEzGuxNMlnRe0DylL0v6fgrzNzCTEVDzz1ci', 'USER', NULL),
+        (5, 'user5', '$2a$12$kHh09CQz9p0RLGMXnBkyS.fueTfRcOqI9Q2MvI8eyNcDjiC7a5Ada', 'USER', NULL),
+        (6, 'jukka', '$2a$12$HalfqF43RCkPeRRJ7EkQMOjWcjDqLZ4udbTC6DYZRR7C6P0kRpoCm', 'USER', NULL),
+        (7, 'heikki', '$2a$12$VvPmVx1yxpPVHAEerqvO1.Pmsp96pxLlsw622r9Zun5r0X9NIuNhy', 'USER', NULL),
+        (8, 'altti', '$2a$12$UVmCG.ySaTe6rWo4X5G2yOFpMuu.Mo89GbmmxJzJOUHpnKUAcXfJ.', 'USER', NULL),
         -- Soft-deleted user, still referenced by project 8's projects_app_users below, to verify
         -- the UI/API handle a project shared with a since-deleted member gracefully.
-        (9, 'poistunut-kayttaja', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue', NOW() - INTERVAL '10 days');
+        (9, 'poistunut-kayttaja', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue', 'USER', NOW() - INTERVAL '10 days');
 
 INSERT INTO projects (id, project_name, version, created_at, version_created_at, calculation_date, report_contact_details, report_notes, updated_at, deleted_at)
 VALUES  -- 1: baseline smoke-test project
@@ -339,27 +339,27 @@ VALUES  (400,
          LEFT('Component description is padded to exactly 10000 characters, the @Size limit raised in migration 2026_09_23 (see fa36d95). ' || REPEAT('Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 200), 10000),
          'Algorithmic or manipulation service', 'calculation routines', 2, NULL, NULL, NULL, 1, 0.5, NULL, 1, FALSE, NULL, NULL, FALSE, 9, NULL);
 
-INSERT INTO projects_app_users (id, project_id, app_user_id)
-VALUES  (1, 1, 1),
-        (2, 2, 1),
-        (3, 3, 1),
-        (4, 4, 1),
-        (5, 4, 6),
-        (6, 5, 1),
-        (7, 6, 1),
-        (8, 7, 1),
-        (9, 8, 1),
-        (10, 8, 2),
-        (11, 8, 3),
-        (12, 8, 4),
-        (13, 8, 5),
-        (14, 8, 6),
-        (15, 8, 7),
-        (16, 8, 8),
-        (17, 8, 9),
-        (18, 9, 1),
-        (19, 10, 1),
-        (20, 10, 6);
+INSERT INTO projects_app_users (id, project_id, app_user_id, role_in_project)
+VALUES  (1, 1, 1, 'OWNER'),
+        (2, 2, 1, 'OWNER'),
+        (3, 3, 1, 'OWNER'),
+        (4, 4, 1, 'OWNER'),
+        (5, 4, 6, 'MEMBER'),
+        (6, 5, 1, 'OWNER'),
+        (7, 6, 1, 'OWNER'),
+        (8, 7, 1, 'OWNER'),
+        (9, 8, 1, 'OWNER'),
+        (10, 8, 2, 'MEMBER'),
+        (11, 8, 3, 'MEMBER'),
+        (12, 8, 4, 'MEMBER'),
+        (13, 8, 5, 'MEMBER'),
+        (14, 8, 6, 'MEMBER'),
+        (15, 8, 7, 'MEMBER'),
+        (16, 8, 8, 'MEMBER'),
+        (17, 8, 9, 'MEMBER'),
+        (18, 9, 1, 'OWNER'),
+        (19, 10, 1, 'OWNER'),
+        (20, 10, 6, 'MEMBER');
 
 INSERT INTO comments (id, text, project_id)
 VALUES  (1, 'This is a comment for project-x', 1),
