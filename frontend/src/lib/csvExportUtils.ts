@@ -18,7 +18,7 @@ export const convertToCSV = (
 ) => {
   if (!rows.length) return "";
 
-  const headers = Object.keys(rows[0]).filter(
+  let headers = Object.keys(rows[0]).filter(
     (key) =>
       ![
         // Exclusion list for CSV export
@@ -31,6 +31,16 @@ export const convertToCSV = (
         "isReadonly",
       ].includes(key),
   );
+
+  if (headers.includes("subComponentType")) {
+    headers = headers.filter((h) => h !== "subComponentType");
+    headers.push("subComponentType");
+  }
+
+  if (headers.includes("subComponents")) {
+    headers = headers.filter((h) => h !== "subComponents");
+    headers.push("subComponents");
+  }
 
   const headerRow = headers.map((h) => translations[h] || h).join(delimiter);
 
@@ -99,9 +109,15 @@ export const encodeComponentForCSV = (
       .join(", ");
   };
 
+  // Extract subComponents so it can be appended at the very end of the object
+  const componentWithMLA = component as TGenericComponent & {
+    subComponentType?: string;
+  };
+  const { subComponentType, subComponents, ...restComponent } =
+    componentWithMLA;
+
   return {
-    ...component,
-    subComponents: escapeCsv(formatSubcomponents(component.subComponents)),
+    ...restComponent,
     title: escapeCsv(component.title),
     description: escapeCsv(component.description),
     className: escapeCsv(
@@ -116,6 +132,8 @@ export const encodeComponentForCSV = (
         : "",
     ),
     totalPossiblePoints: calculateBasePoints(component).toFixed(2),
+    subComponentType: escapeCsv(subComponentType),
+    subComponents: escapeCsv(formatSubcomponents(subComponents)),
   };
 };
 
