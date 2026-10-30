@@ -1,0 +1,14 @@
+{
+  "name": "benefit-app",
+  "version": "1.0.0",
+  "description": "<a id=\"readme-top\"></a>",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6"
+  }
+}
