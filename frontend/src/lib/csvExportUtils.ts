@@ -88,18 +88,7 @@ export const encodeComponentForCSV = (
   classNameTranslations: Record<string, string> = {},
   componentTypeTranslations: Record<string, string> = {},
 ) => {
-  const escapeCsv = (value?: string | null) => {
-    if (value == null) return "";
-
-    // Escape quotes by doubling them
-    const escaped = value.replace(/"/g, '""');
-
-    // If the value contains quotes, delimiter, or newlines, wrap in quotes
-    const needsQuotes =
-      escaped.includes('"') || value.includes(delimiter) || /\r|\n/.test(value);
-    return needsQuotes ? `"${escaped}"` : escaped;
-  };
-
+  void delimiter;
   const formatSubcomponents = (subComponents?: MLAsubComponent[]) => {
     if (!Array.isArray(subComponents)) return "";
 
@@ -118,22 +107,18 @@ export const encodeComponentForCSV = (
 
   return {
     ...restComponent,
-    title: escapeCsv(component.title),
-    description: escapeCsv(component.description),
-    className: escapeCsv(
-      component.className
-        ? classNameTranslations[component.className] || component.className
-        : "",
-    ),
-    componentType: escapeCsv(
-      component.componentType
-        ? componentTypeTranslations[component.componentType] ||
-            component.componentType
-        : "",
-    ),
+    title: component.title,
+    description: component.description,
+    className: component.className
+      ? classNameTranslations[component.className] || component.className
+      : "",
+    componentType: component.componentType
+      ? componentTypeTranslations[component.componentType] ||
+        component.componentType
+      : "",
     totalPossiblePoints: calculateBasePoints(component).toFixed(2),
-    subComponentType: escapeCsv(subComponentType),
-    subComponents: escapeCsv(formatSubcomponents(subComponents)),
+    subComponentType: subComponentType,
+    subComponents: formatSubcomponents(subComponents),
   };
 };
 
