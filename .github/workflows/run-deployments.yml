@@ -31,7 +31,6 @@ jobs:
       github.event.deployment_status.state == 'success'
     permissions:
       contents: write
-      actions: read
 
     steps:
       - name: Debug Event Info
@@ -71,65 +70,6 @@ jobs:
           cd frontend
           npm run deploy:production
 
-          
-
-      - name: Deploy FE for Scalingo testing environment
-        env:
-          VITE_API_URL: ${{ secrets.SCALINGO_TESTING_URL }}
-          VITE_BASE_PATH: /benefit-app/scalingo-testing/
-        run: |
-          cd frontend
-          npm run deploy:scalingo-testing
-
-          
-
-      - name: Wait for GitHub Pages deployment workflow
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Give the Pages workflow run a moment to appear before we look for it.
-          echo "Waiting for GitHub Pages deployment workflow to start..."
-          sleep 20
-
-          # Take the newest "pages build and deployment" run created at or
-          # after this deployment started. The two pushes above (production,
-          # then Scalingo testing) each start a Pages run, and Pages cancels
-          # the older one when the newer arrives, so the earliest run ends up
-          # 'cancelled' and the newest is the one that actually deploys.
-          RUN_ID=$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow "pages-build-deployment" \
-            --json databaseId,createdAt \
-            --jq '[.[] | select(.createdAt >= "'"${{ github.event.deployment.created_at }}"'")] | sort_by(.createdAt) | last | .databaseId')
-
-          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-            echo "Error: Could not find a GitHub Pages deployment workflow run. The workflow may not have started yet or the API call failed."
-            exit 1
-          fi
-
-          echo "Watching GitHub Pages deployment run $RUN_ID..."
-          gh run watch "$RUN_ID" --repo "${{ github.repository }}" --exit-status
-
-      # FE deployment to production resets testing environment,
-      # so we deploy FE testing again after production deployment
-      - name: Deploy FE to GitHub Pages testing environment
-        env:
-          VITE_API_URL: ${{ secrets.HEROKU_TESTING_URL }}
-          VITE_BASE_PATH: /benefit-app/testing/
-        run: |
-          echo "FE deployment to production resets testing environment, so we deploy FE testing again after production deployment"
-          cd frontend
-          npm run deploy:testing
-
-      - name: Deploy FE to GitHub Pages Scalingo testing environment
-        env:
-          VITE_API_URL: ${{ secrets.SCALINGO_TESTING_URL }}
-          VITE_BASE_PATH: /benefit-app/scalingo-testing/
-        run: |
-          echo "The Scalingo testing frontend is also erased by the production deployment, so we deploy it again"
-          cd frontend
-          npm run deploy:scalingo-testing
-
   deploy-backend-to-testing-environment:
     name: Deploy BE to testing environment
     runs-on: ubuntu-latest
@@ -156,7 +96,7 @@ jobs:
       github.event.deployment_status.environment == 'fisma-benefit-app-testing' &&
       github.event.deployment_status.state == 'success'
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Debug Event Info
@@ -179,19 +119,26 @@ jobs:
           npm ci
 
       - name: Configure Git
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Set the remote URL with authentication token
-          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+      # The testing frontends live in their own GitHub Pages site, the repo
+      # fisma-benefit-app-testing/benefit-app-testing. The workflow pushes there with that repo's
+      # deploy key (its private half is this repo's TESTING_PAGES_DEPLOY_KEY secret).
+      - name: Load the testing Pages deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.TESTING_PAGES_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      - name: Deploy FE to GitHub Pages testing environment
+      - name: Deploy FE to the testing GitHub Pages site
         env:
           VITE_API_URL: ${{ secrets.HEROKU_TESTING_URL }}
-          VITE_BASE_PATH: /benefit-app/testing/
+          VITE_BASE_PATH: /benefit-app-testing/testing/
         run: |
           cd frontend
           npm run deploy:testing

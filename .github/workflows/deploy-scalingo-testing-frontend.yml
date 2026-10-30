@@ -13,7 +13,7 @@ jobs:
     name: Deploy FE to Scalingo testing environment
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Checkout code
@@ -30,21 +30,29 @@ jobs:
           npm ci
 
       - name: Configure Git
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Set the remote URL with authentication token
-          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+      # The testing frontends live in their own GitHub Pages site, the repo
+      # fisma-benefit-app-testing/benefit-app-testing. The workflow pushes there with that repo's
+      # deploy key (its private half is this repo's TESTING_PAGES_DEPLOY_KEY secret).
+      - name: Load the testing Pages deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.TESTING_PAGES_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      # Heroku's testing deployment also pushes to the gh-pages branch, and both can run right
-      # after a merge. A push that loses the race is rejected, so retry a few times.
-      - name: Deploy FE to GitHub Pages Scalingo testing environment
+      # Heroku's testing deployment pushes to the same gh-pages branch in the testing repo, and
+      # both can run right after a merge. A push that loses the race is rejected, so retry a few
+      # times.
+      - name: Deploy FE to the testing GitHub Pages site
         env:
           VITE_API_URL: ${{ secrets.SCALINGO_TESTING_URL }}
-          VITE_BASE_PATH: /benefit-app/scalingo-testing/
+          VITE_BASE_PATH: /benefit-app-testing/scalingo-testing/
         run: |
           cd frontend
           for attempt in 1 2 3; do

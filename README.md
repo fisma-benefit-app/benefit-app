@@ -94,8 +94,8 @@ The things people ask about most often:
 | Environment          | URL                                                             |
 | -------------------- | --------------------------------------------------------------- |
 | Production frontend  | https://fisma-benefit-app.github.io/benefit-app/#/login         |
-| Testing frontend     | https://fisma-benefit-app.github.io/benefit-app/testing/#/login |
-| Scalingo testing frontend | https://fisma-benefit-app.github.io/benefit-app/scalingo-testing/#/login |
+| Testing frontend     | https://fisma-benefit-app-testing.github.io/benefit-app-testing/testing/#/login |
+| Scalingo testing frontend | https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/#/login |
 | Local frontend (dev) | http://localhost:5173/benefit-app/login                         |
 | Local backend (dev)  | http://localhost:8080/actuator/health                           |
 
@@ -119,6 +119,7 @@ Database migrations are manual. See [migrations](/backend/src/main/resources/mig
 - Access to repo: https://github.com/fisma-benefit-app/benefit-app
 - Database credentials available in Heroku Config Vars
 - Heroku backend URLs set up in GitHub Actions repository secrets: `HEROKU_PRODUCTION_URL` and `HEROKU_TESTING_URL`, plus `SCALINGO_TESTING_URL` for the Scalingo testing environment (see the [deployment guide](/documents/guides/deployment_guide.md#scalingo-testing-environment-alongside-heroku)) (values can be found in the [backend-credentials repository](https://github.com/fisma-benefit-app/backend-credentials))
+- `TESTING_PAGES_DEPLOY_KEY` Actions secret: the private deploy key that lets the workflows publish the testing frontends to [fisma-benefit-app-testing/benefit-app-testing](https://github.com/fisma-benefit-app-testing/benefit-app-testing) (see the [deployment guide](/documents/guides/deployment_guide.md#testing-github-pages-site))
 
 ### Automatic deployments
 
