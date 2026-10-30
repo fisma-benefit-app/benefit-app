@@ -131,8 +131,16 @@ jobs:
           DEPLOY_KEY: ${{ secrets.TESTING_PAGES_DEPLOY_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          # A key pasted into the secret in a browser can get Windows line endings, which
+          # OpenSSH rejects ("error in libcrypto"), so strip them.
+          echo "$DEPLOY_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          if ! ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null; then
+            echo "Error: TESTING_PAGES_DEPLOY_KEY is not a valid private key. Paste the whole private key file into the secret, including the BEGIN and END lines."
+            exit 1
+          fi
+          # Compare with the fingerprint of the deploy key in the testing repo's Settings -> Deploy keys.
+          ssh-keygen -l -f ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Deploy FE to the testing GitHub Pages site
