@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS app_users
     id              BIGSERIAL PRIMARY KEY,
     username        VARCHAR(50) NOT NULL,
     password        VARCHAR(64) NOT NULL,
-    role            VARCHAR(20) NOT NULL DEFAULT 'user',
+    role            VARCHAR(20) NOT NULL DEFAULT 'USER',
     deleted_at      TIMESTAMP(0) -- no fractions of seconds
 );
 
@@ -73,5 +73,5 @@ CREATE TABLE IF NOT EXISTS projects_app_users
     id              BIGSERIAL PRIMARY KEY,
     project_id      BIGINT NOT NULL REFERENCES projects (id),
     app_user_id     BIGINT NOT NULL REFERENCES app_users (id),
-    role_in_project VARCHAR(20) NOT NULL DEFAULT 'member'
+    role_in_project VARCHAR(20) NOT NULL DEFAULT 'MEMBER'
 )
