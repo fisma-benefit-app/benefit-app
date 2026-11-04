@@ -96,10 +96,10 @@ jobs:
       # run's commit SHA into version.json, so wait until the new build is what's served.
       - name: Wait for the deployed frontend
         env:
-          LOGIN_URL: ${{ secrets.LOGIN_URL }}
+          SCALINGO_E2E_BASE_URL: ${{ secrets.SCALINGO_E2E_BASE_URL }}
         run: |
           for attempt in $(seq 30); do
-            sha=$(curl -sf -m 10 "${LOGIN_URL}version.json?cb=$(date +%s)" | jq -r '.sha' || true)
+            sha=$(curl -sf -m 10 "${SCALINGO_E2E_BASE_URL}version.json?cb=$(date +%s)" | jq -r '.sha' || true)
             if [ "$sha" = "$GITHUB_SHA" ]; then
               echo "Frontend serves $sha"
               exit 0
