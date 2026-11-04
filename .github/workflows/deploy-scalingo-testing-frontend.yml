@@ -96,10 +96,10 @@ jobs:
       # run's commit SHA into version.json, so wait until the new build is what's served.
       - name: Wait for the deployed frontend
         env:
-          E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
+          LOGIN_URL: ${{ secrets.LOGIN_URL }}
         run: |
           for attempt in $(seq 30); do
-            sha=$(curl -sf -m 10 "${E2E_BASE_URL}version.json?cb=$(date +%s)" | jq -r '.sha' || true)
+            sha=$(curl -sf -m 10 "${LOGIN_URL}version.json?cb=$(date +%s)" | jq -r '.sha' || true)
             if [ "$sha" = "$GITHUB_SHA" ]; then
               echo "Frontend serves $sha"
               exit 0
