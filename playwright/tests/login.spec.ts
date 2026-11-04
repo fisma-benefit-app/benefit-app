@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-const LOGIN_URL = `${process.env.E2E_BASE_URL ?? "http://localhost:5173"}/benefit-app/#/login`;
+const LOGIN_URL = `${process.env.LOGIN_URL ?? "http://localhost:5173"}/benefit-app/#/login`;
 
-const USERNAME = process.env.E2E_USERNAME ?? "user";
-const PASSWORD = process.env.E2E_PASSWORD ?? "user";
+const USERNAME = process.env.SCALINGO_E2E_TEST_USERNAME ?? "user";
+const PASSWORD = process.env.SCALINGO_E2E_TEST_PASSWORD ?? "user";
 
 test.describe("login", () => {
   test.beforeEach(async ({ page }) => {

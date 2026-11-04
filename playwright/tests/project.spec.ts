@@ -1,10 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const BASE_URL = process.env.E2E_BASE_URL ?? "http://localhost:5173";
-const LOGIN_URL = `${BASE_URL}/benefit-app/#/login`;
+const LOGIN_URL = `${process.env.LOGIN_URL ?? "http://localhost:5173"}/benefit-app/#/login`;
 
-const USERNAME = process.env.E2E_USERNAME ?? "user";
-const PASSWORD = process.env.E2E_PASSWORD ?? "user";
+const USERNAME = process.env.SCALINGO_E2E_TEST_USERNAME ?? "user";
+const PASSWORD = process.env.SCALINGO_E2E_TEST_PASSWORD ?? "user";
 
 // Unique project name for every run.
 const PROJECT_NAME = `e2e-project-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;

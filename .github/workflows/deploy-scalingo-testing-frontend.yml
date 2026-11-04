@@ -72,3 +72,54 @@ jobs:
           done
           echo "Error: could not deploy the Scalingo testing frontend after 3 attempts."
           exit 1
+
+  e2e-tests:
+    name: Run E2E tests against Scalingo testing environment
+    needs: deploy-frontend-to-scalingo-testing-environment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: playwright/package-lock.json
+
+      # GitHub Pages publishes a minute or so after the push, and write-version.mjs puts this
+      # run's commit SHA into version.json, so wait until the new build is what's served.
+      - name: Wait for the deployed frontend
+        env:
+          E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
+        run: |
+          for attempt in $(seq 30); do
+            sha=$(curl -sf -m 10 "${E2E_BASE_URL}version.json?cb=$(date +%s)" | jq -r '.sha' || true)
+            if [ "$sha" = "$GITHUB_SHA" ]; then
+              echo "Frontend serves $sha"
+              exit 0
+            fi
+            echo "Frontend serves '${sha:-nothing}', waiting for $GITHUB_SHA (attempt $attempt)..."
+            sleep 10
+          done
+          echo "Frontend did not publish $GITHUB_SHA in time"
+          exit 1
+
+      - name: Install dependencies
+        working-directory: playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: playwright
+        env:
+          LOGIN_URL: ${{ secrets.LOGIN_URL }}
+          SCALINGO_E2E_TEST_USERNAME: ${{ secrets.SCALINGO_E2E_TEST_USERNAME }}
+          SCALINGO_E2E_TEST_PASSWORD: ${{ secrets.SCALINGO_E2E_TEST_PASSWORD }}
+        run: npx playwright test tests/login.spec.ts --project=chromium --reporter=list
