@@ -39,6 +39,12 @@ CodeQL was already enabled. Its default setup analyses covered Java/Kotlin, Java
 
 GitHub secret scanning was enabled; push protection, non-provider patterns and validity checks were disabled in the returned settings. The final accessible alert queries returned **0 open and 0 resolved**. Neither enabled settings nor those counts prove full history/custom-pattern coverage or absence of secrets. No Gitleaks history scan was performed.
 
+A later documentation configuration check on the same day confirmed secret
+scanning **and push protection enabled**; non-provider patterns and validity
+checks remained disabled. This supersedes the earlier push-protection snapshot
+for current operation, not the historical evidence. No setting was changed by
+the documentation PR. See the guide's [current configuration](../guides/security_audit.md#current-automated-security-configuration).
+
 An early statement that Playwright was absent was corrected: it exists at `4c98b570`, including login and serial own-project lifecycle tests; inspected deployment CI runs login with Chromium. No complete browser security suite or hosted E2E execution was inferred.
 
 ### Headless ZAP pilot

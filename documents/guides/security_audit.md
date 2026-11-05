@@ -6,7 +6,41 @@ Use this workflow for a bounded Benefit security assessment: agree scope, evalua
 
 Open an investigation issue. Record the owner, source revision, targets, roles, allowed operations, time/request limits, exclusions and evidence location. Use **isolated local disposable data** for active testing. Production and shared testing environments need separate explicit authorization and scope. Do not use real user data, credentials, external callbacks, broad password guessing or load tests in this local procedure.
 
-Read `AGENTS.md`, [authentication](authentication.md), [database](database.md), controllers/services and current tests. Inspect current settings/results for existing CodeQL, Dependabot and secret scanning; enabled checks are starting evidence, not completed audits. Secret scanning was enabled and push protection disabled during the November assessment; recheck rather than assuming those settings persist.
+Read `AGENTS.md`, [authentication](authentication.md), [database](database.md), controllers/services and current tests. Inspect current settings/results for existing CodeQL, Dependabot and secret scanning with push protection; enabled checks are starting evidence, not completed audits. The configuration snapshot below records the verified settings; recheck rather than assuming they persist.
+
+### Current automated security configuration
+
+Verified **5 November 2026** against repository settings/API and tracked workflow
+configuration. GitHub-managed settings are not all represented by YAML files;
+update this snapshot when those settings change.
+
+| Check | Current configuration and execution | Results and limitations |
+| --- | --- | --- |
+| Dependabot | Alerts and security-update PRs enabled. No `.github/dependabot.yml` or `.yaml` is present, so there is no repository-defined version-update schedule/ecosystem configuration. | **Security → Dependabot alerts**, plus generated PRs. Security updates can operate without a version-update YAML file; do not infer routine upgrades or complete dependency coverage. Reconcile with Trivy before opening duplicate work. |
+| CodeQL | GitHub **default setup**, default query suite, remote threat model, standard runner; Actions, Java/Kotlin and JavaScript/TypeScript configured. Weekly schedule, plus GitHub-managed push/PR triggers. No custom CodeQL workflow is checked in. | **Actions → CodeQL** for execution/errors and **Security → Code scanning** for findings. Recent main/PR analyses were visible. Default-suite coverage does not establish complete source or business-authorization verification. |
+| Secret scanning **with push protection** | Both enabled. Non-provider patterns and validity checks disabled in the returned settings. | **Security → Secret scanning** and repository **Settings → Code security / Secret protection**. Push protection checks supported secret types on pushes; it is not universal credential detection. Custom patterns and bypass/delegated-bypass policy were not independently inventoried. Rotate/revoke a real leak; removing text alone is insufficient. |
+| Trivy | [Tracked workflow](../../.github/workflows/trivy.yml), pinned **0.76.1**; builds final backend/frontend production images and scans vulnerabilities at all severities, including unfixed. Relevant PRs/main pushes, Friday **19:35 UTC**, manual dispatch. Vulnerabilities are report-only; execution/report errors fail. | **Actions → Trivy image scan** summaries and 30-day JSON/text/SARIF/provenance artifacts; high/critical results in Code scanning under separate backend/frontend categories. Fork/Dependabot PRs skip SARIF upload but retain reports. Full procedure and exclusions: [trivy.md](trivy.md). |
+
+The earlier audit-stage snapshot had secret-scanning push protection disabled;
+the later configuration check confirmed it enabled. This documentation change
+does not enable or alter repository security settings.
+
+For a future read-only verification, use the GitHub settings UI or authenticated
+GitHub CLI with suitable repository access:
+
+```bash
+gh api repos/fisma-benefit-app/benefit-app --jq '.security_and_analysis'
+gh api repos/fisma-benefit-app/benefit-app/code-scanning/default-setup
+gh api repos/fisma-benefit-app/benefit-app/vulnerability-alerts --silent
+```
+
+The last endpoint returns HTTP **204** when alerts are enabled; inspect the HTTP
+status if needed. Access errors are not proof a feature is disabled. Do not dump
+secret-alert payloads into logs to verify configuration. Review current language
+analyses, dependency manifests and alert disposition separately from settings.
+See GitHub's documentation for [Dependabot configuration](https://docs.github.com/en/code-security/concepts/supply-chain-security/about-the-dependabot-yml-file),
+[CodeQL default setup](https://docs.github.com/en/code-security/concepts/code-scanning/setup-types)
+and [secret-scanning pattern coverage](https://docs.github.com/en/code-security/reference/secret-security/supported-secret-scanning-patterns).
 
 Start with **OWASP ASVS 5.0.0**, pinned to [v5.0.0](https://github.com/OWASP/ASVS/tree/v5.0.0/5.0/en). Read each selected requirement's exact text and record evidence individually. The November subset was:
 
