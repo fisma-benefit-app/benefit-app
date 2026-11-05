@@ -5,6 +5,12 @@ This guide explains how Benefit logs users in and keeps them logged in. It follo
 - **Database → API → browser:** a username and password row in `app_users` becomes a signed JWT.
 - **Browser → API → database:** each later request carries that JWT, and the backend uses it to find the user's data again.
 
+Known gaps from the [November 2026 audit](../archive/security_audit_2026-11-05.md):
+[#985](https://github.com/fisma-benefit-app/benefit-app/issues/985) bypasses revocation with accepted Bearer-scheme casing variations;
+[#979](https://github.com/fisma-benefit-app/benefit-app/issues/979) tracks invalidating every session after a password change.
+The normal flow below must not be read as proof those gaps are fixed. Use the
+[audit guide](security_audit.md) for controlled validation.
+
 All backend paths below are relative to `backend/src/main/java/fi/fisma/backend/`, and all frontend paths are relative to `frontend/src/`.
 
 ## Overview
@@ -164,7 +170,7 @@ The frontend reads the **header** value (the whole string, including `Bearer `).
 | `userInfo`   | username           |
 | `userId`     | the `userId` claim |
 
-They always go into `localStorage` through `authStorage` (`lib/authStorage.ts`), so every tab shares the login and logging out in one tab logs out the others. "Remember me" only changes the token's lifetime, not where it is stored. Without it the login is not cleared when the browser closes, but the token still stops working after 24 hours. The keys are prefixed with the deployment's base path (`import.meta.env.BASE_URL`), so the production and testing frontends on the same GitHub Pages origin don't read each other's login (#679). The same values are put into React state through `AppUserContext` (`context/AppUserProvider.tsx`).
+They always go into `localStorage` through `authStorage` (`lib/authStorage.ts`), so every tab shares the login and logging out in one tab logs out the others. "Remember me" only changes the token's lifetime, not where it is stored. Without it the login is not cleared when the browser closes, but the token still stops working after 24 hours. Keys are prefixed with the deployment's base path (`import.meta.env.BASE_URL`) to avoid accidental login-key collisions (#679). This is not a security boundary: scripts on the same origin can read other prefixes too. The same values are put into React state through `AppUserContext` (`context/AppUserProvider.tsx`).
 
 ## D) Token → database: authenticated requests
 
@@ -180,6 +186,12 @@ const headers = { Authorization: sessionToken }; // "Bearer eyJ..."
 
 Two filters check a Bearer token, in this order:
 
+**Current limitation (#985):** the custom revocation filter only recognizes the
+literal `Bearer ` prefix, while Spring accepts case variations. The rejection
+behavior below describes the canonical spelling; a revoked JWT can bypass it
+with another accepted casing. Logout parsing has the same mismatch and needs
+retesting with the fix.
+
 1. **`JwtRevocationFilter`** is registered in `SecurityConfig` before `SecurityContextHolderFilter`. `FilterRegistrationConfig` stops the servlet container from also registering it globally, so it runs once. The filter decodes the token with the `JwtDecoder`, which checks the signature and expiry. It then rejects the request with `401` if:
    - decoding fails (bad signature, expired, malformed): `{"error":"Invalid token"}`
    - the token has no `jti`, or its `jti` is on the blacklist: `{"error": "Token has been revoked"}`
@@ -187,7 +199,8 @@ Two filters check a Bearer token, in this order:
    - `getName()` returns the `sub` claim, i.e. the username
    - authorities come from `scope`, prefixed with `SCOPE_`, so they become `SCOPE_ROLE_USER`
 
-Sessions are `STATELESS`, so nothing is remembered between requests.
+Spring HTTP sessions are `STATELESS`; authenticated request state is not kept in
+an HTTP session. Revoked JWT IDs are nevertheless persisted in the database.
 
 ### 3. Controllers turn the token back into database rows
 
@@ -226,9 +239,9 @@ A refused renewal returns `401 {"error":"Session can no longer be renewed"}`.
 
 ### Logout / token revocation (backend)
 
-`AuthController.logout()` decodes the token and passes its `jti` and `exp` to `TokenBlacklistService.blacklistToken()`. The service keeps a `ConcurrentHashMap<jti, expiresAt>`. From then on, `JwtRevocationFilter` rejects that token with `401`, even though its signature and expiry are still valid.
+`AuthController.logout()` decodes the token and passes its `jti` and `exp` to `TokenBlacklistService.blacklistToken()`. The service persists a `RevokedToken` through `RevokedTokenRepository` in PostgreSQL's `revoked_tokens` table. Canonical `Bearer ` requests then receive `401` from `JwtRevocationFilter`, even while signature/expiry remain valid; the casing bypass above remains open.
 
-Blacklist entries are needed only until the token would have expired anyway. They are removed when read after expiry, and by an hourly `@Scheduled` cleanup.
+Blacklist checks query for an entry whose expiry is still in the future. Expired rows are deleted by an hourly `@Scheduled` cleanup. Deployment must apply the revocation-table migration; code alone does not verify a hosted database's schema.
 
 ## F) Signing keys
 
@@ -248,13 +261,13 @@ Blacklist entries are needed only until the token would have expired anyway. The
 
 These follow from the design above and are worth knowing when debugging or changing auth:
 
-- **Revocation is in memory only** ([#726](https://github.com/fisma-benefit-app/benefit-app/issues/726)). The blacklist and the login-attempt counters are cleared when the backend restarts. A logged-out or renewed-away token that hasn't expired becomes valid again after a restart or redeploy, and Heroku restarts dynos at least daily. If more than one backend instance ever runs, they won't share the blacklist.
+- **Revocation is database-backed.** Instances using the same database share persisted revoked-token rows; canonical-token rejection survived backend recreation in the local audit. The hosted schema/configuration and all accepted scheme casings still need verification (#985). Login-attempt counters remain in memory and reset on restart; they are not shared across instances.
 - **Password changes require the current password** ([#974](https://github.com/fisma-benefit-app/benefit-app/issues/974)). `PUT /appusers/password` accepts `currentPassword` and `newPassword`. The unused `PUT /appusers/{id}` route has been removed. Missing current passwords are rejected with `400` and incorrect ones with `403`, without changing the password. Changing the password still does not revoke existing tokens: they stay valid until expiry (24 h, or 30 days with "remember me").
 - **Deleting an account works through the database, not the token.** The token keeps passing signature and blacklist checks, but every lookup filters on `deleted_at IS NULL`, so the user's requests fail. For example, `/projects` returns an empty list and profile calls return "not found". Renewal is refused.
 - **A login lasts at most 30 days**, however often the session is extended. After that the user has to log in again.
 - **Tokens are readable by page JavaScript** (localStorage), so an XSS bug would expose them. The prod and testing frontends share one GitHub Pages origin and so share localStorage, which is why the keys are prefixed with the base path.
 - **Credentials are only as private as the connection.** Basic auth and Bearer tokens are not encrypted by the app, so HTTPS is required ([#528](https://github.com/fisma-benefit-app/benefit-app/issues/528)). Heroku and Scalingo provide it. The self-hosted stack doesn't yet.
-- `/auth/logout` returns `200` with an empty body. Its OpenAPI annotation says `204` ([#729](https://github.com/fisma-benefit-app/benefit-app/issues/729)).
+- `/auth/logout` declares `204 No Content` through `@ResponseStatus`; verify actual status and revocation behavior against the assessed revision rather than inferring success from an empty response.
 
 ## Testing with Postman
 
@@ -287,7 +300,7 @@ Example JSON, with the token shortened:
 { "token": "eyJraWQiOi...", "tokenType": "Bearer", "expiresIn": 86400 }
 ```
 
-To see the claims, paste the token into a JWT decoder, or Base64-decode the middle part yourself.
+To inspect claims, decode the payload locally with a trusted offline tool. Do not paste live JWTs into external decoder websites, issues or chat. Decoding claims does not verify the signature.
 
 #### 4. Copy the raw JWT (the `token` value, without the quotation marks)
 

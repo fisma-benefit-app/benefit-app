@@ -65,7 +65,10 @@ The production and testing environments should therefore not point at the dev se
 As a safety net, `DevProfileDatabaseGuard` stops the backend from starting when the `dev` profile is active and `spring.datasource.url` points anywhere other than a local database (`localhost`, `127.0.0.1`, `::1` or the Compose service `db`). This protects the testing and production databases if their URL ends up in `.env` by mistake. To run a local backend against a remote database on purpose, use another profile, e.g. plain `./gradlew bootRun`, which uses the default profile. The guard can't protect a database on the same machine, such as a Postgres container on a server; there, only the absence of the `dev` profile does.
 
 
-The contents of the database can also be reseeded manually. You can run the contents of each seeding file in the database directly, resulting in reseeding. See accessing database via different methods below.
+Run schema/seed initialization only against a verified disposable local database.
+Never replay `schema-dev.sql` or `database-seed-dev.sql` against an existing shared
+testing or production database; use reviewed migrations there. For security
+assessments, follow the isolated setup in [security_audit.md](security_audit.md).
 
 ### Adding the kitchen sink test project to the testing database
 
@@ -95,7 +98,7 @@ You’ll be prompted for the password.
 
 ### Access via DBeaver (GUI)
 
-- 1. Install [DBeaver](dbeaver.io/download/).
+- 1. Install [DBeaver](https://dbeaver.io/download/).
 - 2. Go to Database → New Connection → PostgreSQL.
 - 3. Enter the values from Heroku (host, port, database, username, password).
 - 4. Click Finish. The database schema and tables will appear in the left-hand panel.
@@ -121,7 +124,11 @@ SET password = '$2a$12$csFVT0JamCwPg18duSENPu.6HxtqeDNfXLI3mPXb2tRClCR/VjduK'
 WHERE username = 'user';
 ```
 
-If you update passwords like this, **ALWAYS** run passwords through an encryptor like this: https://bcrypt-generator.com/.
+Generate BCrypt hashes locally using trusted project tooling (the backend uses
+Spring's `BCryptPasswordEncoder`); never submit real passwords to an online hash
+generator. For ordinary account changes use the authenticated password-change
+flow. A manual SQL password update bypasses service validation and session
+invalidation behavior; review those consequences before administrative recovery.
 
 **NEVER EVER** store plain text passwords in the database.
 
@@ -145,3 +152,11 @@ jdbc:postgresql://ec2-00-00-00-00.compute-1.amazonaws.com:5433/fisma_db
 - Alternative: You can also view credentials in the Heroku dashboard.
 
 Never commit credentials to this repository.
+
+For remote database connections, verify the provider's TLS configuration and
+certificate validation requirements. A bare JDBC URL does not demonstrate
+encrypted, authenticated transport; configure and verify a suitable mode such as
+`sslmode=verify-full` with the correct trusted CA and hostname, following the
+[PostgreSQL JDBC TLS documentation](https://jdbc.postgresql.org/documentation/ssl/).
+Do not weaken validation merely to make a connection succeed. Actual hosted
+JDBC/TLS settings were not verified by the November local audit.
