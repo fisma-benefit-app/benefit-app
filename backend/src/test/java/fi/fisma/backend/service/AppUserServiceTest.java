@@ -67,10 +67,12 @@ class AppUserServiceTest {
   }
 
   @Test
-  void updateAppUserWithSameUsernameUpdatesPassword() {
+  void updateAppUserWithSameUsernameAndCurrentPasswordUpdatesPassword() {
     var request = new AppUserRequest();
     request.setUsername("alice");
     request.setPassword("newPass123");
+    request.setCurrentPassword("currentPass123");
+    when(passwordEncoder.matches("currentPass123", "old-hash")).thenReturn(true);
 
     var result = appUserService.updateAppUser(1L, request, aliceAuth);
 

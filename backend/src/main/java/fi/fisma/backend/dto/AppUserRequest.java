@@ -11,6 +11,10 @@ public class AppUserRequest {
   @NotEmpty(message = "Username is required")
   String username;
 
+  @NotEmpty(message = "Current password is required")
+  @Size(max = 64, message = "Current password must not exceed 64 characters")
+  String currentPassword;
+
   @NotEmpty(message = "Password is required")
   @Size(max = 64, message = "Password must not exceed 64 characters")
   String password;

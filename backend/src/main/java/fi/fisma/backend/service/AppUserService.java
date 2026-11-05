@@ -76,13 +76,8 @@ public class AppUserService {
       throw new UnauthorizedException("Changing the username is not allowed");
     }
 
-    validatePasswordRequirements(request.getPassword());
-
-    user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-    var updatedUser = appUserRepository.save(user);
-
-    return mapToSummary(updatedUser);
+    changePassword(request.getCurrentPassword(), request.getPassword(), authentication);
+    return mapToSummary(user);
   }
 
   /**
@@ -132,12 +127,10 @@ public class AppUserService {
       Authentication authentication) {
     AppUser appUser = getUserFromAuthentication(authentication);
 
-    CharSequence currPasswordCharSequence = new StringBuffer(currentPassword);
-
-    if (!passwordEncoder.matches(currPasswordCharSequence, appUser.getPassword())) {
+    if (currentPassword == null
+        || !passwordEncoder.matches(currentPassword, appUser.getPassword())) {
       throw new UnauthorizedException("Current password is incorrect");
     }
-    ;
 
     validatePasswordRequirements(newPassword);
 

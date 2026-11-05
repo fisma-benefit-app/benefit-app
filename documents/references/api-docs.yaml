@@ -241,7 +241,8 @@ paths:
       tags:
       - User Management
       summary: Update user
-      description: Updates an existing user's information
+      description: Changes the caller's password after verifying their current password.
+        The username cannot be changed
       operationId: updateAppUser
       parameters:
       - name: id
@@ -263,6 +264,10 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AppUserSummary"
+        "400":
+          description: Missing or invalid request fields
+        "403":
+          description: Current password incorrect or user update not allowed
         "404":
           description: User not found
           content:
@@ -1027,11 +1032,16 @@ components:
         username:
           type: string
           minLength: 1
+        currentPassword:
+          type: string
+          maxLength: 64
+          minLength: 0
         password:
           type: string
           maxLength: 64
           minLength: 0
       required:
+      - currentPassword
       - password
       - username
     PasswordChangeRequest:

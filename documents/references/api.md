@@ -600,13 +600,14 @@ bearerAuth
 
 `PUT /appusers/{id}`
 
-Updates an existing user's information
+Changes the caller's password after verifying their current password. The username cannot be changed
 
 > Body parameter
 
 ```json
 {
   "username": "string",
+  "currentPassword": "string",
   "password": "string"
 }
 ```
@@ -618,6 +619,7 @@ Updates an existing user's information
 |id|path|integer(int64)|true|none|
 |body|body|[AppUserRequest](#schemaappuserrequest)|true|none|
 |» username|body|string|true|none|
+|» currentPassword|body|string|true|none|
 |» password|body|string|true|none|
 
 > Example responses
@@ -629,6 +631,8 @@ Updates an existing user's information
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|User updated successfully|[AppUserSummary](#schemaappusersummary)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Missing or invalid request fields|None|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Current password incorrect or user update not allowed|None|
 |404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|User not found|[AppUserSummary](#schemaappusersummary)|
 
 <aside class="warning">
@@ -1384,6 +1388,7 @@ Response object containing project details
 ```json
 {
   "username": "string",
+  "currentPassword": "string",
   "password": "string"
 }
 
@@ -1396,6 +1401,7 @@ Request object for creating or updating app users
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |username|string|true|none|none|
+|currentPassword|string|true|none|none|
 |password|string|true|none|none|
 
 <h2 id="tocS_PasswordChangeRequest">PasswordChangeRequest</h2>

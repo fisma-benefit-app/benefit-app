@@ -5,6 +5,7 @@ import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.dto.PasswordChangeRequest;
 import fi.fisma.backend.service.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,8 +33,19 @@ public class AppUserController {
   }
 
   @PutMapping("/{id}")
-  @Operation(summary = "Update user", description = "Updates an existing user's information")
+  @Operation(
+      summary = "Update user",
+      description =
+          "Changes the caller's password after verifying their current password. The username cannot be changed")
   @ApiResponse(responseCode = "200", description = "User updated successfully")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Missing or invalid request fields",
+      content = @Content)
+  @ApiResponse(
+      responseCode = "403",
+      description = "Current password incorrect or user update not allowed",
+      content = @Content)
   @ApiResponse(responseCode = "404", description = "User not found")
   public ResponseEntity<AppUserSummary> updateAppUser(
       @PathVariable Long id,
