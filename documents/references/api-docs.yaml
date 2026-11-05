@@ -237,45 +237,6 @@ paths:
                 $ref: "#/components/schemas/AppUserSummary"
       security:
       - bearerAuth: []
-    put:
-      tags:
-      - User Management
-      summary: Update user
-      description: Changes the caller's password after verifying their current password.
-        The username cannot be changed
-      operationId: updateAppUser
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AppUserRequest"
-        required: true
-      responses:
-        "200":
-          description: User updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppUserSummary"
-        "400":
-          description: Missing or invalid request fields
-        "403":
-          description: Current password incorrect or user update not allowed
-        "404":
-          description: User not found
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppUserSummary"
-      security:
-      - bearerAuth: []
     delete:
       tags:
       - User Management
@@ -1025,25 +986,6 @@ components:
           items:
             $ref: "#/components/schemas/ProjectAppUserResponse"
           uniqueItems: true
-    AppUserRequest:
-      type: object
-      description: Request object for creating or updating app users
-      properties:
-        username:
-          type: string
-          minLength: 1
-        currentPassword:
-          type: string
-          maxLength: 64
-          minLength: 0
-        password:
-          type: string
-          maxLength: 64
-          minLength: 0
-      required:
-      - currentPassword
-      - password
-      - username
     PasswordChangeRequest:
       type: object
       description: Request object containing details on password change
