@@ -39,6 +39,26 @@ Compare **within categories** using coverage, confirmed findings, missed seeded 
 
 Record versions, add-ons/rules, image digests and configuration. ZAP/Trivy process assessment data locally, but image pulls and vulnerability databases require downloads. AI tools can send source/context to model services: inspect permissions, provider/retention settings and budget before use. Do not send `.env`, private keys, tokens or raw captures to a model. No extra overlapping scanner or license purchase without evidence. Daybreak was only a future consideration, not a selected tool.
 
+### Future candidates if coverage needs expand
+
+These are investigation leads, **not adopted tools or additional requirements for
+the November audit**. ZAP is already retained, and Burp Community remains an
+optional manual alternative; their proxy functions overlap. Start with a defined
+gap, then pilot one tool in that category against the existing workflow.
+
+| Candidate | Practical Benefit use | Evaluation boundary |
+| --- | --- | --- |
+| [testssl.sh](https://testssl.sh/) or [SSLyze](https://github.com/nabla-c0d3/sslyze) | TLS/certificate checks after deployment changes and during periodic configuration review | Choose one. Public frontend/backend endpoints require separately authorized hosted scope and hosting-provider constraints; fixes may belong to the platform. This fills a different gap from local HTTP testing. |
+| [Nmap](https://nmap.org/book/man.html) | Check unexpected exposed ports/services on a self-hosted server, including database exposure | Use only for explicitly scoped hosts/ports the project is authorized to assess. Shared managed hosting limits relevance and permission; do not infer a whole provider IP is in scope. |
+| [SonarQube](https://www.sonarsource.com/products/sonarqube/) or [Snyk Code](https://docs.snyk.io/scan-with-snyk/snyk-code) | Additional Java/TypeScript source analysis if a pilot demonstrates useful rules or findings | Compare incremental value with **existing CodeQL and Codex/manual source review**, not just Trivy. Check language/rule coverage, edition, pricing, source upload/retention and maintenance before selecting one or adding CI. Snyk Code is the source-analysis product; other Snyk products have different coverage. |
+| [Nuclei](https://docs.projectdiscovery.io/opensource/nuclei/overview) or [Nikto](https://github.com/sullo/nikto) | Later targeted checks for exposed web services, known configurations and vulnerability signatures | Review selected templates/plugins and request behavior, allowlist targets, limit rate, and disable external callback services. Expect overlap/noise and validate findings. Hosted execution needs its own authorization; signatures do not establish business authorization correctness. |
+
+Recheck official documentation, licensing and data handling when evaluating;
+none of these additional candidates was run or benchmarked in the November
+assessment. The existing [remaining-coverage issue #990](https://github.com/fisma-benefit-app/benefit-app/issues/990)
+is sufficient to record a future selection decision; this list creates no new
+remediation finding or installation commitment.
+
 ## 3. Prepare a disposable local lab
 
 Do not run the repository's normal Compose against your existing database for an audit. It has fixed names, reads the real `.env` and the `dev` profile reseeds. A project-name override alone does not isolate it. Use an exported tracked-source snapshot and a standalone Compose file, with unique resources, generated keys, a disposable database and loopback-only host ports.
