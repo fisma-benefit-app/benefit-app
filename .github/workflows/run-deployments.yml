@@ -3,6 +3,8 @@ name: Run deployments
 on:
   deployment_status:
 
+permissions: {}
+
 jobs:
   deploy-backend-to-production-environment:
     name: Deploy BE to production environment
