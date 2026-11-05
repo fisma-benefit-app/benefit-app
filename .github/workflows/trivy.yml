@@ -1,0 +1,117 @@
+name: Trivy image scan
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - backend/**
+      - frontend/**
+      - .github/workflows/trivy.yml
+  push:
+    branches: [main]
+    paths:
+      - backend/**
+      - frontend/**
+      - .github/workflows/trivy.yml
+  schedule:
+    - cron: "35 19 * * 5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    permissions:
+      contents: read
+      security-events: write
+    name: Scan ${{ matrix.component }} production image
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [backend, frontend]
+
+    steps:
+      - name: Checkout revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Build production image and record provenance
+        env:
+          COMPONENT: ${{ matrix.component }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          mkdir -p reports
+          docker build --pull --tag "benefit-${COMPONENT}:audit" "./${COMPONENT}"
+          {
+            date -u +"Scan preparation: %Y-%m-%dT%H:%M:%SZ"
+            printf 'PR head: %s\n' "$PR_HEAD_SHA"
+            printf 'Checked-out revision: '
+            git rev-parse HEAD
+            printf 'Component: %s\n' "$COMPONENT"
+            printf 'Image ID: '
+            docker image inspect --format '{{.Id}}' "benefit-${COMPONENT}:audit"
+          } > reports/provenance.txt
+
+      # Vulnerabilities only: no source/secret upload, no registry push, no app startup.
+      # Retain all severities and unfixed findings for baseline triage.
+      - name: Scan production image
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
+        with:
+          version: v0.76.1
+          image-ref: benefit-${{ matrix.component }}:audit
+          scanners: vuln
+          format: json
+          output: reports/trivy.json
+          exit-code: "0"
+          ignore-unfixed: "false"
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          timeout: 10m
+          cache: "false"
+
+      - name: Produce readable report and summary
+        env:
+          COMPONENT: ${{ matrix.component }}
+        run: |
+          trivy --version >> reports/provenance.txt
+          trivy convert --format table --output reports/trivy.txt reports/trivy.json
+          trivy convert --format sarif --severity HIGH,CRITICAL --output reports/trivy.sarif reports/trivy.json
+          python3 - <<'PY'
+          import collections
+          import json
+          import os
+
+          with open("reports/trivy.json") as report:
+              data = json.load(report)
+          counts = collections.Counter(
+              vulnerability["Severity"]
+              for result in data.get("Results", [])
+              for vulnerability in result.get("Vulnerabilities", [])
+          )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write(f"### Trivy: {os.environ['COMPONENT']}\n\n")
+              summary.write("Package/advisory occurrences, not confirmed exploitable findings.\n\n")
+              for severity in ("CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"):
+                  summary.write(f"- {severity}: {counts[severity]}\n")
+              summary.write("\nSee report artifacts for packages, fixes, and provenance.\n")
+          PY
+
+      # Fork and Dependabot runs still save reports without requiring a write token.
+      - name: Publish high and critical findings to GitHub Security
+        if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+        uses: github/codeql-action/upload-sarif@5895b2c9be147bc7f1c75ce72c5cb577febb1907 # v4
+        with:
+          sarif_file: reports/trivy.sarif
+          category: trivy-${{ matrix.component }}
+
+      - name: Save scan reports
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: trivy-${{ matrix.component }}
+          path: reports/
+          retention-days: 30
+          if-no-files-found: warn

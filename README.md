@@ -689,6 +689,10 @@ The developer team minimizes errors and maintains good code quality by:
 
 ## Quality Assurance and Security
 
+Production Docker images are scanned with Trivy on relevant PRs and main-branch changes,
+weekly, and on demand. See the [Trivy guide](documents/guides/trivy.md) for reports,
+local commands, coverage limits, and the finding triage process.
+
 ### Unit Tests
 
 Benefit is covered by unit tests in the backend using JUnit and Mockito. These are configured in the `gradle.build` file. All tests can be run from the `backend/` folder using the command:
