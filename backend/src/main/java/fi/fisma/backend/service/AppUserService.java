@@ -1,7 +1,6 @@
 package fi.fisma.backend.service;
 
 import fi.fisma.backend.domain.AppUser;
-import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.UnauthorizedException;
@@ -46,43 +45,6 @@ public class AppUserService {
         .findByIdActive(id)
         .map(this::mapToSummary)
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
-  }
-
-  /**
-   * Updates an existing user's information.
-   *
-   * @param id ID of the user to update
-   * @param request Updated user information
-   * @return Updated user response
-   * @throws EntityNotFoundException if user not found
-   * @throws UnauthorizedException if the request tries to change the username
-   */
-  @Transactional
-  public AppUserSummary updateAppUser(
-      Long id, AppUserRequest request, Authentication authentication) {
-    var currentUser = getUserFromAuthentication(authentication);
-    if (!currentUser.getId().equals(id)) {
-      throw new UnauthorizedException("Users can only edit their own details");
-    }
-
-    var user =
-        appUserRepository
-            .findByIdActive(id)
-            .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
-
-    // JWTs identify users by username (the `sub` claim), so a rename would free the old name
-    // for someone else while tokens issued under it stay valid. See issue #723.
-    if (!user.getUsername().equals(request.getUsername())) {
-      throw new UnauthorizedException("Changing the username is not allowed");
-    }
-
-    validatePasswordRequirements(request.getPassword());
-
-    user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-    var updatedUser = appUserRepository.save(user);
-
-    return mapToSummary(updatedUser);
   }
 
   /**
@@ -132,12 +94,10 @@ public class AppUserService {
       Authentication authentication) {
     AppUser appUser = getUserFromAuthentication(authentication);
 
-    CharSequence currPasswordCharSequence = new StringBuffer(currentPassword);
-
-    if (!passwordEncoder.matches(currPasswordCharSequence, appUser.getPassword())) {
+    if (currentPassword == null
+        || !passwordEncoder.matches(currentPassword, appUser.getPassword())) {
       throw new UnauthorizedException("Current password is incorrect");
     }
-    ;
 
     validatePasswordRequirements(newPassword);
 

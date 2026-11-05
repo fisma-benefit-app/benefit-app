@@ -237,40 +237,6 @@ paths:
                 $ref: "#/components/schemas/AppUserSummary"
       security:
       - bearerAuth: []
-    put:
-      tags:
-      - User Management
-      summary: Update user
-      description: Updates an existing user's information
-      operationId: updateAppUser
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AppUserRequest"
-        required: true
-      responses:
-        "200":
-          description: User updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppUserSummary"
-        "404":
-          description: User not found
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppUserSummary"
-      security:
-      - bearerAuth: []
     delete:
       tags:
       - User Management
@@ -1020,20 +986,6 @@ components:
           items:
             $ref: "#/components/schemas/ProjectAppUserResponse"
           uniqueItems: true
-    AppUserRequest:
-      type: object
-      description: Request object for creating or updating app users
-      properties:
-        username:
-          type: string
-          minLength: 1
-        password:
-          type: string
-          maxLength: 64
-          minLength: 0
-      required:
-      - password
-      - username
     PasswordChangeRequest:
       type: object
       description: Request object containing details on password change

@@ -4,13 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.domain.EnumUserRole;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.RevokedTokenRepository;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +41,7 @@ class AuthFlowIntegrationTest {
   @Autowired private JdbcTemplate jdbcTemplate;
   @Autowired private LoginAttemptThrottleService loginAttemptThrottleService;
   @Autowired private TokenBlacklistService tokenBlacklistService;
+  @Autowired private ObjectMapper objectMapper;
 
   private String username;
   private String unknownUsername;
@@ -55,6 +59,7 @@ class AuthFlowIntegrationTest {
             + "id BIGSERIAL PRIMARY KEY, "
             + "username VARCHAR(50) NOT NULL, "
             + "password VARCHAR(64) NOT NULL, "
+            + "role VARCHAR(20) NOT NULL DEFAULT 'USER', "
             + "deleted_at TIMESTAMP(0))");
     jdbcTemplate.execute(
         "CREATE UNIQUE INDEX IF NOT EXISTS app_users_username_lower_key "
@@ -181,6 +186,81 @@ class AuthFlowIntegrationTest {
 
   private static String bearer(String token) {
     return "Bearer " + token;
+  }
+
+  @Test
+  void removedProfileUpdateCannotChangePassword() throws Exception {
+    String token = login(PASSWORD);
+    mockMvc
+        .perform(
+            put("/appusers/" + testUser.getId())
+                .header("Authorization", bearer(token))
+                .contentType("application/json")
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of(
+                            "username", username,
+                            "password", "replacement-password",
+                            "currentPassword", PASSWORD))))
+        .andExpect(status().isMethodNotAllowed());
+    login(PASSWORD);
+    assertThat(
+            passwordEncoder.matches(
+                PASSWORD, appUserRepository.findById(testUser.getId()).orElseThrow().getPassword()))
+        .isTrue();
+  }
+
+  @Test
+  void passwordChangeRejectsMissingAndIncorrectCurrentPassword() throws Exception {
+    String token = login(PASSWORD);
+    String path = "/appusers/password";
+    var body = new java.util.HashMap<String, String>();
+    body.put("newPassword", "replacement-password");
+
+    mockMvc
+        .perform(
+            put(path)
+                .header("Authorization", bearer(token))
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest());
+    assertThat(
+            passwordEncoder.matches(
+                PASSWORD, appUserRepository.findById(testUser.getId()).orElseThrow().getPassword()))
+        .isTrue();
+
+    body.put("currentPassword", "incorrect-password");
+    mockMvc
+        .perform(
+            put(path)
+                .header("Authorization", bearer(token))
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isForbidden());
+    assertThat(
+            passwordEncoder.matches(
+                PASSWORD, appUserRepository.findById(testUser.getId()).orElseThrow().getPassword()))
+        .isTrue();
+    login(PASSWORD);
+  }
+
+  @Test
+  void passwordChangeWithCorrectCurrentPasswordChangesPassword() throws Exception {
+    String token = login(PASSWORD);
+    String replacement = "replacement-password";
+    mockMvc
+        .perform(
+            put("/appusers/password")
+                .header("Authorization", bearer(token))
+                .contentType("application/json")
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of("newPassword", replacement, "currentPassword", PASSWORD))))
+        .andExpect(status().isOk());
+    login(replacement);
+    mockMvc
+        .perform(post("/token").with(httpBasic(username, PASSWORD)))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test

@@ -1,6 +1,5 @@
 package fi.fisma.backend.api;
 
-import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.dto.PasswordChangeRequest;
 import fi.fisma.backend.service.AppUserService;
@@ -29,17 +28,6 @@ public class AppUserController {
   public ResponseEntity<AppUserSummary> getByUserId(
       @PathVariable Long id, Authentication authentication) {
     return ResponseEntity.ok(appUserService.findById(id, authentication));
-  }
-
-  @PutMapping("/{id}")
-  @Operation(summary = "Update user", description = "Updates an existing user's information")
-  @ApiResponse(responseCode = "200", description = "User updated successfully")
-  @ApiResponse(responseCode = "404", description = "User not found")
-  public ResponseEntity<AppUserSummary> updateAppUser(
-      @PathVariable Long id,
-      @Valid @RequestBody AppUserRequest request,
-      Authentication authentication) {
-    return ResponseEntity.ok(appUserService.updateAppUser(id, request, authentication));
   }
 
   @DeleteMapping("/{id}")

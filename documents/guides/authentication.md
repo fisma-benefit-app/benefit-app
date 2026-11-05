@@ -68,7 +68,7 @@ Image: Creating the user table in the schema file (older screenshot. The table i
 | `domain/AppUser.java`                                        | JPA entity mapped to `app_users` (`id`, `username`, `password`, `deletedAt`).                                                                                                                                                                                                      |
 | `repository/AppUserRepository.java`                          | `findByUsernameActive(username)` and `findByIdActive(id)` return only users whose `deleted_at IS NULL`.                                                                                                                                                                            |
 | `security/UserDetailsServiceImpl.java`                       | Adapts `AppUser` to Spring Security's `UserDetails` (`AppUserDetails`). Every user gets the single authority `ROLE_USER`.                                                                                                                                                          |
-| `api/AppUserController.java` / `service/AppUserService.java` | Get your own user, change your password (stored as a new BCrypt hash), and soft-delete your own account. `PUT /appusers/{id}` rejects a changed username with `403`, because tokens identify users by username (see [D.3](#3-controllers-turn-the-token-back-into-database-rows)). |
+| `api/AppUserController.java` / `service/AppUserService.java` | Get your own user, change your password (stored as a new BCrypt hash), and soft-delete your own account. Password changes use `PUT /appusers/password` with `currentPassword` and `newPassword`. There is no profile-update or username-change endpoint (see [D.3](#3-controllers-turn-the-token-back-into-database-rows)). |
 
 ![img.png](../img/images_for_guides/Java_AppUser_constructor.png)
 
@@ -199,7 +199,7 @@ Controllers take an `Authentication` parameter and pass `authentication.getName(
 
 **The username in `sub` is the lookup key on the backend. The `userId` claim is used only by the frontend.** No backend code reads `userId` from the token.
 
-This is why **usernames can't be changed.** If a user could rename themselves, their old name would become free while tokens issued under it stayed valid. Whoever took that name next could then be reached with those old tokens. `AppUserService.updateAppUser` therefore rejects any change of username.
+This is why **usernames can't be changed.** If a user could rename themselves, their old name would become free while tokens issued under it stayed valid. Whoever took that name next could then be reached with those old tokens. No API supports changing the username.
 
 Only the unauthenticated paths skip all of this: `/actuator/health`, the OpenAPI/Swagger paths, and CORS preflight `OPTIONS` requests. All other requests need a valid token (`anyRequest().authenticated()`).
 
@@ -249,7 +249,7 @@ Blacklist entries are needed only until the token would have expired anyway. The
 These follow from the design above and are worth knowing when debugging or changing auth:
 
 - **Revocation is in memory only** ([#726](https://github.com/fisma-benefit-app/benefit-app/issues/726)). The blacklist and the login-attempt counters are cleared when the backend restarts. A logged-out or renewed-away token that hasn't expired becomes valid again after a restart or redeploy, and Heroku restarts dynos at least daily. If more than one backend instance ever runs, they won't share the blacklist.
-- **Changing the password doesn't revoke existing tokens, and doesn't ask for the current password** ([#725](https://github.com/fisma-benefit-app/benefit-app/issues/725)). Tokens issued before the change stay valid until they expire (24 h, or 30 days with "remember me").
+- **Password changes require the current password** ([#974](https://github.com/fisma-benefit-app/benefit-app/issues/974)). `PUT /appusers/password` accepts `currentPassword` and `newPassword`. The unused `PUT /appusers/{id}` route has been removed. Missing current passwords are rejected with `400` and incorrect ones with `403`, without changing the password. Changing the password still does not revoke existing tokens: they stay valid until expiry (24 h, or 30 days with "remember me").
 - **Deleting an account works through the database, not the token.** The token keeps passing signature and blacklist checks, but every lookup filters on `deleted_at IS NULL`, so the user's requests fail. For example, `/projects` returns an empty list and profile calls return "not found". Renewal is refused.
 - **A login lasts at most 30 days**, however often the session is extended. After that the user has to log in again.
 - **Tokens are readable by page JavaScript** (localStorage), so an XSS bug would expose them. The prod and testing frontends share one GitHub Pages origin and so share localStorage, which is why the keys are prefixed with the base path.

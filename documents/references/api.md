@@ -23,8 +23,6 @@
   - [Validate JWT](#validate-jwt)
 - [User Management](#project-api-user-management)
   - [Get user by ID](#get-user-by-id)
-  - [Update user](#update-user)
-  - [AppUserRequest](#tocS_AppUserRequest)
   - [Delete user account](#delete-user-account)
   - [Change user password](#change-user-password)
   - [PasswordChangeRequest](#tocS_PasswordChangeRequest)
@@ -587,48 +585,6 @@ Retrieves a specific user by their ID
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|User found|[AppUserSummary](#schemaappusersummary)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|User not found|[AppUserSummary](#schemaappusersummary)|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Update user
-
-<a id="opIdupdateAppUser"></a>
-
-`PUT /appusers/{id}`
-
-Updates an existing user's information
-
-> Body parameter
-
-```json
-{
-  "username": "string",
-  "password": "string"
-}
-```
-
-<h3 id="update-user-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|id|path|integer(int64)|true|none|
-|body|body|[AppUserRequest](#schemaappuserrequest)|true|none|
-|» username|body|string|true|none|
-|» password|body|string|true|none|
-
-> Example responses
-
-> 200 Response
-
-<h3 id="update-user-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|User updated successfully|[AppUserSummary](#schemaappusersummary)|
 |404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|User not found|[AppUserSummary](#schemaappusersummary)|
 
 <aside class="warning">
@@ -1373,30 +1329,6 @@ Response object containing project details
 |active|boolean|false|none|Whether the project is active|
 |functionalComponents|[[FunctionalComponentResponse](#schemafunctionalcomponentresponse)]|false|none|Functional components in the project|
 |projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
-
-<h2 id="tocS_AppUserRequest">AppUserRequest</h2>
-<!-- backwards compatibility -->
-<a id="schemaappuserrequest"></a>
-<a id="schema_AppUserRequest"></a>
-<a id="tocSappuserrequest"></a>
-<a id="tocsappuserrequest"></a>
-
-```json
-{
-  "username": "string",
-  "password": "string"
-}
-
-```
-
-Request object for creating or updating app users
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|username|string|true|none|none|
-|password|string|true|none|none|
 
 <h2 id="tocS_PasswordChangeRequest">PasswordChangeRequest</h2>
 <!-- backwards compatibility -->
