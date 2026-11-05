@@ -689,6 +689,11 @@ The developer team minimizes errors and maintains good code quality by:
 
 ## Quality Assurance and Security
 
+See the [security audit guide](documents/guides/security_audit.md) for scoped local
+assessments, tool use, findings and retesting. The
+[5 November 2026 audit archive](documents/archive/security_audit_2026-11-05.md)
+records that assessment's evidence, open findings and coverage limits.
+
 Production Docker images are scanned with Trivy on relevant PRs and main-branch changes,
 weekly, and on demand. See the [Trivy guide](documents/guides/trivy.md) for reports,
 local commands, coverage limits, and the finding triage process.
