@@ -1,18 +1,30 @@
-# Pilot for #959: runs only for this evaluation branch, not as a permanent check.
-name: Trivy image pilot
+name: Trivy image scan
 
 on:
   pull_request:
     branches: [main]
     paths:
-      - .github/workflows/trivy-pilot.yml
+      - backend/**
+      - frontend/**
+      - .github/workflows/trivy.yml
+  push:
+    branches: [main]
+    paths:
+      - backend/**
+      - frontend/**
+      - .github/workflows/trivy.yml
+  schedule:
+    - cron: "35 19 * * 5"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   scan:
-    if: github.head_ref == 'chore/959-trivy-pilot'
+    permissions:
+      contents: read
+      security-events: write
     name: Scan ${{ matrix.component }} production image
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -22,7 +34,7 @@ jobs:
         component: [backend, frontend]
 
     steps:
-      - name: Checkout proposed revision
+      - name: Checkout revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
@@ -37,7 +49,7 @@ jobs:
           {
             date -u +"Scan preparation: %Y-%m-%dT%H:%M:%SZ"
             printf 'PR head: %s\n' "$PR_HEAD_SHA"
-            printf 'Checked-out merge revision: '
+            printf 'Checked-out revision: '
             git rev-parse HEAD
             printf 'Component: %s\n' "$COMPONENT"
             printf 'Image ID: '
@@ -66,6 +78,7 @@ jobs:
         run: |
           trivy --version >> reports/provenance.txt
           trivy convert --format table --output reports/trivy.txt reports/trivy.json
+          trivy convert --format sarif --severity HIGH,CRITICAL --output reports/trivy.sarif reports/trivy.json
           python3 - <<'PY'
           import collections
           import json
@@ -79,18 +92,26 @@ jobs:
               for vulnerability in result.get("Vulnerabilities", [])
           )
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-              summary.write(f"### Trivy pilot: {os.environ['COMPONENT']}\n\n")
+              summary.write(f"### Trivy: {os.environ['COMPONENT']}\n\n")
               summary.write("Package/advisory occurrences, not confirmed exploitable findings.\n\n")
               for severity in ("CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"):
                   summary.write(f"- {severity}: {counts[severity]}\n")
               summary.write("\nSee report artifacts for packages, fixes, and provenance.\n")
           PY
 
-      - name: Save pilot reports
+      # Fork and Dependabot runs still save reports without requiring a write token.
+      - name: Publish high and critical findings to GitHub Security
+        if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+        uses: github/codeql-action/upload-sarif@5895b2c9be147bc7f1c75ce72c5cb577febb1907 # v4
+        with:
+          sarif_file: reports/trivy.sarif
+          category: trivy-${{ matrix.component }}
+
+      - name: Save scan reports
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: trivy-pilot-${{ matrix.component }}
+          name: trivy-${{ matrix.component }}
           path: reports/
-          retention-days: 14
+          retention-days: 30
           if-no-files-found: warn
