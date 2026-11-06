@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const LOGIN_URL = `${process.env.LOGIN_URL ?? "http://localhost:5173"}/benefit-app/#/login`;
+const LOGIN_URL = `${process.env.SCALINGO_E2E_LOGIN_URL ?? "http://localhost:5173"}/benefit-app/#/login`;
 
 const USERNAME = process.env.SCALINGO_E2E_TEST_USERNAME ?? "user";
 const PASSWORD = process.env.SCALINGO_E2E_TEST_PASSWORD ?? "user";
