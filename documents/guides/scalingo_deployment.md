@@ -149,7 +149,7 @@ Variable changes take effect only after a restart or deploy (step 8).
 On Powershell, run:
 
 ```powershell
-scalingo --app fisma-benefit-app pgsql-console
+scalingo --region osc-fr1 --app fisma-benefit-app pgsql-console
 ```
 
 It should automatically log you in. However, if a password is required, please see step 4 for help where to find the password in the environment variable `SCALINGO_POSTGRESQL_URL`.
@@ -173,7 +173,7 @@ You can check existing tables using this command:
 Log into the database, if you already haven't:
 
 ```powershell
-scalingo --app fisma-benefit-app pgsql-console
+scalingo --region osc-fr1 --app fisma-benefit-app pgsql-console
 ```
 
 **Your approach here depends on whether the deployment is for a testing or a production environment: please read the next steps carefully.**
