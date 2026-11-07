@@ -29,17 +29,32 @@ import {
 } from "./reportComparison";
 import type { Content, TableCell } from "pdfmake/interfaces";
 
+// Landscape A4 width minus createReportDocument's default 10 mm side margins, for full-width rules
+const CONTENT_WIDTH_PT = mmToPt(297) - 2 * mmToPt(10);
+
+// The title column gets whatever the other columns leave (each also takes 8 pt of padding and a
+// 0.5 pt grid line). It's a fixed width rather than "*" because pdfmake widens a "*" column to
+// fit its longest word, so one very long word pushed the table off the page (#997).
+const withTitleColumn = (otherWidths: number[]) => [
+  CONTENT_WIDTH_PT - otherWidths.reduce((sum, width) => sum + width + 8.5, 9),
+  ...otherWidths,
+];
+
 // Total columns in the main component table; the total rows' label spans all but the last two.
 const COMPONENT_COLUMN_COUNT = 10;
 
 // Fixed widths (pt) for everything but the title, which takes the remaining space. The wide
 // table is why this report is landscape.
-const COMPONENT_TABLE_WIDTHS = ["*", 110, 90, 50, 52, 54, 52, 72, 52, 52];
+const COMPONENT_TABLE_WIDTHS = withTitleColumn([
+  110, 90, 50, 52, 54, 52, 72, 52, 52,
+]);
 
 // The MLA components table has an extra "parent" column after the title, so the other columns
 // are a little narrower.
 const MLA_COLUMN_COUNT = COMPONENT_COLUMN_COUNT + 1;
-const MLA_TABLE_WIDTHS = ["*", 95, 100, 80, 42, 48, 50, 48, 62, 46, 46];
+const MLA_TABLE_WIDTHS = withTitleColumn([
+  95, 100, 80, 42, 48, 50, 48, 62, 46, 46,
+]);
 
 // Columns from Data Elements onwards hold numbers and are right-aligned
 const FIRST_NUMBER_COLUMN = 3;
@@ -47,9 +62,6 @@ const FIRST_NUMBER_COLUMN = 3;
 // Sub-component classes, used to tint sub-component rows by direction
 const SENT_CLASS_NAME = "Interface service to other applications";
 const RECEIVED_CLASS_NAME = "Interface service from other applications";
-
-// Landscape A4 width minus createReportDocument's default 10 mm side margins, for full-width rules
-const CONTENT_WIDTH_PT = mmToPt(297) - 2 * mmToPt(10);
 
 export const generateCalculationReportPDF = async (
   project: Project,
