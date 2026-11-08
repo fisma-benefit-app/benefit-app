@@ -80,7 +80,7 @@ export default function ProjectsProvider({
         .filter((p) => p.projectName === originalName)
         .reduce((latest, p) => (p.version > latest.version ? p : latest));
 
-      await updateProject(sessionToken, {
+      const updatedResponse = await updateProject(sessionToken, {
         ...(await fetchProject(sessionToken, latestVersion.id)),
         projectName: updatedProject.projectName,
       });
@@ -88,7 +88,11 @@ export default function ProjectsProvider({
       setProjects((prevProjects) =>
         prevProjects.map((project) => {
           if (project.projectName === originalName) {
-            return { ...project, projectName: updatedProject.projectName };
+            return {
+              ...project,
+              lockVersion: updatedResponse.lockVersion ?? project.lockVersion,
+              projectName: updatedProject.projectName,
+            };
           }
           return project;
         }),
@@ -102,6 +106,7 @@ export default function ProjectsProvider({
           ? err.message
           : "Unexpected error occurred while trying to update project!",
       );
+      throw err;
     }
   };
 
