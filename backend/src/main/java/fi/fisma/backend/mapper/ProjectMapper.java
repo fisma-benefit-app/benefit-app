@@ -76,21 +76,13 @@ public class ProjectMapper {
   public Project updateEntityFromRequest(Project project, ProjectRequest request) {
     Set<FunctionalComponent> functionalComponents =
         functionalComponentMapper.updateEntityFromRequest(project, request);
-
-    return new Project(
-        project.getId(),
-        request.getProjectName(),
-        request.getVersion(),
-        project.getCreatedAt(),
-        project.getVersionCreatedAt(),
-        request.getCalculationDate(),
-        request.getReportContactDetails(),
-        request.getReportNotes(),
-        LocalDateTime.now(clock), // new edited date
-        project.getDeletedAt(),
-        request.getLockVersion(), // a stale value makes the save fail
-        functionalComponents,
-        project.getProjectAppUsers());
+    project.setProjectName(request.getProjectName());
+    project.setCalculationDate(request.getCalculationDate());
+    project.setReportContactDetails(request.getReportContactDetails());
+    project.setReportNotes(request.getReportNotes());
+    project.setUpdatedAt(LocalDateTime.now(clock));
+    project.setFunctionalComponents(functionalComponents);
+    return project;
   }
 
   public Project createNewVersion(Project originalProject, ProjectRequest request) {
