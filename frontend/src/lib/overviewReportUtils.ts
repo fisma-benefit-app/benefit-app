@@ -31,6 +31,11 @@ const PAGE_MARGIN_PT = mmToPt(12);
 const A4_PORTRAIT_WIDTH_PT = 595.28;
 const A4_PORTRAIT_HEIGHT_PT = 841.89;
 const CONTENT_WIDTH_PT = A4_PORTRAIT_WIDTH_PT - 2 * PAGE_MARGIN_PT;
+// Order of the MLA subcomponent groups in the function list
+const MLA_COMPONENT_TYPE_ORDER = [
+  "messages to other applications",
+  "messages from other applications",
+];
 
 type PointsPart = string | { text: string; color: string; bold: boolean };
 
@@ -297,13 +302,18 @@ export const generateOverviewPDF = async (
     const components = [...project.functionalComponents].sort(
       (a, b) => a.orderPosition - b.orderPosition,
     );
+    // MLA subcomponents are grouped by component type, "to" before "from"; the sort is stable so
+    // each group keeps the list order.
+    const typeOrder = (componentType: string | null | undefined) => {
+      const index = MLA_COMPONENT_TYPE_ORDER.indexOf(componentType ?? "");
+      return index === -1 ? MLA_COMPONENT_TYPE_ORDER.length : index;
+    };
+    const subComponents = components
+      .flatMap((component) => component.subComponents ?? [])
+      .sort((a, b) => typeOrder(a.componentType) - typeOrder(b.componentType));
     const rows = [
       ...components.map((component) => row(component, false)),
-      ...components.flatMap((component) =>
-        (component.subComponents ?? []).map((sub) =>
-          row(sub as TGenericComponent, true),
-        ),
-      ),
+      ...subComponents.map((sub) => row(sub as TGenericComponent, true)),
     ];
     const totalOptions = {
       bold: true,
