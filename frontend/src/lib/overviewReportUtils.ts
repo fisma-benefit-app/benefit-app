@@ -396,11 +396,21 @@ export const generateOverviewPDF = async (
       margin: [0, 4, 0, 0],
     }) as Content;
 
-  const notesText = (text: string | null | undefined): Content => ({
-    text: text ?? "",
-    fontSize: 12,
-    margin: [0, 4, 0, 0],
-  });
+  // The notes as a bullet list: one bullet per line, and a line starting with spaces or "-" is a
+  // sub-bullet of the line above it.
+  const notesList = (text: string | null | undefined): Content => {
+    const items: Content[] = [];
+    (text ?? "").split("\n").forEach((line) => {
+      const content = line.trim().replace(/^[-•*]\s*/, "");
+      if (!content) return;
+      const isSub = /^\s/.test(line) || line.trim().startsWith("-");
+      const previous = items[items.length - 1] as { ul?: string[] };
+      if (!isSub) items.push(content);
+      else if (previous?.ul) previous.ul.push(content);
+      else items.push({ ul: [content] });
+    });
+    return { ul: items, fontSize: 12, lineHeight: 1.3, margin: [0, 4, 0, 0] };
+  };
 
   const reportDate = project.calculationDate
     ? project.calculationDate.split("-").reverse().join(".")
@@ -477,8 +487,6 @@ export const generateOverviewPDF = async (
       rows: groupedRows(),
       widths: ["*", 50, 130, 60],
     }),
-    { text: labels.explanation, style: "h3" },
-    notesText(project.reportNotes),
     // Only a later version has anything to mark as changed.
     ...(previousProject
       ? [
@@ -489,6 +497,11 @@ export const generateOverviewPDF = async (
           } as Content,
         ]
       : []),
+  ];
+
+  const explanationPage: Content[] = [
+    sectionHeading(labels.explanation),
+    notesList(project.reportNotes),
   ];
 
   await downloadPdfmakeDocument(
@@ -504,6 +517,7 @@ export const generateOverviewPDF = async (
         ...coverPage,
         ...calculationPage,
         ...aggregatePage,
+        ...explanationPage,
         ...(includeFunctions ? functionListContent() : []),
       ],
     }),
