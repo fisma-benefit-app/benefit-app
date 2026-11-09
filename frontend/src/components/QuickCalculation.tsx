@@ -213,7 +213,7 @@ const QuickCalculation = () => {
                 htmlFor={key}
                 className="block m-0 font-normal text-[#333]"
               >
-                {translation.unit} {translation.items[key].label}
+                {translation.items[key].label}
               </label>
             </div>
           ))}

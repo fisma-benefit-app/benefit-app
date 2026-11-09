@@ -57,7 +57,6 @@ export const translations = {
         isolatedDatabase: "Client-server, isolated database",
       },
       functionality: "Functionality",
-      unit: "pcs",
       items: {
         query: {
           label: "query screens that are not updated",
@@ -85,7 +84,7 @@ export const translations = {
           title: "Processing rule",
         },
       },
-      averagesHeader: "Average values of an item",
+      averagesHeader: "Calculation parameters",
       averagesDescription:
         "Each item is sized with these values. The defaults are from the original FiSMA quick calculator.",
       resetAverages: "Reset to defaults",
@@ -470,7 +469,6 @@ export const translations = {
         isolatedDatabase: "Client-server, eristetty tietokanta",
       },
       functionality: "Toiminnallisuus",
-      unit: "kpl",
       items: {
         query: {
           label: "hakunäyttöjä, joita ei päivitetä",
@@ -498,7 +496,7 @@ export const translations = {
           title: "Käsittelysääntö",
         },
       },
-      averagesHeader: "Yksittäisen kohteen keskiarvot",
+      averagesHeader: "Laskentaparametrit",
       averagesDescription:
         "Jokaisen kohteen koko lasketaan näillä arvoilla. Oletusarvot ovat alkuperäisestä FiSMA-pikalaskurista.",
       resetAverages: "Palauta oletusarvot",
