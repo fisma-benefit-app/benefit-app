@@ -73,8 +73,6 @@ export default function ProjectPage() {
   const { collapseAll, descriptionRowsExpanded, isCompactMode } = viewMode;
   const [componentSearchQuery, setComponentSearchQuery] = useState<string>("");
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
-  const [includeFunctionsInReport, setIncludeFunctionsInReport] =
-    useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
@@ -112,8 +110,6 @@ export default function ProjectPage() {
         previousProject,
         language,
         translations.functionalClassComponent.classNameOptions,
-        translations.functionalClassComponent.componentTypeOptions,
-        includeFunctionsInReport,
       );
     } catch (error) {
       console.error("Failed to generate PDF", error);
@@ -542,8 +538,6 @@ export default function ProjectPage() {
                 saveProject={saveProject}
                 onArchive={() => setConfirmModalOpen(true)}
                 onPrintSummary={handlePrintProjectSummaryPDF}
-                includeFunctionsInReport={includeFunctionsInReport}
-                setIncludeFunctionsInReport={setIncludeFunctionsInReport}
               />
 
               <ProjectReportFields
