@@ -1,7 +1,5 @@
-import { Project, TGenericComponent } from "./types";
+import { Project } from "./types";
 import {
-  calculateBasePoints,
-  calculateComponentPoints,
   calculateGrandTotalPoints,
   calculateGrandTotalPossiblePoints,
   getGroupedComponents,
@@ -31,11 +29,6 @@ const PAGE_MARGIN_PT = mmToPt(12);
 const A4_PORTRAIT_WIDTH_PT = 595.28;
 const A4_PORTRAIT_HEIGHT_PT = 841.89;
 const CONTENT_WIDTH_PT = A4_PORTRAIT_WIDTH_PT - 2 * PAGE_MARGIN_PT;
-// Order of the MLA subcomponent groups in the function list
-const MLA_COMPONENT_TYPE_ORDER = [
-  "messages to other applications",
-  "messages from other applications",
-];
 
 type PointsPart = string | { text: string; color: string; bold: boolean };
 
@@ -44,8 +37,6 @@ export const generateOverviewPDF = async (
   previousProject?: Project,
   language: "fi" | "en" = "fi",
   classNameTranslation: Record<string, string> = {},
-  componentTypeTranslation: Record<string, string> = {},
-  includeFunctions = false,
 ): Promise<void> => {
   const labels =
     language === "fi"
@@ -68,11 +59,6 @@ export const generateOverviewPDF = async (
           count: "Määrä",
           sum: "Yhteensä",
           subComponents: "MLA-alikomponentit",
-          functionList: "Toimintolista",
-          functionName: "Toiminto",
-          functionType: "Toimintotyyppi",
-          functionListNote:
-            "MLA-alikomponentit on listattu varsinaisten toimintojen jälkeen. Pisteet ovat tehdyt / mahdolliset pisteet.",
           unspecified: "Ei valittu",
           explanation: "Laskennan selitys ja tärkeät muutokset",
           changed:
@@ -103,11 +89,6 @@ export const generateOverviewPDF = async (
           count: "Count",
           sum: "Total",
           subComponents: "MLA subcomponents",
-          functionList: "Function list",
-          functionName: "Function",
-          functionType: "Function type",
-          functionListNote:
-            "MLA subcomponents are listed after the actual functions. Points are done / possible points.",
           unspecified: "Not selected",
           explanation: "Calculation explanation and important changes",
           changed:
@@ -253,100 +234,6 @@ export const generateOverviewPDF = async (
       summaryTableRow(labels.sum, totals, previousTotalPoints, {
         bold: true,
         fillColor: PDF_COLORS.tableHeaderFill,
-      }),
-    ];
-  };
-
-  // Optional per-function listing; all MLA subcomponents follow the actual functions so the rows add
-  // up to the total size. Previous-version values are matched through previousFCId.
-  const functionListContent = (): Content[] => {
-    const previousPoints = new Map<number, number>();
-    previousProject?.functionalComponents.forEach((component) => {
-      previousPoints.set(component.id, calculateComponentPoints(component));
-      component.subComponents?.forEach((sub) =>
-        previousPoints.set(
-          sub.id,
-          calculateComponentPoints(sub as TGenericComponent),
-        ),
-      );
-    });
-    const row = (component: TGenericComponent, isSub: boolean): TableCell[] => {
-      const points = calculateComponentPoints(component);
-      const possible = calculateBasePoints(component);
-      const previous = previousProject
-        ? (previousPoints.get(component.previousFCId ?? -1) ?? 0)
-        : undefined;
-      const fill = isSub ? { fillColor: PDF_COLORS.subRowFill } : undefined;
-      return [
-        textCell(
-          component.title || "–",
-          isSub ? { ...fill, indent: 10 } : fill,
-        ),
-        textCell(
-          component.className
-            ? classNameTranslation[component.className] || component.className
-            : labels.unspecified,
-          fill,
-        ),
-        textCell(
-          component.componentType
-            ? componentTypeTranslation[component.componentType] ||
-                component.componentType
-            : labels.unspecified,
-          fill,
-        ),
-        pointsCell(points, possible, previous, fill),
-        textCell(percentDone(points, possible), fill),
-      ];
-    };
-    const components = [...project.functionalComponents].sort(
-      (a, b) => a.orderPosition - b.orderPosition,
-    );
-    // MLA subcomponents are grouped by component type, "to" before "from"; the sort is stable so
-    // each group keeps the list order.
-    const typeOrder = (componentType: string | null | undefined) => {
-      const index = MLA_COMPONENT_TYPE_ORDER.indexOf(componentType ?? "");
-      return index === -1 ? MLA_COMPONENT_TYPE_ORDER.length : index;
-    };
-    const subComponents = components
-      .flatMap((component) => component.subComponents ?? [])
-      .sort((a, b) => typeOrder(a.componentType) - typeOrder(b.componentType));
-    const rows = [
-      ...components.map((component) => row(component, false)),
-      ...subComponents.map((sub) => row(sub as TGenericComponent, true)),
-    ];
-    const totalOptions = {
-      bold: true,
-      fillColor: PDF_COLORS.tableHeaderFill,
-    };
-    return [
-      sectionHeading(labels.functionList),
-      { text: labels.functionListNote, style: "small" },
-      reportTable({
-        headers: [
-          labels.functionName,
-          labels.functionClass,
-          labels.functionType,
-          labels.functionPoints,
-          labels.percentDone,
-        ],
-        rows: [
-          ...rows,
-          [
-            ...spanningCell(labels.sum, 3, totalOptions),
-            pointsCell(
-              totalPoints,
-              totalPossiblePoints,
-              previousTotalPoints,
-              totalOptions,
-            ),
-            textCell(
-              percentDone(totalPoints, totalPossiblePoints),
-              totalOptions,
-            ),
-          ],
-        ],
-        widths: ["*", 115, 90, 112, 45],
       }),
     ];
   };
@@ -518,7 +405,6 @@ export const generateOverviewPDF = async (
         ...calculationPage,
         ...aggregatePage,
         ...explanationPage,
-        ...(includeFunctions ? functionListContent() : []),
       ],
     }),
     filename,
