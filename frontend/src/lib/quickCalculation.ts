@@ -4,7 +4,12 @@ import {
   isMultiLayerArchitectureComponent,
   resetFunctionalComponentParameters,
 } from "./fc-service-functions.ts";
-import { ClassName, ComponentType, TGenericComponent } from "./types.ts";
+import {
+  ClassName,
+  ComponentType,
+  MLAsubComponent,
+  TGenericComponent,
+} from "./types.ts";
 
 export type QuickCalculationKey =
   | "query"
@@ -108,6 +113,21 @@ export const defaultQuickCalculationAverages: QuickCalculationAverages = {
 // Project generation is refused above this many components (sub-components included).
 export const MAX_GENERATED_COMPONENTS = 1000;
 
+const applyAverageMessage = (
+  subComponent: MLAsubComponent,
+  averages: QuickCalculationAverages,
+): MLAsubComponent => {
+  const isSending =
+    subComponent.className === "Interface service to other applications";
+  const message = isSending ? averages.interfaceTo : averages.interfaceFrom;
+  return {
+    ...subComponent,
+    dataElements: message.dataElements,
+    readingReferences: message.readingReferences,
+    writingReferences: isSending ? null : message.writingReferences,
+  };
+};
+
 // One average item of a class as a real component, with its multi-layer sub-components when the
 // class has any (the quick calculation always assumes a three-layer architecture).
 const buildAverageComponent = (
@@ -140,7 +160,9 @@ const buildAverageComponent = (
   return {
     ...component,
     isMLA: true,
-    subComponents: createSubComponents(component),
+    subComponents: createSubComponents(component).map((subComponent) =>
+      applyAverageMessage(subComponent, averages),
+    ),
   };
 };
 
