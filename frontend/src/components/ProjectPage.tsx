@@ -530,6 +530,17 @@ export default function ProjectPage() {
                   </div>
                 </div>
               </div>
+              <button
+                onClick={handleCreateFunctionalComponent}
+                className={`w-full ${
+                  isLatest || !loadingProject
+                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                    : "bg-fisma-gray"
+                } text-white py-3 px-4`}
+                disabled={!isLatest || loadingProject}
+              >
+                {translation.newFunctionalComponent}
+              </button>
               <ProjectViewControls viewMode={viewMode} />
               <ProjectSaveControls
                 isLatest={isLatest}
@@ -568,17 +579,6 @@ export default function ProjectPage() {
                   </option>
                 ))}
               </select>
-              <button
-                onClick={handleCreateFunctionalComponent}
-                className={`w-full ${
-                  isLatest || !loadingProject
-                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                    : "bg-fisma-gray"
-                } text-white py-3 px-4`}
-                disabled={!isLatest || loadingProject}
-              >
-                {translation.newFunctionalComponent}
-              </button>
 
               <button
                 onClick={() => setCommentsOpen((prev) => !prev)}
