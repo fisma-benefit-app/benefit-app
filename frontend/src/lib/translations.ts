@@ -417,6 +417,7 @@ export const translations = {
     },
     shortcutTooltip: {
       toggleViewTip: "Press V to toggle between Compact and Full View.",
+      newComponentTip: "Press N to add a new functional component.",
       componentDragTip:
         "To move components drag them or select with click and click a highlighted spot.",
       componentMultipleSelectTip:
@@ -844,6 +845,8 @@ export const translations = {
     shortcutTooltip: {
       toggleViewTip:
         "Paina V vaihtaaksesi kokonaisnäkymän ja tiiviin väkymän välillä.",
+      newComponentTip: 
+        "Paina N lisätäksesi uuden toiminnallisen komponentin.",
       componentDragTip:
         "Siirrä komponentteja raahaamalla tai valitse ne ja paina korostetusta välistä.",
       componentMultipleSelectTip:

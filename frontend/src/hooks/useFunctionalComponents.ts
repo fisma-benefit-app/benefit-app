@@ -4,6 +4,8 @@ import {
   RefObject,
   SetStateAction,
   useState,
+  useEffect,
+  useRef,
 } from "react";
 import {
   createFunctionalComponent,
@@ -49,6 +51,9 @@ export default function useFunctionalComponents({
     number | null
   >(null);
 
+  // True while a create is running, so neither the button nor the shortcut can start another.
+  const isCreating = useRef(false);
+
   // MLA sub-component handler
   const handleMLAToggle = (componentId: number, newMLAValue: boolean) => {
     if (!project) return;
@@ -86,10 +91,12 @@ export default function useFunctionalComponents({
   };
 
   const handleCreateFunctionalComponent = async () => {
+    setLoadingProject(true);
+    if (!project || isCreating.current) return;
+    isCreating.current = true;
     await saveProject(false);
 
     isManuallySaved.current = true;
-    setLoadingProject(true);
     setComponentSearchQuery("");
 
     if (project) {
@@ -164,12 +171,37 @@ export default function useFunctionalComponents({
         );
       } finally {
         setLoadingProject(false);
+        isCreating.current = false;
         setTimeout(() => {
           isManuallySaved.current = false;
         }, 2000);
       }
     }
   };
+
+  // Keyboard shortcut: "n" adds a new functional component. No dependency array, so the
+  // listener always calls the handler of the latest render.
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+
+      // not while typing in a field, holding the key down or using browser shortcuts
+      const isTyping =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT";
+      if (isTyping || e.repeat) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key.toLowerCase() === "n" && isLatest) {
+        e.preventDefault();
+        void handleCreateFunctionalComponent();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   const handleDeleteFunctionalComponent = async (
     componentId: number,

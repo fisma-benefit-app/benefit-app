@@ -15,9 +15,10 @@ export default function ShortcutTooltip() {
       </button>
       <div
         role="tooltip"
-        className="pointer-events-none absolute left-0 top-full z-50 mt-2 w-56 rounded border border-gray-300 bg-white p-2 text-xs text-gray-800 shadow-lg opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+        className="flex flex-col gap-3 pointer-events-none absolute left-0 top-full z-50 mt-2 w-56 rounded border border-gray-300 bg-white p-2 text-xs text-gray-800 shadow-lg opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
       >
         <div>{toolTipTranslations.toggleViewTip}</div>
+        <div>{toolTipTranslations.newComponentTip}</div>
         <div>{toolTipTranslations.componentDragTip}</div>
         <div>{toolTipTranslations.componentMultipleSelectTip}</div>
         <div>{toolTipTranslations.selectionClearTip}</div>
