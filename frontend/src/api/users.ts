@@ -1,4 +1,4 @@
-import { AppUserRequest, AppUserRole, AppUserSummary } from "../lib/types";
+import { AppUserRequest, AppUserRole } from "../lib/types";
 const API_URL = import.meta.env.VITE_API_URL;
 
 // "notLatestVersion": another tab archived this version as a new one, so it can no longer be

@@ -4,7 +4,7 @@ import { createUser } from "../api/users.ts";
 import useTranslations from "../hooks/useTranslations.ts";
 import { useAlert } from "../hooks/useAlert.ts";
 import DotLoadingSpinner from "./DotLoadingSpinner.tsx";
-import { AppUserRole, TGenericComponentNoId } from "../lib/types.ts";
+import { AppUserRole } from "../lib/types.ts";
 
 interface NewUserFormProps {
   open: boolean;
@@ -12,9 +12,6 @@ interface NewUserFormProps {
 }
 
 type ModalView = "selection" | "create" | "import";
-// type ImportedParentPayload = TGenericComponentNoId & {
-//   subComponents: TGenericComponentNoId[];
-// };
 
 export default function CreateNewUserModal({
   open,
