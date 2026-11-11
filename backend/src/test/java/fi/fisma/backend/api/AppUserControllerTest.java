@@ -5,6 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.EnumUserRole;
+import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.security.JwtRevocationFilter;
 import fi.fisma.backend.security.LoginAttemptThrottleService;
@@ -67,7 +70,10 @@ class AppUserControllerTest {
   }
 
   @Test
-  void createUserEndpointDoesNotExist() {
+  void createUserEndpointReturnsCreatedUserSummary() {
+    when(appUserService.createNewAppUser(any(AppUserRequest.class), any(Authentication.class)))
+        .thenReturn(new AppUser(10L, "new-admin", "encoded-password", EnumUserRole.ADMIN, null));
+
     var response =
         mockMvcTester
             .post()
@@ -77,14 +83,19 @@ class AppUserControllerTest {
             .content(
                 """
                 {
-                  "username": "new-user",
-                  "password": "newPass123"
+                  "username": "new-admin",
+                  "password": "newPass123",
+                  "role": "ADMIN"
                 }
                 """)
             .exchange();
 
-    assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
-    verify(appUserRepository, never()).save(any());
+    assertThat(response).hasStatus(HttpStatus.CREATED);
+    assertThat(response).bodyJson().extractingPath("$.id").isEqualTo(10);
+    assertThat(response).bodyJson().extractingPath("$.username").isEqualTo("new-admin");
+    verify(appUserService)
+        .createNewAppUser(
+            argThat(request -> request.getRole() == EnumUserRole.ADMIN), any(Authentication.class));
   }
 
   @Test

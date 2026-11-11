@@ -2,7 +2,11 @@ import { ReactNode, useEffect, useState, useCallback } from "react";
 import { AppUserContext, AppUserContextType } from "./AppUserContext";
 import { AppUser } from "../lib/types";
 import { extendSession, validateJWT } from "../api/authorization";
-import { decodeJWT, sessionTimeoutConfig } from "../lib/jwtUtils";
+import {
+  decodeJWT,
+  getAppUserRole,
+  sessionTimeoutConfig,
+} from "../lib/jwtUtils";
 import { useAlert } from "../hooks/useAlert";
 import useTranslations from "../hooks/useTranslations";
 import { authStorage, TOKEN_KEY } from "../lib/authStorage";
@@ -78,6 +82,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
           setAppUser({
             id: userId ? parseInt(userId) : undefined,
             username: userInfo,
+            role: getAppUserRole(decoded.scope),
           });
           setLoggedIn(true);
         }

@@ -71,14 +71,24 @@ export type CommentResponse = {
   projectId: number;
 };
 
-export type AppUserSummary = {
-  id: number;
-  username: string;
-};
+export type AppUserRole = "ADMIN" | "USER" | null;
 
 export type AppUser = {
   id?: number;
   username: string;
+  role: AppUserRole;
+};
+
+export type AppUserSummary = {
+  id: number;
+  username: string;
+  // role: AppUserRole;
+};
+
+export type AppUserRequest = {
+  username: string;
+  password: string;
+  role: AppUserRole;
 };
 
 export type TGenericComponentNoId = {

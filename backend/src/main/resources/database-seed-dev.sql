@@ -49,6 +49,7 @@ VALUES  (1, 'user', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadu
         (6, 'jukka', '$2a$12$HalfqF43RCkPeRRJ7EkQMOjWcjDqLZ4udbTC6DYZRR7C6P0kRpoCm', 'USER', NULL),
         (7, 'heikki', '$2a$12$VvPmVx1yxpPVHAEerqvO1.Pmsp96pxLlsw622r9Zun5r0X9NIuNhy', 'USER', NULL),
         (8, 'altti', '$2a$12$UVmCG.ySaTe6rWo4X5G2yOFpMuu.Mo89GbmmxJzJOUHpnKUAcXfJ.', 'USER', NULL),
+        (10, 'admin', '$2a$10$7ZsBRQLgbulk/qinyFTxhOX4N65fBTpX.guxpcrrUI7xnXLQTXMQ.', 'ADMIN', NULL),
         -- Soft-deleted user, still referenced by project 8's projects_app_users below, to verify
         -- the UI/API handle a project shared with a since-deleted member gracefully.
         (9, 'poistunut-kayttaja', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue', 'USER', NOW() - INTERVAL '10 days');

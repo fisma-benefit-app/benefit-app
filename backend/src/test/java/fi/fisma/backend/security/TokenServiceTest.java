@@ -61,13 +61,17 @@ class TokenServiceTest {
     when(appUserRepository.findByUsernameActive("alice")).thenReturn(Optional.of(alice));
   }
 
-  private Jwt login(boolean rememberMe) {
-    var userDetails = new AppUserDetails(alice);
+  private Jwt login(AppUser user, boolean rememberMe) {
+    var userDetails = new AppUserDetails(user);
     var authentication =
         UsernamePasswordAuthenticationToken.authenticated(
             userDetails, null, userDetails.getAuthorities());
     // Decode to get the token exactly as Spring Security hands it to the controller on renewal.
     return decoder.decode(tokenService.generateToken(authentication, rememberMe).getTokenValue());
+  }
+
+  private Jwt login(boolean rememberMe) {
+    return login(alice, rememberMe);
   }
 
   /** A token as it would look if the login happened {@code loginAge} ago. */
@@ -98,6 +102,15 @@ class TokenServiceTest {
     assertThat(lifetimeOf(token)).isEqualTo(Duration.ofDays(1));
     assertThat(token.getClaimAsInstant(TokenService.AUTH_TIME_CLAIM))
         .isEqualTo(token.getIssuedAt());
+  }
+
+  @Test
+  void loginTokenHasAdminScopeForAdminUser() {
+    AppUser admin = new AppUser(43L, "admin", "hash", EnumUserRole.ADMIN, null);
+
+    Jwt token = login(admin, false);
+
+    assertThat(token.getClaimAsString("scope")).isEqualTo("ROLE_ADMIN");
     assertThat(lifetimeOf(login(true))).isEqualTo(Duration.ofDays(30));
   }
 
