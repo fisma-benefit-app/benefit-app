@@ -97,6 +97,7 @@ export const translations = {
         },
       },
       averagesHeader: "Calculation parameters",
+      averagesChanged: "(changed from defaults)",
       averagesDescription:
         "Each item is sized with these values. The defaults are from the original FiSMA quick calculator.",
       resetAverages: "Reset to defaults",
@@ -521,6 +522,7 @@ export const translations = {
         },
       },
       averagesHeader: "Laskentaparametrit",
+      averagesChanged: "(oletusarvoja muutettu)",
       averagesDescription:
         "Jokaisen kohteen koko lasketaan näillä arvoilla. Oletusarvot ovat alkuperäisestä FiSMA-pikalaskurista.",
       resetAverages: "Palauta oletusarvot",

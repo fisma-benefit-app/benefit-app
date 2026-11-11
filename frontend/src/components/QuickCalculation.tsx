@@ -72,6 +72,16 @@ const QuickCalculation = () => {
   const tooLarge =
     countGeneratedComponents(counts, averages) > MAX_GENERATED_COMPONENTS;
 
+  const isAverageChanged = (
+    key: QuickCalculationKey,
+    field: keyof QuickCalculationAverage,
+  ) => averages[key][field] !== defaultQuickCalculationAverages[key][field];
+  const averagesChanged = quickCalculationItems.some(({ key }) =>
+    (Object.keys(averages[key]) as (keyof QuickCalculationAverage)[]).some(
+      (field) => isAverageChanged(key, field),
+    ),
+  );
+
   const handleCountChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCountInputs({ ...countInputs, [name]: value });
@@ -222,6 +232,11 @@ const QuickCalculation = () => {
         <details className="mb-6">
           <summary className="cursor-pointer font-medium text-[#333]">
             {translation.averagesHeader}
+            {averagesChanged && (
+              <span className="ml-2 text-fisma-blue">
+                {translation.averagesChanged}
+              </span>
+            )}
           </summary>
           <p className="my-3 text-[#333]">{translation.averagesDescription}</p>
           <button
@@ -248,7 +263,10 @@ const QuickCalculation = () => {
                           componentType: e.target.value as ComponentType,
                         })
                       }
-                      className="col-span-2 sm:col-span-1 p-2 border border-[#ccc] bg-white rounded text-base"
+                      className={`col-span-2 sm:col-span-1 p-2 border border-[#ccc] bg-white rounded text-base ${isAverageChanged(key, "componentType")
+                        ? "text-fisma-blue"
+                        : ""
+                        }`}
                     >
                       {getComponentTypeOptions(className).map((option) => (
                         <option key={option} value={option}>
@@ -263,7 +281,10 @@ const QuickCalculation = () => {
                       <div key={field} className="flex flex-col">
                         <label
                           htmlFor={`${key}-${field}`}
-                          className="text-sm text-[#333]"
+                          className={`text-sm ${isAverageChanged(key, field)
+                              ? "text-fisma-blue"
+                              : "text-[#333]"
+                            }`}
                         >
                           {classTranslation.parameters[field].fullView}
                         </label>
