@@ -263,10 +263,11 @@ const QuickCalculation = () => {
                           componentType: e.target.value as ComponentType,
                         })
                       }
-                      className={`col-span-2 sm:col-span-1 p-2 border border-[#ccc] bg-white rounded text-base ${isAverageChanged(key, "componentType")
-                        ? "text-fisma-blue"
-                        : ""
-                        }`}
+                      className={`col-span-2 sm:col-span-1 p-2 border border-[#ccc] bg-white rounded text-base ${
+                        isAverageChanged(key, "componentType")
+                          ? "text-fisma-blue"
+                          : ""
+                      }`}
                     >
                       {getComponentTypeOptions(className).map((option) => (
                         <option key={option} value={option}>
@@ -281,10 +282,11 @@ const QuickCalculation = () => {
                       <div key={field} className="flex flex-col">
                         <label
                           htmlFor={`${key}-${field}`}
-                          className={`text-sm ${isAverageChanged(key, field)
+                          className={`text-sm ${
+                            isAverageChanged(key, field)
                               ? "text-fisma-blue"
                               : "text-[#333]"
-                            }`}
+                          }`}
                         >
                           {classTranslation.parameters[field].fullView}
                         </label>
