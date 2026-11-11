@@ -423,7 +423,7 @@ export default function NewProjectModal({
               ref={inputRef}
               type="text"
               maxLength={60}
-              placeholder={translation.placeholderText}
+              placeholder={translation.CreateUserPlaceholder}
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
