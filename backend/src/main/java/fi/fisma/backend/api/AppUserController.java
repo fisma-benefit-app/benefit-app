@@ -1,5 +1,7 @@
 package fi.fisma.backend.api;
 
+import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.dto.AppUserSummary;
 import fi.fisma.backend.dto.PasswordChangeRequest;
 import fi.fisma.backend.service.AppUserService;
@@ -9,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +23,21 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearerAuth")
 public class AppUserController {
   private final AppUserService appUserService;
+
+  @PostMapping
+  @Operation(
+      summary = "Create a new app user",
+      description = "Creates and stores a new user to the database")
+  @ApiResponse(responseCode = "201", description = "User created successfully")
+  @ApiResponse(responseCode = "409", description = "Username already taken")
+  @ApiResponse(responseCode = "403", description = "User is not an admin")
+  public ResponseEntity<AppUserSummary> createNewUser(
+      @RequestBody @Valid AppUserRequest newUser, Authentication authentication) {
+    AppUser savedUser = appUserService.createNewAppUser(newUser, authentication);
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(new AppUserSummary(savedUser.getId(), savedUser.getUsername()));
+  }
 
   @GetMapping("/{id}")
   @Operation(summary = "Get user by ID", description = "Retrieves a specific user by their ID")

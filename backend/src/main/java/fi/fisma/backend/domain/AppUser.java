@@ -47,4 +47,17 @@ public class AppUser {
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
+
+  public AppUser(
+      @NotEmpty(message = "Username is required")
+          @Size(max = 50, message = "Username must not exceed 50 characters")
+          String username,
+      @NotEmpty(message = "Password is required")
+          @Size(max = 64, message = "Password must not exceed 64 characters")
+          String password,
+      @NotNull(message = "Role is required") EnumUserRole role) {
+    this.username = username;
+    this.password = password;
+    this.role = role;
+  }
 }

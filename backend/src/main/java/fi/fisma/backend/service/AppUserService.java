@@ -1,7 +1,10 @@
 package fi.fisma.backend.service;
 
 import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.EnumUserRole;
+import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.dto.AppUserSummary;
+import fi.fisma.backend.exception.ConflictException;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
@@ -45,6 +48,43 @@ public class AppUserService {
         .findByIdActive(id)
         .map(this::mapToSummary)
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
+  }
+
+  /**
+   * Tells if a username is already found in the database. Currently checks every user including the
+   * soft-deleted ones, in order to preserve the unique username constraint in the app_users table.
+   *
+   * @param username username that is checked
+   * @return True if username found, false if not
+   */
+  public boolean existsByUsername(String username) {
+    return appUserRepository.findByUsername(username).isPresent();
+  }
+
+  /**
+   * Creates a new application user.
+   *
+   * @param userRequest user data to save
+   * @return The AppUser that was saved in the database
+   * @throws UnauthorizedException if the current user is not an admin
+   */
+  public AppUser createNewAppUser(AppUserRequest userRequest, Authentication authentication) {
+    var currentUser = getUserFromAuthentication(authentication);
+    if (currentUser.getRole() != EnumUserRole.ADMIN) {
+      throw new UnauthorizedException("Only admins can create new users");
+    }
+
+    if (existsByUsername(userRequest.getUsername())) {
+      throw new ConflictException(
+          ConflictException.USERNAME_ALREADY_EXISTS, "Username is already taken");
+    }
+
+    AppUser newUser =
+        new AppUser(
+            userRequest.getUsername(),
+            passwordEncoder.encode(userRequest.getPassword()),
+            userRequest.getRole());
+    return appUserRepository.save(newUser);
   }
 
   /**

@@ -11,6 +11,7 @@ import {
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import NewProjectModal from "./NewProjectModal";
+import CreateNewUserModal from "./CreateNewUserModal";
 import ConfirmModal from "./ConfirmModal";
 import useLanguage from "../hooks/useLanguage";
 import useTranslations from "../hooks/useTranslations";
@@ -22,6 +23,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { appUser, loggedIn, logout } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
+  const [isUserModalOpen, setUserModalOpen] = useState(false);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -113,7 +115,15 @@ const Header = () => {
                 >
                   <FontAwesomeIcon icon={faPlus} />
                 </button>
-
+                {appUser?.role === "ADMIN" && (
+                  <button
+                    className="flex items-center text-lg px-5 hover:bg-fisma-dark-blue"
+                    onClick={() => setUserModalOpen(true)}
+                    title={translation.createNewUser}
+                  >
+                    {translation.createNewUser}
+                  </button>
+                )}
                 {/* User Dropdown */}
                 <div className="relative flex items-stretch" ref={dropdownRef}>
                   <button
@@ -223,7 +233,17 @@ const Header = () => {
               <FontAwesomeIcon icon={faPlus} />
               {translation.newProject}
             </button>
-
+            {appUser?.role === "ADMIN" && (
+              <button
+                className="w-full text-left px-6 py-4 hover:bg-fisma-dark-blue border-b border-fisma-dark-blue flex items-center gap-3"
+                onClick={() => {
+                  setUserModalOpen(true);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                {translation.createNewUser}
+              </button>
+            )}
             <div className="px-6 py-3 bg-fisma-dark-blue text-xs font-semibold border-b border-fisma-blue">
               {appUser?.username}
             </div>
@@ -249,6 +269,7 @@ const Header = () => {
         open={isProjectModalOpen}
         setOpen={setProjectModalOpen}
       />
+      <CreateNewUserModal open={isUserModalOpen} setOpen={setUserModalOpen} />
       <ConfirmModal
         message={translation.logoutWarning}
         onConfirm={tryLogout}

@@ -12,7 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations";
 import DotLoadingSpinner from "./DotLoadingSpinner";
-import { decodeJWT } from "../lib/jwtUtils";
+import { decodeJWT, getAppUserRole } from "../lib/jwtUtils";
 import { authStorage } from "../lib/authStorage";
 
 export default function LoginForm() {
@@ -55,7 +55,11 @@ export default function LoginForm() {
 
       setInvalidSession(false);
       setSessionToken(loginToken);
-      setAppUser({ id: userId, username: username });
+      setAppUser({
+        id: userId,
+        username,
+        role: getAppUserRole(decodedToken?.scope),
+      });
       setLoggedIn(true);
     } catch (err) {
       if (err instanceof Error) {
