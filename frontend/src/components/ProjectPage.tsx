@@ -6,6 +6,7 @@ import {
   faTimes,
   faChevronRight,
   faChevronLeft,
+  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   fetchAllProjects,
@@ -582,10 +583,17 @@ export default function ProjectPage() {
 
               <button
                 onClick={() => setCommentsOpen((prev) => !prev)}
-                className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 cursor-pointer"
+                className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 cursor-pointer flex items-center justify-center gap-2"
                 disabled={!project || loadingProject}
+                aria-expanded={commentsOpen}
               >
                 {translation.comments}
+                <FontAwesomeIcon
+                  icon={faChevronDown}
+                  className={`text-xs transition-transform ${
+                    commentsOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {commentsOpen && project && (
