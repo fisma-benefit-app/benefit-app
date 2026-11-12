@@ -855,8 +855,7 @@ export const translations = {
     shortcutTooltip: {
       toggleViewTip:
         "Paina V vaihtaaksesi kokonaisnäkymän ja tiiviin väkymän välillä.",
-      newComponentTip: 
-        "Paina N lisätäksesi uuden toiminnallisen komponentin.",
+      newComponentTip: "Paina N lisätäksesi uuden toiminnallisen komponentin.",
       componentDragTip:
         "Siirrä komponentteja raahaamalla tai valitse ne ja paina korostetusta välistä.",
       componentMultipleSelectTip:
