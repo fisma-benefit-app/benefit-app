@@ -1,6 +1,6 @@
 import useAppUser from "../hooks/useAppUser.tsx";
 import { useState, FormEvent, useRef, useEffect } from "react";
-import { createUser } from "../api/users.ts";
+import { createUser, UsernameAlreadyExistsError } from "../api/users.ts";
 import useTranslations from "../hooks/useTranslations.ts";
 import { useAlert } from "../hooks/useAlert.ts";
 import DotLoadingSpinner from "./DotLoadingSpinner.tsx";
@@ -86,10 +86,14 @@ export default function CreateNewUserModal({
       // await fetchAllProjects(sessionToken).then(setProjects);
       handleClose();
     } catch (err) {
-      if (err instanceof Error && err.message === "Unauthorized!") {
-        await logout();
+      if (err instanceof UsernameAlreadyExistsError) {
+        displayError(translation.usernameTakenError);
+      } else {
+        if (err instanceof Error && err.message === "Unauthorized!") {
+          await logout();
+        }
+        displayError(err instanceof Error ? err.message : "Unexpected error.");
       }
-      displayError(err instanceof Error ? err.message : "Unexpected error.");
     } finally {
       setLoading(false);
     }
@@ -125,7 +129,13 @@ export default function CreateNewUserModal({
           )}
         </div>
 
-        <form onSubmit={handleCreate} className="flex flex-col gap-4">
+        <form onSubmit={handleCreate} className="flex flex-col gap-2">
+          <label
+            htmlFor="role"
+            className="block text-sm font-medium text-white"
+          >
+            {translation.role}
+          </label>
           <select
             value={role ?? ""}
             onChange={(e) => {
@@ -135,17 +145,22 @@ export default function CreateNewUserModal({
             className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
           >
             <option value="" disabled>
-              Select a role
+              {translation.selectARole}
             </option>
             <option value="USER">User</option>
             <option value="ADMIN">Admin</option>
           </select>
 
+          <label
+            htmlFor="username"
+            className="block text-sm font-medium text-white"
+          >
+            {translation.username}
+          </label>
           <input
             ref={inputRef}
             type="text"
             maxLength={50}
-            placeholder={translation.placeholderText}
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
@@ -154,11 +169,16 @@ export default function CreateNewUserModal({
             className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
           />
 
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-white"
+          >
+            {translation.password}
+          </label>
           <input
             ref={inputRef}
             type="password"
             maxLength={50}
-            placeholder={"password"}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
@@ -167,11 +187,16 @@ export default function CreateNewUserModal({
             className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
           />
 
+          <label
+            htmlFor="confirmPassword"
+            className="block text-sm font-medium text-white"
+          >
+            {translation.confirmPassword}
+          </label>
           <input
             ref={inputRef}
             type="password"
             maxLength={60}
-            placeholder={"confirm password"}
             value={confirmPassword}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
@@ -180,7 +205,7 @@ export default function CreateNewUserModal({
             className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
           />
 
-          <div className="flex items-center gap-3">
+          <div className="mt-5 flex items-center gap-3">
             <button
               type="button"
               onClick={handleClose}

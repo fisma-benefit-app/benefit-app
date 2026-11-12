@@ -9,6 +9,13 @@ export class ConflictError extends Error {
   }
 }
 
+export class UsernameAlreadyExistsError extends Error {
+  constructor() {
+    super("Username already exists");
+    this.name = "UsernameAlreadyExistsError";
+  }
+}
+
 const createUser = async (
   sessionToken: string | null,
   roleForUser: AppUserRole,
@@ -43,24 +50,13 @@ const createUser = async (
   if (!response.ok) {
     if (response.status === 401) {
       throw new Error("Unauthorized!");
+    } else if (response.status === 409) {
+      throw new UsernameAlreadyExistsError();
     }
     throw new Error(
       `Error creating a new user in createUser! Status: ${response.status}`,
     );
   }
-
-  //   const location = response.headers.get("Location");
-
-  //   if (!location) {
-  //     throw new Error("User created but no Location header found!");
-  //   }
-
-  //   const parts = location.split("projects/");
-  //   const newProjectId = parts.length > 1 ? parts[1] : null;
-
-  //   if (!newProjectId) {
-  //     throw new Error("Id of new project could not be parsed!");
-  //   } else return newProjectId;
 };
 
 export { createUser };
