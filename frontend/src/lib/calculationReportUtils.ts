@@ -551,8 +551,10 @@ export const generateCalculationReportPDF = async (
     title: string,
     data: string[][],
     headers: string[],
-  ): Content =>
-    keepTogether(
+    keepOnOnePage = true,
+  ): Content => ({
+    unbreakable: keepOnOnePage,
+    stack: [
       { text: title, style: "h3", margin: [0, 20, 0, 4] },
       reportTable({
         headers,
@@ -566,7 +568,8 @@ export const generateCalculationReportPDF = async (
         margin: [0, 4, 0, 0],
         headerAlignments: ["left", "right", "right"],
       }),
-    );
+    ],
+  });
 
   const summaryTables: Content[] = [];
 
@@ -690,11 +693,17 @@ export const generateCalculationReportPDF = async (
       : "Summary by Component Type";
 
     summaryTables.push(
-      createSummaryTable(typeTableHeading, typeData, [
-        isFinnish ? "Toimintotyyppi" : "Component Type",
-        isFinnish ? "Toteutuneet FP" : "Actual FP",
-        isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
-      ]),
+      // The type table can exceed a full page.
+      createSummaryTable(
+        typeTableHeading,
+        typeData,
+        [
+          isFinnish ? "Toimintotyyppi" : "Component Type",
+          isFinnish ? "Toteutuneet FP" : "Actual FP",
+          isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
+        ],
+        false,
+      ),
     );
   }
 
