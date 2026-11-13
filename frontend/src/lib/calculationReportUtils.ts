@@ -100,7 +100,7 @@ export const generateCalculationReportPDF = async (
 
   const filename = `${project.projectName}-v${project.version}.pdf`;
 
-  const headingText = `${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}`;
+  const headingText = `${printUtilsTranslation.projectReport}: ${project.projectName}`;
   // Check language
   const isFinnish =
     printUtilsTranslation.projectReport?.toLowerCase().includes("raportti") ||
