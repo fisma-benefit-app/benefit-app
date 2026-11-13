@@ -628,8 +628,8 @@ export const generateCalculationReportPDF = async (
 
   // --- HELPER FUNCTION: Group by Class and Components ---
   const getSummaryDataByProperty = (
-    components: ReturnType<typeof getAllComponents>,
-    propertyKey: keyof ReturnType<typeof getAllComponents>[number],
+    components: TGenericComponent[],
+    propertyKey: keyof TGenericComponent,
     translateFn: (val: string) => string,
   ) => {
     const summary = new Map<string, { actual: number; possible: number }>();
@@ -661,7 +661,7 @@ export const generateCalculationReportPDF = async (
 
   // --- CREATE SUMMARY TABLE GROUP BY CLASS ---
   const classData = getSummaryDataByProperty(
-    allCurrentComponents,
+    project.functionalComponents,
     "className",
     translateClassName,
   );
@@ -682,7 +682,7 @@ export const generateCalculationReportPDF = async (
 
   // --- CREATE SUMMARY TABLE GROUP BY TYPE ---
   const typeData = getSummaryDataByProperty(
-    allCurrentComponents,
+    project.functionalComponents,
     "componentType",
     translateComponentType,
   );
