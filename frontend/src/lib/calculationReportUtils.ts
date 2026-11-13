@@ -201,7 +201,12 @@ export const generateCalculationReportPDF = async (
 
   // A shaded box with a small label above a large value, for the key figures under the title.
   // Every box has a detail line (blank if not given) so all boxes are the same height.
-  const keyFigure = (label: string, value: string, detail = " "): Content => ({
+  const keyFigure = (
+    label: string,
+    value: string,
+    detail = " ",
+    valueColor: string = PDF_COLORS.heading,
+  ): Content => ({
     table: {
       widths: ["*"],
       body: [
@@ -213,7 +218,7 @@ export const generateCalculationReportPDF = async (
                 text: value,
                 fontSize: 14,
                 bold: true,
-                color: PDF_COLORS.heading,
+                color: valueColor,
                 margin: [0, 2, 0, 1],
               },
               { text: detail, fontSize: 8, color: PDF_COLORS.mutedText },
@@ -230,7 +235,18 @@ export const generateCalculationReportPDF = async (
   const keyFigures: Content = {
     columns: [
       keyFigure(texts.totalSize, `${currentTotalFP.toFixed(2)} FP`),
-      keyFigure(texts.reportDate, dateLocalizer(new Date().toISOString())),
+      keyFigure(
+        printUtilsTranslation.calculationDate || "Calculation Date",
+        project.calculationDate?.split("-").reverse().join(".") || "N/A",
+        undefined,
+        isChanged(
+          project.calculationDate ?? "",
+          oldProject.calculationDate ?? "",
+          isFirstVersion,
+        )
+          ? PDF_COLORS.changedBlue
+          : PDF_COLORS.heading,
+      ),
       keyFigure(texts.method, texts.methodValue, texts.methodStandard),
     ],
     columnGap: 10,
@@ -277,48 +293,47 @@ export const generateCalculationReportPDF = async (
     color: PDF_COLORS.mutedText,
   };
 
-  const infoRows: [string, CellValue, CellValue][] = [
-    [printUtilsTranslation.projectId, project.id, oldProject.id],
-    [printUtilsTranslation.version, project.version, oldProject.version],
+  const infoRows: [string, TableCell][] = [
+    [texts.reportDate, textCell(dateLocalizer(new Date().toISOString()))],
+    [
+      printUtilsTranslation.projectId,
+      comparisonCell(project.id, oldProject.id),
+    ],
+    [
+      printUtilsTranslation.version,
+      comparisonCell(project.version, oldProject.version),
+    ],
     [
       printUtilsTranslation.createdDate,
-      dateLocalizer(project.createdAt),
-      dateLocalizer(oldProject.createdAt),
+      comparisonCell(
+        dateLocalizer(project.createdAt),
+        dateLocalizer(oldProject.createdAt),
+      ),
     ],
     [
       printUtilsTranslation.versionCreatedDate,
-      dateLocalizer(project.versionCreatedAt),
-      dateLocalizer(oldProject.versionCreatedAt),
-    ],
-    [
-      printUtilsTranslation.calculationDate || "Calculation Date",
-      project.calculationDate ? dateLocalizer(project.calculationDate) : "N/A",
-      oldProject.calculationDate
-        ? dateLocalizer(oldProject.calculationDate)
-        : "N/A",
+      comparisonCell(
+        dateLocalizer(project.versionCreatedAt),
+        dateLocalizer(oldProject.versionCreatedAt),
+      ),
     ],
     [
       printUtilsTranslation.lastEditedDate,
-      dateLocalizer(project.updatedAt),
-      dateLocalizer(oldProject.updatedAt),
+      comparisonCell(
+        dateLocalizer(project.updatedAt),
+        dateLocalizer(oldProject.updatedAt),
+      ),
     ],
   ];
 
-  // Project details as a label/value table, two pairs per row
-  const projectInfoRows: TableCell[][] = [];
-  for (let i = 0; i < infoRows.length; i += 2) {
-    projectInfoRows.push(
-      infoRows
-        .slice(i, i + 2)
-        .flatMap(([label, currentValue, prevValue]) => [
-          textCell(label, { bold: true, fillColor: PDF_COLORS.subHeadingFill }),
-          comparisonCell(currentValue, prevValue),
-        ]),
-    );
-  }
-
   const projectInfo: Content = {
-    table: { widths: [130, "*", 130, "*"], body: projectInfoRows },
+    table: {
+      widths: ["auto", "auto"],
+      body: infoRows.map(([label, value]) => [
+        textCell(label, { bold: true, fillColor: PDF_COLORS.subHeadingFill }),
+        value,
+      ]),
+    },
     layout: reportTableLayout,
   };
 
@@ -686,18 +701,16 @@ export const generateCalculationReportPDF = async (
       content: [
         titleBlock,
         keyFigures,
-        sectionHeading(texts.projectDetails, 16),
-        projectInfo,
         sectionHeading(texts.functionList, 18),
         notes,
         componentTable,
         keepTogether(sectionHeading(texts.summaries, 22), firstSummaryTable),
         ...otherSummaryTables,
-        // Last in the report: the generated subcomponents are the least interesting part. Starts
-        // on its own page so the heading is never left alone at the bottom of one.
+        // Start generated subcomponents on a new page to keep the heading with its table.
         ...(mlaRows.length > 1
           ? [sectionHeading(texts.mlaComponents, 0, true), mlaNotes, mlaTable]
           : []),
+        keepTogether({ text: texts.projectDetails, style: "h3" }, projectInfo),
       ],
     }),
     filename,
