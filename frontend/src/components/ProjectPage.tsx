@@ -245,10 +245,13 @@ export default function ProjectPage() {
         return;
       }
       if (notify) {
+        const message =
+          err instanceof Error ? err.message : alertTranslation.saveFailed;
+
         updateNotification(
           notificationId,
           alertTranslation.error,
-          alertTranslation.saveFailed,
+          message,
           "error",
         );
       }

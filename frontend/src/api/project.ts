@@ -287,8 +287,10 @@ const updateProject = async (
 
       throw new ConflictError(isStale ? "notLatestVersion" : "savedElsewhere");
     }
+    const errorMessage = await response.text();
+
     throw new Error(
-      `Error updating project in updateProject! Status: ${response.status}`,
+      errorMessage || `Error updating project! Status: ${response.status}`,
     );
   }
 

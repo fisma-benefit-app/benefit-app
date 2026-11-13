@@ -467,7 +467,9 @@ export default function ProjectList() {
               } else {
                 showNotification(
                   "Error",
-                  "Failed to update project name.",
+                  err instanceof Error
+                    ? err.message
+                    : "Failed to update project name.",
                   "error",
                   "update-project-error",
                 );

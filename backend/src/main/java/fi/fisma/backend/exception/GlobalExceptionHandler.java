@@ -1,8 +1,10 @@
 package fi.fisma.backend.exception;
 
+import java.util.Objects;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -38,5 +40,19 @@ public class GlobalExceptionHandler {
             new ConflictResponse(
                 ConflictException.STALE_LOCK_VERSION,
                 "The project was changed by someone else. Reload it and try again."));
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<String> handleValidationException(
+      MethodArgumentNotValidException exception) {
+    String message =
+        exception.getBindingResult().getFieldErrors().stream()
+            .map(
+                error ->
+                    Objects.requireNonNullElse(error.getDefaultMessage(), "Invalid request data"))
+            .findFirst()
+            .orElse("Invalid request data");
+
+    return ResponseEntity.badRequest().body(message);
   }
 }
