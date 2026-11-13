@@ -10,6 +10,7 @@ ENV VITE_API_URL=/api VITE_BASE_PATH=/
 RUN npm run build:production
 
 FROM nginx:alpine
+RUN apk upgrade --no-cache libxslt
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 # Where nginx forwards /api/ to; docker-compose.prod.yaml can override it.
