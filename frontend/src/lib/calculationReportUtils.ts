@@ -6,6 +6,7 @@ import {
   calculateBasePoints,
   calculateProjectPointsByLayer,
   calculatePossiblePointsByLayer,
+  getGroupedComponents,
 } from "./centralizedCalculations";
 import { dateLocalizer, getAllComponents } from "./printUtils";
 import { downloadPdfmakeDocument } from "./pdf/pdfmakeRuntime";
@@ -550,8 +551,10 @@ export const generateCalculationReportPDF = async (
     title: string,
     data: string[][],
     headers: string[],
-  ): Content =>
-    keepTogether(
+    keepOnOnePage = true,
+  ): Content => ({
+    unbreakable: keepOnOnePage,
+    stack: [
       { text: title, style: "h3", margin: [0, 20, 0, 4] },
       reportTable({
         headers,
@@ -565,7 +568,8 @@ export const generateCalculationReportPDF = async (
         margin: [0, 4, 0, 0],
         headerAlignments: ["left", "right", "right"],
       }),
-    );
+    ],
+  });
 
   const summaryTables: Content[] = [];
 
@@ -614,13 +618,21 @@ export const generateCalculationReportPDF = async (
     ]),
   );
 
+  const { parentGroups } = getGroupedComponents(project.functionalComponents);
+  const classOrder = parentGroups.flatMap(({ className }) =>
+    className ? [className] : [],
+  );
+  const typeOrder = parentGroups.flatMap(({ components }) =>
+    components.flatMap(({ type }) => (type ? [type] : [])),
+  );
+
   // --- HELPER FUNCTION: Group by Class and Components ---
   const getSummaryDataByProperty = (
     components: ReturnType<typeof getAllComponents>,
     propertyKey: keyof ReturnType<typeof getAllComponents>[number],
     translateFn: (val: string) => string,
   ) => {
-    const summary: Record<string, { actual: number; possible: number }> = {};
+    const summary = new Map<string, { actual: number; possible: number }>();
 
     components.forEach((comp) => {
       const rawValue = comp[propertyKey];
@@ -628,25 +640,23 @@ export const generateCalculationReportPDF = async (
 
       const label = translateFn(String(rawValue));
 
-      if (!summary[label]) {
-        summary[label] = { actual: 0, possible: 0 };
-      }
-
-      const actualPoints = calculateComponentPointsWithMultiplier(
+      const totals = summary.get(label) ?? { actual: 0, possible: 0 };
+      totals.actual += calculateComponentPointsWithMultiplier(
         comp || null,
         comp.degreeOfCompletion,
       );
-      const possiblePoints = calculateBasePoints(comp);
-
-      summary[label].actual += actualPoints;
-      summary[label].possible += possiblePoints;
+      totals.possible += calculateBasePoints(comp);
+      summary.set(label, totals);
     });
 
-    return Object.entries(summary).map(([label, totals]) => [
-      label,
-      totals.actual.toFixed(2),
-      totals.possible.toFixed(2),
-    ]);
+    const order = propertyKey === "className" ? classOrder : typeOrder;
+    const labels = new Set([...order.map(translateFn), ...summary.keys()]);
+    return Array.from(labels).flatMap((label) => {
+      const totals = summary.get(label);
+      return totals
+        ? [[label, totals.actual.toFixed(2), totals.possible.toFixed(2)]]
+        : [];
+    });
   };
 
   // --- CREATE SUMMARY TABLE GROUP BY CLASS ---
@@ -683,11 +693,17 @@ export const generateCalculationReportPDF = async (
       : "Summary by Component Type";
 
     summaryTables.push(
-      createSummaryTable(typeTableHeading, typeData, [
-        isFinnish ? "Toimintotyyppi" : "Component Type",
-        isFinnish ? "Toteutuneet FP" : "Actual FP",
-        isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
-      ]),
+      // The type table can exceed a full page.
+      createSummaryTable(
+        typeTableHeading,
+        typeData,
+        [
+          isFinnish ? "Toimintotyyppi" : "Component Type",
+          isFinnish ? "Toteutuneet FP" : "Actual FP",
+          isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
+        ],
+        false,
+      ),
     );
   }
 
