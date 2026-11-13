@@ -36,6 +36,7 @@ export default function EditProjectModal({
           type="text"
           value={editProjectName}
           onChange={(e) => onEditProjectNameChange(e.target.value)}
+          maxLength={255}
           className="w-full p-2 border border-gray-300 rounded mb-4"
           placeholder={projectListTranslation.projectName}
         />

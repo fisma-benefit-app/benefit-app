@@ -330,6 +330,7 @@ export default function FunctionalClassComponent({
               id="title"
               placeholder={translation.titlePlaceholder}
               value={component.title || ""}
+              maxLength={255}
               onChange={handleComponentChange}
               disabled={!isLatest}
             />
