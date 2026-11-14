@@ -120,15 +120,19 @@ For example to update a user called `user`'s password:
 
 ```sql
 UPDATE app_users
-SET password = '$2a$12$csFVT0JamCwPg18duSENPu.6HxtqeDNfXLI3mPXb2tRClCR/VjduK'
+SET password = '$2a$12$csFVT0JamCwPg18duSENPu.6HxtqeDNfXLI3mPXb2tRClCR/VjduK',
+    session_version = session_version + 1
 WHERE username = 'user';
 ```
 
 Generate BCrypt hashes locally using trusted project tooling (the backend uses
 Spring's `BCryptPasswordEncoder`); never submit real passwords to an online hash
 generator. For ordinary account changes use the authenticated password-change
-flow. A manual SQL password update bypasses service validation and session
-invalidation behavior; review those consequences before administrative recovery.
+flow. A manual SQL password update bypasses service validation; increment
+`session_version` in the same statement as shown above so existing JWT sessions
+are invalidated too (requires the session-version migration). See the
+[authentication guide](authentication.md#password-changes-and-every-session-invalidation)
+for deployment and rollback constraints.
 
 **NEVER EVER** store plain text passwords in the database.
 

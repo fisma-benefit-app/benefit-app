@@ -408,9 +408,13 @@ export const translations = {
       newPassword: "New Password",
       confirmPassword: "Confirm New Password",
       updatePassword: "Update Password",
+      updatingPassword: "Updating password…",
+      passwordChangeNotice:
+        "Changing your password will sign you out on all devices, including this one. You’ll need to sign in again with your new password.",
       passwordsDoNotMatch: "Passwords do not match",
       passwordMinLength: "Password must be at least 6 characters",
-      passwordUpdated: "Password updated successfully",
+      passwordUpdated:
+        "Your password has been updated and all sessions have ended. Sign in again with your new password.",
       passwordUpdateFailed: "Failed to update password",
       deleteAccount: "Delete Account",
       deleteAccountDangerZone: "DANGER! This action is irreversible.",
@@ -840,9 +844,13 @@ export const translations = {
       newPassword: "Uusi salasana",
       confirmPassword: "Vahvista uusi salasana",
       updatePassword: "Päivitä salasana",
+      updatingPassword: "Päivitetään salasanaa…",
+      passwordChangeNotice:
+        "Salasanan vaihtaminen kirjaa sinut ulos kaikilta laitteilta, myös tältä laitteelta. Kirjaudu sen jälkeen uudelleen uudella salasanallasi.",
       passwordsDoNotMatch: "Salasanat eivät täsmää",
       passwordMinLength: "Salasanan on oltava vähintään 6 merkkiä pitkä",
-      passwordUpdated: "Salasana päivitetty onnistuneesti",
+      passwordUpdated:
+        "Salasanasi on päivitetty ja kaikki istunnot on päätetty. Kirjaudu uudelleen uudella salasanallasi.",
       passwordUpdateFailed: "Salasanan päivitys epäonnistui",
       deleteAccount: "Poista tili",
       deleteAccountDangerZone: "VAARA! Tätä toimintoa ei voi perua.",

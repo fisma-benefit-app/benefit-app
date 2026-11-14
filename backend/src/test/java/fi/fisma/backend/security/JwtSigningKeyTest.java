@@ -2,11 +2,15 @@ package fi.fisma.backend.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 import fi.fisma.backend.config.InvalidConfigurationException;
+import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.repository.AppUserRepository;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.time.Instant;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
@@ -45,17 +49,24 @@ class JwtSigningKeyTest {
         .getTokenValue();
   }
 
+  private AppUserRepository users() {
+    var repository = mock(AppUserRepository.class);
+    when(repository.findByUsernameActive("alice")).thenReturn(Optional.of(new AppUser()));
+    return repository;
+  }
+
   @Test
   void tokenSignedWithOwnKeyIsAccepted() throws Exception {
     var privateKey = newPrivateKey();
-    var decoder = config.jwtDecoder(config.publicKey(privateKey, defaultProfile));
+    var decoder = config.jwtDecoder(config.publicKey(privateKey, defaultProfile), users());
 
     assertThat(decoder.decode(tokenSignedWith(privateKey)).getSubject()).isEqualTo("alice");
   }
 
   @Test
   void tokenSignedWithAnotherEnvironmentsKeyIsRejected() throws Exception {
-    var productionDecoder = config.jwtDecoder(config.publicKey(newPrivateKey(), defaultProfile));
+    var productionDecoder =
+        config.jwtDecoder(config.publicKey(newPrivateKey(), defaultProfile), users());
     var testingToken = tokenSignedWith(newPrivateKey());
 
     assertThatThrownBy(() -> productionDecoder.decode(testingToken))

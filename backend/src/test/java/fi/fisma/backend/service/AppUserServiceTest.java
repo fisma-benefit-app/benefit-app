@@ -45,7 +45,8 @@ class AppUserServiceTest {
             Clock.systemUTC());
 
     when(appUserRepository.findByUsernameActive("admin"))
-        .thenReturn(Optional.of(new AppUser(1L, "admin", "admin-hash", EnumUserRole.ADMIN, null)));
+        .thenReturn(
+            Optional.of(new AppUser(1L, "admin", "admin-hash", EnumUserRole.ADMIN, null, 0)));
   }
 
   @Test
@@ -69,7 +70,8 @@ class AppUserServiceTest {
   void duplicateUsernameIsRejected() {
     AppUserRequest request = newUserRequest("existing-user", EnumUserRole.USER);
     when(appUserRepository.findByUsername("existing-user"))
-        .thenReturn(Optional.of(new AppUser(2L, "existing-user", "hash", EnumUserRole.USER, null)));
+        .thenReturn(
+            Optional.of(new AppUser(2L, "existing-user", "hash", EnumUserRole.USER, null, 0)));
 
     assertThatThrownBy(() -> appUserService.createNewAppUser(request, adminAuthentication))
         .isInstanceOfSatisfying(
@@ -88,7 +90,7 @@ class AppUserServiceTest {
     Authentication userAuthentication =
         UsernamePasswordAuthenticationToken.authenticated("user", null, List.of());
     when(appUserRepository.findByUsernameActive("user"))
-        .thenReturn(Optional.of(new AppUser(3L, "user", "user-hash", EnumUserRole.USER, null)));
+        .thenReturn(Optional.of(new AppUser(3L, "user", "user-hash", EnumUserRole.USER, null, 0)));
 
     assertThatThrownBy(
             () ->

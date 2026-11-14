@@ -23,6 +23,7 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [invalidSession, setInvalidSession] = useState<boolean>(false);
+  const [passwordChanged, setPasswordChanged] = useState(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   const { showNotification, hideNotification } = useAlert();
@@ -325,6 +326,8 @@ const AppUserProvider = ({ children }: AppUserProviderProps) => {
     appUser,
     loggedIn,
     invalidSession,
+    passwordChanged,
+    setPasswordChanged,
     sessionToken,
     setInvalidSession,
     setSessionToken,

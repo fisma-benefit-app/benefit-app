@@ -1,8 +1,10 @@
 package fi.fisma.backend.repository;
 
 import fi.fisma.backend.domain.AppUser;
+import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,6 +14,10 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
   @Query("SELECT u FROM AppUser u WHERE u.username = :username AND u.deletedAt IS NULL")
   Optional<AppUser> findByUsernameActive(@Param("username") String username);
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT u FROM AppUser u WHERE u.username = :username AND u.deletedAt IS NULL")
+  Optional<AppUser> findByUsernameActiveForUpdate(@Param("username") String username);
 
   @Query("SELECT u FROM AppUser u WHERE u.username = :username")
   Optional<AppUser> findByUsername(@Param("username") String username);

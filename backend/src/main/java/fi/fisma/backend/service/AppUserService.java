@@ -9,12 +9,14 @@ import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import fi.fisma.backend.security.AccountSessionValidator;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -132,7 +134,18 @@ public class AppUserService {
       @NotBlank String currentPassword,
       @NotBlank String newPassword,
       Authentication authentication) {
-    AppUser appUser = getUserFromAuthentication(authentication);
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new UnauthorizedException("Authentication required");
+    }
+    // Serialize changes before checking the password and advancing the session version.
+    AppUser appUser =
+        appUserRepository
+            .findByUsernameActiveForUpdate(authentication.getName())
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    if (authentication instanceof JwtAuthenticationToken jwtAuthentication
+        && !AccountSessionValidator.matches(jwtAuthentication.getToken(), appUser)) {
+      throw new UnauthorizedException("Account session is no longer valid");
+    }
 
     if (currentPassword == null
         || !passwordEncoder.matches(currentPassword, appUser.getPassword())) {
@@ -142,6 +155,7 @@ public class AppUserService {
     validatePasswordRequirements(newPassword);
 
     appUser.setPassword(passwordEncoder.encode(newPassword));
+    appUser.setSessionVersion(Math.incrementExact(appUser.getSessionVersion()));
     appUserRepository.save(appUser);
   }
 

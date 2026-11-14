@@ -72,7 +72,7 @@ class AppUserControllerTest {
   @Test
   void createUserEndpointReturnsCreatedUserSummary() {
     when(appUserService.createNewAppUser(any(AppUserRequest.class), any(Authentication.class)))
-        .thenReturn(new AppUser(10L, "new-admin", "encoded-password", EnumUserRole.ADMIN, null));
+        .thenReturn(new AppUser(10L, "new-admin", "encoded-password", EnumUserRole.ADMIN, null, 0));
 
     var response =
         mockMvcTester

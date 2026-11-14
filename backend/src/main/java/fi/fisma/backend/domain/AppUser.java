@@ -48,6 +48,9 @@ public class AppUser {
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
+  @Column(name = "session_version", nullable = false)
+  private long sessionVersion;
+
   public AppUser(
       @NotEmpty(message = "Username is required")
           @Size(max = 50, message = "Username must not exceed 50 characters")

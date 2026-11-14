@@ -29,10 +29,13 @@ export default function LoginForm() {
     setAppUser,
     loggedIn,
     invalidSession,
+    passwordChanged,
+    setPasswordChanged,
     setInvalidSession,
   } = useAppUser();
   const { showError } = useError();
   const navigate = useNavigate();
+  const passwordUpdatedMessage = useTranslations().profilePage.passwordUpdated;
   const translation = useTranslations().loginForm;
   const errorMessageTranslation = useTranslations().networkingErrorMessages;
 
@@ -54,6 +57,7 @@ export default function LoginForm() {
       authStorage.setLogin(loginToken, username, userId);
 
       setInvalidSession(false);
+      setPasswordChanged(false);
       setSessionToken(loginToken);
       setAppUser({
         id: userId,
@@ -96,7 +100,16 @@ export default function LoginForm() {
           {translation.header}
         </h1>
 
-        {invalidSession && (
+        {passwordChanged && (
+          <p
+            role="status"
+            className="mb-4 rounded border border-green-500 bg-green-100 p-3 text-sm text-green-900"
+          >
+            {passwordUpdatedMessage}
+          </p>
+        )}
+
+        {!passwordChanged && invalidSession && (
           <p
             role="alert"
             className="mb-4 border border-fisma-red bg-red-100 p-2 text-center text-sm text-fisma-red"

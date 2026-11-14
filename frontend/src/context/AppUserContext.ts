@@ -6,8 +6,10 @@ export type AppUserContextType = {
   appUser: AppUser | null;
   loggedIn: boolean;
   invalidSession: boolean;
+  passwordChanged: boolean;
   sessionToken: string | null;
   setInvalidSession: React.Dispatch<React.SetStateAction<boolean>>;
+  setPasswordChanged: React.Dispatch<React.SetStateAction<boolean>>;
   setSessionToken: React.Dispatch<React.SetStateAction<string | null>>;
   setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
   setAppUser: React.Dispatch<React.SetStateAction<AppUser | null>>;

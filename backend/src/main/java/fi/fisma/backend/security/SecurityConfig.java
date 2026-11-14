@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import fi.fisma.backend.config.InvalidConfigurationException;
+import fi.fisma.backend.repository.AppUserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -38,8 +39,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -211,8 +214,12 @@ public class SecurityConfig {
   }
 
   @Bean
-  JwtDecoder jwtDecoder(RSAPublicKey publicKey) {
-    return NimbusJwtDecoder.withPublicKey(publicKey).build();
+  JwtDecoder jwtDecoder(RSAPublicKey publicKey, AppUserRepository appUserRepository) {
+    var decoder = NimbusJwtDecoder.withPublicKey(publicKey).build();
+    decoder.setJwtValidator(
+        new DelegatingOAuth2TokenValidator<>(
+            JwtValidators.createDefault(), new AccountSessionValidator(appUserRepository)));
+    return decoder;
   }
 
   @Bean

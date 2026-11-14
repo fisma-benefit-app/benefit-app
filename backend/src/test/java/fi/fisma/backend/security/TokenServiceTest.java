@@ -38,7 +38,7 @@ class TokenServiceTest {
   private TokenService tokenService;
   private JwtDecoder decoder;
 
-  private final AppUser alice = new AppUser(42L, "alice", "hash", EnumUserRole.USER, null);
+  private final AppUser alice = new AppUser(42L, "alice", "hash", EnumUserRole.USER, null, 0);
 
   @BeforeEach
   void setUp() throws Exception {
@@ -106,7 +106,7 @@ class TokenServiceTest {
 
   @Test
   void loginTokenHasAdminScopeForAdminUser() {
-    AppUser admin = new AppUser(43L, "admin", "hash", EnumUserRole.ADMIN, null);
+    AppUser admin = new AppUser(43L, "admin", "hash", EnumUserRole.ADMIN, null, 0);
 
     Jwt token = login(admin, false);
 
