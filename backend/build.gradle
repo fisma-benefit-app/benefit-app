@@ -5,6 +5,8 @@ plugins {
     id 'com.diffplug.spotless' version '7.2.1'
 }
 
+ext['jackson-bom.version'] = '2.21.8'
+
 group = 'fi.fisma'
 version = '1.4.1-SNAPSHOT'
 
