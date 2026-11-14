@@ -48,7 +48,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
           appUser.getUsername(),
           appUser.getPassword(),
           appUser.getRole(),
-          appUser.getDeletedAt());
+          appUser.getDeletedAt(),
+          appUser.getSessionVersion());
     }
 
     @Override

@@ -80,6 +80,8 @@ class ProjectIntegrityIntegrationTest {
     try (var connection = dataSource.getConnection()) {
       ScriptUtils.executeSqlScript(
           connection, new ByteArrayResource(withoutDrop.getBytes(StandardCharsets.UTF_8)));
+      ScriptUtils.executeSqlScript(
+          connection, new ClassPathResource("migrations/2026_11_14_app_users_session_version.sql"));
     }
 
     suffix = UUID.randomUUID().toString().substring(0, 8);
@@ -560,7 +562,8 @@ class ProjectIntegrityIntegrationTest {
   private String createUser(String username) {
     AppUser user =
         appUserRepository.save(
-            new AppUser(null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.USER, null));
+            new AppUser(
+                null, username, passwordEncoder.encode(PASSWORD), EnumUserRole.USER, null, 0));
     users.add(user);
     return username;
   }

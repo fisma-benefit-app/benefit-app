@@ -8,7 +8,8 @@ This guide explains how Benefit logs users in and keeps them logged in. It follo
 The [November 2026 audit](../archive/security_audit_2026-11-05.md) identified a
 Bearer-scheme casing bypass ([#985](https://github.com/fisma-benefit-app/benefit-app/issues/985)),
 now covered by shared token resolution and regression tests.
-[#979](https://github.com/fisma-benefit-app/benefit-app/issues/979) still tracks invalidating every session after a password change.
+Password changes invalidate every session, including the current one, through
+durable per-account session versions ([#979](https://github.com/fisma-benefit-app/benefit-app/issues/979)).
 Use the [audit guide](security_audit.md) for controlled validation of deployed revisions.
 
 All backend paths below are relative to `backend/src/main/java/fi/fisma/backend/`, and all frontend paths are relative to `frontend/src/`.
@@ -49,6 +50,7 @@ CREATE TABLE IF NOT EXISTS app_users
     id              BIGSERIAL PRIMARY KEY,
     username        VARCHAR(50) NOT NULL,
     password        VARCHAR(64) NOT NULL,
+    session_version BIGINT NOT NULL DEFAULT 0 CHECK (session_version >= 0),
     deleted_at      TIMESTAMP(0) -- no fractions of seconds
 );
 
@@ -130,6 +132,7 @@ The lockout lasts until 60 seconds have passed since the last failed attempt (`L
 | `userId`    | database id                                       | `AppUserDetails.getId()`, i.e. `app_users.id`                                             |
 | `scope`     | `"ROLE_USER"`                                     | the principal's authorities, space-separated                                              |
 | `jti`       | random UUID                                       | unique token id, used for logout and renewal                                              |
+| `session_version` | account session version | copied with the password hash during Basic authentication; preserved during renewal |
 | `auth_time` | time of the login (epoch seconds)                 | copied unchanged when the token is renewed, see [E](#e-session-lifecycle-in-the-frontend) |
 | `iat`       | now                                               |                                                                                           |
 | `exp`       | now + 24 h, or now + 30 days if `rememberMe=true` |                                                                                           |
@@ -144,6 +147,7 @@ Example payload:
   "scope": "ROLE_USER",
   "jti": "3f1c6f0e-8a8e-4a4b-9a57-2f4f0f3c6b1d",
   "auth_time": 1699999999,
+  "session_version": 0,
   "iat": 1699999999,
   "exp": 1700086399
 }
@@ -195,7 +199,7 @@ Malformed Bearer headers are rejected with `401 {"error":"Invalid token"}`.
 1. **`JwtRevocationFilter`** is registered in `SecurityConfig` before `SecurityContextHolderFilter`. `FilterRegistrationConfig` stops the servlet container from also registering it globally, so it runs once. The filter decodes the token with the `JwtDecoder`, which checks the signature and expiry. It then rejects the request with `401` if:
    - decoding fails (bad signature, expired, malformed): `{"error":"Invalid token"}`
    - the token has no `jti`, or its `jti` is on the blacklist: `{"error": "Token has been revoked"}`
-2. **Spring's `BearerTokenAuthenticationFilter`**, enabled by `.oauth2ResourceServer(oauth2 -> oauth2.jwt(...))`, decodes the token again with the same `JwtDecoder`. The decoder is `NimbusJwtDecoder` built from the public key. The filter builds a `JwtAuthenticationToken`:
+2. **Spring's `BearerTokenAuthenticationFilter`**, enabled by `.oauth2ResourceServer(oauth2 -> oauth2.jwt(...))`, decodes the token again with the same `JwtDecoder`. The decoder is `NimbusJwtDecoder` built from the public key. Its `AccountSessionValidator` also rejects tokens for missing/deleted accounts or whose `session_version` differs from the database. This check applies to every accepted Bearer spelling, including renewal. The filter builds a `JwtAuthenticationToken`:
    - `getName()` returns the `sub` claim, i.e. the username
    - authorities come from `scope`, prefixed with `SCOPE_`, so they become `SCOPE_ROLE_USER`
 
@@ -235,7 +239,54 @@ When `POST /token` is authenticated with a Bearer token instead of Basic credent
 4. It issues a new token with the same claims as a login (`userId`, `scope=ROLE_USER`, a new `jti`).
 5. It blacklists the old token's `jti`, so the old token stops working right away.
 
+The decoder and renewal service both compare the presented `session_version` with
+that account's database row. Renewal never upgrades a stale session to the new
+version. A password change after renewal reads the row makes the resulting token
+stale too.
+
 A refused renewal returns `401 {"error":"Session can no longer be renewed"}`.
+
+### Password changes and every-session invalidation
+
+`PUT /appusers/password` locks the active account row before checking the current
+password. A successful change updates the BCrypt hash and increments
+`app_users.session_version` in one transaction. Rejected changes and rolled-back
+transactions preserve both. All earlier JWTs, including the caller's, then fail
+protected requests and renewal. The check reads the database, so invalidation
+survives restarts and works across instances sharing it. An already authenticated
+request may finish; this does not cancel requests that were already in flight.
+
+Login copies the session version alongside the password hash into `AppUserDetails`
+and signs that snapshot. If a password change races credential checking or token
+signing, the old credential snapshot can only produce a stale token. Renewal also
+signs the version it checked, rather than fetching a newer version when signing.
+Concurrent password changes serialize on the account row and recheck the session
+version under the lock, even when the password is changed to the same value.
+
+Before submission the password form explains that every device will be signed
+out. While saving it disables the submit button. After success the frontend
+clears shared browser storage/state and redirects to login with a persistent
+confirmation that the password was updated and the user must sign in again. Other tabs share the cleared storage; other devices lose access on their
+next authenticated interaction. Their remote UI is not cleared instantaneously.
+
+#### Deployment compatibility and rollback
+
+Apply `2026_11_14_app_users_session_version.sql` manually before deploying the new
+backend (the self-hosted updater applies migrations as documented in
+[database.md](database.md)). The migration adds a non-null version with default
+zero; it neither seeds nor changes existing passwords. JWTs without the claim are
+explicitly treated as version zero, so existing sessions survive deployment until
+the account's first password change. Malformed version claims are rejected.
+
+Stop/drain old backend instances before routing traffic to this release. Old
+code does not enforce or increment the version and therefore cannot safely serve
+alongside the new code once password changes resume. Keep the column and its
+values on rollback: rolling back the backend removes the guarantee and may make
+previously invalidated tokens usable again. If rollback is necessary, stop traffic
+and rotate the environment's JWT signing key before reopening it to force fresh
+logins. Do not reset/drop the version while any previously issued JWT can remain
+valid; doing so can revive old sessions. Shared `spring.sql.init.mode` stays
+`never`; hosted databases are never reseeded automatically.
 
 ### Logout / token revocation (backend)
 
@@ -262,8 +313,8 @@ Blacklist checks query for an entry whose expiry is still in the future. Expired
 These follow from the design above and are worth knowing when debugging or changing auth:
 
 - **Revocation is database-backed.** Instances using the same database share persisted revoked-token rows; rejection survived backend recreation in the local audit. Integration tests cover logout, protected requests and revoked-token renewal across accepted scheme casings. Hosted schema/configuration and deployed revisions still need verification. Login-attempt counters remain in memory and reset on restart; they are not shared across instances.
-- **Password changes require the current password** ([#974](https://github.com/fisma-benefit-app/benefit-app/issues/974)). `PUT /appusers/password` accepts `currentPassword` and `newPassword`. The unused `PUT /appusers/{id}` route has been removed. Missing current passwords are rejected with `400` and incorrect ones with `403`, without changing the password. Changing the password still does not revoke existing tokens: they stay valid until expiry (24 h, or 30 days with "remember me").
-- **Deleting an account works through the database, not the token.** The token keeps passing signature and blacklist checks, but every lookup filters on `deleted_at IS NULL`, so the user's requests fail. For example, `/projects` returns an empty list and profile calls return "not found". Renewal is refused.
+- **Password changes require the current password** ([#974](https://github.com/fisma-benefit-app/benefit-app/issues/974)). `PUT /appusers/password` accepts `currentPassword` and `newPassword`. The unused `PUT /appusers/{id}` route has been removed. Missing current passwords are rejected with `400` and incorrect ones with `403`, without changing the password. A successful change invalidates every existing session, including the current one, through the durable session version (#979); the user must sign in again.
+- **Deleting an account works through the database, not the token.** `AccountSessionValidator` requires an active account, so an existing JWT is rejected on protected requests and renewal after deletion. Resource lookups also filter on `deleted_at IS NULL`.
 - **A login lasts at most 30 days**, however often the session is extended. After that the user has to log in again.
 - **Tokens are readable by page JavaScript** (localStorage), so an XSS bug would expose them. The prod and testing frontends share one GitHub Pages origin and so share localStorage, which is why the keys are prefixed with the base path.
 - **Credentials are only as private as the connection.** Basic auth and Bearer tokens are not encrypted by the app, so HTTPS is required ([#528](https://github.com/fisma-benefit-app/benefit-app/issues/528)). Heroku and Scalingo provide it. The self-hosted stack doesn't yet.
