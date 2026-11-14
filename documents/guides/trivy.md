@@ -1,99 +1,66 @@
-# Container vulnerability scanning with Trivy
+# Dependency vulnerability scanning with Trivy
 
-Trivy complements Dependabot, CodeQL and GitHub secret scanning by inspecting
-the final backend and frontend production Docker images. The pilot and adoption
-decision are recorded in [security audit #959](https://github.com/fisma-benefit-app/benefit-app/issues/959)
+Trivy complements Dependabot and CodeQL by scanning a freshly built backend JAR
+and the frontend npm lockfile. These are CI artifacts, not necessarily the exact
+artifacts deployed to Heroku, Scalingo or GitHub Pages. The original image-scan
+pilot is recorded in [security audit #959](https://github.com/fisma-benefit-app/benefit-app/issues/959)
 and [PR #977](https://github.com/fisma-benefit-app/benefit-app/pull/977).
 
-## When it runs and where to find results
+## Schedule and results
 
-[Trivy image scan](../../.github/workflows/trivy.yml) runs on PRs targeting
-`main` and pushes to `main` when `backend/**`, `frontend/**`, or its own
-workflow changes. It also runs every Friday at 19:35 UTC and can be started from
-**Actions → Trivy image scan → Run workflow** once merged into the default branch.
-The weekly run checks for newly disclosed vulnerabilities even without a code change.
+[Trivy dependency scan](../../.github/workflows/trivy.yml) runs on relevant PRs
+and pushes to `main`, every Friday at 19:35 UTC, and manually from Actions. The
+backend job builds a JAR with Java 21 and scans its packaged dependencies in
+rootfs mode; Trivy filesystem mode does not inspect JAR files. The frontend job scans `package-lock.json`, including development dependencies used
+in the build. A lockfile match does not establish that code is included in the
+published bundle or that an advisory is exploitable.
 
-Each component builds separately using its production Dockerfile and
-`docker build --pull`. No application or database is started, no image is published,
-and no deployment credentials are needed. Actions and Trivy are pinned; update
-those pins deliberately and review the resulting reports.
-
-- The Actions job summary lists counts for all severities.
-- Artifacts `trivy-backend` and `trivy-frontend` contain `trivy.json`,
-  `trivy.txt`, `trivy.sarif`, and `provenance.txt`, retained for 30 days.
-  Provenance includes the checked-out revision, PR head when applicable,
-  image ID, time and scanner version.
-- High/critical findings are uploaded to **Security → Code scanning**, with separate
-  `trivy-backend` and `trivy-frontend` categories. Fork and Dependabot PRs retain
-  artifacts and summaries but skip that upload because their tokens can be restricted.
-
-The workflow is initially **report-only for vulnerabilities**: it retains all
-severities and unfixed advisories, without making the existing backlog fail CI.
-Build, scanner, report and upload errors still fail the job. A green run means
-the workflow completed; inspect the reports for findings. No ignores or severity
-gate were added. Revisit gating after the initial backlog has been triaged.
+- Job summaries list vulnerability counts at all severities.
+- `trivy-backend` and `trivy-frontend` artifacts contain JSON, text, SARIF and
+  provenance for 30 days. Provenance records revision, scan time, scanner version
+  and SHA-256 of the JAR or lockfile.
+- High/critical findings are uploaded to Code scanning in separate categories.
+  SARIF locations point to `backend/build.gradle` or `frontend/package-lock.json`
+  for stable repository links; the backend location does not identify a specific
+  declaration. The JSON report retains the JAR paths and package versions.
+  Fingerprints distinguish packages and advisories. Fork and Dependabot PRs
+  retain reports but skip the upload.
+- The scan is report-only: all severities and unfixed findings remain visible,
+  and findings do not fail the job. Build, scan, conversion and upload errors do.
+  A green run does not mean there are no vulnerabilities.
 
 ## Run locally
 
-Install [Trivy](https://trivy.dev/docs/latest/getting-started/installation/) and use
-the workflow's pinned version (currently **0.76.1**) when comparing results.
-With Docker running, execute from the repository root:
+Install the workflow's pinned Trivy version, currently 0.76.1, and Java 21.
+From the repository root:
 
 ```bash
-docker build --pull -t benefit-backend:audit ./backend
-docker build --pull -t benefit-frontend:audit ./frontend
-
-trivy image --scanners vuln --format json --output /tmp/benefit-backend-trivy.json benefit-backend:audit
-trivy image --scanners vuln --format json --output /tmp/benefit-frontend-trivy.json benefit-frontend:audit
-
+(cd backend && ./gradlew clean bootJar)
+trivy rootfs --scanners vuln --list-all-pkgs --format json --output /tmp/benefit-backend-trivy.json backend/build/libs
+trivy fs --scanners vuln --include-dev-deps --list-all-pkgs --format json --output /tmp/benefit-frontend-trivy.json frontend/package-lock.json
 trivy convert --format table /tmp/benefit-backend-trivy.json
 trivy convert --format table /tmp/benefit-frontend-trivy.json
+sha256sum backend/build/libs/*.jar frontend/package-lock.json
 ```
 
-Record `git rev-parse HEAD`, `trivy --version`, scan time, and each image's
-`docker image inspect --format '{{.Id}}' IMAGE`. Trivy downloads vulnerability
-databases. Different database snapshots and floating base-image tags can change
-results even at the same source revision. Use the recorded image ID to identify
-what was assessed; the workflow does not retain the built image itself.
+Record the source revision, scanner version and time as well. Vulnerability
+information changes over time, and independently built artifacts can resolve
+different versions. Compare package/advisory records rather than only totals.
 
-## Assess findings and plan fixes
+## Triage and limitations
 
-Start with high/critical findings, then assess the rest. Severity is a triage
-input, not proof of exploitability. Counts are package/advisory occurrences:
-one CVE affecting several packages is counted several times.
+Compare each advisory and package with existing Dependabot alerts, PRs and issues
+before creating work. Dependabot security alerts and updates are enabled, but no
+repository `dependabot.yml` defines a version-update schedule. The tools can
+report the same advisory; use one remediation issue or PR rather than duplicates.
 
-1. Confirm the installed package/version and image from the JSON report.
-   Deduplicate by advisory and package, and compare with existing Dependabot alerts
-   and issues before opening new work.
-2. Read the upstream advisory and vendor severity. Establish whether the affected
-   feature/configuration is used and reachable. Record evidence and uncertainty;
-   a package match alone does not prove an attack works.
-3. Group fixes by their owner: compatible Spring Boot/BOM and Java dependency
-   updates; backend base image; frontend nginx/Alpine image and packages.
-   Do not select unrelated framework major versions merely to clear a report.
-4. Link remediation issues/PRs to #959. Record advisory IDs, package versions,
-   expected fixes, applicability, priority and remaining risk. Any dismissal or
-   exception needs a reason and a review point; do not hide the backlog with a broad ignore.
-5. Rebuild, run normal checks and repeat the scan after each fix. Compare matching
-   advisory/package records rather than just total counts. Verify the deployed
-   image/version separately before claiming production remediation.
+Check the vendor advisory, affected version, configuration and reachable code.
+Separate npm build-only dependencies from dependencies included in shipped code;
+lockfile membership alone does not prove either exposure or absence of exposure.
+Record uncertainty and avoid broad suppressions. For Java, compare the JAR's
+resolved dependencies with the actual hosted artifact before claiming a deployed
+fix. A clean scan does not establish that an application is secure.
 
-## Why Trivy and what it does not cover
-
-The pilot demonstrated final-image OS package coverage and detection of Java
-libraries inside the packaged backend JAR. This complements source analysis and
-provides a view of resolved artifacts. It was selected for that additional
-coverage, a short successful CI run, inspectable reports, and no paid scanner
-license. Ongoing costs include CI/storage usage and triage/update time.
-The pilot did not establish that Trivy detects more Java issues than Dependabot.
-
-This workflow scans vulnerabilities only. It does not perform penetration tests,
-authorization tests, secret scanning, or configuration audits. Frontend runtime
-scanning sees nginx/OS content and does not provide full npm/build dependency
-coverage. Build stages and the standalone PostgreSQL image are not scanned.
-Fresh builds of repository Dockerfiles are not necessarily the images deployed
-on Heroku, Scalingo or a self-hosted server.
-
-Use the audit's selected OWASP ASVS 5.0.0 component requirements as assessment
-criteria; a clean scan alone does not verify ASVS 15.2.1 or an ASVS level.
-Manual/dynamic testing and application security regressions remain separate work.
+This workflow scans vulnerabilities only. It does not scan Docker image or hosted
+operating-system packages, PostgreSQL, secrets, configuration or application
+behavior. Heroku and Scalingo runtime security must be assessed separately.

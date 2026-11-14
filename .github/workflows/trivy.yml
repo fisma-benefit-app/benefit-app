@@ -1,4 +1,4 @@
-name: Trivy image scan
+name: Trivy dependency scan
 
 on:
   pull_request:
@@ -25,7 +25,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    name: Scan ${{ matrix.component }} production image
+    name: Scan ${{ matrix.component }} dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
@@ -39,31 +39,49 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Build production image and record provenance
+      - name: Set up Java 21
+        if: matrix.component == 'backend'
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Build backend JAR
+        if: matrix.component == 'backend'
+        working-directory: backend
+        run: ./gradlew clean bootJar
+
+      - name: Record scan provenance
         env:
           COMPONENT: ${{ matrix.component }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           mkdir -p reports
-          docker build --pull --tag "benefit-${COMPONENT}:audit" "./${COMPONENT}"
           {
             date -u +"Scan preparation: %Y-%m-%dT%H:%M:%SZ"
             printf 'PR head: %s\n' "$PR_HEAD_SHA"
             printf 'Checked-out revision: '
             git rev-parse HEAD
             printf 'Component: %s\n' "$COMPONENT"
-            printf 'Image ID: '
-            docker image inspect --format '{{.Id}}' "benefit-${COMPONENT}:audit"
+            if [ "$COMPONENT" = backend ]; then
+              sha256sum backend/build/libs/*.jar
+            else
+              sha256sum frontend/package-lock.json
+            fi
           } > reports/provenance.txt
 
-      # Vulnerabilities only: no source/secret upload, no registry push, no app startup.
-      # Retain all severities and unfixed findings for baseline triage.
-      - name: Scan production image
+      # Include npm build dependencies; report vulnerabilities without a severity gate.
+      - name: Scan dependencies
         uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
+        env:
+          TRIVY_INCLUDE_DEV_DEPS: ${{ matrix.component == 'frontend' }}
         with:
           version: v0.76.1
-          image-ref: benefit-${{ matrix.component }}:audit
+          scan-type: ${{ matrix.component == 'backend' && 'rootfs' || 'fs' }}
+          scan-ref: ${{ matrix.component == 'backend' && 'backend/build/libs' || 'frontend/package-lock.json' }}
           scanners: vuln
+          list-all-pkgs: "true"
           format: json
           output: reports/trivy.json
           exit-code: "0"
@@ -76,16 +94,47 @@ jobs:
         env:
           COMPONENT: ${{ matrix.component }}
         run: |
-          trivy --version >> reports/provenance.txt
+          trivy --cache-dir "$GITHUB_WORKSPACE/.cache/trivy" --version >> reports/provenance.txt
           trivy convert --format table --output reports/trivy.txt reports/trivy.json
           trivy convert --format sarif --severity HIGH,CRITICAL --output reports/trivy.sarif reports/trivy.json
           python3 - <<'PY'
           import collections
+          import hashlib
           import json
           import os
 
           with open("reports/trivy.json") as report:
               data = json.load(report)
+          expected_type = {"backend": "jar", "frontend": "npm"}[os.environ["COMPONENT"]]
+          if not any(result.get("Type") == expected_type and result.get("Packages")
+                     for result in data.get("Results", [])):
+              raise SystemExit(f"No {expected_type} packages found in the scan")
+
+          component = os.environ["COMPONENT"]
+          source = {"backend": "backend/build.gradle", "frontend": "frontend/package-lock.json"}[component]
+          with open("reports/trivy.sarif") as report:
+              sarif = json.load(report)
+          for run in sarif["runs"]:
+              run.pop("originalUriBaseIds", None)
+              for result in run.get("results", []):
+                  message = result["message"]["text"]
+                  package = next((line.removeprefix("Package: ") for line in message.splitlines()
+                                  if line.startswith("Package: ")), None)
+                  if not package or not result.get("ruleId"):
+                      raise SystemExit("Cannot identify package and advisory in SARIF result")
+                  identity = f"{component}\0{package}\0{result['ruleId']}"
+                  result.setdefault("partialFingerprints", {})["primaryLocationLineHash"] = (
+                      hashlib.sha256(identity.encode()).hexdigest() + ":1"
+                  )
+                  if not result.get("locations"):
+                      raise SystemExit("SARIF result has no location")
+                  for location in result.get("locations", []):
+                      physical = location["physicalLocation"]
+                      physical["artifactLocation"] = {"uri": source}
+                      physical["region"] = {"startLine": 1}
+          with open("reports/trivy.sarif", "w") as report:
+              json.dump(sarif, report)
+
           counts = collections.Counter(
               vulnerability["Severity"]
               for result in data.get("Results", [])
@@ -93,7 +142,7 @@ jobs:
           )
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
               summary.write(f"### Trivy: {os.environ['COMPONENT']}\n\n")
-              summary.write("Package/advisory occurrences, not confirmed exploitable findings.\n\n")
+              summary.write("Package/advisory occurrences, not confirmed exploitable findings or proof of deployed versions.\n\n")
               for severity in ("CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"):
                   summary.write(f"- {severity}: {counts[severity]}\n")
               summary.write("\nSee report artifacts for packages, fixes, and provenance.\n")
