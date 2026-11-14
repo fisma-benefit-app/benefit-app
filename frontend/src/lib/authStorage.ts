@@ -2,7 +2,7 @@
 // logged in and logging out in one tab is seen by the others.
 //
 // Keys are prefixed with the deployment's base path. The two testing
-// frontends (/benefit-app-testing/testing/ and /benefit-app-testing/scalingo-testing/)
+// frontends (/heroku/ and /scalingo/)
 // share one GitHub Pages origin, so without the prefix they would read each
 // other's login (#679).
 const PREFIX = import.meta.env.BASE_URL;

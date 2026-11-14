@@ -28,9 +28,9 @@ The workflow file recognizes which GitHub repository environment (`fisma-benefit
 
 The testing frontends are published to their own GitHub Pages site, separate from production, so a production deployment never touches them and testing and production don't share a browser origin.
 
-- Site: https://fisma-benefit-app-testing.github.io, from the repo [fisma-benefit-app-testing/benefit-app-testing](https://github.com/fisma-benefit-app-testing/benefit-app-testing) in the separate GitHub organization `fisma-benefit-app-testing`
-- Heroku testing frontend: https://fisma-benefit-app-testing.github.io/benefit-app-testing/testing/
-- Scalingo testing frontend: https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/
+- Site: https://fisma-benefit-app-testing.github.io, from the repo [fisma-benefit-app-testing/fisma-benefit-app-testing.github.io](https://github.com/fisma-benefit-app-testing/fisma-benefit-app-testing.github.io) in the separate GitHub organization `fisma-benefit-app-testing`. Don't rename the repo: a repo named `<org>.github.io` is served from the site's root, any other name adds the repo name to every URL.
+- Heroku testing frontend: https://fisma-benefit-app-testing.github.io/heroku/
+- Scalingo testing frontend: https://fisma-benefit-app-testing.github.io/scalingo/
 - The repo holds only the built sites, on its `gh-pages` branch. Don't edit it by hand: every testing deployment overwrites its own folder.
 
 How the workflows publish there:
@@ -51,7 +51,7 @@ A second testing environment runs the backend on Scalingo (with its own PostgreS
 
 For setting up the Scalingo app and its database step by step (CLI, environment variables, schema, first user), see the [Scalingo deployment guide](./scalingo_deployment.md).
 
-- Frontend: https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/ <-- on the [testing GitHub Pages site](#testing-github-pages-site)
+- Frontend: https://fisma-benefit-app-testing.github.io/scalingo/ <-- on the [testing GitHub Pages site](#testing-github-pages-site)
 - Backend: deployed by Scalingo's GitHub auto-deploy on `main`. Scalingo does not report to the `run-deployments` workflow, so the frontend is deployed by its own workflow, [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml), on every push to `main` (it can also be run by hand from the Actions tab).
 
 ### One-time setup
@@ -156,7 +156,7 @@ Heroku deploys only the `backend` directory thanks to the `subdir-heroku-buildpa
 The testing frontends are on a [separate GitHub Pages site](#testing-github-pages-site), so a production deployment doesn't affect them.
 
 - Production URL: https://fisma-benefit-app.github.io/benefit-app/
-- Testing URL: https://fisma-benefit-app-testing.github.io/benefit-app-testing/testing/
+- Testing URL: https://fisma-benefit-app-testing.github.io/heroku/
 
 ### Production logging
 
@@ -224,7 +224,7 @@ VITE_BASE_PATH=/benefit-app/
 ```bash
 # .env.testing
 VITE_API_URL=https://fisma-benefit-app-testing-XXXXXXXXX.herokuapp.com
-VITE_BASE_PATH=/benefit-app-testing/testing/
+VITE_BASE_PATH=/heroku/
 ```
 
 `VITE_BASE_PATH` must be set here so that Vite knows to dynamically set the base path according to the run deployment script. Without `VITE_BASE_PATH`, deployment fails. You also need the correct backend URLs for `VITE_API_URL`. You can find the URLs in the `backend-credentials` repository.
@@ -249,7 +249,7 @@ cd frontend
 npm run deploy:production
 ```
 
-`deploy:testing` pushes to the [testing GitHub Pages site](#testing-github-pages-site) over SSH, so your own SSH key needs write access to `fisma-benefit-app-testing/benefit-app-testing`.
+`deploy:testing` pushes to the [testing GitHub Pages site](#testing-github-pages-site) over SSH, so your own SSH key needs write access to `fisma-benefit-app-testing/fisma-benefit-app-testing.github.io`.
 
 These run:
 
@@ -257,13 +257,13 @@ These run:
 - production:
   - deploy → publishes `dist/` to GitHub Pages (`gh-pages` branch)
 - testing:
-  - deploy → publishes `dist/` to the testing GitHub Pages site (`fisma-benefit-app-testing/benefit-app-testing`, `gh-pages` branch, `testing` directory)
+  - deploy → publishes `dist/` to the testing GitHub Pages site (`fisma-benefit-app-testing/fisma-benefit-app-testing.github.io`, `gh-pages` branch, `heroku` directory)
 
 ### 4. Verify deployment
 
-- Check the GitHub repo's Settings → Pages to confirm deployment (`benefit-app` for production, `benefit-app-testing` for testing)
+- Check the GitHub repo's Settings → Pages to confirm deployment (`benefit-app` for production, `fisma-benefit-app-testing.github.io` for testing)
 - Access production frontend at: https://fisma-benefit-app.github.io/benefit-app/
-- Access testing frontend at: https://fisma-benefit-app-testing.github.io/benefit-app-testing/testing/
+- Access testing frontend at: https://fisma-benefit-app-testing.github.io/heroku/
 
 ## Self-hosted server with Docker
 

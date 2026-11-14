@@ -222,7 +222,7 @@ To see whether backend is running, check the health endpoint from your own machi
 
 https://fisma-benefit-app.osc-fr1.scalingo.io/actuator/health
 
-You should see `{"status":"UP"}`. Then open the frontend (for the testing environment: https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/, see [the deployment guide](./deployment_guide.md#scalingo-testing-environment-alongside-heroku) for how it is built and deployed), log in with the user from step 6b, create a project, reload, and check it's still there.
+You should see `{"status":"UP"}`. Then open the frontend (for the testing environment: https://fisma-benefit-app-testing.github.io/scalingo/, see [the deployment guide](./deployment_guide.md#scalingo-testing-environment-alongside-heroku) for how it is built and deployed), log in with the user from step 6b, create a project, reload, and check it's still there.
 
 ## Security clean-up
 
@@ -235,7 +235,7 @@ Do this whenever a secret has been pasted somewhere it shouldn't be, and once af
 ## 9. Link frontend to the backend
 
 The current frontend (as of 2026-10-28) is hosted on GitHub Pages at
-`https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/`.
+`https://fisma-benefit-app-testing.github.io/scalingo/`.
 
 The GitHub Actions workflow [sets `VITE_API_URL` from the
 `SCALINGO_TESTING_URL` secret](../../.github/workflows/deploy-scalingo-testing-frontend.yml#L46).
@@ -256,7 +256,7 @@ than the Heroku API. To configure it:
    commands are `build:testing` and `deploy:scalingo-testing` in
    [frontend/package.json](../../frontend/package.json).
 
-The Scalingo frontend is published to the `scalingo-testing` subdirectory of the
+The Scalingo frontend is published to the `scalingo` subdirectory of the
 [testing GitHub Pages site](./deployment_guide.md#testing-github-pages-site),
 which is separate from production, so production deployments don't affect it.
 The Scalingo app's `CORS_ALLOWED_ORIGINS` must be
