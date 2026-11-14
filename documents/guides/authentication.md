@@ -5,11 +5,11 @@ This guide explains how Benefit logs users in and keeps them logged in. It follo
 - **Database → API → browser:** a username and password row in `app_users` becomes a signed JWT.
 - **Browser → API → database:** each later request carries that JWT, and the backend uses it to find the user's data again.
 
-Known gaps from the [November 2026 audit](../archive/security_audit_2026-11-05.md):
-[#985](https://github.com/fisma-benefit-app/benefit-app/issues/985) bypasses revocation with accepted Bearer-scheme casing variations;
-[#979](https://github.com/fisma-benefit-app/benefit-app/issues/979) tracks invalidating every session after a password change.
-The normal flow below must not be read as proof those gaps are fixed. Use the
-[audit guide](security_audit.md) for controlled validation.
+The [November 2026 audit](../archive/security_audit_2026-11-05.md) identified a
+Bearer-scheme casing bypass ([#985](https://github.com/fisma-benefit-app/benefit-app/issues/985)),
+now covered by shared token resolution and regression tests.
+[#979](https://github.com/fisma-benefit-app/benefit-app/issues/979) still tracks invalidating every session after a password change.
+Use the [audit guide](security_audit.md) for controlled validation of deployed revisions.
 
 All backend paths below are relative to `backend/src/main/java/fi/fisma/backend/`, and all frontend paths are relative to `frontend/src/`.
 
@@ -186,11 +186,11 @@ const headers = { Authorization: sessionToken }; // "Bearer eyJ..."
 
 Two filters check a Bearer token, in this order:
 
-**Current limitation (#985):** the custom revocation filter only recognizes the
-literal `Bearer ` prefix, while Spring accepts case variations. The rejection
-behavior below describes the canonical spelling; a revoked JWT can bypass it
-with another accepted casing. Logout parsing has the same mismatch and needs
-retesting with the fix.
+Authentication, revocation and logout share Spring's `DefaultBearerTokenResolver`
+from `SecurityConfig`. It accepts the Authorization header with case-insensitive
+Bearer schemes (`Bearer`, `bearer`, `BEARER`, mixed case); query and form tokens
+remain disabled. Every accepted casing receives the same revocation checks.
+Malformed Bearer headers are rejected with `401 {"error":"Invalid token"}`.
 
 1. **`JwtRevocationFilter`** is registered in `SecurityConfig` before `SecurityContextHolderFilter`. `FilterRegistrationConfig` stops the servlet container from also registering it globally, so it runs once. The filter decodes the token with the `JwtDecoder`, which checks the signature and expiry. It then rejects the request with `401` if:
    - decoding fails (bad signature, expired, malformed): `{"error":"Invalid token"}`
@@ -239,7 +239,7 @@ A refused renewal returns `401 {"error":"Session can no longer be renewed"}`.
 
 ### Logout / token revocation (backend)
 
-`AuthController.logout()` decodes the token and passes its `jti` and `exp` to `TokenBlacklistService.blacklistToken()`. The service persists a `RevokedToken` through `RevokedTokenRepository` in PostgreSQL's `revoked_tokens` table. Canonical `Bearer ` requests then receive `401` from `JwtRevocationFilter`, even while signature/expiry remain valid; the casing bypass above remains open.
+`AuthController.logout()` decodes the token and passes its `jti` and `exp` to `TokenBlacklistService.blacklistToken()`. The service persists a `RevokedToken` through `RevokedTokenRepository` in PostgreSQL's `revoked_tokens` table. Requests using that JWT then receive `401` from `JwtRevocationFilter` for every accepted scheme casing, even while signature/expiry remain valid. This also prevents renewal through `POST /token`.
 
 Blacklist checks query for an entry whose expiry is still in the future. Expired rows are deleted by an hourly `@Scheduled` cleanup. Deployment must apply the revocation-table migration; code alone does not verify a hosted database's schema.
 
@@ -261,7 +261,7 @@ Blacklist checks query for an entry whose expiry is still in the future. Expired
 
 These follow from the design above and are worth knowing when debugging or changing auth:
 
-- **Revocation is database-backed.** Instances using the same database share persisted revoked-token rows; canonical-token rejection survived backend recreation in the local audit. The hosted schema/configuration and all accepted scheme casings still need verification (#985). Login-attempt counters remain in memory and reset on restart; they are not shared across instances.
+- **Revocation is database-backed.** Instances using the same database share persisted revoked-token rows; rejection survived backend recreation in the local audit. Integration tests cover logout, protected requests and revoked-token renewal across accepted scheme casings. Hosted schema/configuration and deployed revisions still need verification. Login-attempt counters remain in memory and reset on restart; they are not shared across instances.
 - **Password changes require the current password** ([#974](https://github.com/fisma-benefit-app/benefit-app/issues/974)). `PUT /appusers/password` accepts `currentPassword` and `newPassword`. The unused `PUT /appusers/{id}` route has been removed. Missing current passwords are rejected with `400` and incorrect ones with `403`, without changing the password. Changing the password still does not revoke existing tokens: they stay valid until expiry (24 h, or 30 days with "remember me").
 - **Deleting an account works through the database, not the token.** The token keeps passing signature and blacklist checks, but every lookup filters on `deleted_at IS NULL`, so the user's requests fail. For example, `/projects` returns an empty list and profile calls return "not found". Renewal is refused.
 - **A login lasts at most 30 days**, however often the session is extended. After that the user has to log in again.

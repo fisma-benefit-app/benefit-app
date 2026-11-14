@@ -5,6 +5,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,11 +20,14 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -42,6 +47,7 @@ class AuthFlowIntegrationTest {
   @Autowired private LoginAttemptThrottleService loginAttemptThrottleService;
   @Autowired private TokenBlacklistService tokenBlacklistService;
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private JwtDecoder jwtDecoder;
 
   private String username;
   private String unknownUsername;
@@ -113,16 +119,65 @@ class AuthFlowIntegrationTest {
         .andExpect(status().isOk());
   }
 
-  @Test
-  void logoutRevokesToken() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {"Bearer", "bearer", "BEARER", "bEaReR"})
+  void logoutRevokesTokenForEveryAcceptedSchemeCasing(String logoutScheme) throws Exception {
     String token = login(PASSWORD);
+    revokedJti = jwtDecoder.decode(token).getId();
 
     mockMvc
-        .perform(post("/auth/logout").header("Authorization", bearer(token)))
-        .andExpect(status().isNoContent());
+        .perform(get("/auth/validateJWT").header("Authorization", logoutScheme + " " + token))
+        .andExpect(status().isOk());
+
     mockMvc
-        .perform(get("/auth/validateJWT").header("Authorization", bearer(token)))
-        .andExpect(status().isUnauthorized());
+        .perform(post("/auth/logout").header("Authorization", logoutScheme + " " + token))
+        .andExpect(status().isNoContent());
+    assertThat(revokedTokenRepository.existsById(revokedJti)).isTrue();
+
+    for (String scheme : new String[] {"Bearer", "bearer", "BEARER", "bEaReR"}) {
+      String authorization = scheme + " " + token;
+      mockMvc
+          .perform(get("/auth/validateJWT").header("Authorization", authorization))
+          .andExpect(status().isUnauthorized())
+          .andExpect(jsonPath("$.error").value("Token has been revoked"));
+      mockMvc
+          .perform(get("/projects").header("Authorization", authorization))
+          .andExpect(status().isUnauthorized())
+          .andExpect(jsonPath("$.error").value("Token has been revoked"));
+      mockMvc
+          .perform(post("/token").header("Authorization", authorization))
+          .andExpect(status().isUnauthorized())
+          .andExpect(jsonPath("$.error").value("Token has been revoked"))
+          .andExpect(header().doesNotExist("Authorization"));
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"Bearer", "bearer", "BEARER", "bEaReR"})
+  void invalidTokensAndMalformedBearerHeadersAreDenied(String scheme) throws Exception {
+    String token = login(PASSWORD);
+    int signatureStart = token.lastIndexOf('.') + 1;
+    String invalidSignature =
+        token.substring(0, signatureStart)
+            + (token.charAt(signatureStart) == 'A' ? 'B' : 'A')
+            + token.substring(signatureStart + 1);
+
+    for (String value : new String[] {"", "token with spaces", "not-a-jwt", invalidSignature}) {
+      String authorization = scheme + " " + value;
+      mockMvc
+          .perform(get("/auth/validateJWT").header("Authorization", authorization))
+          .andExpect(status().isUnauthorized())
+          .andExpect(jsonPath("$.error").value("Invalid token"));
+      mockMvc
+          .perform(post("/auth/logout").header("Authorization", authorization))
+          .andExpect(status().isUnauthorized())
+          .andExpect(jsonPath("$.error").value("Invalid token"));
+      mockMvc
+          .perform(post("/token").header("Authorization", authorization))
+          .andExpect(status().isUnauthorized())
+          .andExpect(jsonPath("$.error").value("Invalid token"))
+          .andExpect(header().doesNotExist("Authorization"));
+    }
   }
 
   @Test
