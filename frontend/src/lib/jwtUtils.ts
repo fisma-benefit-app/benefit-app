@@ -1,3 +1,5 @@
+import { AppUserRole } from "./types";
+
 export interface JWTPayload {
   sub: string; // username
   userId: number;
@@ -28,6 +30,13 @@ export const decodeJWT = (token: string): JWTPayload | null => {
     console.error("Error decoding JWT: Invalid or malformed token.");
     return null;
   }
+};
+
+export const getAppUserRole = (
+  scope: string | undefined,
+): Exclude<AppUserRole, null> => {
+  const authorities = scope?.split(/\s+/) ?? [];
+  return authorities.includes("ROLE_ADMIN") ? "ADMIN" : "USER";
 };
 
 export const sessionTimeoutConfig = {

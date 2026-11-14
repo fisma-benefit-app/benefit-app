@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS app_users
     username        VARCHAR(50) NOT NULL,
     password        VARCHAR(64) NOT NULL,
     role            VARCHAR(20) NOT NULL DEFAULT 'USER',
+    session_version BIGINT NOT NULL DEFAULT 0 CHECK (session_version >= 0),
     deleted_at      TIMESTAMP(0) -- no fractions of seconds
 );
 

@@ -35,13 +35,11 @@ const compactViewStyles = {
 
 const fullViewStyles = {
   card: "flex flex-col gap-4 border-2 w-full p-4 rounded-lg border-l-8",
-  header:
-    "flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2",
-  titleContainer: "flex-1 min-w-[200px] flex items-center gap-2",
+  header: "flex flex-col gap-2",
+  titleContainer: "w-full",
   titleInput:
-    "w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base",
-  headerActions:
-    "flex flex-wrap gap-2 items-center justify-start sm:justify-end",
+    "w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md",
+  headerActions: "flex flex-wrap gap-2 items-center justify-end",
   headerActionContainer: "flex gap-2 items-center",
   collapseButton:
     "bg-fisma-blue hover:bg-fisma-dark-blue text-white py-2 px-3 cursor-pointer",

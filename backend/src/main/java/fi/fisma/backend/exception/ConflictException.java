@@ -7,6 +7,9 @@ public class ConflictException extends RuntimeException {
   /** The project was saved by someone else since the request's lockVersion was read. */
   public static final String STALE_LOCK_VERSION = "STALE_LOCK_VERSION";
 
+  /** Username is already taken when creating a new user */
+  public static final String USERNAME_ALREADY_EXISTS = "USERNAME_ALREADY_EXISTS";
+
   /** The user is already a member of the project. */
   public static final String ALREADY_MEMBER = "ALREADY_MEMBER";
 

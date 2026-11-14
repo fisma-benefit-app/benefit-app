@@ -87,6 +87,11 @@ public class ProjectService {
     if (projectUpdate.getLockVersion() == null) {
       throw new IllegalStateException("lockVersion is required when updating a project");
     }
+    if (!Objects.equals(projectUpdate.getLockVersion(), project.getLockVersion())) {
+      throw new ConflictException(
+          ConflictException.STALE_LOCK_VERSION,
+          "The project was changed by someone else. Reload it and try again.");
+    }
     if (projectUpdate.getVersion() != project.getVersion()) {
       throw new IllegalStateException("The version number of a project cannot be changed");
     }
@@ -99,7 +104,8 @@ public class ProjectService {
 
     var updatedProject = projectMapper.updateEntityFromRequest(project, projectUpdate);
     // Flush so the response carries the incremented lockVersion.
-    return projectMapper.toResponse(projectRepository.saveAndFlush(updatedProject));
+    projectRepository.flush();
+    return projectMapper.toResponse(updatedProject);
   }
 
   /**

@@ -27,6 +27,7 @@ import {
   duplicateProject,
   fetchAllProjects,
   removeUserFromProject,
+  ConflictError,
 } from "../api/project.ts";
 import { useAlert } from "../hooks/useAlert.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
@@ -447,13 +448,33 @@ export default function ProjectList() {
         onEditProjectNameChange={setEditProjectName}
         onSave={async () => {
           if (selectedProject && editProjectName.trim()) {
-            await handleUpdate({
-              ...selectedProject,
-              projectName: editProjectName.trim(),
-            });
-            setEditModalOpen(false);
-            setSelectedProject(null);
-            setEditProjectName("");
+            try {
+              await handleUpdate({
+                ...selectedProject,
+                projectName: editProjectName.trim(),
+              });
+              setEditModalOpen(false);
+              setSelectedProject(null);
+              setEditProjectName("");
+            } catch (err) {
+              if (err instanceof ConflictError) {
+                showNotification(
+                  "Error",
+                  "The project was changed by someone else. Reload it and try again.",
+                  "error",
+                  "update-project-error",
+                );
+              } else {
+                showNotification(
+                  "Error",
+                  err instanceof Error
+                    ? err.message
+                    : "Failed to update project name.",
+                  "error",
+                  "update-project-error",
+                );
+              }
+            }
           }
         }}
       />

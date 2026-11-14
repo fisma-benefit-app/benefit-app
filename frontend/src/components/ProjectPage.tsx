@@ -6,6 +6,7 @@ import {
   faTimes,
   faChevronRight,
   faChevronLeft,
+  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   fetchAllProjects,
@@ -73,8 +74,6 @@ export default function ProjectPage() {
   const { collapseAll, descriptionRowsExpanded, isCompactMode } = viewMode;
   const [componentSearchQuery, setComponentSearchQuery] = useState<string>("");
   const [isSummaryMenuOpen, setIsSummaryMenuOpen] = useState<boolean>(false);
-  const [includeFunctionsInReport, setIncludeFunctionsInReport] =
-    useState<boolean>(false);
   const [project, setProject] = useState<Project | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [error, setError] = useState<string>("");
@@ -112,8 +111,6 @@ export default function ProjectPage() {
         previousProject,
         language,
         translations.functionalClassComponent.classNameOptions,
-        translations.functionalClassComponent.componentTypeOptions,
-        includeFunctionsInReport,
       );
     } catch (error) {
       console.error("Failed to generate PDF", error);
@@ -249,10 +246,13 @@ export default function ProjectPage() {
         return;
       }
       if (notify) {
+        const message =
+          err instanceof Error ? err.message : alertTranslation.saveFailed;
+
         updateNotification(
           notificationId,
           alertTranslation.error,
-          alertTranslation.saveFailed,
+          message,
           "error",
         );
       }
@@ -534,6 +534,17 @@ export default function ProjectPage() {
                   </div>
                 </div>
               </div>
+              <button
+                onClick={handleCreateFunctionalComponent}
+                className={`w-full ${
+                  isLatest || !loadingProject
+                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                    : "bg-fisma-gray"
+                } text-white py-3 px-4`}
+                disabled={!isLatest || loadingProject}
+              >
+                {translation.newFunctionalComponent}
+              </button>
               <ProjectViewControls viewMode={viewMode} />
               <ProjectSaveControls
                 isLatest={isLatest}
@@ -542,8 +553,6 @@ export default function ProjectPage() {
                 saveProject={saveProject}
                 onArchive={() => setConfirmModalOpen(true)}
                 onPrintSummary={handlePrintProjectSummaryPDF}
-                includeFunctionsInReport={includeFunctionsInReport}
-                setIncludeFunctionsInReport={setIncludeFunctionsInReport}
               />
 
               <ProjectReportFields
@@ -574,24 +583,20 @@ export default function ProjectPage() {
                   </option>
                 ))}
               </select>
-              <button
-                onClick={handleCreateFunctionalComponent}
-                className={`w-full ${
-                  isLatest || !loadingProject
-                    ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-                    : "bg-fisma-gray"
-                } text-white py-3 px-4`}
-                disabled={!isLatest || loadingProject}
-              >
-                {translation.newFunctionalComponent}
-              </button>
 
               <button
                 onClick={() => setCommentsOpen((prev) => !prev)}
-                className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 cursor-pointer"
+                className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 cursor-pointer flex items-center justify-center gap-2"
                 disabled={!project || loadingProject}
+                aria-expanded={commentsOpen}
               >
                 {translation.comments}
+                <FontAwesomeIcon
+                  icon={faChevronDown}
+                  className={`text-xs transition-transform ${
+                    commentsOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {commentsOpen && project && (

@@ -3,6 +3,7 @@ package fi.fisma.backend.security;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,9 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,7 @@ public class AuthController {
 
   private final TokenBlacklistService blacklistService;
   private final JwtDecoder jwtDecoder;
+  private final BearerTokenResolver bearerTokenResolver;
 
   @PostMapping("/logout")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -40,9 +42,9 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "Missing or invalid Authorization header"),
         @ApiResponse(responseCode = "401", description = "Invalid, expired or blacklisted JWT")
       })
-  public void logout(@RequestHeader("Authorization") String authHeader) {
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-      String token = authHeader.substring(7);
+  public void logout(HttpServletRequest request) {
+    String token = bearerTokenResolver.resolve(request);
+    if (token != null) {
 
       try {
         Jwt jwt = jwtDecoder.decode(token);

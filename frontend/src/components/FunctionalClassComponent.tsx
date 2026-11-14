@@ -318,36 +318,61 @@ export default function FunctionalClassComponent({
         }}
       >
         <div className={uiStyles.header}>
+          {/* Row 1 in Full view: Icon on the left + Collapse button on the right */}
+          {!isCompactMode && (
+            <div className="flex items-center justify-between gap-2 w-full">
+              <div className="flex items-center gap-2 min-w-0">
+                <ComponentClassIcons
+                  componentClass={component.className}
+                  componentType={component.componentType}
+                />
+              </div>
+
+              <div className={uiStyles.headerActions}>
+                <div className={uiStyles.headerActionContainer}>
+                  <button
+                    type="button"
+                    onClick={toggleCollapse}
+                    className={uiStyles.collapseButton}
+                    title={translation.collapseExpand}
+                  >
+                    <FontAwesomeIcon
+                      icon={collapsed ? faCaretDown : faCaretUp}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Row 2 in Full view (or main column in Compact view): Title input */}
           <div className={uiStyles.titleContainer}>
-            {!isCompactMode && (
-              <ComponentClassIcons
-                componentClass={component.className}
-                componentType={component.componentType}
-              />
-            )}
             <input
               className={uiStyles.titleInput}
               id="title"
               placeholder={translation.titlePlaceholder}
               value={component.title || ""}
+              maxLength={255}
               onChange={handleComponentChange}
               disabled={!isLatest}
             />
           </div>
 
-          <div className={uiStyles.headerActions}>
-            <div className={uiStyles.headerActionContainer}>
-              {/* Collapse button */}
-              <button
-                type="button"
-                onClick={toggleCollapse}
-                className={uiStyles.collapseButton}
-                title={translation.collapseExpand}
-              >
-                <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
-              </button>
+          {/* Keep the Collapse button on the same row as the Title in Compact view */}
+          {isCompactMode && (
+            <div className={uiStyles.headerActions}>
+              <div className={uiStyles.headerActionContainer}>
+                <button
+                  type="button"
+                  onClick={toggleCollapse}
+                  className={uiStyles.collapseButton}
+                  title={translation.collapseExpand}
+                >
+                  <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {!collapsed && (

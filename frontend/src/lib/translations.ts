@@ -19,6 +19,7 @@ export const translations = {
       logoutWarning: "Are you sure you want to log out?",
       home: "Home",
       newProject: "New Project",
+      createNewUser: "Create a User",
       profile: "Profile",
       menu: "Menu",
       testVersion: "Test Version",
@@ -48,6 +49,22 @@ export const translations = {
       createNew: "Create new",
       nameTakenError: "Name is already in use!",
     },
+    newUserModal: {
+      header: "Create a New User",
+      role: "Role",
+      selectARole: "Select a role",
+      username: "Username",
+      password: "Password",
+      confirmPassword: "Confirm password",
+      noRoleError: "User needs a role!",
+      noUsernameError: "User needs a username!",
+      noPasswordError: "User needs a password!",
+      passwordsDontMatch: "Passwords do not match!",
+      cancel: "Cancel",
+      createUser: "Create User",
+      usernameTakenError: "Username is already taken!",
+      userCreated: "User created successfully.",
+    },
     quickCalculation: {
       architecture: "Architecture",
       architectureOptions: {
@@ -57,7 +74,6 @@ export const translations = {
         isolatedDatabase: "Client-server, isolated database",
       },
       functionality: "Functionality",
-      unit: "pcs",
       items: {
         query: {
           label: "query screens that are not updated",
@@ -85,7 +101,8 @@ export const translations = {
           title: "Processing rule",
         },
       },
-      averagesHeader: "Average values of an item",
+      averagesHeader: "Calculation parameters",
+      averagesChanged: "(changed from defaults)",
       averagesDescription:
         "Each item is sized with these values. The defaults are from the original FiSMA quick calculator.",
       resetAverages: "Reset to defaults",
@@ -328,7 +345,6 @@ export const translations = {
         "No components to show. Add some components using the button above on the right.",
       githubCommitSha: "GitHub commit SHA: ",
       overviewSummaryReport: "Overview summary report",
-      includeFunctionsInReport: "Include function list in summary report",
     },
     functionalPointSummary: {
       noSelectedClassName: "no selected component class",
@@ -392,9 +408,13 @@ export const translations = {
       newPassword: "New Password",
       confirmPassword: "Confirm New Password",
       updatePassword: "Update Password",
+      updatingPassword: "Updating password…",
+      passwordChangeNotice:
+        "Changing your password will sign you out on all devices, including this one. You’ll need to sign in again with your new password.",
       passwordsDoNotMatch: "Passwords do not match",
       passwordMinLength: "Password must be at least 6 characters",
-      passwordUpdated: "Password updated successfully",
+      passwordUpdated:
+        "Your password has been updated and all sessions have ended. Sign in again with your new password.",
       passwordUpdateFailed: "Failed to update password",
       deleteAccount: "Delete Account",
       deleteAccountDangerZone: "DANGER! This action is irreversible.",
@@ -406,6 +426,7 @@ export const translations = {
     },
     shortcutTooltip: {
       toggleViewTip: "Press V to toggle between Compact and Full View.",
+      newComponentTip: "Press N to add a new functional component.",
       componentDragTip:
         "To move components drag them or select with click and click a highlighted spot.",
       componentMultipleSelectTip:
@@ -433,6 +454,7 @@ export const translations = {
       logoutWarning: "Oletko varma, että haluat kirjautua ulos?",
       home: "Etusivu",
       newProject: "Uusi projekti",
+      createNewUser: "Luo uusi käyttäjä",
       profile: "Profiili",
       menu: "Valikko",
       testVersion: "Testiversio",
@@ -462,6 +484,22 @@ export const translations = {
       createNew: "Luo uusi",
       nameTakenError: "Nimi on jo käytössä!",
     },
+    newUserModal: {
+      header: "Luo uusi käyttäjä",
+      role: "Rooli",
+      selectARole: "Valitse rooli",
+      username: "Käyttäjänimi",
+      password: "Salasana",
+      confirmPassword: "Vahvista salasana",
+      noRoleError: "Käyttäjä tarvitsee roolin!",
+      noUsernameError: "Käyttäjä tarvitsee nimen!",
+      noPasswordError: "Käyttäjä tarvitsee salasanan!",
+      passwordsDontMatch: "Salasanat eivät täsmää!",
+      cancel: "Peruuta",
+      createUser: "Luo käyttäjä",
+      usernameTakenError: "Käyttäjänimi on jo olemassa!",
+      userCreated: "Käyttäjä luotu onnistuneesti.",
+    },
     quickCalculation: {
       architecture: "Arkkitehtuuri",
       architectureOptions: {
@@ -471,7 +509,6 @@ export const translations = {
         isolatedDatabase: "Client-server, eristetty tietokanta",
       },
       functionality: "Toiminnallisuus",
-      unit: "kpl",
       items: {
         query: {
           label: "hakunäyttöjä, joita ei päivitetä",
@@ -499,7 +536,8 @@ export const translations = {
           title: "Käsittelysääntö",
         },
       },
-      averagesHeader: "Yksittäisen kohteen keskiarvot",
+      averagesHeader: "Laskentaparametrit",
+      averagesChanged: "(oletusarvoja muutettu)",
       averagesDescription:
         "Jokaisen kohteen koko lasketaan näillä arvoilla. Oletusarvot ovat alkuperäisestä FiSMA-pikalaskurista.",
       resetAverages: "Palauta oletusarvot",
@@ -743,7 +781,6 @@ export const translations = {
         "Ei näytettäviä komponentteja. Lisää komponentteja käyttämällä oikean yläkulman painiketta.",
       githubCommitSha: "GitHub kommitti SHA: ",
       overviewSummaryReport: "Laajuuden yhteenvetoraportti",
-      includeFunctionsInReport: "Sisällytä toimintolista yhteenvetoraporttiin",
     },
     functionalPointSummary: {
       noSelectedClassName: "ei valittua toimintoluokkaa",
@@ -807,9 +844,13 @@ export const translations = {
       newPassword: "Uusi salasana",
       confirmPassword: "Vahvista uusi salasana",
       updatePassword: "Päivitä salasana",
+      updatingPassword: "Päivitetään salasanaa…",
+      passwordChangeNotice:
+        "Salasanan vaihtaminen kirjaa sinut ulos kaikilta laitteilta, myös tältä laitteelta. Kirjaudu sen jälkeen uudelleen uudella salasanallasi.",
       passwordsDoNotMatch: "Salasanat eivät täsmää",
       passwordMinLength: "Salasanan on oltava vähintään 6 merkkiä pitkä",
-      passwordUpdated: "Salasana päivitetty onnistuneesti",
+      passwordUpdated:
+        "Salasanasi on päivitetty ja kaikki istunnot on päätetty. Kirjaudu uudelleen uudella salasanallasi.",
       passwordUpdateFailed: "Salasanan päivitys epäonnistui",
       deleteAccount: "Poista tili",
       deleteAccountDangerZone: "VAARA! Tätä toimintoa ei voi perua.",
@@ -822,6 +863,7 @@ export const translations = {
     shortcutTooltip: {
       toggleViewTip:
         "Paina V vaihtaaksesi kokonaisnäkymän ja tiiviin väkymän välillä.",
+      newComponentTip: "Paina N lisätäksesi uuden toiminnallisen komponentin.",
       componentDragTip:
         "Siirrä komponentteja raahaamalla tai valitse ne ja paina korostetusta välistä.",
       componentMultipleSelectTip:

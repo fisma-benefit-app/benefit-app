@@ -6,6 +6,7 @@ import {
   calculateBasePoints,
   calculateProjectPointsByLayer,
   calculatePossiblePointsByLayer,
+  getGroupedComponents,
 } from "./centralizedCalculations";
 import { dateLocalizer, getAllComponents } from "./printUtils";
 import { downloadPdfmakeDocument } from "./pdf/pdfmakeRuntime";
@@ -100,7 +101,7 @@ export const generateCalculationReportPDF = async (
 
   const filename = `${project.projectName}-v${project.version}.pdf`;
 
-  const headingText = `${printUtilsTranslation.projectReport}: ${project.projectName}-v${project.version}`;
+  const headingText = `${printUtilsTranslation.projectReport}: ${project.projectName}`;
   // Check language
   const isFinnish =
     printUtilsTranslation.projectReport?.toLowerCase().includes("raportti") ||
@@ -201,7 +202,12 @@ export const generateCalculationReportPDF = async (
 
   // A shaded box with a small label above a large value, for the key figures under the title.
   // Every box has a detail line (blank if not given) so all boxes are the same height.
-  const keyFigure = (label: string, value: string, detail = " "): Content => ({
+  const keyFigure = (
+    label: string,
+    value: string,
+    detail = " ",
+    valueColor: string = PDF_COLORS.heading,
+  ): Content => ({
     table: {
       widths: ["*"],
       body: [
@@ -213,7 +219,7 @@ export const generateCalculationReportPDF = async (
                 text: value,
                 fontSize: 14,
                 bold: true,
-                color: PDF_COLORS.heading,
+                color: valueColor,
                 margin: [0, 2, 0, 1],
               },
               { text: detail, fontSize: 8, color: PDF_COLORS.mutedText },
@@ -230,7 +236,18 @@ export const generateCalculationReportPDF = async (
   const keyFigures: Content = {
     columns: [
       keyFigure(texts.totalSize, `${currentTotalFP.toFixed(2)} FP`),
-      keyFigure(texts.reportDate, dateLocalizer(new Date().toISOString())),
+      keyFigure(
+        printUtilsTranslation.calculationDate || "Calculation Date",
+        project.calculationDate?.split("-").reverse().join(".") || "N/A",
+        undefined,
+        isChanged(
+          project.calculationDate ?? "",
+          oldProject.calculationDate ?? "",
+          isFirstVersion,
+        )
+          ? PDF_COLORS.changedBlue
+          : PDF_COLORS.heading,
+      ),
       keyFigure(texts.method, texts.methodValue, texts.methodStandard),
     ],
     columnGap: 10,
@@ -277,48 +294,47 @@ export const generateCalculationReportPDF = async (
     color: PDF_COLORS.mutedText,
   };
 
-  const infoRows: [string, CellValue, CellValue][] = [
-    [printUtilsTranslation.projectId, project.id, oldProject.id],
-    [printUtilsTranslation.version, project.version, oldProject.version],
+  const infoRows: [string, TableCell][] = [
+    [texts.reportDate, textCell(dateLocalizer(new Date().toISOString()))],
+    [
+      printUtilsTranslation.projectId,
+      comparisonCell(project.id, oldProject.id),
+    ],
+    [
+      printUtilsTranslation.version,
+      comparisonCell(project.version, oldProject.version),
+    ],
     [
       printUtilsTranslation.createdDate,
-      dateLocalizer(project.createdAt),
-      dateLocalizer(oldProject.createdAt),
+      comparisonCell(
+        dateLocalizer(project.createdAt),
+        dateLocalizer(oldProject.createdAt),
+      ),
     ],
     [
       printUtilsTranslation.versionCreatedDate,
-      dateLocalizer(project.versionCreatedAt),
-      dateLocalizer(oldProject.versionCreatedAt),
-    ],
-    [
-      printUtilsTranslation.calculationDate || "Calculation Date",
-      project.calculationDate ? dateLocalizer(project.calculationDate) : "N/A",
-      oldProject.calculationDate
-        ? dateLocalizer(oldProject.calculationDate)
-        : "N/A",
+      comparisonCell(
+        dateLocalizer(project.versionCreatedAt),
+        dateLocalizer(oldProject.versionCreatedAt),
+      ),
     ],
     [
       printUtilsTranslation.lastEditedDate,
-      dateLocalizer(project.updatedAt),
-      dateLocalizer(oldProject.updatedAt),
+      comparisonCell(
+        dateLocalizer(project.updatedAt),
+        dateLocalizer(oldProject.updatedAt),
+      ),
     ],
   ];
 
-  // Project details as a label/value table, two pairs per row
-  const projectInfoRows: TableCell[][] = [];
-  for (let i = 0; i < infoRows.length; i += 2) {
-    projectInfoRows.push(
-      infoRows
-        .slice(i, i + 2)
-        .flatMap(([label, currentValue, prevValue]) => [
-          textCell(label, { bold: true, fillColor: PDF_COLORS.subHeadingFill }),
-          comparisonCell(currentValue, prevValue),
-        ]),
-    );
-  }
-
   const projectInfo: Content = {
-    table: { widths: [130, "*", 130, "*"], body: projectInfoRows },
+    table: {
+      widths: ["auto", "auto"],
+      body: infoRows.map(([label, value]) => [
+        textCell(label, { bold: true, fillColor: PDF_COLORS.subHeadingFill }),
+        value,
+      ]),
+    },
     layout: reportTableLayout,
   };
 
@@ -535,8 +551,10 @@ export const generateCalculationReportPDF = async (
     title: string,
     data: string[][],
     headers: string[],
-  ): Content =>
-    keepTogether(
+    keepOnOnePage = true,
+  ): Content => ({
+    unbreakable: keepOnOnePage,
+    stack: [
       { text: title, style: "h3", margin: [0, 20, 0, 4] },
       reportTable({
         headers,
@@ -550,7 +568,8 @@ export const generateCalculationReportPDF = async (
         margin: [0, 4, 0, 0],
         headerAlignments: ["left", "right", "right"],
       }),
-    );
+    ],
+  });
 
   const summaryTables: Content[] = [];
 
@@ -599,13 +618,21 @@ export const generateCalculationReportPDF = async (
     ]),
   );
 
+  const { parentGroups } = getGroupedComponents(project.functionalComponents);
+  const classOrder = parentGroups.flatMap(({ className }) =>
+    className ? [className] : [],
+  );
+  const typeOrder = parentGroups.flatMap(({ components }) =>
+    components.flatMap(({ type }) => (type ? [type] : [])),
+  );
+
   // --- HELPER FUNCTION: Group by Class and Components ---
   const getSummaryDataByProperty = (
-    components: ReturnType<typeof getAllComponents>,
-    propertyKey: keyof ReturnType<typeof getAllComponents>[number],
+    components: TGenericComponent[],
+    propertyKey: keyof TGenericComponent,
     translateFn: (val: string) => string,
   ) => {
-    const summary: Record<string, { actual: number; possible: number }> = {};
+    const summary = new Map<string, { actual: number; possible: number }>();
 
     components.forEach((comp) => {
       const rawValue = comp[propertyKey];
@@ -613,30 +640,28 @@ export const generateCalculationReportPDF = async (
 
       const label = translateFn(String(rawValue));
 
-      if (!summary[label]) {
-        summary[label] = { actual: 0, possible: 0 };
-      }
-
-      const actualPoints = calculateComponentPointsWithMultiplier(
+      const totals = summary.get(label) ?? { actual: 0, possible: 0 };
+      totals.actual += calculateComponentPointsWithMultiplier(
         comp || null,
         comp.degreeOfCompletion,
       );
-      const possiblePoints = calculateBasePoints(comp);
-
-      summary[label].actual += actualPoints;
-      summary[label].possible += possiblePoints;
+      totals.possible += calculateBasePoints(comp);
+      summary.set(label, totals);
     });
 
-    return Object.entries(summary).map(([label, totals]) => [
-      label,
-      totals.actual.toFixed(2),
-      totals.possible.toFixed(2),
-    ]);
+    const order = propertyKey === "className" ? classOrder : typeOrder;
+    const labels = new Set([...order.map(translateFn), ...summary.keys()]);
+    return Array.from(labels).flatMap((label) => {
+      const totals = summary.get(label);
+      return totals
+        ? [[label, totals.actual.toFixed(2), totals.possible.toFixed(2)]]
+        : [];
+    });
   };
 
   // --- CREATE SUMMARY TABLE GROUP BY CLASS ---
   const classData = getSummaryDataByProperty(
-    allCurrentComponents,
+    project.functionalComponents,
     "className",
     translateClassName,
   );
@@ -657,7 +682,7 @@ export const generateCalculationReportPDF = async (
 
   // --- CREATE SUMMARY TABLE GROUP BY TYPE ---
   const typeData = getSummaryDataByProperty(
-    allCurrentComponents,
+    project.functionalComponents,
     "componentType",
     translateComponentType,
   );
@@ -668,11 +693,17 @@ export const generateCalculationReportPDF = async (
       : "Summary by Component Type";
 
     summaryTables.push(
-      createSummaryTable(typeTableHeading, typeData, [
-        isFinnish ? "Toimintotyyppi" : "Component Type",
-        isFinnish ? "Toteutuneet FP" : "Actual FP",
-        isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
-      ]),
+      // The type table can exceed a full page.
+      createSummaryTable(
+        typeTableHeading,
+        typeData,
+        [
+          isFinnish ? "Toimintotyyppi" : "Component Type",
+          isFinnish ? "Toteutuneet FP" : "Actual FP",
+          isFinnish ? "Maksimaaliset FP (100%)" : "100% FP",
+        ],
+        false,
+      ),
     );
   }
 
@@ -686,18 +717,16 @@ export const generateCalculationReportPDF = async (
       content: [
         titleBlock,
         keyFigures,
-        sectionHeading(texts.projectDetails, 16),
-        projectInfo,
         sectionHeading(texts.functionList, 18),
         notes,
         componentTable,
         keepTogether(sectionHeading(texts.summaries, 22), firstSummaryTable),
         ...otherSummaryTables,
-        // Last in the report: the generated subcomponents are the least interesting part. Starts
-        // on its own page so the heading is never left alone at the bottom of one.
+        // Start generated subcomponents on a new page to keep the heading with its table.
         ...(mlaRows.length > 1
           ? [sectionHeading(texts.mlaComponents, 0, true), mlaNotes, mlaTable]
           : []),
+        keepTogether({ text: texts.projectDetails, style: "h3" }, projectInfo),
       ],
     }),
     filename,

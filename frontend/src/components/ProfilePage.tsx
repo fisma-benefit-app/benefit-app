@@ -7,7 +7,7 @@ import { useNavigate } from "react-router";
 import ConfirmModal from "./ConfirmModal";
 
 export default function ProfilePage() {
-  const { appUser, sessionToken, logout } = useAppUser();
+  const { appUser, sessionToken, logout, setPasswordChanged } = useAppUser();
   const translation = useTranslations().profilePage;
   const alertTranslation = useTranslations().alert;
   const { showNotification } = useAlert();
@@ -18,12 +18,14 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Delete account state
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isChangingPassword) return;
     setPasswordError("");
 
     // Validation
@@ -37,21 +39,14 @@ export default function ProfilePage() {
       return;
     }
 
+    setIsChangingPassword(true);
     try {
       // Call the API endpoint
       await changePassword(sessionToken, currentPassword, newPassword);
 
-      showNotification(
-        alertTranslation.success,
-        translation.passwordUpdated,
-        "success",
-        "password-update",
-      );
-
-      // Clear form
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      setPasswordChanged(true);
+      void logout();
+      navigate("/login", { replace: true });
     } catch (err) {
       if (err instanceof Error && err.message === "Unauthorized!") {
         logout();
@@ -63,6 +58,8 @@ export default function ProfilePage() {
         "error",
         "password-update",
       );
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -132,7 +129,16 @@ export default function ProfilePage() {
             {translation.changePassword}
           </h2>
 
-          <form onSubmit={handlePasswordChange} className="space-y-4">
+          <p id="password-change-notice" className="text-sm text-gray-600 mb-4">
+            {translation.passwordChangeNotice}
+          </p>
+
+          <form
+            onSubmit={handlePasswordChange}
+            aria-describedby="password-change-notice"
+            aria-busy={isChangingPassword}
+            className="space-y-4"
+          >
             {passwordError && (
               <div className="bg-fisma-red text-white p-3 rounded">
                 {passwordError}
@@ -194,9 +200,12 @@ export default function ProfilePage() {
 
             <button
               type="submit"
-              className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white font-semibold py-3 px-6 rounded transition-colors"
+              disabled={isChangingPassword}
+              className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white font-semibold py-3 px-6 rounded transition-colors disabled:opacity-60 disabled:cursor-wait"
             >
-              {translation.updatePassword}
+              {isChangingPassword
+                ? translation.updatingPassword
+                : translation.updatePassword}
             </button>
           </form>
         </div>

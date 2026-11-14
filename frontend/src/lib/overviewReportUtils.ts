@@ -1,7 +1,5 @@
-import { Project, TGenericComponent } from "./types";
+import { Project } from "./types";
 import {
-  calculateBasePoints,
-  calculateComponentPoints,
   calculateGrandTotalPoints,
   calculateGrandTotalPossiblePoints,
   getGroupedComponents,
@@ -39,8 +37,6 @@ export const generateOverviewPDF = async (
   previousProject?: Project,
   language: "fi" | "en" = "fi",
   classNameTranslation: Record<string, string> = {},
-  componentTypeTranslation: Record<string, string> = {},
-  includeFunctions = false,
 ): Promise<void> => {
   const labels =
     language === "fi"
@@ -63,11 +59,6 @@ export const generateOverviewPDF = async (
           count: "Määrä",
           sum: "Yhteensä",
           subComponents: "MLA-alikomponentit",
-          functionList: "Toimintolista",
-          functionName: "Toiminto",
-          functionType: "Toimintotyyppi",
-          functionListNote:
-            "MLA-alikomponentit on listattu varsinaisten toimintojen jälkeen. Pisteet ovat tehdyt / mahdolliset pisteet.",
           unspecified: "Ei valittu",
           explanation: "Laskennan selitys ja tärkeät muutokset",
           changed:
@@ -98,11 +89,6 @@ export const generateOverviewPDF = async (
           count: "Count",
           sum: "Total",
           subComponents: "MLA subcomponents",
-          functionList: "Function list",
-          functionName: "Function",
-          functionType: "Function type",
-          functionListNote:
-            "MLA subcomponents are listed after the actual functions. Points are done / possible points.",
           unspecified: "Not selected",
           explanation: "Calculation explanation and important changes",
           changed:
@@ -252,95 +238,6 @@ export const generateOverviewPDF = async (
     ];
   };
 
-  // Optional per-function listing; all MLA subcomponents follow the actual functions so the rows add
-  // up to the total size. Previous-version values are matched through previousFCId.
-  const functionListContent = (): Content[] => {
-    const previousPoints = new Map<number, number>();
-    previousProject?.functionalComponents.forEach((component) => {
-      previousPoints.set(component.id, calculateComponentPoints(component));
-      component.subComponents?.forEach((sub) =>
-        previousPoints.set(
-          sub.id,
-          calculateComponentPoints(sub as TGenericComponent),
-        ),
-      );
-    });
-    const row = (component: TGenericComponent, isSub: boolean): TableCell[] => {
-      const points = calculateComponentPoints(component);
-      const possible = calculateBasePoints(component);
-      const previous = previousProject
-        ? (previousPoints.get(component.previousFCId ?? -1) ?? 0)
-        : undefined;
-      const fill = isSub ? { fillColor: PDF_COLORS.subRowFill } : undefined;
-      return [
-        textCell(
-          component.title || "–",
-          isSub ? { ...fill, indent: 10 } : fill,
-        ),
-        textCell(
-          component.className
-            ? classNameTranslation[component.className] || component.className
-            : labels.unspecified,
-          fill,
-        ),
-        textCell(
-          component.componentType
-            ? componentTypeTranslation[component.componentType] ||
-                component.componentType
-            : labels.unspecified,
-          fill,
-        ),
-        pointsCell(points, possible, previous, fill),
-        textCell(percentDone(points, possible), fill),
-      ];
-    };
-    const components = [...project.functionalComponents].sort(
-      (a, b) => a.orderPosition - b.orderPosition,
-    );
-    const rows = [
-      ...components.map((component) => row(component, false)),
-      ...components.flatMap((component) =>
-        (component.subComponents ?? []).map((sub) =>
-          row(sub as TGenericComponent, true),
-        ),
-      ),
-    ];
-    const totalOptions = {
-      bold: true,
-      fillColor: PDF_COLORS.tableHeaderFill,
-    };
-    return [
-      sectionHeading(labels.functionList),
-      { text: labels.functionListNote, style: "small" },
-      reportTable({
-        headers: [
-          labels.functionName,
-          labels.functionClass,
-          labels.functionType,
-          labels.functionPoints,
-          labels.percentDone,
-        ],
-        rows: [
-          ...rows,
-          [
-            ...spanningCell(labels.sum, 3, totalOptions),
-            pointsCell(
-              totalPoints,
-              totalPossiblePoints,
-              previousTotalPoints,
-              totalOptions,
-            ),
-            textCell(
-              percentDone(totalPoints, totalPossiblePoints),
-              totalOptions,
-            ),
-          ],
-        ],
-        widths: ["*", 115, 90, 112, 45],
-      }),
-    ];
-  };
-
   // Section title with a rule under it; every section starts on its own page.
   const sectionHeading = (text: string): Content => ({
     stack: [
@@ -386,11 +283,21 @@ export const generateOverviewPDF = async (
       margin: [0, 4, 0, 0],
     }) as Content;
 
-  const notesText = (text: string | null | undefined): Content => ({
-    text: text ?? "",
-    fontSize: 12,
-    margin: [0, 4, 0, 0],
-  });
+  // The notes as a bullet list: one bullet per line, and a line starting with spaces or "-" is a
+  // sub-bullet of the line above it.
+  const notesList = (text: string | null | undefined): Content => {
+    const items: Content[] = [];
+    (text ?? "").split("\n").forEach((line) => {
+      const content = line.trim().replace(/^[-•*]\s*/, "");
+      if (!content) return;
+      const isSub = /^\s/.test(line) || line.trim().startsWith("-");
+      const previous = items[items.length - 1] as { ul?: string[] };
+      if (!isSub) items.push(content);
+      else if (previous?.ul) previous.ul.push(content);
+      else items.push({ ul: [content] });
+    });
+    return { ul: items, fontSize: 12, lineHeight: 1.3, margin: [0, 4, 0, 0] };
+  };
 
   const reportDate = project.calculationDate
     ? project.calculationDate.split("-").reverse().join(".")
@@ -467,8 +374,6 @@ export const generateOverviewPDF = async (
       rows: groupedRows(),
       widths: ["*", 50, 130, 60],
     }),
-    { text: labels.explanation, style: "h3" },
-    notesText(project.reportNotes),
     // Only a later version has anything to mark as changed.
     ...(previousProject
       ? [
@@ -479,6 +384,11 @@ export const generateOverviewPDF = async (
           } as Content,
         ]
       : []),
+  ];
+
+  const explanationPage: Content[] = [
+    sectionHeading(labels.explanation),
+    notesList(project.reportNotes),
   ];
 
   await downloadPdfmakeDocument(
@@ -494,7 +404,7 @@ export const generateOverviewPDF = async (
         ...coverPage,
         ...calculationPage,
         ...aggregatePage,
-        ...(includeFunctions ? functionListContent() : []),
+        ...explanationPage,
       ],
     }),
     filename,

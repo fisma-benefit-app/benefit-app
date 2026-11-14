@@ -10,8 +10,6 @@ type ProjectSaveControlsProps = {
   saveProject: () => void;
   onArchive: () => void;
   onPrintSummary: () => void;
-  includeFunctionsInReport: boolean;
-  setIncludeFunctionsInReport: (include: boolean) => void;
 };
 
 // Save, archive-as-version and summary report buttons.
@@ -22,8 +20,6 @@ export default function ProjectSaveControls({
   saveProject,
   onArchive,
   onPrintSummary,
-  includeFunctionsInReport,
-  setIncludeFunctionsInReport,
 }: ProjectSaveControlsProps) {
   const translation = useTranslations().projectPage;
 
@@ -78,14 +74,6 @@ export default function ProjectSaveControls({
         <FontAwesomeIcon icon={faFilePdf} />
         {translation.overviewSummaryReport}
       </button>
-      <label className="flex items-center gap-2 text-xs cursor-pointer">
-        <input
-          type="checkbox"
-          checked={includeFunctionsInReport}
-          onChange={(e) => setIncludeFunctionsInReport(e.target.checked)}
-        />
-        {translation.includeFunctionsInReport}
-      </label>
     </div>
   );
 }

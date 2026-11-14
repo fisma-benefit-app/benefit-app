@@ -1,17 +1,22 @@
 package fi.fisma.backend.service;
 
 import fi.fisma.backend.domain.AppUser;
+import fi.fisma.backend.domain.EnumUserRole;
+import fi.fisma.backend.dto.AppUserRequest;
 import fi.fisma.backend.dto.AppUserSummary;
+import fi.fisma.backend.exception.ConflictException;
 import fi.fisma.backend.exception.EntityNotFoundException;
 import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
+import fi.fisma.backend.security.AccountSessionValidator;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -45,6 +50,43 @@ public class AppUserService {
         .findByIdActive(id)
         .map(this::mapToSummary)
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
+  }
+
+  /**
+   * Tells if a username is already found in the database. Currently checks every user including the
+   * soft-deleted ones, in order to preserve the unique username constraint in the app_users table.
+   *
+   * @param username username that is checked
+   * @return True if username found, false if not
+   */
+  public boolean existsByUsername(String username) {
+    return appUserRepository.findByUsername(username).isPresent();
+  }
+
+  /**
+   * Creates a new application user.
+   *
+   * @param userRequest user data to save
+   * @return The AppUser that was saved in the database
+   * @throws UnauthorizedException if the current user is not an admin
+   */
+  public AppUser createNewAppUser(AppUserRequest userRequest, Authentication authentication) {
+    var currentUser = getUserFromAuthentication(authentication);
+    if (currentUser.getRole() != EnumUserRole.ADMIN) {
+      throw new UnauthorizedException("Only admins can create new users");
+    }
+
+    if (existsByUsername(userRequest.getUsername())) {
+      throw new ConflictException(
+          ConflictException.USERNAME_ALREADY_EXISTS, "Username is already taken");
+    }
+
+    AppUser newUser =
+        new AppUser(
+            userRequest.getUsername(),
+            passwordEncoder.encode(userRequest.getPassword()),
+            userRequest.getRole());
+    return appUserRepository.save(newUser);
   }
 
   /**
@@ -92,7 +134,18 @@ public class AppUserService {
       @NotBlank String currentPassword,
       @NotBlank String newPassword,
       Authentication authentication) {
-    AppUser appUser = getUserFromAuthentication(authentication);
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new UnauthorizedException("Authentication required");
+    }
+    // Serialize changes before checking the password and advancing the session version.
+    AppUser appUser =
+        appUserRepository
+            .findByUsernameActiveForUpdate(authentication.getName())
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    if (authentication instanceof JwtAuthenticationToken jwtAuthentication
+        && !AccountSessionValidator.matches(jwtAuthentication.getToken(), appUser)) {
+      throw new UnauthorizedException("Account session is no longer valid");
+    }
 
     if (currentPassword == null
         || !passwordEncoder.matches(currentPassword, appUser.getPassword())) {
@@ -102,6 +155,7 @@ public class AppUserService {
     validatePasswordRequirements(newPassword);
 
     appUser.setPassword(passwordEncoder.encode(newPassword));
+    appUser.setSessionVersion(Math.incrementExact(appUser.getSessionVersion()));
     appUserRepository.save(appUser);
   }
 

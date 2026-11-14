@@ -4,7 +4,6 @@ import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.repository.AppUserRepository;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,22 +42,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   }
 
   public static final class AppUserDetails extends AppUser implements UserDetails {
-
-    private static final List<GrantedAuthority> ROLE_USER =
-        Collections.unmodifiableList(AuthorityUtils.createAuthorityList("ROLE_USER"));
-
     AppUserDetails(AppUser appUser) {
       super(
           appUser.getId(),
           appUser.getUsername(),
           appUser.getPassword(),
           appUser.getRole(),
-          appUser.getDeletedAt());
+          appUser.getDeletedAt(),
+          appUser.getSessionVersion());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-      return ROLE_USER;
+      return Collections.unmodifiableList(
+          AuthorityUtils.createAuthorityList("ROLE_" + getRole().name()));
     }
   }
 }

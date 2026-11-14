@@ -70,7 +70,7 @@ public class TokenService {
     }
 
     var user = appUserRepository.findByUsernameActive(current.getSubject());
-    if (user.isEmpty()) {
+    if (user.isEmpty() || !AccountSessionValidator.matches(current, user.get())) {
       return Optional.empty();
     }
 
@@ -130,6 +130,10 @@ public class TokenService {
     // Add user ID to claims if available
     if (userId != null) {
       claimsBuilder.claim("userId", userId);
+      // Use the version read with the authenticated password, never a later database version.
+      claimsBuilder.claim(
+          AccountSessionValidator.SESSION_VERSION_CLAIM,
+          ((AppUserDetails) authentication.getPrincipal()).getSessionVersion());
     }
 
     JwtClaimsSet claims = claimsBuilder.build();

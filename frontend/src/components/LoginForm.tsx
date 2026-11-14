@@ -12,7 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations";
 import DotLoadingSpinner from "./DotLoadingSpinner";
-import { decodeJWT } from "../lib/jwtUtils";
+import { decodeJWT, getAppUserRole } from "../lib/jwtUtils";
 import { authStorage } from "../lib/authStorage";
 
 export default function LoginForm() {
@@ -29,10 +29,13 @@ export default function LoginForm() {
     setAppUser,
     loggedIn,
     invalidSession,
+    passwordChanged,
+    setPasswordChanged,
     setInvalidSession,
   } = useAppUser();
   const { showError } = useError();
   const navigate = useNavigate();
+  const passwordUpdatedMessage = useTranslations().profilePage.passwordUpdated;
   const translation = useTranslations().loginForm;
   const errorMessageTranslation = useTranslations().networkingErrorMessages;
 
@@ -54,8 +57,13 @@ export default function LoginForm() {
       authStorage.setLogin(loginToken, username, userId);
 
       setInvalidSession(false);
+      setPasswordChanged(false);
       setSessionToken(loginToken);
-      setAppUser({ id: userId, username: username });
+      setAppUser({
+        id: userId,
+        username,
+        role: getAppUserRole(decodedToken?.scope),
+      });
       setLoggedIn(true);
     } catch (err) {
       if (err instanceof Error) {
@@ -92,7 +100,16 @@ export default function LoginForm() {
           {translation.header}
         </h1>
 
-        {invalidSession && (
+        {passwordChanged && (
+          <p
+            role="status"
+            className="mb-4 rounded border border-green-500 bg-green-100 p-3 text-sm text-green-900"
+          >
+            {passwordUpdatedMessage}
+          </p>
+        )}
+
+        {!passwordChanged && invalidSession && (
           <p
             role="alert"
             className="mb-4 border border-fisma-red bg-red-100 p-2 text-center text-sm text-fisma-red"
