@@ -13,8 +13,8 @@ Written on 2026-11-14. Checked against Scalingo CLI 1.51.1. This guide's command
 | Dashboard | https://dashboard.scalingo.com/apps/osc-fr1/fisma-benefit-app |
 | Backend | https://fisma-benefit-app.osc-fr1.scalingo.io |
 | Health check | https://fisma-benefit-app.osc-fr1.scalingo.io/actuator/health |
-| Frontend | https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/ |
-| Frontend version | https://fisma-benefit-app-testing.github.io/benefit-app-testing/scalingo-testing/version.json |
+| Frontend | https://fisma-benefit-app-testing.github.io/scalingo/ |
+| Frontend version | https://fisma-benefit-app-testing.github.io/scalingo/version.json |
 | Database | PostgreSQL add-on, plan `postgresql-starter-512` |
 
 

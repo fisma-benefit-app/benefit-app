@@ -17,8 +17,8 @@
     "predeploy:testing": "npm run build:testing && npm run write:version",
     "predeploy:production": "npm run build:production && npm run write:version",
     "predeploy:scalingo-testing": "npm run build:testing && npm run write:version",
-    "deploy:testing": "gh-pages -d dist -b gh-pages --dest testing -r git@github.com:fisma-benefit-app-testing/benefit-app-testing.git",
-    "deploy:scalingo-testing": "gh-pages -d dist -b gh-pages --dest scalingo-testing -r git@github.com:fisma-benefit-app-testing/benefit-app-testing.git",
+    "deploy:testing": "gh-pages -d dist -b gh-pages --dest heroku -r git@github.com:fisma-benefit-app-testing/fisma-benefit-app-testing.github.io.git",
+    "deploy:scalingo-testing": "gh-pages -d dist -b gh-pages --dest scalingo -r git@github.com:fisma-benefit-app-testing/fisma-benefit-app-testing.github.io.git",
     "deploy:production": "gh-pages -d dist"
   },
   "dependencies": {

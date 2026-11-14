@@ -35,8 +35,9 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       # The testing frontends live in their own GitHub Pages site, the repo
-      # fisma-benefit-app-testing/benefit-app-testing. The workflow pushes there with that repo's
-      # deploy key (its private half is this repo's TESTING_PAGES_DEPLOY_KEY secret).
+      # fisma-benefit-app-testing/fisma-benefit-app-testing.github.io. The workflow pushes there
+      # with that repo's deploy key (its private half is this repo's TESTING_PAGES_DEPLOY_KEY
+      # secret).
       - name: Load the testing Pages deploy key
         env:
           DEPLOY_KEY: ${{ secrets.TESTING_PAGES_DEPLOY_KEY }}
@@ -60,7 +61,7 @@ jobs:
       - name: Deploy FE to the testing GitHub Pages site
         env:
           VITE_API_URL: ${{ secrets.SCALINGO_TESTING_URL }}
-          VITE_BASE_PATH: /benefit-app-testing/scalingo-testing/
+          VITE_BASE_PATH: /scalingo/
         run: |
           cd frontend
           for attempt in 1 2 3; do
