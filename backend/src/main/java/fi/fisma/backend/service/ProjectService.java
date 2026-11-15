@@ -16,6 +16,7 @@ import fi.fisma.backend.repository.FunctionalComponentRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -155,7 +156,7 @@ public class ProjectService {
     var savedProject = projectRepository.save(newVersion);
 
     // Create a mapping from old component IDs to new component IDs
-    Map<Long, Long> oldToNewIdMap = new HashMap<>();
+    Map<Long, FunctionalComponent> oldToNewComponentMap = new HashMap<>();
 
     // Create copies of functional components
     var functionalComponents =
@@ -182,43 +183,11 @@ public class ProjectService {
                           null, // Temporarily set parent fc to null
                           fc.getSubComponentType(),
                           fc.getIsReadonly(),
-                          null,
+                          new ArrayList<>(),
                           savedProject,
                           null);
                   var savedComponent = functionalComponentRepository.save(newComponent);
-                  oldToNewIdMap.put(fc.getId(), savedComponent.getId());
-
-                  fc.getSubComponents().stream()
-                      .filter(subComponent -> subComponent.getDeletedAt() == null)
-                      .map(
-                          subComponent ->
-                              new FunctionalComponent(
-                                  null,
-                                  subComponent.getTitle(),
-                                  subComponent.getDescription(),
-                                  subComponent.getClassName(),
-                                  subComponent.getComponentType(),
-                                  subComponent.getDataElements(),
-                                  subComponent.getReadingReferences(),
-                                  subComponent.getWritingReferences(),
-                                  subComponent.getFunctionalMultiplier(),
-                                  subComponent.getOperations(),
-                                  subComponent.getDegreeOfCompletion(),
-                                  subComponent.getId(),
-                                  subComponent.getOrderPosition(),
-                                  subComponent.getIsMLA(),
-                                  savedComponent.getId(),
-                                  subComponent.getSubComponentType(),
-                                  subComponent.getIsReadonly(),
-                                  null,
-                                  savedProject,
-                                  null))
-                      .forEach(
-                          newSubComponent -> {
-                            var savedSubComponent =
-                                functionalComponentRepository.save(newSubComponent);
-                            savedComponent.getSubComponents().add(savedSubComponent);
-                          });
+                  oldToNewComponentMap.put(fc.getId(), savedComponent);
 
                   return savedComponent;
                 })
@@ -235,9 +204,10 @@ public class ProjectService {
                   .orElse(null);
 
           if (originalComponent != null && originalComponent.getParentFCId() != null) {
-            Long newParentId = oldToNewIdMap.get(originalComponent.getParentFCId());
-            if (newParentId != null) {
-              newComponent.setParentFCId(newParentId);
+            var newParent = oldToNewComponentMap.get(originalComponent.getParentFCId());
+            if (newParent != null) {
+              newComponent.setParentFCId(newParent.getId());
+              newParent.getSubComponents().add(newComponent);
               functionalComponentRepository.save(newComponent);
             }
           }

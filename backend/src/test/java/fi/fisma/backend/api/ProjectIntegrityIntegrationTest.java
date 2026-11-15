@@ -9,8 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fi.fisma.backend.domain.AppUser;
 import fi.fisma.backend.domain.EnumUserRole;
 import fi.fisma.backend.repository.AppUserRepository;
@@ -30,8 +28,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -42,6 +40,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Runs the project API end to end against Postgres to check that the backend, not the browser,
@@ -306,6 +306,41 @@ class ProjectIntegrityIntegrationTest {
   }
 
   // --- archived versions ---
+
+  @Test
+  void versioningPreservesNestedComponentsWithoutDuplicates() throws Exception {
+    String name = "nested-version-" + suffix;
+    long v1 = createProject(alice, name);
+    long parentId = addComponent(alice, v1, component("Parent")).path("id").asLong();
+    Map<String, Object> parent = component("Parent");
+    parent.put("id", parentId);
+    parent.put("subComponents", List.of(component("Child")));
+    mockMvc
+        .perform(
+            put("/projects/{id}", v1)
+                .header("Authorization", bearer(alice))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, getProject(alice, v1), List.of(parent), Set.of())))
+        .andExpect(status().isOk());
+
+    JsonNode oldParent = getProject(alice, v1).path("functionalComponents").get(0);
+    assertThat(oldParent.path("subComponents")).hasSize(1);
+    long oldChildId = oldParent.path("subComponents").get(0).path("id").asLong();
+
+    long v2 = createVersion(alice, v1, name, 2);
+    JsonNode parents = getProject(alice, v2).path("functionalComponents");
+    assertThat(parents).hasSize(1);
+    JsonNode newParent = parents.get(0);
+    assertThat(newParent.path("previousFCId").asLong()).isEqualTo(parentId);
+    assertThat(newParent.path("subComponents")).hasSize(1);
+    JsonNode newChild = newParent.path("subComponents").get(0);
+    assertThat(newChild.path("previousFCId").asLong()).isEqualTo(oldChildId);
+    assertThat(newChild.path("parentFCId").asLong()).isEqualTo(newParent.path("id").asLong());
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM functional_components WHERE project_id = ?", Long.class, v2))
+        .isEqualTo(2L);
+  }
 
   @Test
   void archivedVersionsCannotBeEditedThroughTheApi() throws Exception {

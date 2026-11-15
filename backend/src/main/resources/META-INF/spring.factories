@@ -1,4 +1,4 @@
-org.springframework.boot.env.EnvironmentPostProcessor=\
+org.springframework.boot.EnvironmentPostProcessor=\
 fi.fisma.backend.config.DevProfileDatabaseGuard,\
 fi.fisma.backend.config.RequiredConfigGuard
 org.springframework.boot.diagnostics.FailureAnalyzer=\
