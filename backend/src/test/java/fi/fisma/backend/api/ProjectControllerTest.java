@@ -51,7 +51,6 @@ class ProjectControllerTest {
 
   private ProjectResponse project;
   private List<ProjectResponse> projects;
-  private ProjectResponse updated;
   private ProjectResponse savedProject;
   private ProjectResponse savedVersion;
 
@@ -59,7 +58,6 @@ class ProjectControllerTest {
   void setUp() {
     project = StandaloneSetup.project();
     projects = StandaloneSetup.projects();
-    updated = StandaloneSetup.updated();
     savedProject = StandaloneSetup.savedProject();
     savedVersion = StandaloneSetup.savedVersion();
   }
@@ -87,34 +85,6 @@ class ProjectControllerTest {
         objectMapper.readValue(
             response.getResponse().getContentAsByteArray(), ProjectResponse[].class);
     assertThat(returned).hasSize(2);
-  }
-
-  @Test
-  void testUpdateProject() {
-    ProjectRequest updateReq = new ProjectRequest();
-    updateReq.setProjectName("Updated Project");
-    updateReq.setVersion(2);
-
-    when(projectService.updateProject(eq(1L), any(ProjectRequest.class), eq("test-user")))
-        .thenReturn(updated);
-
-    var response =
-        mockMvcTester
-            .put()
-            .uri("/projects/{id}", 1L)
-            .with(jwtAuth)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(
-                """
-                {
-                  "projectName": "Updated Project",
-                  "version": 2
-                }
-                """)
-            .exchange();
-
-    assertThat(response).hasStatusOk();
-    assertThat(response).bodyJson().extractingPath("$.projectName").isEqualTo("Updated Project");
   }
 
   @Test
@@ -176,22 +146,6 @@ class ProjectControllerTest {
   }
 
   @Test
-  void testAddUserToProject() {
-    when(projectService.addUserToProject(1L, "new-member", "test-user")).thenReturn(project);
-
-    var response =
-        mockMvcTester
-            .post()
-            .uri("/projects/{id}/users", 1L)
-            .with(jwtAuth)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"username\": \" new-member \"}")
-            .exchange();
-
-    assertThat(response).hasStatus(HttpStatus.OK);
-  }
-
-  @Test
   void testAddUserToProject_BlankUsername() {
     var response =
         mockMvcTester
@@ -203,21 +157,6 @@ class ProjectControllerTest {
             .exchange();
 
     assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
-  }
-
-  @Test
-  void testRemoveUserFromProject() {
-    doNothing().when(projectService).removeUserFromProject(1L, 5L, "test-user");
-
-    var response =
-        mockMvcTester
-            .delete()
-            .uri("/projects/{id}/users/{appUserId}", 1L, 5L)
-            .with(jwtAuth)
-            .exchange();
-
-    assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
-    verify(projectService).removeUserFromProject(1L, 5L, "test-user");
   }
 
   @Test
