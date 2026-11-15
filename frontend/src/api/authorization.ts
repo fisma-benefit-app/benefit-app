@@ -8,9 +8,12 @@ const fetchJWT = async (
   rememberMe: boolean,
 ) => {
   const fetchURL = `${API_URL}/token?rememberMe=${rememberMe}`;
+  const credentials = new TextEncoder().encode(`${username}:${password}`);
+  const encodedCredentials = btoa(
+    Array.from(credentials, (byte) => String.fromCharCode(byte)).join(""),
+  );
   const headers = {
-    //Encode user info in Base64 which is expected by the endpoint
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
+    Authorization: `Basic ${encodedCredentials}`,
   };
 
   try {

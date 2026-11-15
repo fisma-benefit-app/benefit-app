@@ -6,6 +6,10 @@ import { changePassword, deleteAppUser } from "../api/profile";
 import { useNavigate } from "react-router";
 import ConfirmModal from "./ConfirmModal";
 
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 64;
+const MAX_PASSWORD_BYTES = 72;
+
 export default function ProfilePage() {
   const { appUser, sessionToken, logout, setPasswordChanged } = useAppUser();
   const translation = useTranslations().profilePage;
@@ -34,8 +38,23 @@ export default function ProfilePage() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setPasswordError(translation.passwordMinLength);
+    const characters = Array.from(newPassword);
+    if (
+      characters.length < MIN_PASSWORD_LENGTH ||
+      characters.length > MAX_PASSWORD_LENGTH ||
+      new TextEncoder().encode(newPassword).length > MAX_PASSWORD_BYTES
+    ) {
+      setPasswordError(translation.passwordLengthRequirements);
+      return;
+    }
+    if (
+      characters.every(
+        (character) => character <= " " || /\p{White_Space}/u.test(character),
+      ) ||
+      newPassword.includes("\0") ||
+      /[\r\n\p{Surrogate}]/u.test(newPassword)
+    ) {
+      setPasswordError(translation.passwordInvalid);
       return;
     }
 
@@ -176,7 +195,7 @@ export default function ProfilePage() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full border-2 border-gray-300 rounded p-3 focus:border-fisma-blue focus:outline-none"
                 required
-                minLength={6}
+                minLength={MIN_PASSWORD_LENGTH}
               />
             </div>
 
@@ -194,7 +213,7 @@ export default function ProfilePage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full border-2 border-gray-300 rounded p-3 focus:border-fisma-blue focus:outline-none"
                 required
-                minLength={6}
+                minLength={MIN_PASSWORD_LENGTH}
               />
             </div>
 

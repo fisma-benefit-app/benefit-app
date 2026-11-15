@@ -23,11 +23,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -329,35 +331,94 @@ class AuthFlowIntegrationTest {
     login(PASSWORD);
   }
 
-  @Test
-  void passwordChangeWithCorrectCurrentPasswordChangesPassword() throws Exception {
+  @ParameterizedTest
+  @MethodSource("validNewPasswords")
+  void passwordChangeWithCorrectCurrentPasswordChangesPassword(String replacement)
+      throws Exception {
     String token = login(PASSWORD);
-    String replacement = "replacement-password";
+    changePassword(token, PASSWORD, replacement, 200);
+    String replacementToken = login(replacement);
+    mockMvc
+        .perform(post("/token").with(httpBasic(username, PASSWORD)))
+        .andExpect(status().isUnauthorized());
+    changePassword(replacementToken, replacement, PASSWORD, 200);
+  }
+
+  private static Stream<String> validNewPasswords() {
+    return Stream.of("password", "a".repeat(64), "a".repeat(60) + "😀".repeat(3));
+  }
+
+  @Test
+  void shortExistingPasswordCanAuthorizeChange() throws Exception {
+    String existing = "user";
+    testUser.setPassword(passwordEncoder.encode(existing));
+    appUserRepository.save(testUser);
+
+    changePassword(login(existing), existing, PASSWORD, 200);
+    login(PASSWORD);
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidNewPasswords")
+  void passwordChangeRejectsInvalidNewPasswordAndPreservesLogin(String replacement)
+      throws Exception {
+    String token = login(PASSWORD);
+    changePassword(token, PASSWORD, replacement, 400);
+
+    assertThat(appUserRepository.findById(testUser.getId()).orElseThrow().getSessionVersion())
+        .isZero();
+    login(PASSWORD);
+    if (replacement != null) {
+      mockMvc
+          .perform(post("/token").with(httpBasic(username, replacement)))
+          .andExpect(status().isUnauthorized());
+    }
+  }
+
+  private static Stream<String> invalidNewPasswords() {
+    return Stream.of(
+        null,
+        "",
+        "x",
+        "1234567",
+        " ".repeat(8),
+        "\u2003".repeat(8),
+        "a\0a\0a\0a\0a",
+        "a".repeat(62) + "\n😀",
+        "a".repeat(8) + "\r",
+        "😀".repeat(4),
+        "a".repeat(65),
+        "ä".repeat(36) + "a");
+  }
+
+  @Test
+  void passwordChangeRejectsMalformedUnicodeBeforeHashing() throws Exception {
+    String token = login(PASSWORD);
     mockMvc
         .perform(
             put("/appusers/password")
                 .header("Authorization", bearer(token))
                 .contentType("application/json")
                 .content(
-                    objectMapper.writeValueAsString(
-                        Map.of("newPassword", replacement, "currentPassword", PASSWORD))))
-        .andExpect(status().isOk());
-    login(replacement);
-    mockMvc
-        .perform(post("/token").with(httpBasic(username, PASSWORD)))
-        .andExpect(status().isUnauthorized());
+                    "{\"currentPassword\":\""
+                        + PASSWORD
+                        + "\",\"newPassword\":\"12345678\\ud800\"}"))
+        .andExpect(status().isBadRequest());
+    login(PASSWORD);
   }
 
   private void changePassword(String token, String current, String replacement, int expected)
       throws Exception {
+    var body =
+        replacement == null
+            ? Map.of("currentPassword", current)
+            : Map.of("currentPassword", current, "newPassword", replacement);
     mockMvc
         .perform(
             put("/appusers/password")
                 .header("Authorization", bearer(token))
                 .contentType("application/json")
-                .content(
-                    objectMapper.writeValueAsString(
-                        Map.of("currentPassword", current, "newPassword", replacement))))
+                .content(objectMapper.writeValueAsBytes(body)))
         .andExpect(status().is(expected));
   }
 
