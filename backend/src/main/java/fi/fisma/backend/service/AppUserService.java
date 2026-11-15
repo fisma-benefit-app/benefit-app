@@ -10,6 +10,7 @@ import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.repository.AppUserRepository;
 import fi.fisma.backend.repository.ProjectRepository;
 import fi.fisma.backend.security.AccountSessionValidator;
+import fi.fisma.backend.security.NewPassword;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -132,7 +133,7 @@ public class AppUserService {
   @Transactional
   public void changePassword(
       @NotBlank String currentPassword,
-      @NotBlank String newPassword,
+      @NewPassword String newPassword,
       Authentication authentication) {
     if (authentication == null || !authentication.isAuthenticated()) {
       throw new UnauthorizedException("Authentication required");
@@ -152,8 +153,6 @@ public class AppUserService {
       throw new UnauthorizedException("Current password is incorrect");
     }
 
-    validatePasswordRequirements(newPassword);
-
     appUser.setPassword(passwordEncoder.encode(newPassword));
     appUser.setSessionVersion(Math.incrementExact(appUser.getSessionVersion()));
     appUserRepository.save(appUser);
@@ -170,13 +169,6 @@ public class AppUserService {
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
     return appUser;
-  }
-
-  private void validatePasswordRequirements(String password) {
-    if (password == null || password.length() > 64) {
-      throw new IllegalArgumentException("Password must be less than 64 characters");
-    }
-    // Add more password validation rules as needed
   }
 
   private AppUserSummary mapToSummary(AppUser user) {
