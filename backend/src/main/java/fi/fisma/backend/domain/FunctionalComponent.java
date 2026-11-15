@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -106,8 +107,20 @@ public class FunctionalComponent {
   @Column(name = "is_readonly")
   private Boolean isReadonly = false;
 
+  // Exclude legacy cross-project links before Hibernate loads the collection for orphan removal.
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-  @JoinColumn(name = "parent_fc_id", insertable = false, updatable = false)
+  @JoinColumns({
+    @JoinColumn(
+        name = "parent_fc_id",
+        referencedColumnName = "id",
+        insertable = false,
+        updatable = false),
+    @JoinColumn(
+        name = "project_id",
+        referencedColumnName = "project_id",
+        insertable = false,
+        updatable = false)
+  })
   private List<FunctionalComponent> subComponents = new ArrayList<>();
 
   @ManyToOne(fetch = FetchType.LAZY)

@@ -42,7 +42,7 @@ public class FunctionalComponentService {
    * @param username Username of the authenticated user
    * @return Updated project response with the new component
    * @throws UnauthorizedException if user doesn't have access to the project
-   * @throws EntityNotFoundException if project not found
+   * @throws EntityNotFoundException if the project or the requested active parent is not found
    * @throws ConflictException if the project is not the latest version
    */
   @Transactional
@@ -50,6 +50,12 @@ public class FunctionalComponentService {
       Long projectId, FunctionalComponentRequest request, String username) {
 
     var project = projectService.findEditableProject(projectId, username);
+
+    if (request.getParentFCId() != null) {
+      functionalComponentRepository
+          .findByIdActive(request.getParentFCId(), projectId)
+          .orElseThrow(() -> new EntityNotFoundException("Parent component not found"));
+    }
 
     // Add new component at the end
     request.setOrderPosition(project.getFunctionalComponents().size());
@@ -89,7 +95,7 @@ public class FunctionalComponentService {
     functionalComponentRepository.save(component);
 
     // Soft deletes the subcomponents
-    deleteSubcomponents(component.getId(), deletionTime);
+    deleteSubcomponents(component.getId(), projectId, deletionTime);
 
     // Filter out deleted components when normalizing order
     normalizeComponentOrder(project);
@@ -97,10 +103,11 @@ public class FunctionalComponentService {
     return projectMapper.toResponse(saveAsNewProjectState(project));
   }
 
-  private void deleteSubcomponents(Long parentId, LocalDateTime deletionTime) {
+  private void deleteSubcomponents(Long parentId, Long projectId, LocalDateTime deletionTime) {
     // Gets a list of a functional component's subcomponents
     List<FunctionalComponent> subcomponents =
-        functionalComponentRepository.findByParentFCIdAndDeletedAtIsNull(parentId);
+        functionalComponentRepository.findByParentFCIdAndProjectIdAndDeletedAtIsNull(
+            parentId, projectId);
 
     // Goes through the list and soft delets the subcomponents
     for (FunctionalComponent subcomponent : subcomponents) {
@@ -108,7 +115,7 @@ public class FunctionalComponentService {
       functionalComponentRepository.save(subcomponent);
 
       // Recursively deletes subcomponents of subcomponents, if possible at some point
-      deleteSubcomponents(subcomponent.getId(), deletionTime);
+      deleteSubcomponents(subcomponent.getId(), projectId, deletionTime);
     }
   }
 

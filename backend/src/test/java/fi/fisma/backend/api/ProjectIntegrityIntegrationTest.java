@@ -305,6 +305,123 @@ class ProjectIntegrityIntegrationTest {
     assertThat(getProject(mallory, id).get("functionalComponents")).isEmpty();
   }
 
+  // --- component parent links ---
+
+  @Test
+  void componentCreationRejectsForeignParentsBeforeAndAfterArchiving() throws Exception {
+    String name = "alice-parent-" + suffix;
+    long alicesProject = createProject(alice, name);
+    long parentId = addComponent(alice, alicesProject, component("Parent")).path("id").asLong();
+    long malloryProject = createProject(mallory, "mallory-parent-" + suffix);
+    JsonNode malloryBefore = getProject(mallory, malloryProject);
+    Map<String, Object> child = component("Foreign child");
+    child.put("parentFCId", parentId);
+    JsonNode aliceBeforeArchive = getProject(alice, alicesProject);
+
+    requestComponentCreation(mallory, malloryProject, child).andExpect(status().isNotFound());
+    assertThat(getProject(alice, alicesProject)).isEqualTo(aliceBeforeArchive);
+
+    long latest = createVersion(alice, alicesProject, name, 2);
+    JsonNode archived = getProject(alice, alicesProject);
+    JsonNode latestBefore = getProject(alice, latest);
+    requestComponentCreation(mallory, malloryProject, child).andExpect(status().isNotFound());
+    requestComponentCreation(alice, latest, child).andExpect(status().isNotFound());
+    requestComponentCreation(alice, alicesProject, child).andExpect(status().isConflict());
+
+    assertThat(getProject(alice, alicesProject)).isEqualTo(archived);
+    assertThat(getProject(alice, latest)).isEqualTo(latestBefore);
+    assertThat(getProject(mallory, malloryProject)).isEqualTo(malloryBefore);
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM functional_components WHERE parent_fc_id = ?",
+                Long.class,
+                parentId))
+        .isZero();
+  }
+
+  @Test
+  void componentCreationAcceptsAnActiveSameProjectParentButRejectsItAfterDeletion()
+      throws Exception {
+    String name = "local-parent-" + suffix;
+    long projectId = createProject(alice, name);
+    long parentId = addComponent(alice, projectId, component("Parent")).path("id").asLong();
+    Map<String, Object> child = component("Child");
+    child.put("parentFCId", parentId);
+
+    requestComponentCreation(alice, projectId, child).andExpect(status().isOk());
+    JsonNode current = getProject(alice, projectId);
+    JsonNode children = current.path("functionalComponents").get(0).path("subComponents");
+    assertThat(children).hasSize(1);
+    assertThat(children.get(0).path("parentFCId").asLong()).isEqualTo(parentId);
+    assertThat(children.get(0).path("title").asText()).isEqualTo("Child");
+
+    Map<String, Object> parentUpdate = component("Parent");
+    parentUpdate.put("id", parentId);
+    Map<String, Object> childUpdate = component("Edited child");
+    childUpdate.put("id", children.get(0).path("id").asLong());
+    parentUpdate.put("subComponents", List.of(childUpdate));
+    mockMvc
+        .perform(
+            put("/projects/{id}", projectId)
+                .header("Authorization", bearer(alice))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, current, List.of(parentUpdate), Set.of())))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.functionalComponents[0].subComponents[0].title").value("Edited child"));
+
+    mockMvc
+        .perform(
+            delete("/functional-components/{cid}/projects/{id}", parentId, projectId)
+                .header("Authorization", bearer(alice)))
+        .andExpect(status().isNoContent());
+    JsonNode afterDeletion = getProject(alice, projectId);
+    requestComponentCreation(alice, projectId, child).andExpect(status().isNotFound());
+    assertThat(getProject(alice, projectId)).isEqualTo(afterDeletion);
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM functional_components WHERE parent_fc_id = ? AND deleted_at IS NULL",
+                Long.class,
+                parentId))
+        .isZero();
+  }
+
+  @Test
+  void legacyForeignChildIsExcludedFromReadsAndUnaffectedByParentEdits() throws Exception {
+    String name = "legacy-parent-" + suffix;
+    long alicesProject = createProject(alice, name);
+    long parentId = addComponent(alice, alicesProject, component("Parent")).path("id").asLong();
+    JsonNode before = getProject(alice, alicesProject);
+    long malloryProject = createProject(mallory, "legacy-child-" + suffix);
+    long childId =
+        addComponent(mallory, malloryProject, component("Foreign child")).path("id").asLong();
+    jdbcTemplate.update(
+        "UPDATE functional_components SET parent_fc_id = ? WHERE id = ?", parentId, childId);
+
+    assertThat(getProject(alice, alicesProject)).isEqualTo(before);
+    Map<String, Object> parentUpdate = component("Edited parent");
+    parentUpdate.put("id", parentId);
+    mockMvc
+        .perform(
+            put("/projects/{id}", alicesProject)
+                .header("Authorization", bearer(alice))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, before, List.of(parentUpdate), Set.of())))
+        .andExpect(status().isOk());
+    mockMvc
+        .perform(
+            delete("/functional-components/{cid}/projects/{id}", parentId, alicesProject)
+                .header("Authorization", bearer(alice)))
+        .andExpect(status().isNoContent());
+
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT parent_fc_id FROM functional_components WHERE id = ? AND deleted_at IS NULL",
+                Long.class,
+                childId))
+        .isEqualTo(parentId);
+  }
+
   // --- archived versions ---
 
   @Test
@@ -653,15 +770,19 @@ class ProjectIntegrityIntegrationTest {
   private JsonNode postComponent(String username, long projectId, Map<String, Object> component)
       throws Exception {
     MvcResult result =
-        mockMvc
-            .perform(
-                post("/functional-components/projects/{id}", projectId)
-                    .header("Authorization", bearer(username))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(component)))
+        requestComponentCreation(username, projectId, component)
             .andExpect(status().isOk())
             .andReturn();
     return objectMapper.readTree(result.getResponse().getContentAsString());
+  }
+
+  private ResultActions requestComponentCreation(
+      String username, long projectId, Map<String, Object> component) throws Exception {
+    return mockMvc.perform(
+        post("/functional-components/projects/{id}", projectId)
+            .header("Authorization", bearer(username))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(component)));
   }
 
   private JsonNode getProject(String username, long id) throws Exception {
