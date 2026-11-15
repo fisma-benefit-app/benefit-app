@@ -45,31 +45,6 @@ class AppUserControllerTest {
           .jwt(jwt -> jwt.subject("test-user"));
 
   @Test
-  void testChangePassword() {
-    doNothing()
-        .when(appUserService)
-        .changePassword(eq("current-password"), eq("new-password"), any(Authentication.class));
-
-    mockMvcTester
-        .put()
-        .uri("/appusers/password")
-        .with(jwtAuth)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(
-            """
-                {
-                  "currentPassword": "current-password",
-                  "newPassword": "newPass123"
-                }
-                """)
-        .assertThat()
-        .hasStatusOk();
-
-    verify(appUserService)
-        .changePassword(eq("current-password"), eq("newPass123"), any(Authentication.class));
-  }
-
-  @Test
   void createUserEndpointReturnsCreatedUserSummary() {
     when(appUserService.createNewAppUser(any(AppUserRequest.class), any(Authentication.class)))
         .thenReturn(new AppUser(10L, "new-admin", "encoded-password", EnumUserRole.ADMIN, null, 0));

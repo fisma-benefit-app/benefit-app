@@ -154,7 +154,7 @@ class ProjectIntegrityIntegrationTest {
     long v1 = createProject(alice, name);
     long v2 = createVersion(alice, v1, name, 2);
 
-    addMember(alice, v2, mallory)
+    addMember(alice, v2, " " + mallory + " ")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.projectAppUsers.length()").value(2));
 

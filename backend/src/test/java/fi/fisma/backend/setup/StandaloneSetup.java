@@ -66,23 +66,6 @@ public class StandaloneSetup {
             Set.of()));
   }
 
-  public static ProjectResponse updated() {
-    return new ProjectResponse(
-        1L,
-        "Updated Project",
-        2,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        (LocalDate) null,
-        null,
-        null,
-        LocalDateTime.now(),
-        0L,
-        true,
-        Set.of(),
-        Set.of());
-  }
-
   public static ProjectResponse savedProject() {
     return new ProjectResponse(
         1L,
