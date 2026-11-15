@@ -8,6 +8,12 @@ import {
 } from "../lib/types";
 const API_URL = import.meta.env.VITE_API_URL;
 
+export class ProjectNameTakenError extends Error {
+  constructor() {
+    super("A project with this name already exists.");
+  }
+}
+
 // "notLatestVersion": another tab archived this version as a new one, so it can no longer be
 // edited. "savedElsewhere": another tab saved this version first.
 export class ConflictError extends Error {
@@ -117,6 +123,12 @@ const createProject = async (
   if (!response.ok) {
     if (response.status === 401) {
       throw new Error("Unauthorized!");
+    }
+    if (response.status === 409) {
+      const body = await response.json().catch(() => null);
+      if (body?.code === "PROJECT_NAME_ALREADY_EXISTS") {
+        throw new ProjectNameTakenError();
+      }
     }
     throw new Error(
       `Error creating a new project in createProject! Status: ${response.status}`,

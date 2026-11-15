@@ -79,6 +79,7 @@ public class ProjectController {
       description = "Creates a new project for the authenticated user")
   @ApiResponse(responseCode = "201", description = "Project created successfully")
   @ApiResponse(responseCode = "400", description = "Invalid project data")
+  @ApiResponse(responseCode = "409", description = "A project with this name already exists")
   public ResponseEntity<Void> createProject(
       @Valid @RequestBody ProjectRequest newProjectRequest,
       UriComponentsBuilder ucb,

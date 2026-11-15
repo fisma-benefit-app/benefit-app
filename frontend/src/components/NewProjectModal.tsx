@@ -1,6 +1,7 @@
 import useAppUser from "../hooks/useAppUser";
 import { useState, FormEvent, useRef, useEffect, ChangeEvent } from "react";
 import {
+  ProjectNameTakenError,
   createProject,
   fetchAllProjects,
   updateProject,
@@ -30,13 +31,12 @@ export default function NewProjectModal({
 }: NewProjectFormProps) {
   const navigate = useNavigate();
   const { sessionToken, logout } = useAppUser();
-  const { sortedProjects, setProjects } = useProjects();
+  const { setProjects } = useProjects();
   const [view, setView] = useState<ModalView>("selection");
   const [name, setName] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [showError, setShowError] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const translation = useTranslations().newProjectModal as Record<
@@ -50,7 +50,6 @@ export default function NewProjectModal({
       setName("");
       setSelectedFile(null);
       setError(null);
-      setShowError(false);
     }
   }, [open]);
 
@@ -60,31 +59,28 @@ export default function NewProjectModal({
     }
   }, [view, open]);
 
-  const displayError = (message: string) => {
-    setError(message);
-    setShowError(true);
-    setTimeout(() => {
-      setShowError(false);
-      setTimeout(() => setError(null), 500);
-    }, 2500);
+  const handleSubmitError = async (err: unknown, fallback: string) => {
+    if (err instanceof Error && err.message === "Unauthorized!") {
+      await logout();
+    }
+    setError(
+      err instanceof ProjectNameTakenError
+        ? translation.nameTakenError
+        : err instanceof Error
+          ? err.message
+          : fallback,
+    );
   };
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    const nameTaken = sortedProjects.some(
-      (project) => project.projectName.toLowerCase() === name.toLowerCase(),
-    );
-
-    if (!name.trim() || nameTaken) {
-      setError(
-        nameTaken ? translation.nameTakenError : translation.noNameError,
-      );
-      setName("");
-      setLoading(false);
+    if (!name.trim()) {
+      setError(translation.noNameError);
       return;
     }
+
+    setError(null);
+    setLoading(true);
 
     try {
       const idOfNewProject = await createProject(sessionToken, name);
@@ -92,10 +88,7 @@ export default function NewProjectModal({
       navigate(`project/${idOfNewProject}`);
       handleClose();
     } catch (err) {
-      if (err instanceof Error && err.message === "Unauthorized!") {
-        await logout();
-      }
-      displayError(err instanceof Error ? err.message : "Unexpected error.");
+      await handleSubmitError(err, "Unexpected error.");
     } finally {
       setLoading(false);
     }
@@ -105,12 +98,11 @@ export default function NewProjectModal({
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (!file.name.endsWith(".csv")) {
-        displayError(
-          translation.invalidFileFormat || "Please select a .csv file",
-        );
+        setError(translation.invalidFileFormat || "Please select a .csv file");
         e.target.value = ""; // Reset input
         return;
       }
+      setError(null);
       setSelectedFile(file);
       // Suggest project's name from the file's name
       const suggestedName = file.name
@@ -124,22 +116,16 @@ export default function NewProjectModal({
     e.preventDefault();
 
     if (!selectedFile) {
-      displayError(translation.noFileSelected || "Please choose a CSV file.");
+      setError(translation.noFileSelected || "Please choose a CSV file.");
       return;
     }
 
-    const nameTaken = sortedProjects.some(
-      (project) => project.projectName.toLowerCase() === name.toLowerCase(),
-    );
-
-    if (!name.trim() || nameTaken) {
-      displayError(
-        nameTaken ? translation.nameTakenError : translation.noNameError,
-      );
-      setLoading(false);
+    if (!name.trim()) {
+      setError(translation.noNameError);
       return;
     }
 
+    setError(null);
     setLoading(true);
 
     try {
@@ -346,10 +332,7 @@ export default function NewProjectModal({
       navigate(`project/${idOfNewProject}`);
       handleClose();
     } catch (err) {
-      if (err instanceof Error && err.message === "Unauthorized!") {
-        await logout();
-      }
-      displayError(err instanceof Error ? err.message : "Error importing CSV.");
+      await handleSubmitError(err, "Error importing CSV.");
     } finally {
       setLoading(false);
     }
@@ -373,16 +356,17 @@ export default function NewProjectModal({
           {view === "import" && (translation.importCsv || "Import from CSV")}
         </h2>
 
-        <div className="h-8 mb-4 flex items-center justify-center">
+        <div className="min-h-8 mb-4 flex items-center justify-center">
           {loading ? (
             <DotLoadingSpinner />
           ) : (
             error && (
-              <label
-                className={`text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1 transition-opacity duration-500 ease-in-out ${showError ? "opacity-100" : "opacity-0"}`}
+              <p
+                role="alert"
+                className="text-sm text-fisma-red text-center bg-red-100 border border-fisma-red p-1"
               >
                 {error}
-              </label>
+              </p>
             )
           )}
         </div>
@@ -427,6 +411,7 @@ export default function NewProjectModal({
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
+                setError(null);
               }}
               required
               className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
@@ -437,6 +422,7 @@ export default function NewProjectModal({
                 disabled={loading}
                 onClick={() => {
                   setView("selection");
+                  setError(null);
                 }}
                 className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
               >
@@ -479,7 +465,10 @@ export default function NewProjectModal({
                   maxLength={60}
                   placeholder={translation.placeholderText}
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setError(null);
+                  }}
                   required
                   className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
                 />
@@ -490,7 +479,10 @@ export default function NewProjectModal({
               <button
                 type="button"
                 disabled={loading}
-                onClick={() => setView("selection")}
+                onClick={() => {
+                  setView("selection");
+                  setError(null);
+                }}
                 className="w-1/2 text-white bg-gray-500 hover:brightness-70 p-2"
               >
                 {translation.back || "Back"}

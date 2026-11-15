@@ -10,6 +10,9 @@ public class ConflictException extends RuntimeException {
   /** Username is already taken when creating a new user */
   public static final String USERNAME_ALREADY_EXISTS = "USERNAME_ALREADY_EXISTS";
 
+  /** The user can already access a project with the requested name. */
+  public static final String PROJECT_NAME_ALREADY_EXISTS = "PROJECT_NAME_ALREADY_EXISTS";
+
   /** The user is already a member of the project. */
   public static final String ALREADY_MEMBER = "ALREADY_MEMBER";
 
