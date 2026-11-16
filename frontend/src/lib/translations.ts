@@ -47,7 +47,7 @@ export const translations = {
       placeholderText: "Name the project",
       cancel: "Cancel",
       createNew: "Create new",
-      nameTakenError: "Name is already in use!",
+      nameTakenError: "A project with this name already exists.",
     },
     newUserModal: {
       header: "Create a New User",
@@ -485,7 +485,7 @@ export const translations = {
       placeholderText: "Anna projektille nimi",
       cancel: "Peruuta",
       createNew: "Luo uusi",
-      nameTakenError: "Nimi on jo käytössä!",
+      nameTakenError: "Samanniminen projekti on jo olemassa.",
     },
     newUserModal: {
       header: "Luo uusi käyttäjä",

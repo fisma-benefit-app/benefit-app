@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router";
 import {
+  ProjectNameTakenError,
   createProject,
   fetchAllProjects,
   fetchProject,
@@ -42,7 +43,7 @@ const toCount = (value: string) => Math.max(0, parseInt(value) || 0);
 const QuickCalculation = () => {
   const navigate = useNavigate();
   const { loggedIn, sessionToken, logout } = useAppUser();
-  const { sortedProjects, setProjects } = useProjects();
+  const { setProjects } = useProjects();
   const translations = useTranslations();
   const translation = translations.quickCalculation;
   const classTranslation = translations.functionalClassComponent;
@@ -96,22 +97,12 @@ const QuickCalculation = () => {
 
   const handleCreateProject = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
-
-    const nameTaken = sortedProjects.some(
-      (project) =>
-        project.projectName.toLowerCase() === projectName.toLowerCase(),
-    );
-    if (!projectName.trim() || nameTaken) {
-      setError(
-        nameTaken
-          ? newProjectTranslation.nameTakenError
-          : newProjectTranslation.noNameError,
-      );
-      setProjectName("");
+    if (!projectName.trim()) {
+      setError(newProjectTranslation.noNameError);
       return;
     }
 
+    setError(null);
     setLoading(true);
     try {
       const titles = Object.fromEntries(
@@ -168,7 +159,13 @@ const QuickCalculation = () => {
       if (err instanceof Error && err.message === "Unauthorized!") {
         await logout();
       }
-      setError(err instanceof Error ? err.message : "Unexpected error.");
+      setError(
+        err instanceof ProjectNameTakenError
+          ? newProjectTranslation.nameTakenError
+          : err instanceof Error
+            ? err.message
+            : "Unexpected error.",
+      );
     } finally {
       setLoading(false);
     }
@@ -350,7 +347,11 @@ const QuickCalculation = () => {
               {tooLarge && (
                 <p className="m-0 text-fisma-red">{translation.tooLarge}</p>
               )}
-              {error && <p className="m-0 text-fisma-red">{error}</p>}
+              {error && (
+                <p role="alert" className="m-0 text-fisma-red">
+                  {error}
+                </p>
+              )}
               <div className="flex items-center gap-4">
                 <button
                   type="submit"

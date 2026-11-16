@@ -682,7 +682,31 @@ class ProjectIntegrityIntegrationTest {
     }
   }
 
-  // --- duplicate naming ---
+  // --- project naming ---
+
+  @Test
+  void creatingAProjectRejectsAnExistingNameIgnoringCase() throws Exception {
+    createProject(alice, "Example-" + suffix);
+
+    submitNewProject(alice, "example-" + suffix)
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("PROJECT_NAME_ALREADY_EXISTS"));
+  }
+
+  @Test
+  void creatingAProjectOnlyChecksNamesTheUserCanAccess() throws Exception {
+    String name = "example-" + suffix;
+    createProject(alice, name);
+    createProject(mallory, name);
+
+    String sharedName = "shared-" + suffix;
+    long sharedId = createProject(alice, sharedName);
+    addMember(alice, sharedId, mallory).andExpect(status().isOk());
+
+    submitNewProject(mallory, sharedName)
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("PROJECT_NAME_ALREADY_EXISTS"));
+  }
 
   @Test
   void duplicatingAgainPicksAFreeNameInsteadOfJoiningTheFirstCopysVersions() throws Exception {
@@ -728,16 +752,16 @@ class ProjectIntegrityIntegrationTest {
   }
 
   private long createProject(String username, String name) throws Exception {
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/projects")
-                    .header("Authorization", bearer(username))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(body(name, 1, null, List.of(), Set.of())))
-            .andExpect(status().isCreated())
-            .andReturn();
+    MvcResult result = submitNewProject(username, name).andExpect(status().isCreated()).andReturn();
     return trackedIdFromLocation(result);
+  }
+
+  private ResultActions submitNewProject(String username, String name) throws Exception {
+    return mockMvc.perform(
+        post("/projects")
+            .header("Authorization", bearer(username))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body(name, 1, null, List.of(), Set.of())));
   }
 
   private long createVersion(String username, long fromId, String name, int version)

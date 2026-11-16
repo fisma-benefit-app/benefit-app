@@ -51,7 +51,7 @@ class ProjectServiceTest {
             projectMapper,
             Clock.systemDefaultZone());
 
-    when(appUserRepository.findByUsernameActive("alice")).thenReturn(Optional.of(appUser));
+    when(appUserRepository.findByUsernameActiveForUpdate("alice")).thenReturn(Optional.of(appUser));
     when(projectMapper.toEntity(any(ProjectRequest.class))).thenReturn(project);
     when(functionalComponentMapper.updateEntityFromRequest(any(), any())).thenReturn(Set.of());
     when(projectRepository.save(project)).thenReturn(project);
@@ -68,7 +68,9 @@ class ProjectServiceTest {
         .when(project)
         .setProjectAppUsers(anySet());
 
-    projectService.createProject(new ProjectRequest(), "alice");
+    var request = new ProjectRequest();
+    request.setProjectName("New project");
+    projectService.createProject(request, "alice");
 
     assertThat(projectUsers.get()).hasSize(1);
     assertThat(projectUsers.get().iterator().next().getRoleInProject())

@@ -116,12 +116,26 @@ public class ProjectService {
    * @param username the username of the user creating the project
    * @return the created ProjectResponse
    * @throws UnauthorizedException if the user is not found
+   * @throws ConflictException if the user already has access to a project with the requested name
    */
   public ProjectResponse createProject(ProjectRequest newProjectRequest, String username) {
+    // Serialize new project name allocation for the same user until the project is committed.
     var appUser =
         appUserRepository
-            .findByUsernameActive(username)
+            .findByUsernameActiveForUpdate(username)
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
+
+    String requestedName = newProjectRequest.getProjectName().toLowerCase(Locale.ROOT);
+    boolean nameTaken =
+        projectRepository.findAllByUsernameActive(username).stream()
+            .anyMatch(
+                existing ->
+                    existing.getProjectName().toLowerCase(Locale.ROOT).equals(requestedName));
+    if (nameTaken) {
+      throw new ConflictException(
+          ConflictException.PROJECT_NAME_ALREADY_EXISTS,
+          "A project with this name already exists.");
+    }
 
     var project = projectMapper.toEntity(newProjectRequest);
 
@@ -419,7 +433,7 @@ public class ProjectService {
 
     var appUser =
         appUserRepository
-            .findByUsernameActive(username)
+            .findByUsernameActiveForUpdate(username)
             .orElseThrow(() -> new UnauthorizedException("User not found: " + username));
 
     // Create a new Project
