@@ -4,8 +4,7 @@ import {
   calculateTotalPoints,
   calculateTotalPossiblePoints,
   calculateBasePoints,
-  calculateProjectPointsByLayer,
-  calculatePossiblePointsByLayer,
+  calculateMLALayerDetails,
   getGroupedComponents,
 } from "./centralizedCalculations";
 import { dateLocalizer, getAllComponents } from "./printUtils";
@@ -574,9 +573,9 @@ export const generateCalculationReportPDF = async (
   const summaryTables: Content[] = [];
 
   // --- Summary MLA ---
-  const actualLayerPoints = calculateProjectPointsByLayer(project);
-  const possibleLayerPoints =
-    calculatePossiblePointsByLayer(allCurrentComponents);
+  const mlaLayerDetails = calculateMLALayerDetails(
+    project.functionalComponents,
+  );
 
   const uiLayerLabel = isFinnish
     ? "Käyttöliittymäkerros (UI)"
@@ -591,18 +590,18 @@ export const generateCalculationReportPDF = async (
   const mlaData = [
     [
       uiLayerLabel,
-      actualLayerPoints.userInterface.toFixed(2),
-      possibleLayerPoints.userInterface.toFixed(2),
+      mlaLayerDetails.ui.points.toFixed(2),
+      mlaLayerDetails.ui.possiblePoints.toFixed(2),
     ],
     [
       businessLayerLabel,
-      actualLayerPoints.business.toFixed(2),
-      possibleLayerPoints.business.toFixed(2),
+      mlaLayerDetails.business.points.toFixed(2),
+      mlaLayerDetails.business.possiblePoints.toFixed(2),
     ],
     [
       dbLayerLabel,
-      actualLayerPoints.database.toFixed(2),
-      possibleLayerPoints.database.toFixed(2),
+      mlaLayerDetails.database.points.toFixed(2),
+      mlaLayerDetails.database.possiblePoints.toFixed(2),
     ],
   ];
 
