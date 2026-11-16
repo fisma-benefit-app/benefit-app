@@ -51,7 +51,7 @@ export const calculateDiagramFigures = (
   return {
     uiPoints: layers.ui.points,
     uiCount: layers.ui.count,
-    businessPoints: layers.business.points - externalPoints,
+    businessPoints: layers.business.points,
     databasePoints: layers.database.points,
     databaseCount: layers.database.count,
     externalPoints,
