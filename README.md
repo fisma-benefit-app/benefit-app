@@ -714,7 +714,7 @@ or, if you want to run a specific test class:
 
 ### Authentication and Authorization
 
-Basic authentication is used. After successful authentication, a JWT is generated and returned. A more detailed authentication guide can be found [here](documents/guides/authentication.md). Authenticated users are authorized with the role ROLE_USER.
+Login uses Basic authentication on `POST /token` with the `X-Benefit-Login: 1` header. After successful authentication, a JWT is generated and returned. A more detailed authentication guide can be found [here](documents/guides/authentication.md). Authenticated users are authorized with the role ROLE_USER.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

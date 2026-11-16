@@ -296,11 +296,12 @@ paths:
       tags:
       - Token Generation
       summary: Generate a JWT
-      description: "Generates a signed JWT. With Basic credentials this is a login,\
-        \ and rememberMe picks a 30-day instead of a 24-hour token. With a Bearer\
-        \ token this renews the session: the new token keeps the current token's lifetime\
-        \ (rememberMe is ignored), the current token is revoked, and a login can't\
-        \ be renewed past 30 days."
+      description: >-
+        Generates a signed JWT. Login requires Basic credentials and X-Benefit-Login: 1.
+        The rememberMe parameter picks a 30-day instead of a 24-hour token.
+        With a Bearer token this renews the session: the new token keeps the current token's
+        lifetime (rememberMe is ignored), the current token is revoked, and a login can't
+        be renewed past 30 days.
       operationId: getToken
       parameters:
       - name: rememberMe
@@ -318,6 +319,12 @@ paths:
                 type: object
         "401":
           description: "User not authenticated, or the session can no longer be renewed"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "403":
+          description: Missing Basic login header or origin rejected
           content:
             '*/*':
               schema:

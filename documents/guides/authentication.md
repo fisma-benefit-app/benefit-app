@@ -23,7 +23,7 @@ sequenceDiagram
     participant DB as Postgres (app_users)
 
     Note over FE,DB: 1. Login: database → token
-    FE->>BE: POST /token (Authorization: Basic base64(user:pass))
+    FE->>BE: POST /token (Authorization: Basic base64(user:pass), X-Benefit-Login: 1)
     BE->>DB: SELECT user WHERE username = ? AND deleted_at IS NULL
     DB-->>BE: id, username, BCrypt hash
     BE->>BE: BCrypt check, then sign JWT with RSA private key
@@ -95,7 +95,7 @@ const encodedCredentials = btoa(
 );
 fetch(`${API_URL}/token?rememberMe=${rememberMe}`, {
   method: "POST",
-  headers: { Authorization: `Basic ${encodedCredentials}` },
+  headers: { Authorization: `Basic ${encodedCredentials}`, "X-Benefit-Login": "1" },
 });
 ```
 
@@ -106,6 +106,8 @@ This is standard HTTP Basic auth: `username:password` encoded in Base64. Base64 
 | Production (Heroku), testing (Scalingo)        | HTTPS      | The platforms terminate TLS. The frontend on GitHub Pages is HTTPS too, so the browser would block calls to a plain-HTTP API as mixed content.                                                                      |
 | Self-hosted stack (`docker-compose.prod.yaml`) | **HTTP**   | nginx only listens on port 80, so the password and every JWT cross the network unencrypted. Put a TLS reverse proxy (e.g. Caddy) in front before real users log in, see [deployment_guide.md](deployment_guide.md). |
 | Local development                              | HTTP       | `localhost` only.                                                                                                                                                                                                   |
+
+Basic authentication is limited to `POST /token`, where clients must send `X-Benefit-Login: 1`. HTML forms cannot set this header, and cross-origin browser scripts need a successful CORS preflight to send it. Protected API routes and session renewal use a Bearer token.
 
 ### 2. Spring Security checks the database
 
@@ -346,7 +348,7 @@ Then go to the 'Authorization' tab:
 - Method: `POST`
 - URL: `http://localhost:8080/token` (add `?rememberMe=true` for a 30-day token)
 
-Press `Send`.
+In the Headers tab, add `X-Benefit-Login` with value `1`, then press `Send`.
 
 #### 3. At the bottom, it should show 'Status: 200 OK', and 'Body' should contain JSON
 

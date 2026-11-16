@@ -34,6 +34,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -49,7 +50,13 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -60,6 +67,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
   private final UserDetailsServiceImpl userDetailsService;
   private final LoginAttemptThrottleService loginAttemptThrottleService;
+
+  static final String LOGIN_HEADER = "X-Benefit-Login";
 
   private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
@@ -129,7 +138,16 @@ public class SecurityConfig {
       BearerTokenResolver bearerTokenResolver)
       throws Exception {
 
-    http.csrf(csrf -> csrf.disable())
+    var tokenPost = PathPatternRequestMatcher.pathPattern(HttpMethod.POST, "/token");
+    var explicitLogin =
+        new AndRequestMatcher(tokenPost, new RequestHeaderRequestMatcher(LOGIN_HEADER, "1"));
+
+    http.csrf(
+            csrf ->
+                csrf.requireCsrfProtectionMatcher(tokenPost)
+                    .csrfTokenRepository(new CookieCsrfTokenRepository())
+                    // Forms cannot set this header. Cross-origin scripts must pass CORS preflight.
+                    .ignoringRequestMatchers(explicitLogin))
         .addFilterBefore(jwtRevocationFilter, SecurityContextHolderFilter.class)
         .authorizeHttpRequests(
             (authorize) ->
@@ -149,21 +167,35 @@ public class SecurityConfig {
         .cors(Customizer.withDefaults())
         .httpBasic(
             basic ->
-                basic.authenticationEntryPoint(
-                    (request, response, exception) -> {
-                      if (isLockedException(exception)) {
-                        response.setStatus(429);
-                        response.setContentType("application/json");
-                        response
-                            .getWriter()
-                            .write(
-                                "{\"error\":\"Too many failed login attempts. Please try again later.\"}");
-                        return;
-                      }
-                      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                      response.setContentType("application/json");
-                      response.getWriter().write("{\"error\":\"Unauthorized\"}");
-                    }))
+                basic
+                    .withObjectPostProcessor(
+                        new ObjectPostProcessor<BasicAuthenticationFilter>() {
+                          @Override
+                          public <T extends BasicAuthenticationFilter> T postProcess(T filter) {
+                            var converter = new BasicAuthenticationConverter();
+                            filter.setAuthenticationConverter(
+                                request ->
+                                    explicitLogin.matches(request)
+                                        ? converter.convert(request)
+                                        : null);
+                            return filter;
+                          }
+                        })
+                    .authenticationEntryPoint(
+                        (request, response, exception) -> {
+                          if (isLockedException(exception)) {
+                            response.setStatus(429);
+                            response.setContentType("application/json");
+                            response
+                                .getWriter()
+                                .write(
+                                    "{\"error\":\"Too many failed login attempts. Please try again later.\"}");
+                            return;
+                          }
+                          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                          response.setContentType("application/json");
+                          response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        }))
         .oauth2ResourceServer(
             oauth2 ->
                 oauth2.bearerTokenResolver(bearerTokenResolver).jwt(Customizer.withDefaults()))

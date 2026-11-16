@@ -658,6 +658,21 @@ class ProjectIntegrityIntegrationTest {
         .andExpect(status().isOk());
   }
 
+  @Test
+  void basicCredentialsCannotDuplicateProjectEvenWithLoginHeader() throws Exception {
+    String name = "basic-duplicate-" + suffix;
+    long id = createProject(mallory, name);
+
+    mockMvc
+        .perform(
+            post("/projects/{id}/duplicate", id)
+                .with(httpBasic(mallory, PASSWORD))
+                .header("X-Benefit-Login", "1"))
+        .andExpect(status().isUnauthorized());
+
+    assertThat(duplicate(id).path("projectName").asText()).isEqualTo(name + " - Copy");
+  }
+
   // --- timestamps ---
 
   @Test
@@ -746,7 +761,11 @@ class ProjectIntegrityIntegrationTest {
 
   private String bearer(String username) throws Exception {
     MvcResult result =
-        mockMvc.perform(post("/token").with(httpBasic(username, PASSWORD))).andReturn();
+        mockMvc
+            .perform(
+                post("/token").with(httpBasic(username, PASSWORD)).header("X-Benefit-Login", "1"))
+            .andExpect(status().isOk())
+            .andReturn();
     assertThat(result.getResponse().getStatus()).isEqualTo(200);
     return result.getResponse().getHeader("Authorization");
   }
