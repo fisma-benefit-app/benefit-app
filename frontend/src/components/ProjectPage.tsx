@@ -1,3 +1,4 @@
+import { getProjectFamilyKey } from "../lib/projectFamily";
 import { ChangeEvent, useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -119,7 +120,9 @@ export default function ProjectPage() {
 
   //get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
-    (projectInArray) => project?.projectName === projectInArray.projectName,
+    (projectInArray) =>
+      project &&
+      getProjectFamilyKey(project) === getProjectFamilyKey(projectInArray),
   );
 
   //only allow user to edit project if it is the latest one

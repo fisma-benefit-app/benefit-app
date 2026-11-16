@@ -1,3 +1,4 @@
+import { getProjectFamilyKey } from "../lib/projectFamily";
 import * as React from "react";
 import { Project } from "../lib/types.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
@@ -69,16 +70,15 @@ export default function ProjectsProvider({
 
   const handleUpdate = async (updatedProject: Project) => {
     try {
-      const originalProject = projects.find((p) => p.id === updatedProject.id);
-      const originalName = originalProject?.projectName;
-
-      if (!originalName) return;
-
+      const familyKey = getProjectFamilyKey(updatedProject);
       // The backend only accepts edits to the latest version and renames the older
       // versions with it. Fetch it fresh so the rename carries its current lockVersion.
       const latestVersion = projects
-        .filter((p) => p.projectName === originalName)
-        .reduce((latest, p) => (p.version > latest.version ? p : latest));
+        .filter((p) => getProjectFamilyKey(p) === familyKey)
+        .reduce(
+          (latest, p) => (p.version > latest.version ? p : latest),
+          updatedProject,
+        );
 
       const updatedResponse = await updateProject(sessionToken, {
         ...(await fetchProject(sessionToken, latestVersion.id)),
@@ -87,10 +87,13 @@ export default function ProjectsProvider({
 
       setProjects((prevProjects) =>
         prevProjects.map((project) => {
-          if (project.projectName === originalName) {
+          if (getProjectFamilyKey(project) === familyKey) {
             return {
               ...project,
-              lockVersion: updatedResponse.lockVersion ?? project.lockVersion,
+              lockVersion:
+                project.id === updatedResponse.id
+                  ? updatedResponse.lockVersion
+                  : project.lockVersion,
               projectName: updatedProject.projectName,
             };
           }

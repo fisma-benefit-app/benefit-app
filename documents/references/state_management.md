@@ -127,7 +127,7 @@ const handleDelete = async (projectId: number) => {
 
 #### Version Management
 
-Projects with the same `projectName` are considered versions. The context provides utilities to:
+Project versions share a backend-assigned `familyId`. A new or duplicated project starts its own family. The context provides utilities to:
 
 - Identify the latest version (highest `version` number, most recent `updatedAt`)
 - Get the previous version for comparison

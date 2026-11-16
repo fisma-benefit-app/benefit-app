@@ -1,3 +1,4 @@
+import { getProjectFamilyKey } from "../lib/projectFamily";
 import {
   type AriaAttributes,
   type KeyboardEvent,
@@ -66,9 +67,9 @@ export default function ProjectList() {
   const getLatestVersion = (projects: Project[]) => {
     const projectMap = new Map<string, Project>();
     projects.forEach((project) => {
-      const existing = projectMap.get(project.projectName);
+      const existing = projectMap.get(getProjectFamilyKey(project));
       if (!existing || project.version > existing.version) {
-        projectMap.set(project.projectName, project);
+        projectMap.set(getProjectFamilyKey(project), project);
       }
     });
     return Array.from(projectMap.values());

@@ -105,6 +105,87 @@ class ProjectIntegrityIntegrationTest {
   // --- membership ---
 
   @Test
+  void sameNameProjectsStayPrivateWhenOneFamilyIsShared() throws Exception {
+    String outsider = createUser("outsider-" + suffix);
+    String name = "collision-" + suffix;
+    long privateProject = createProject(alice, name);
+    long privateControl = createProject(alice, "different-" + suffix);
+    long decoy = createProject(mallory, name);
+    long decoyVersion = createVersion(mallory, decoy, name, 2);
+    List<Long> privateMemberships = membershipIds(privateProject);
+    List<Long> controlMemberships = membershipIds(privateControl);
+
+    addMember(mallory, decoy, alice).andExpect(status().isOk());
+    mockMvc
+        .perform(get("/projects/{id}", privateProject).header("Authorization", bearer(outsider)))
+        .andExpect(status().isNotFound());
+
+    addMember(alice, decoy, outsider).andExpect(status().isOk());
+    JsonNode shared = getProject(outsider, decoy);
+    assertThat(shared.path("familyId").isTextual()).isTrue();
+    assertThat(getProject(outsider, decoyVersion).path("familyId"))
+        .isEqualTo(shared.path("familyId"));
+    assertThat(getProject(alice, privateProject).path("familyId"))
+        .isNotEqualTo(shared.path("familyId"));
+    mockMvc
+        .perform(get("/projects/{id}", privateProject).header("Authorization", bearer(outsider)))
+        .andExpect(status().isNotFound());
+    mockMvc
+        .perform(get("/projects/{id}", privateControl).header("Authorization", bearer(outsider)))
+        .andExpect(status().isNotFound());
+    assertThat(membershipIds(privateProject)).isEqualTo(privateMemberships);
+    assertThat(membershipIds(privateControl)).isEqualTo(controlMemberships);
+
+    addMember(alice, privateProject, outsider).andExpect(status().isOk());
+    removeMember(alice, decoy, outsider).andExpect(status().isNoContent());
+    getProject(outsider, privateProject);
+    mockMvc
+        .perform(get("/projects/{id}", decoy).header("Authorization", bearer(outsider)))
+        .andExpect(status().isNotFound());
+    mockMvc
+        .perform(get("/projects/{id}", decoyVersion).header("Authorization", bearer(outsider)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void duplicateLegacyMembershipDoesNotPreventSharing() throws Exception {
+    long project = createProject(alice, "duplicate-membership-" + suffix);
+    jdbcTemplate.update(
+        """
+        INSERT INTO projects_app_users (project_id, app_user_id, role_in_project)
+        SELECT project_id, app_user_id, role_in_project FROM projects_app_users
+        WHERE project_id = ?
+        """,
+        project);
+
+    addMember(alice, project, mallory).andExpect(status().isOk());
+    getProject(mallory, project);
+  }
+
+  @Test
+  void archiveRejectsVersionNumberOverflow() throws Exception {
+    String name = "max-version-" + suffix;
+    MvcResult created =
+        mockMvc
+            .perform(
+                post("/projects")
+                    .header("Authorization", bearer(alice))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body(name, Integer.MAX_VALUE, null, List.of(), Set.of())))
+            .andExpect(status().isCreated())
+            .andReturn();
+    long project = trackedIdFromLocation(created);
+
+    mockMvc
+        .perform(
+            post("/projects/{id}/versions", project)
+                .header("Authorization", bearer(alice))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 1, null, List.of(), Set.of())))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   void putCannotMoveAnotherUsersMembershipOntoOwnProject() throws Exception {
     long alicesProject = createProject(alice, "alice-project-" + suffix);
     long alicesMembership = membershipIds(alicesProject).get(0);
@@ -521,11 +602,14 @@ class ProjectIntegrityIntegrationTest {
   }
 
   @Test
-  void renamingTheLatestVersionRenamesArchivedVersions() throws Exception {
+  void renamingTheLatestVersionOnlyRenamesItsOwnArchivedVersions() throws Exception {
     String name = "rename-" + suffix;
     long v1 = createProject(mallory, name);
     long v2 = createVersion(mallory, v1, name, 2);
     String newName = "renamed-" + suffix;
+    long other = createProject(alice, newName);
+    long otherVersion = createVersion(alice, other, newName, 2);
+    addMember(alice, other, mallory).andExpect(status().isOk());
 
     mockMvc
         .perform(
@@ -536,6 +620,10 @@ class ProjectIntegrityIntegrationTest {
         .andExpect(status().isOk());
 
     assertThat(getProject(mallory, v1).path("projectName").asText()).isEqualTo(newName);
+    assertThat(getProject(mallory, v2).path("familyId"))
+        .isNotEqualTo(getProject(mallory, otherVersion).path("familyId"));
+    removeMember(mallory, v2, mallory).andExpect(status().isConflict());
+    getProject(mallory, otherVersion);
   }
 
   // --- concurrent saves ---

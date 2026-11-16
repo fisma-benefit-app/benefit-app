@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 @Schema(description = "Response object containing project details")
 public record ProjectResponse(
     @Schema(description = "Unique identifier of the project", example = "1") Long id,
+    @Schema(description = "Immutable identifier shared by versions of this project") UUID familyId,
     @Schema(description = "Name of the project", example = "User Authentication Service")
         String projectName,
     @Schema(description = "Version of the project", example = "1") int version,

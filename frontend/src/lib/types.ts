@@ -18,6 +18,7 @@ export type ProjectRequest = {
 
 export type ProjectResponse = {
   id: number;
+  familyId?: string;
   projectName: string;
   version: number;
   reportContactDetails: string | null;
@@ -110,6 +111,7 @@ export type TGenericComponentNoId = {
 
 export type Project = {
   id: number;
+  familyId?: string;
   projectName: string;
   version: number;
   reportContactDetails: string | null;

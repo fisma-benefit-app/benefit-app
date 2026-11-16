@@ -10,6 +10,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,7 @@ public class ProjectMapper {
     var response =
         new ProjectResponse(
             project.getId(),
+            project.getFamilyId(),
             project.getProjectName(),
             project.getVersion(),
             project.getCreatedAt(),
@@ -58,6 +60,7 @@ public class ProjectMapper {
     LocalDateTime now = LocalDateTime.now(clock);
     return new Project(
         null,
+        UUID.randomUUID(),
         request.getProjectName(),
         request.getVersion(),
         now,
@@ -90,8 +93,9 @@ public class ProjectMapper {
     Project newVersion =
         new Project(
             null,
-            request.getProjectName(),
-            request.getVersion(),
+            originalProject.getFamilyId(),
+            originalProject.getProjectName(),
+            originalProject.getVersion() + 1,
             originalProject.getCreatedAt(), // keep original creation date
             now, // new version date
             request.getCalculationDate(),
