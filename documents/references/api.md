@@ -790,7 +790,7 @@ Endpoint for generating token
 
 `POST /token`
 
-Generates a signed JWT. With Basic credentials this is a login, and rememberMe picks a 30-day instead of a 24-hour token. With a Bearer token this renews the session: the new token keeps the current token's lifetime (rememberMe is ignored), the current token is revoked, and a login can't be renewed past 30 days.
+Generates a signed JWT. Login requires Basic credentials and X-Benefit-Login: 1. The rememberMe parameter picks a 30-day instead of a 24-hour token. With a Bearer token this renews the session: the new token keeps the current token's lifetime (rememberMe is ignored), the current token is revoked, and a login can't be renewed past 30 days.
 
 <h3 id="generate-a-jwt-parameters">Parameters</h3>
 
@@ -808,6 +808,7 @@ Generates a signed JWT. With Basic credentials this is a login, and rememberMe p
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Token generated successfully|Inline|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|User not authenticated, or the session can no longer be renewed|Inline|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Missing Basic login header or origin rejected|Inline|
 |500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Failed to encode the token|Inline|
 
 <h3 id="generate-a-jwt-responseschema">Response Schema</h3>

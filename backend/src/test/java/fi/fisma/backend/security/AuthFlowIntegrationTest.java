@@ -1,10 +1,12 @@
 package fi.fisma.backend.security;
 
+import static fi.fisma.backend.security.SecurityConfig.LOGIN_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -48,11 +50,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.ObjectMapper;
 
-@SpringBootTest
+@SpringBootTest(properties = "cors.allowed-origins=http://localhost:5173")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class AuthFlowIntegrationTest {
@@ -130,6 +133,58 @@ class AuthFlowIntegrationTest {
     mockMvc
         .perform(get("/auth/validateJWT").header("Authorization", bearer(token)))
         .andExpect(status().isOk());
+  }
+
+  @Test
+  void allowlistedBasicLoginRequiresExplicitHeader() throws Exception {
+    String origin = "http://localhost:5173";
+    mockMvc
+        .perform(
+            options("/token")
+                .header("Origin", origin)
+                .header("Access-Control-Request-Method", "POST")
+                .header("Access-Control-Request-Headers", "Authorization, " + LOGIN_HEADER))
+        .andExpect(status().isOk())
+        .andExpect(header().string("Access-Control-Allow-Origin", origin));
+
+    var rejected =
+        mockMvc
+            .perform(post("/token").with(httpBasic(username, PASSWORD)).header("Origin", origin))
+            .andExpect(status().isForbidden())
+            .andExpect(header().doesNotExist("Authorization"))
+            .andReturn();
+    assertThat(rejected.getRequest().getSession(false)).isNull();
+
+    mockMvc
+        .perform(
+            post("/token")
+                .with(httpBasic(username, PASSWORD))
+                .header("Origin", origin)
+                .header(LOGIN_HEADER, "0"))
+        .andExpect(status().isForbidden())
+        .andExpect(header().doesNotExist("Authorization"));
+
+    mockMvc
+        .perform(basicLogin(username, PASSWORD).header("Origin", origin))
+        .andExpect(status().isOk())
+        .andExpect(header().exists("Authorization"));
+  }
+
+  @Test
+  void untrustedOriginCannotUseExplicitLoginHeader() throws Exception {
+    String origin = "https://untrusted.example";
+    mockMvc
+        .perform(
+            options("/token")
+                .header("Origin", origin)
+                .header("Access-Control-Request-Method", "POST")
+                .header("Access-Control-Request-Headers", "Authorization, " + LOGIN_HEADER))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(basicLogin(username, PASSWORD).header("Origin", origin))
+        .andExpect(status().isForbidden())
+        .andExpect(header().doesNotExist("Authorization"));
   }
 
   @Test
@@ -215,17 +270,11 @@ class AuthFlowIntegrationTest {
   @Test
   void fifthFailedLoginIsThrottledAndSubsequentAttemptRemainsBlocked() throws Exception {
     for (int attempt = 1; attempt < 5; attempt++) {
-      mockMvc
-          .perform(post("/token").with(httpBasic(username, "wrong-password")))
-          .andExpect(status().isUnauthorized());
+      mockMvc.perform(basicLogin(username, "wrong-password")).andExpect(status().isUnauthorized());
     }
 
-    mockMvc
-        .perform(post("/token").with(httpBasic(username, "wrong-password")))
-        .andExpect(status().isTooManyRequests());
-    mockMvc
-        .perform(post("/token").with(httpBasic(username, PASSWORD)))
-        .andExpect(status().isTooManyRequests());
+    mockMvc.perform(basicLogin(username, "wrong-password")).andExpect(status().isTooManyRequests());
+    mockMvc.perform(basicLogin(username, PASSWORD)).andExpect(status().isTooManyRequests());
   }
 
   @Test
@@ -233,7 +282,7 @@ class AuthFlowIntegrationTest {
     unknownUsername = "unknown-it-" + UUID.randomUUID();
     String wrongPasswordBody =
         mockMvc
-            .perform(post("/token").with(httpBasic(username, "wrong-password")))
+            .perform(basicLogin(username, "wrong-password"))
             .andExpect(status().isUnauthorized())
             .andReturn()
             .getResponse()
@@ -242,7 +291,7 @@ class AuthFlowIntegrationTest {
     for (int attempt = 1; attempt < 5; attempt++) {
       var response =
           mockMvc
-              .perform(post("/token").with(httpBasic(unknownUsername, "wrong-password")))
+              .perform(basicLogin(unknownUsername, "wrong-password"))
               .andExpect(status().isUnauthorized())
               .andReturn()
               .getResponse();
@@ -251,17 +300,18 @@ class AuthFlowIntegrationTest {
     }
 
     mockMvc
-        .perform(post("/token").with(httpBasic(unknownUsername, "wrong-password")))
+        .perform(basicLogin(unknownUsername, "wrong-password"))
         .andExpect(status().isTooManyRequests());
     assertThat(loginAttemptThrottleService.isBlocked(unknownUsername)).isTrue();
   }
 
+  private static MockHttpServletRequestBuilder basicLogin(String username, String password) {
+    return post("/token").with(httpBasic(username, password)).header(LOGIN_HEADER, "1");
+  }
+
   private String login(String password) throws Exception {
     MvcResult result =
-        mockMvc
-            .perform(post("/token").with(httpBasic(username, password)))
-            .andExpect(status().isOk())
-            .andReturn();
+        mockMvc.perform(basicLogin(username, password)).andExpect(status().isOk()).andReturn();
     return tokenFrom(result);
   }
 
@@ -338,9 +388,7 @@ class AuthFlowIntegrationTest {
     String token = login(PASSWORD);
     changePassword(token, PASSWORD, replacement, 200);
     String replacementToken = login(replacement);
-    mockMvc
-        .perform(post("/token").with(httpBasic(username, PASSWORD)))
-        .andExpect(status().isUnauthorized());
+    mockMvc.perform(basicLogin(username, PASSWORD)).andExpect(status().isUnauthorized());
     changePassword(replacementToken, replacement, PASSWORD, 200);
   }
 
@@ -369,9 +417,7 @@ class AuthFlowIntegrationTest {
         .isZero();
     login(PASSWORD);
     if (replacement != null) {
-      mockMvc
-          .perform(post("/token").with(httpBasic(username, replacement)))
-          .andExpect(status().isUnauthorized());
+      mockMvc.perform(basicLogin(username, replacement)).andExpect(status().isUnauthorized());
     }
   }
 
@@ -465,7 +511,7 @@ class AuthFlowIntegrationTest {
       String unaffected =
           tokenFrom(
               mockMvc
-                  .perform(post("/token").with(httpBasic(otherUser.getUsername(), PASSWORD)))
+                  .perform(basicLogin(otherUser.getUsername(), PASSWORD))
                   .andExpect(status().isOk())
                   .andReturn());
       changePassword(current, PASSWORD, "replacement-password", 200);
@@ -486,9 +532,7 @@ class AuthFlowIntegrationTest {
       mockMvc
           .perform(get("/auth/validateJWT").header("Authorization", bearer(fresh)))
           .andExpect(status().isOk());
-      mockMvc
-          .perform(post("/token").with(httpBasic(username, PASSWORD)))
-          .andExpect(status().isUnauthorized());
+      mockMvc.perform(basicLogin(username, PASSWORD)).andExpect(status().isUnauthorized());
       // A second change (even to the same password) must also advance the version.
       changePassword(fresh, "replacement-password", "replacement-password", 200);
       assertSessionRejected(fresh);
@@ -615,9 +659,10 @@ class AuthFlowIntegrationTest {
               })
           .when(jwtEncoder)
           .encode(any(JwtEncoderParameters.class));
-      var request = post("/token");
-      if (renewal) request.header("Authorization", bearer(current));
-      else request.with(httpBasic(username, PASSWORD));
+      var request =
+          renewal
+              ? post("/token").header("Authorization", bearer(current))
+              : basicLogin(username, PASSWORD);
       String raced = tokenFrom(mockMvc.perform(request).andExpect(status().isOk()).andReturn());
       assertSessionRejected(raced);
       login("replacement-password");

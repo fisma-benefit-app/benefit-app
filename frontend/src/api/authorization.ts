@@ -14,6 +14,7 @@ const fetchJWT = async (
   );
   const headers = {
     Authorization: `Basic ${encodedCredentials}`,
+    "X-Benefit-Login": "1",
   };
 
   try {

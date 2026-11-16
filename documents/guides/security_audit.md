@@ -191,6 +191,8 @@ def send(method, path, authorization=None):
         lines.append('Authorization: ' + authorization)
     if method == 'POST':
         lines.append('Content-Length: 0')
+    if path == '/token' and authorization and authorization.startswith('Basic '):
+        lines.append('X-Benefit-Login: 1')
     request = '\r\n'.join(lines) + '\r\n\r\n'
     data = urllib.parse.urlencode({'apikey': key, 'request': request,
                                    'followRedirects': 'false'}).encode()

@@ -1,5 +1,6 @@
 package fi.fisma.backend.security;
 
+import static fi.fisma.backend.security.SecurityConfig.LOGIN_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -71,7 +72,13 @@ class TokenControllerTest {
     given(tokenService.generateToken(any(Authentication.class), eq(false)))
         .willReturn(token("jwt-token-123", Duration.ofDays(1)));
 
-    var response = mockMvc.post().uri("/token").with(authentication(loginAuth)).exchange();
+    var response =
+        mockMvc
+            .post()
+            .uri("/token")
+            .header(LOGIN_HEADER, "1")
+            .with(authentication(loginAuth))
+            .exchange();
 
     assertThat(response).hasStatus(HttpStatus.OK);
 
@@ -96,7 +103,12 @@ class TokenControllerTest {
         .willReturn(token("remember-me-jwt-token-123", Duration.ofDays(30)));
 
     var response =
-        mockMvc.post().uri("/token?rememberMe=true").with(authentication(loginAuth)).exchange();
+        mockMvc
+            .post()
+            .uri("/token?rememberMe=true")
+            .header(LOGIN_HEADER, "1")
+            .with(authentication(loginAuth))
+            .exchange();
 
     assertThat(response).hasStatus(HttpStatus.OK);
     assertThat(response)

@@ -27,8 +27,10 @@ public class TokenController {
   @Operation(
       summary = "Generate a JWT",
       description =
-          "Generates a signed JWT. With Basic credentials this is a login, and rememberMe picks a"
-              + " 30-day instead of a 24-hour token. With a Bearer token this renews the session:"
+          "Generates a signed JWT. Login requires Basic credentials and "
+              + SecurityConfig.LOGIN_HEADER
+              + ": 1. The rememberMe parameter picks a 30-day instead of a 24-hour token."
+              + " With a Bearer token this renews the session:"
               + " the new token keeps the current token's lifetime (rememberMe is ignored), the"
               + " current token is revoked, and a login can't be renewed past 30 days.",
       responses = {
@@ -36,6 +38,9 @@ public class TokenController {
         @ApiResponse(
             responseCode = "401",
             description = "User not authenticated, or the session can no longer be renewed"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Missing Basic login header or origin rejected"),
         @ApiResponse(responseCode = "500", description = "Failed to encode the token")
       })
   public ResponseEntity<?> getToken(
