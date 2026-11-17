@@ -311,10 +311,14 @@ export default function FunctionalClassComponent({
         onMouseDown={(e) => {
           if (onCardClick && e.shiftKey) e.preventDefault();
         }}
-        className={`${uiStyles.card} ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"}`}
+        className={`${uiStyles.card} ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-dark-blue ring-2 ring-fisma-dark-blue shadow-lg" : "border-fisma-gray"}`}
         style={{
           borderLeftColor: classColors.border,
-          backgroundColor: classColors.card,
+          // A selected card gets a darker shade of the same colour (soft yellow
+          // -> deeper yellow), made by mixing in the class's own accent colour.
+          backgroundColor: selected
+            ? `color-mix(in srgb, ${classColors.card} 65%, ${classColors.border})`
+            : classColors.card,
         }}
       >
         <div className={uiStyles.header}>
