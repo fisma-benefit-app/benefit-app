@@ -32,6 +32,11 @@ export const convertToCSV = (
       ].includes(key),
   );
 
+  if (headers.includes("description")) {
+    headers = headers.filter((h) => h !== "description");
+    headers.push("description");
+  }
+
   if (headers.includes("subComponentType")) {
     headers = headers.filter((h) => h !== "subComponentType");
     headers.push("subComponentType");
