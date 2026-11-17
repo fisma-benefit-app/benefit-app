@@ -1,6 +1,7 @@
 package fi.fisma.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.doAnswer;
@@ -12,6 +13,7 @@ import fi.fisma.backend.domain.EnumProjectRole;
 import fi.fisma.backend.domain.Project;
 import fi.fisma.backend.domain.ProjectAppUser;
 import fi.fisma.backend.dto.ProjectRequest;
+import fi.fisma.backend.exception.UnauthorizedException;
 import fi.fisma.backend.mapper.FunctionalComponentMapper;
 import fi.fisma.backend.mapper.ProjectMapper;
 import fi.fisma.backend.repository.AppUserRepository;
@@ -75,5 +77,33 @@ class ProjectServiceTest {
     assertThat(projectUsers.get()).hasSize(1);
     assertThat(projectUsers.get().iterator().next().getRoleInProject())
         .isEqualTo(EnumProjectRole.OWNER);
+  }
+
+  @Test
+  void findProjectForOwnerAllowsAnOwner() {
+    var membership = mock(ProjectAppUser.class);
+    when(projectRepository.findByProjectIdAndUsernameActive(1L, "alice"))
+        .thenReturn(Optional.of(project));
+    when(project.getProjectAppUsers()).thenReturn(Set.of(membership));
+    when(membership.getAppUser()).thenReturn(appUser);
+    when(appUser.getUsername()).thenReturn("alice");
+    when(membership.getRoleInProject()).thenReturn(EnumProjectRole.OWNER);
+
+    assertThat(projectService.findProjectForOwner(1L, "alice")).isSameAs(project);
+  }
+
+  @Test
+  void findProjectForOwnerRejectsAMember() {
+    var membership = mock(ProjectAppUser.class);
+    when(projectRepository.findByProjectIdAndUsernameActive(1L, "alice"))
+        .thenReturn(Optional.of(project));
+    when(project.getProjectAppUsers()).thenReturn(Set.of(membership));
+    when(membership.getAppUser()).thenReturn(appUser);
+    when(appUser.getUsername()).thenReturn("alice");
+    when(membership.getRoleInProject()).thenReturn(EnumProjectRole.MEMBER);
+
+    assertThatThrownBy(() -> projectService.findProjectForOwner(1L, "alice"))
+        .isInstanceOf(UnauthorizedException.class)
+        .hasMessage("Only project owners can modify this project");
   }
 }

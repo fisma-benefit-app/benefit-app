@@ -149,14 +149,13 @@ class ProjectIntegrityIntegrationTest {
   }
 
   @Test
-  void memberCanAddAnotherUserToAllVersionsOfAProject() throws Exception {
+  void memberCanViewButCannotEditOrShareAProject() throws Exception {
     String name = "shared-" + suffix;
     long v1 = createProject(alice, name);
     long v2 = createVersion(alice, v1, name, 2);
+    long componentId = addComponent(alice, v2, component("Owner component")).path("id").asLong();
 
-    addMember(alice, v2, " " + mallory + " ")
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.projectAppUsers.length()").value(2));
+    addMember(alice, v2, mallory).andExpect(status().isOk());
 
     assertThat(membershipIds(v1)).hasSize(2);
     assertThat(membershipIds(v2)).hasSize(2);
@@ -164,7 +163,6 @@ class ProjectIntegrityIntegrationTest {
         .perform(get("/projects/{id}", v1).header("Authorization", bearer(mallory)))
         .andExpect(status().isOk());
 
-    // The new member can edit the latest version like the one who shared it.
     mockMvc
         .perform(
             put("/projects/{id}", v2)
@@ -172,6 +170,45 @@ class ProjectIntegrityIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     body(name, 2, getProject(mallory, v2), List.of(), Set.of(), "from mallory")))
+        .andExpect(status().isForbidden());
+
+    addMember(mallory, v2, alice).andExpect(status().isForbidden());
+    mockMvc
+        .perform(
+            post("/projects/{id}/versions", v2)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 3, getProject(mallory, v2), List.of(), Set.of())))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(
+            post("/functional-components/projects/{id}", v2)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(component("Member component"))))
+        .andExpect(status().isForbidden());
+    mockMvc
+        .perform(
+            delete("/functional-components/{cid}/projects/{id}", componentId, v2)
+                .header("Authorization", bearer(mallory)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void memberCannotDeleteOrDuplicateAProject() throws Exception {
+    long id = createProject(alice, "no-delete-" + suffix);
+    addMember(alice, id, mallory).andExpect(status().isOk());
+
+    mockMvc
+        .perform(delete("/projects/{id}", id).header("Authorization", bearer(mallory)))
+        .andExpect(status().isForbidden());
+    mockMvc
+        .perform(post("/projects/{id}/duplicate", id).header("Authorization", bearer(mallory)))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(get("/projects/{id}", id).header("Authorization", bearer(mallory)))
         .andExpect(status().isOk());
   }
 
@@ -181,7 +218,15 @@ class ProjectIntegrityIntegrationTest {
     long v1 = createProject(alice, name);
     addMember(alice, v1, mallory).andExpect(status().isOk());
 
-    long v2 = createVersion(mallory, v1, name, 2);
+    mockMvc
+        .perform(
+            post("/projects/{id}/versions", v1)
+                .header("Authorization", bearer(mallory))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(name, 2, getProject(mallory, v1), List.of(), Set.of())))
+        .andExpect(status().isForbidden());
+
+    long v2 = createVersion(alice, v1, name, 2);
 
     assertThat(membershipIds(v2)).hasSize(2);
     mockMvc
@@ -214,7 +259,7 @@ class ProjectIntegrityIntegrationTest {
   }
 
   @Test
-  void memberCanRemoveAnotherMemberFromAllVersions() throws Exception {
+  void ownerCanRemoveAnotherMemberFromAllVersions() throws Exception {
     String name = "remove-" + suffix;
     long v1 = createProject(alice, name);
     long v2 = createVersion(alice, v1, name, 2);
@@ -235,17 +280,18 @@ class ProjectIntegrityIntegrationTest {
   }
 
   @Test
-  void memberCanLeaveAProjectThatOthersKeep() throws Exception {
+  void memberCannotRemoveThemselvesFromAProject() throws Exception {
     long id = createProject(alice, "leave-" + suffix);
     addMember(alice, id, mallory).andExpect(status().isOk());
 
-    removeMember(mallory, id, mallory).andExpect(status().isNoContent());
+    removeMember(mallory, id, mallory).andExpect(status().isForbidden());
 
-    mockMvc
-        .perform(get("/projects/{id}", id).header("Authorization", bearer(mallory)))
-        .andExpect(status().isNotFound());
+    assertThat(membershipIds(id)).hasSize(2);
     mockMvc
         .perform(get("/projects/{id}", id).header("Authorization", bearer(alice)))
+        .andExpect(status().isOk());
+    mockMvc
+        .perform(get("/projects/{id}", id).header("Authorization", bearer(mallory)))
         .andExpect(status().isOk());
   }
 

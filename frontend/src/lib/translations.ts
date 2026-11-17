@@ -306,6 +306,7 @@ export const translations = {
       newFunctionalComponent: "New Functional Component",
       comments: "Comments",
       commentsTitle: "Comments",
+      projectViewOnly: "You have view-only access to this project.",
       archivedVersionReadOnly: "Archived version: read-only comments.",
       noCommentsYet: "No comments yet.",
       addCommentPlaceholder: "Add a comment...",
@@ -743,6 +744,7 @@ export const translations = {
       newFunctionalComponent: "Lisää toiminnallinen komponentti",
       comments: "Kommentit",
       commentsTitle: "Kommentit",
+      projectViewOnly: "Sinulla on tähän projektiin vain katseluoikeus.",
       archivedVersionReadOnly:
         "Arkistoitu versio: kommentit ovat vain luku -tilassa.",
       noCommentsYet: "Ei kommentteja vielä.",
