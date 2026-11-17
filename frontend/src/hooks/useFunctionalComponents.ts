@@ -23,7 +23,7 @@ type UseFunctionalComponentsParams = {
   setProject: Dispatch<SetStateAction<Project | null>>;
   setLoadingProject: (loading: boolean) => void;
   setComponentSearchQuery: (query: string) => void;
-  isLatest: boolean;
+  canEdit: boolean;
   // Set while a create/delete is in flight so auto-save stays out of the way.
   isManuallySaved: MutableRefObject<boolean>;
   // Scrolled into view after a component is added.
@@ -38,7 +38,7 @@ export default function useFunctionalComponents({
   setProject,
   setLoadingProject,
   setComponentSearchQuery,
-  isLatest,
+  canEdit,
   isManuallySaved,
   bottomRef,
   saveProject,
@@ -56,7 +56,7 @@ export default function useFunctionalComponents({
 
   // MLA sub-component handler
   const handleMLAToggle = (componentId: number, newMLAValue: boolean) => {
-    if (!project) return;
+    if (!project || !canEdit) return;
 
     const updatedComponents = project.functionalComponents.map((comp) => {
       if (comp.id === componentId) {
@@ -85,14 +85,12 @@ export default function useFunctionalComponents({
 
     setProject(updatedProject);
 
-    if (isLatest) {
-      debouncedSaveProject();
-    }
+    debouncedSaveProject();
   };
 
   const handleCreateFunctionalComponent = async () => {
+    if (!project || !canEdit || isCreating.current) return;
     setLoadingProject(true);
-    if (!project || isCreating.current) return;
     isCreating.current = true;
     await saveProject(false);
 
@@ -193,7 +191,7 @@ export default function useFunctionalComponents({
       if (isTyping || e.repeat) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
 
-      if (e.key.toLowerCase() === "n" && isLatest) {
+      if (e.key.toLowerCase() === "n" && canEdit) {
         e.preventDefault();
         void handleCreateFunctionalComponent();
       }
@@ -206,6 +204,8 @@ export default function useFunctionalComponents({
   const handleDeleteFunctionalComponent = async (
     componentId: number,
   ): Promise<void> => {
+    if (!canEdit) return;
+
     isManuallySaved.current = true;
     setLoadingProject(true);
 

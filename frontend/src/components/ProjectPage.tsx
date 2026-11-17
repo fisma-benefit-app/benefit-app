@@ -65,7 +65,7 @@ function sortFunctionalComponents(components: TGenericComponent[]) {
 }
 
 export default function ProjectPage() {
-  const { sessionToken, logout } = useAppUser();
+  const { sessionToken, logout, appUser } = useAppUser();
   const { selectedProjectId } = useParams();
   const { setProjects, sortedProjects, checkIfLatestVersion } = useProjects();
   const navigate = useNavigate();
@@ -124,6 +124,13 @@ export default function ProjectPage() {
 
   //only allow user to edit project if it is the latest one
   const isLatest = checkIfLatestVersion(project, allProjectVersions);
+  const isOwner =
+    project?.projectAppUsers.some(
+      (membership) =>
+        membership.appUser.id === appUser?.id &&
+        membership.roleInProject === "OWNER",
+    ) ?? false;
+  const canEdit = isOwner && isLatest;
 
   // sort functional components by order (ascending)
   const sortedComponents = project
@@ -207,6 +214,8 @@ export default function ProjectPage() {
       components: TGenericComponent[],
     ) => TGenericComponent[] = (components) => components,
   ) => {
+    if (!canEdit) return;
+
     if (notify) {
       showNotification(
         alertTranslation.save,
@@ -266,7 +275,12 @@ export default function ProjectPage() {
     isPending: isProjectSavePending,
   } = useDebounce(async () => {
     const currentProject = projectRef.current;
-    if (!currentProject || isManuallySaved.current || saveConflictRef.current) {
+    if (
+      !currentProject ||
+      !canEdit ||
+      isManuallySaved.current ||
+      saveConflictRef.current
+    ) {
       return;
     }
 
@@ -279,7 +293,7 @@ export default function ProjectPage() {
   }, 5000); // Auto-save every 5 seconds
 
   const keepMyChanges = () => {
-    if (!savedElsewhere) return;
+    if (!savedElsewhere || !canEdit) return;
     // Their lockVersion makes this tab's next save go through, replacing the other tab's save.
     applySavedLockVersion(savedElsewhere);
     saveConflictRef.current = false;
@@ -337,18 +351,18 @@ export default function ProjectPage() {
     visibleComponents,
     // archived versions can't be reordered, and while searching the drop
     // position in the filtered list would be ambiguous
-    enabled: isLatest && componentSearchQueryEmpty,
+    enabled: canEdit && componentSearchQueryEmpty,
     resetKey: selectedProjectId,
     onReorder: (reordered) => {
       setProject((prev) =>
         prev ? { ...prev, functionalComponents: reordered } : prev,
       );
-      if (isLatest) {
+      if (canEdit) {
         debouncedSaveProject();
       }
     },
   });
-  const canReorder = isLatest && componentSearchQueryEmpty;
+  const canReorder = canEdit && componentSearchQueryEmpty;
   const isPlacingSelected = canReorder && reorder.selectedCount > 0;
 
   useEffect(() => {
@@ -398,6 +412,8 @@ export default function ProjectPage() {
   }, [selectedProjectId, sessionToken, logout]);
 
   const saveProject = async (showNotif: boolean = true) => {
+    if (!canEdit) return;
+
     isManuallySaved.current = true;
     // The ref carries the lockVersion applied after a save conflict, which this render's
     // project does not have yet.
@@ -416,7 +432,7 @@ export default function ProjectPage() {
   };
 
   const saveProjectVersion = async () => {
-    if (project) {
+    if (project && canEdit) {
       isManuallySaved.current = true;
       try {
         await saveProject();
@@ -456,7 +472,7 @@ export default function ProjectPage() {
     setProject,
     setLoadingProject,
     setComponentSearchQuery,
-    isLatest,
+    canEdit,
     isManuallySaved,
     bottomRef,
     saveProject,
@@ -537,17 +553,18 @@ export default function ProjectPage() {
               <button
                 onClick={handleCreateFunctionalComponent}
                 className={`w-full ${
-                  isLatest || !loadingProject
+                  canEdit && !loadingProject
                     ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
                     : "bg-fisma-gray"
                 } text-white py-3 px-4`}
-                disabled={!isLatest || loadingProject}
+                disabled={!canEdit || loadingProject}
               >
                 {translation.newFunctionalComponent}
               </button>
               <ProjectViewControls viewMode={viewMode} />
               <ProjectSaveControls
                 isLatest={isLatest}
+                isOwner={isOwner}
                 loadingProject={loadingProject}
                 version={project?.version}
                 saveProject={saveProject}
@@ -559,7 +576,7 @@ export default function ProjectPage() {
                 project={project}
                 setProject={setProject}
                 projectRef={projectRef}
-                isLatest={isLatest}
+                canEdit={canEdit}
                 loadingProject={loadingProject}
                 debouncedSaveProject={debouncedSaveProject}
               />
@@ -609,6 +626,7 @@ export default function ProjectPage() {
                 <FunctionalPointSummary
                   project={project}
                   saveProject={saveProject}
+                  isOwner={isOwner}
                 />
               )}
           </div>
@@ -629,7 +647,7 @@ export default function ProjectPage() {
               <div className="mb-4 flex items-stretch gap-2">
                 {sortedComponents.length > 0 && (
                   <>
-                    <ShortcutTooltip />
+                    {canEdit && <ShortcutTooltip />}
                     <input
                       type="text"
                       placeholder={translation.searchComponentsPlaceholder}
@@ -664,7 +682,7 @@ export default function ProjectPage() {
                         deleteFunctionalComponent={
                           handleDeleteFunctionalComponent
                         }
-                        isLatest={isLatest}
+                        canEdit={canEdit}
                         collapsed={getComponentCollapseState(component.id)}
                         onCollapseChange={updateComponentCollapseState}
                         debouncedSaveProject={debouncedSaveProject}

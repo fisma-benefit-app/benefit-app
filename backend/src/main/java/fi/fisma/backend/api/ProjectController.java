@@ -92,7 +92,8 @@ public class ProjectController {
   @PostMapping("/{id}/versions")
   @Operation(
       summary = "Create a new version of a project",
-      description = "Creates a new version of an existing project")
+      description =
+          "Creates a new version of an existing project if the authenticated user owns it")
   @ApiResponse(responseCode = "201", description = "Project version created successfully")
   @ApiResponse(responseCode = "404", description = "Original project not found")
   @ApiResponse(responseCode = "409", description = "Original project is not the latest version")
@@ -128,11 +129,12 @@ public class ProjectController {
   @Operation(
       summary = "Add a user to a project",
       description =
-          "Gives another user access to the project and all of its versions. The authenticated user must already have access. Every member has the same rights, including editing and deleting the project")
+          "Gives another user access to the project and all of its versions. The authenticated user must be an owner")
   @ApiResponse(responseCode = "200", description = "User added; the updated project is returned")
   @ApiResponse(responseCode = "400", description = "Invalid username")
   @ApiResponse(responseCode = "404", description = "Project or user not found")
   @ApiResponse(responseCode = "409", description = "User is already a member of the project")
+  @ApiResponse(responseCode = "403", description = "User is not an owner of the project")
   public ResponseEntity<ProjectResponse> addUserToProject(
       @Parameter(description = "ID of the project to share") @PathVariable("id") Long id,
       @Valid @RequestBody ProjectMemberRequest memberRequest,
@@ -146,12 +148,13 @@ public class ProjectController {
   @Operation(
       summary = "Remove a user from a project",
       description =
-          "Removes a user's access to the project and all of its versions. The authenticated user must have access and may remove themselves. The project is kept for the remaining members")
+          "Removes a user's access to the project and all of its versions. The authenticated user must be an owner. The project is kept for the remaining members")
   @ApiResponse(responseCode = "204", description = "User removed")
   @ApiResponse(responseCode = "404", description = "Project not found, or user is not a member")
   @ApiResponse(
       responseCode = "409",
       description = "The user is the last member; delete the project instead")
+  @ApiResponse(responseCode = "403", description = "User is not an owner of the project")
   public ResponseEntity<Void> removeUserFromProject(
       @Parameter(description = "ID of the project") @PathVariable("id") Long id,
       @Parameter(description = "ID of the user to remove") @PathVariable("appUserId")

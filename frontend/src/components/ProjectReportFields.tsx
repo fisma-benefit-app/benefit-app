@@ -11,7 +11,7 @@ type ProjectReportFieldsProps = {
   setProject: Dispatch<SetStateAction<Project | null>>;
   // Updated together with the state so auto-save sees the edit straight away.
   projectRef: MutableRefObject<Project | null>;
-  isLatest: boolean;
+  canEdit: boolean;
   loadingProject: boolean;
   debouncedSaveProject: () => void;
 };
@@ -35,7 +35,7 @@ export default function ProjectReportFields({
   project,
   setProject,
   projectRef,
-  isLatest,
+  canEdit,
   loadingProject,
   debouncedSaveProject,
 }: ProjectReportFieldsProps) {
@@ -44,13 +44,13 @@ export default function ProjectReportFields({
 
   const updateField = <K extends keyof Project>(key: K, value: Project[K]) => {
     setProject((prev) => {
-      if (!prev) return prev;
+      if (!prev || !canEdit) return prev;
       const updated = { ...prev, [key]: value };
       projectRef.current = updated;
       return updated;
     });
 
-    if (isLatest) {
+    if (canEdit) {
       debouncedSaveProject();
     }
   };
@@ -77,7 +77,7 @@ export default function ProjectReportFields({
           locale={language === "fi" ? fi : enUS}
           dateFormat={language === "fi" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
           className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
-          disabled={!isLatest || loadingProject}
+          disabled={!canEdit || loadingProject}
           isClearable
         />
       </div>
@@ -98,7 +98,7 @@ export default function ProjectReportFields({
           className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
           rows={3}
           maxLength={2000}
-          disabled={!isLatest || loadingProject}
+          disabled={!canEdit || loadingProject}
         />
       </div>
 
@@ -116,7 +116,7 @@ export default function ProjectReportFields({
           className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
           rows={5}
           maxLength={5000}
-          disabled={!isLatest || loadingProject}
+          disabled={!canEdit || loadingProject}
         />
       </div>
     </>

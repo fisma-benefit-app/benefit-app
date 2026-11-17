@@ -3,7 +3,7 @@ import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import useTranslations from "../hooks/useTranslations.ts";
 
 type ProjectSaveControlsProps = {
-  // Archived versions can't be edited, so they get a notice instead of the buttons.
+  isOwner: boolean;
   isLatest: boolean;
   loadingProject: boolean;
   version: number | undefined;
@@ -14,6 +14,7 @@ type ProjectSaveControlsProps = {
 
 // Save, archive-as-version and summary report buttons.
 export default function ProjectSaveControls({
+  isOwner,
   isLatest,
   loadingProject,
   version,
@@ -23,45 +24,48 @@ export default function ProjectSaveControls({
 }: ProjectSaveControlsProps) {
   const translation = useTranslations().projectPage;
 
-  if (!isLatest) {
-    return (
-      <div className="flex flex-row gap-2 w-full">
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      {!isOwner ? (
+        <div
+          role="status"
+          className="text-center w-full bg-gray-200 text-gray-700 text-xs py-3 px-4"
+        >
+          {translation.projectViewOnly}
+        </div>
+      ) : !isLatest ? (
         <div
           role="status"
           className="text-center w-full bg-fisma-red text-white text-xs py-3 px-4"
         >
           {translation.cannotEditOrSaveArchivedVersion}
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-2 w-full">
-      <div className="flex flex-row gap-2 w-full">
-        <button
-          className={`w-full ${
-            !loadingProject
-              ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-              : "bg-fisma-gray"
-          } text-white text-xs py-3 px-4`}
-          onClick={() => saveProject()}
-          disabled={loadingProject}
-        >
-          {translation.saveProject}
-        </button>
-        <button
-          className={`w-full ${
-            !loadingProject
-              ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
-              : "bg-fisma-gray"
-          } text-white text-xs py-3 px-4`}
-          onClick={onArchive}
-          disabled={loadingProject}
-        >
-          {translation.archiveProjectAsVersion} {version}
-        </button>
-      </div>
+      ) : (
+        <div className="flex flex-row gap-2 w-full">
+          <button
+            className={`w-full ${
+              !loadingProject
+                ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                : "bg-fisma-gray"
+            } text-white text-xs py-3 px-4`}
+            onClick={() => saveProject()}
+            disabled={loadingProject}
+          >
+            {translation.saveProject}
+          </button>
+          <button
+            className={`w-full ${
+              !loadingProject
+                ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
+                : "bg-fisma-gray"
+            } text-white text-xs py-3 px-4`}
+            onClick={onArchive}
+            disabled={loadingProject}
+          >
+            {translation.archiveProjectAsVersion} {version}
+          </button>
+        </div>
+      )}
       <button
         className={`w-full ${
           !loadingProject
