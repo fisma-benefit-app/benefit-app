@@ -2,7 +2,13 @@ package fi.fisma.backend.security;
 
 import fi.fisma.backend.dto.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Duration;
 import java.util.Map;
@@ -33,15 +39,49 @@ public class TokenController {
               + " With a Bearer token this renews the session:"
               + " the new token keeps the current token's lifetime (rememberMe is ignored), the"
               + " current token is revoked, and a login can't be renewed past 30 days.",
+      security = {
+        @SecurityRequirement(name = "basicAuth"),
+        @SecurityRequirement(name = "bearerAuth")
+      },
+      parameters =
+          @Parameter(
+              name = SecurityConfig.LOGIN_HEADER,
+              in = ParameterIn.HEADER,
+              description =
+                  "Required with value 1 for Basic login; not required for Bearer renewal",
+              schema =
+                  @Schema(
+                      type = "string",
+                      allowableValues = {"1"})),
       responses = {
-        @ApiResponse(responseCode = "200", description = "Token generated successfully"),
+        @ApiResponse(
+            responseCode = "200",
+            description = "Token generated successfully",
+            headers =
+                @Header(
+                    name = "Authorization",
+                    description = "Bearer token, also returned in the response body",
+                    schema = @Schema(type = "string")),
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TokenResponse.class))),
         @ApiResponse(
             responseCode = "401",
-            description = "User not authenticated, or the session can no longer be renewed"),
+            description = "User not authenticated, or the session can no longer be renewed",
+            content = @Content(mediaType = "application/json", schema = @Schema(type = "object"))),
         @ApiResponse(
             responseCode = "403",
-            description = "Missing Basic login header or origin rejected"),
-        @ApiResponse(responseCode = "500", description = "Failed to encode the token")
+            description = "Missing Basic login header or origin rejected",
+            content = @Content),
+        @ApiResponse(
+            responseCode = "429",
+            description = "Too many failed login attempts",
+            content = @Content(mediaType = "application/json", schema = @Schema(type = "object"))),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Failed to encode the token",
+            content = @Content)
       })
   public ResponseEntity<?> getToken(
       Authentication authentication, @RequestParam(defaultValue = "false") boolean rememberMe) {

@@ -90,9 +90,7 @@ public class FunctionalComponentRequest {
   private Long parentFCId;
 
   @Valid
-  @Schema(
-      description = "List of sub-components if part of multi-layer architecture",
-      example = "[...]")
+  @Schema(description = "List of sub-components if part of multi-layer architecture")
   private List<FunctionalComponentRequest> subComponents;
 
   @Schema(

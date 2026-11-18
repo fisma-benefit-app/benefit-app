@@ -141,7 +141,7 @@ A `SessionStart` hook (`.claude/hooks/ensure-frontend-deps.sh`, registered in `.
 
 ## Notes
 
-- API docs are generated via SpringDoc + Widdershins; refresh with the steps in `documents/guides/generate_api_docs.md` (`npx widdershins`, not installed as a dependency because it causes `npm audit` issues).
+- API docs pair the maintained human reference (`documents/references/api.md`) with the SpringDoc-generated contract (`api-docs.yaml`). `backend/scripts/generate_api_docs.sh` refreshes only the contract; update the prose and examples by hand using `documents/guides/generate_api_docs.md`. Do not overwrite the reference with generated Markdown.
 - Known local-dev issues and their fixes are tracked in `documents/notes/known_errors.md`.
 - Root `.env` and `frontend/.env` hold real local secrets (e.g. `JWT_PRIVATE_KEY`); both are gitignored — never print, paste, or commit their contents.
 - A fresh git worktree has none of the gitignored files. `.worktreeinclude` makes Claude Code copy `.env` and `frontend/.env` into new worktrees (copy them from the main checkout yourself if you create a worktree another way); `frontend/node_modules` is installed by the hook described under "Skills and hooks". Compose uses fixed container names and ports, so only one stack can run at a time, and the `dev` profile reseeds the database on every start.

@@ -1,1357 +1,1501 @@
+# Benefit API reference
+
+Use this API to manage FiSMA calculations, project versions, shared access, and comments. Requests and responses use JSON unless an endpoint says otherwise.
+
+The [OpenAPI specification](api-docs.yaml) contains the machine-readable contract. This guide adds working examples and the rules clients need to understand. See [maintaining this reference](../guides/generate_api_docs.md) when changing the API.
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Project API v1.0.2](#project-api)
-- [Authentication](#authentication)
-- [Authentication](#project-api-authentication)
-- [Project Management](#project-api-project-management)
-  - [Get a project by ID](#get-a-project-by-id)
-  - [ProjectResponse](#tocS_ProjectResponse)
-  - [Update a project](#update-a-project)
-  - [FunctionalComponentRequest](#tocS_FunctionalComponentRequest)
-  - [ProjectRequest](#tocS_ProjectRequest)
-  - [Delete a project](#delete-a-project)
-  - [Get all projects](#get-all-projects)
-  - [AppUserSummary](#tocS_AppUserSummary)
-  - [FunctionalComponentResponse](#tocS_FunctionalComponentResponse)
-  - [ProjectAppUserResponse](#tocS_ProjectAppUserResponse)
-  - [Create a new project](#create-a-new-project)
-  - [Create a new version of a project](#create-a-new-version-of-a-project)
-  - [duplicateProject](#duplicateproject)
-  - [Logout and revoke JWT](#logout-and-revoke-jwt)
-  - [Validate JWT](#validate-jwt)
-- [User Management](#project-api-user-management)
-  - [Get user by ID](#get-user-by-id)
-  - [Delete user account](#delete-user-account)
-  - [Change user password](#change-user-password)
-  - [PasswordChangeRequest](#tocS_PasswordChangeRequest)
-- [Functional Components](#project-api-functional-components)
-  - [Create a new functional component](#create-a-new-functional-component)
-  - [Delete a functional component](#delete-a-functional-component)
-- [Token Generation](#project-api-token-generation)
-  - [Generate a JWT](#generate-a-jwt)
-- [Comment Management](#project-api-comment-management)
-  - [Update a project comment](#update-a-project-comment)
-  - [CommentRequest](#tocS_CommentRequest)
-  - [CommentResponse](#tocS_CommentResponse)
-  - [Delete a project comment](#delete-a-project-comment)
-  - [Get comments for a project](#get-comments-for-a-project)
-  - [Create a comment for a project](#create-a-comment-for-a-project)
-- [Schemas](#schemas)
+- [Get started](#get-started)
+- [Concepts and conventions](#concepts-and-conventions)
+- [Authentication and sessions](#authentication-and-sessions)
+- [Projects](#projects)
+- [Project membership](#project-membership)
+- [Functional components](#functional-components)
+- [Comments](#comments)
+- [User accounts](#user-accounts)
+- [Field reference](#field-reference)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-<!-- Generator: Widdershins v4.0.1 -->
+## Get started
 
-<h1 id="project-api">Project API v1.0.2</h1>
+The examples below use a local backend at `http://localhost:8080`. Start it with the repository's [development setup](../../README.md#setting-up-development-environment). Use your deployed backend's HTTPS URL when working outside local development.
 
-> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+### Sign in and fetch projects
 
-API documentation for the benefit application
+Set the base URL and your username. The seeded local development account is `user` / `user`; deployed accounts use their own credentials.
 
-Base URLs:
+```bash
+export BENEFIT_API_URL='http://localhost:8080'
+export BENEFIT_USERNAME='user'
 
-* <a href="http://localhost:8080">http://localhost:8080</a>
+curl --request POST \
+  --url "$BENEFIT_API_URL/token" \
+  --user "$BENEFIT_USERNAME" \
+  --header 'X-Benefit-Login: 1'
+```
 
-# Authentication
-
-- HTTP Authentication, scheme: bearer 
-
-<h1 id="project-api-project-management">Project Management</h1>
-
-Endpoints for managing projects
-
-## Get a project by ID
-
-<a id="opIdgetProject"></a>
-
-`GET /projects/{id}`
-
-Retrieves a specific project if the authenticated user has access to it
-
-<h3 id="get-a-project-by-id-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|id|path|integer(int64)|true|ID of the project to retrieve|
-
-> Example responses
-
-> 200 Response
-
-<h3 id="get-a-project-by-id-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Project found and returned|[ProjectResponse](#schemaprojectresponse)|
-|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|User does not have access to this project|[ProjectResponse](#schemaprojectresponse)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Project not found|[ProjectResponse](#schemaprojectresponse)|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Update a project
-
-<a id="opIdupdateProject"></a>
-
-`PUT /projects/{id}`
-
-Updates an existing project if the authenticated user owns it. Only the latest version can be updated, the request must carry the lockVersion it is based on, and neither the version number nor the project's users can be changed
-
-> Body parameter
+cURL prompts for the password. A successful response includes a JWT in its `token` field and in the `Authorization` response header:
 
 ```json
 {
-  "projectName": "User Authentication System",
-  "version": 1,
-  "functionalComponents": [
-    {
-      "id": 1,
-      "title": "Create User Account",
-      "description": "Handles user account creation process",
-      "className": "UserAccount",
-      "componentType": "string",
-      "dataElements": 5,
-      "readingReferences": 2,
-      "writingReferences": 1,
-      "functionalMultiplier": 3,
-      "operations": 4,
-      "degreeOfCompletion": 0.75,
-      "previousFCId": 123,
-      "orderPosition": 1,
-      "isMLA": true,
-      "parentFCId": 12,
-      "subComponents": "[...]",
-      "subComponentType": "presentation",
-      "isReadonly": true
-    }
-  ],
-  "calculationDate": "2026-04-08",
-  "reportContactDetails": "string",
-  "reportNotes": "string",
-  "lockVersion": 3
+  "token": "<JWT>",
+  "tokenType": "Bearer",
+  "expiresIn": 86400
 }
 ```
 
-<h3 id="update-a-project-parameters">Parameters</h3>
+`<JWT>` stands for the token returned by your backend. Copy just that value, without the `Bearer ` prefix, into the variable below:
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|id|path|integer(int64)|true|ID of the project to update|
-|body|body|[ProjectRequest](#schemaprojectrequest)|true|none|
-|» projectName|body|string|true|Name of the project|
-|» version|body|integer(int32)|true|Version of the project|
-|» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
-|»» id|body|integer(int64)|false|Unique identifier|
-|»» title|body|string|false|Title of the functional component|
-|»» description|body|string|false|Detailed description of the functional component|
-|»» className|body|string|false|Name of the class|
-|»» componentType|body|string|false|Type of the functional component|
-|»» dataElements|body|integer(int32)|false|Number of data elements|
-|»» readingReferences|body|integer(int32)|false|Number of reading references|
-|»» writingReferences|body|integer(int32)|false|Number of writing references|
-|»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
-|»» operations|body|integer(int32)|false|Number of operations|
-|»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» previousFCId|body|integer(int64)|false|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
-|»» orderPosition|body|integer(int32)|true|Position in the component list|
-|»» isMLA|body|boolean|true|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
-|»» parentFCId|body|integer(int64)|false|ID of the parent functional component, if part of multi-layer architecture|
-|»» subComponents|body|[any]|false|List of sub-components if part of multi-layer architecture|
-|»» subComponentType|body|string|false|Type of sub-component in multi-layer architecture|
-|»» isReadonly|body|boolean|true|Indicates if component is readonly|
-|» calculationDate|body|string(date)|false|Calculation date of the project|
-|» reportContactDetails|body|string|false|Optional contact details printed on the report|
-|» reportNotes|body|string|false|Optional calculation notes printed on the report|
-|» lockVersion|body|integer(int64)|false|The project's lockVersion from the response the edit is based on. Required when updating a project; the update is rejected with 409 if the project has changed since.|
+```bash
+export BENEFIT_TOKEN='paste-your-token-here'
 
-#### Enumerated Values
+curl --request GET \
+  --url "$BENEFIT_API_URL/projects" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
 
-|Parameter|Value|
-|---|---|
-|»» subComponentType|presentation|
-|»» subComponentType|businessLogic|
-|»» subComponentType|dataAccess|
-|»» subComponentType|integration|
+You receive an array of projects accessible to your account. An account with no projects receives `[]`.
 
-> Example responses
+### Create and retrieve a project
 
-> 200 Response
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/projects" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{"projectName":"My first calculation","version":1,"functionalComponents":[]}'
+```
 
-<h3 id="update-a-project-responses">Responses</h3>
+Success is `201 Created` with a `Location` header and no body. Copy the new project's numeric ID from that URL, then fetch it:
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Project updated successfully|[ProjectResponse](#schemaprojectresponse)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Invalid project data|[ProjectResponse](#schemaprojectresponse)|
-|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|User does not have permission to update this project|[ProjectResponse](#schemaprojectresponse)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Project not found|[ProjectResponse](#schemaprojectresponse)|
-|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Not the latest version, or the project changed since lockVersion was read|[ProjectResponse](#schemaprojectresponse)|
+```bash
+export PROJECT_ID=7
 
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
+curl --request GET \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
 
-## Delete a project
+Replace `7` with the ID you received. Keep the returned `version`, `lockVersion`, and existing field values when [updating the project](#update-a-project). If creating a project returns `409`, choose a name you do not already have access to.
 
-<a id="opIddeleteProject"></a>
+## Concepts and conventions
 
-`DELETE /projects/{id}`
+### Requests, examples, and IDs
 
-Soft deletes a project if the authenticated user owns it
+All protected requests send `Authorization: Bearer <token>`. Requests with a JSON body also send `Content-Type: application/json`. Basic credentials are accepted only for signing in at `POST /token` with `X-Benefit-Login: 1`.
 
-<h3 id="delete-a-project-parameters">Parameters</h3>
+Endpoint examples assume the variables from the quickstart. Set `PROJECT_ID`, `COMPONENT_ID`, `COMMENT_ID`, or `APP_USER_ID` to the resource you actually intend to use. Response examples are snapshots of disposable local data; their IDs and timestamps are illustrative, not IDs to copy into another database. Replace request values with your own data. Endpoints returning `204` have no response body; do not try to parse them as JSON.
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|id|path|integer(int64)|true|ID of the project to delete|
+The `role` of an account (`USER` or `ADMIN`) and its `roleInProject` (`OWNER` or `MEMBER`) are different. An administrator can create user accounts; administration does not bypass the project ownership checks.
 
-<h3 id="delete-a-project-responses">Responses</h3>
+### Project versions and lockVersion
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|Project deleted successfully|None|
-|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|User does not have permission to delete this project|None|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Project not found|None|
+Projects with the same `projectName` belong to the same version history. The highest `version` is the latest; older versions can be read but cannot be edited. A new project version has its own project ID.
 
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
+`version` is the calculation's version number. `lockVersion` is a separate save counter that protects against concurrent edits:
 
-## Get all projects
+1. Fetch a project with `GET /projects/{id}` and retain its current `lockVersion`.
+2. Send that value unchanged in `PUT /projects/{id}` with your edit.
+3. Keep the new `lockVersion` returned after a successful save.
 
-<a id="opIdgetAllProjects"></a>
+If another request saves first, your old counter is rejected with `409` and `STALE_LOCK_VERSION`. Fetch the current state, compare changes, and reapply your edit deliberately. Merely replacing the counter in an old request can overwrite someone else's work. Component creation and deletion also advance the project's save counter, so fetch fresh project state after those operations.
 
-`GET /projects`
+**A project update is a full update, not a partial patch.** Omitted report fields and dates become `null`. Preserve the complete component tree, including subcomponents, when saving an existing calculation. Sending only the one field you changed is not sufficient.
 
-Retrieves all projects accessible to the authenticated user
+### Owners, members, and comments
 
-> Example responses
+An `OWNER` can edit the latest calculation, create versions, duplicate or delete a project, and manage membership. A `MEMBER` has view-only access to calculation data. Both roles can read, create, update, and delete comments on accessible projects, including archived versions. Comments are tied to a particular project ID, not the entire version history, and comment edits are not limited to their author.
 
-> 200 Response
+Sharing and removing access apply across the project's existing versions. New versions copy membership and roles. A duplicate starts a separate project at version 1, owned only by the caller.
 
-<h3 id="get-all-projects-responses">Responses</h3>
+### Sessions and session_version
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|List of projects returned|Inline|
+A normal sign-in produces a 24-hour token. `rememberMe=true` produces a 30-day token. The client must send the token on later requests; the API does not use a login cookie.
 
-<h3 id="get-all-projects-responseschema">Response Schema</h3>
+Renewal at `POST /token` uses a Bearer token instead of Basic credentials. It keeps the original token lifetime and revokes the token being replaced. Replace the old token everywhere your client stores it. Renewal cannot extend a login past 30 days from its original `auth_time`, even if you keep renewing it.
 
-Status Code **200**
+`session_version` is an internal account-session counter, stored in the database and included in JWTs. A successful password change increments it. Every existing token then carries an old value and is rejected, including the token used to change the password. **Sign in again after changing a password.** Clients do not send, increment, or edit this claim themselves.
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[ProjectResponse](#schemaprojectresponse)]|false|none|[Response object containing project details]|
-|» id|integer(int64)|false|none|Unique identifier of the project|
-|» projectName|string|false|none|Name of the project|
-|» version|integer(int32)|false|none|Version of the project|
-|» createdAt|string(date-time)|false|none|Creation timestamp|
-|» versionCreatedAt|string(date-time)|false|none|Last version update timestamp|
-|» calculationDate|string(date)|false|none|Calculation date|
-|» reportContactDetails|string|false|none|Optional contact details printed on the report|
-|» reportNotes|string|false|none|Optional calculation notes printed on the report|
-|» updatedAt|string(date-time)|false|none|Last update timestamp|
-|» lockVersion|integer(int64)|false|none|Optimistic-lock counter. Send it back unchanged when updating the project; a stale value is rejected with 409|
-|» active|boolean|false|none|Whether the project is active|
-|» functionalComponents|[[FunctionalComponentResponse](#schemafunctionalcomponentresponse)]|false|none|Functional components in the project|
-|»» id|integer(int64)|false|none|Unique identifier|
-|»» title|string|false|none|Title of the functional component|
-|»» description|string|false|none|Detailed description of the functional component|
-|»» className|string|false|none|Name of the class|
-|»» componentType|string|false|none|Type of the functional component|
-|»» dataElements|integer(int32)|false|none|Number of data elements|
-|»» readingReferences|integer(int32)|false|none|Number of reading references|
-|»» writingReferences|integer(int32)|false|none|Number of writing references|
-|»» functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
-|»» operations|integer(int32)|false|none|Number of operations|
-|»» degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|»» previousFCId|integer(int64)|false|none|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
-|»» orderPosition|integer(int32)|false|none|Position in the component list|
-|»» isMLA|boolean|false|none|Whether the functional component is part of multi-layer architecture (MLA)|
-|»» parentFCId|integer(int64)|false|none|ID of the parent functional component, if part of multi-layer architecture (MLA)|
-|»» subComponentType|string|false|none|Type of sub-component in multi-layer architecture|
-|»» isReadonly|boolean|false|none|Indicates if this component is readonly (for sub-components)|
-|»» subComponents|[any]|false|none|List of sub-components for multi-layer architecture|
-|» projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
-|»» id|integer(int64)|false|none|ID of the project-user relationship|
-|»» appUser|[AppUserSummary](#schemaappusersummary)|false|none|Summary information about an application user|
-|»»» id|integer(int64)|false|none|Unique identifier of the user|
-|»»» username|string|false|none|Username of the user|
+`jti` identifies one token for renewal and logout revocation. Logout revokes that token; a password change invalidates all existing sessions for the account. Deleting an account also makes its existing tokens unusable. See the [authentication guide](../guides/authentication.md) for implementation details.
 
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
+### Component ordering, version links, and MLA
 
-## Create a new project
+`orderPosition` controls display order. `previousFCId` links a copied component to its counterpart in the previous project version so reports can compare them; it is not an ordering field. Components without a predecessor use `null`.
 
-<a id="opIdcreateProject"></a>
+Multi-layer architecture (MLA) uses a parent's `subComponents` and each child's `parentFCId`. A child's `subComponentType` identifies its layer: `presentation`, `businessLogic`, `dataAccess`, or `integration`. `isReadonly` describes the child's editing behavior in the calculation; it is unrelated to a user's project permissions.
 
-`POST /projects`
+When creating a version, the backend copies active components, sets their `previousFCId`, and remaps parent/child IDs. Use the new component IDs returned by the new version rather than reusing the old IDs.
 
-Creates a new project for the authenticated user
+### Conflicts and recovery
 
-> Body parameter
+Validation and service permission errors usually return text. Conflict responses return JSON:
 
 ```json
 {
-  "projectName": "User Authentication System",
-  "version": 1,
-  "functionalComponents": [
-    {
-      "id": 1,
-      "title": "Create User Account",
-      "description": "Handles user account creation process",
-      "className": "UserAccount",
-      "componentType": "string",
-      "dataElements": 5,
-      "readingReferences": 2,
-      "writingReferences": 1,
-      "functionalMultiplier": 3,
-      "operations": 4,
-      "degreeOfCompletion": 0.75,
-      "previousFCId": 123,
-      "orderPosition": 1,
-      "isMLA": true,
-      "parentFCId": 12,
-      "subComponents": "[...]",
-      "subComponentType": "presentation",
-      "isReadonly": true
-    }
-  ],
-  "calculationDate": "2026-04-08",
-  "reportContactDetails": "string",
-  "reportNotes": "string",
-  "lockVersion": 3
+  "code": "STALE_LOCK_VERSION",
+  "message": "The project was changed by someone else. Reload it and try again."
 }
 ```
 
-<h3 id="create-a-new-project-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[ProjectRequest](#schemaprojectrequest)|true|none|
-|» projectName|body|string|true|Name of the project|
-|» version|body|integer(int32)|true|Version of the project|
-|» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
-|»» id|body|integer(int64)|false|Unique identifier|
-|»» title|body|string|false|Title of the functional component|
-|»» description|body|string|false|Detailed description of the functional component|
-|»» className|body|string|false|Name of the class|
-|»» componentType|body|string|false|Type of the functional component|
-|»» dataElements|body|integer(int32)|false|Number of data elements|
-|»» readingReferences|body|integer(int32)|false|Number of reading references|
-|»» writingReferences|body|integer(int32)|false|Number of writing references|
-|»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
-|»» operations|body|integer(int32)|false|Number of operations|
-|»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» previousFCId|body|integer(int64)|false|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
-|»» orderPosition|body|integer(int32)|true|Position in the component list|
-|»» isMLA|body|boolean|true|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
-|»» parentFCId|body|integer(int64)|false|ID of the parent functional component, if part of multi-layer architecture|
-|»» subComponents|body|[any]|false|List of sub-components if part of multi-layer architecture|
-|»» subComponentType|body|string|false|Type of sub-component in multi-layer architecture|
-|»» isReadonly|body|boolean|true|Indicates if component is readonly|
-|» calculationDate|body|string(date)|false|Calculation date of the project|
-|» reportContactDetails|body|string|false|Optional contact details printed on the report|
-|» reportNotes|body|string|false|Optional calculation notes printed on the report|
-|» lockVersion|body|integer(int64)|false|The project's lockVersion from the response the edit is based on. Required when updating a project; the update is rejected with 409 if the project has changed since.|
-
-#### Enumerated Values
-
-|Parameter|Value|
-|---|---|
-|»» subComponentType|presentation|
-|»» subComponentType|businessLogic|
-|»» subComponentType|dataAccess|
-|»» subComponentType|integration|
-
-<h3 id="create-a-new-project-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Project created successfully|None|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Invalid project data|None|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Create a new version of a project
-
-<a id="opIdcreateProjectVersion"></a>
-
-`POST /projects/{id}/versions`
-
-Creates a new version of an existing project
-
-> Body parameter
-
-```json
-{
-  "projectName": "User Authentication System",
-  "version": 1,
-  "functionalComponents": [
-    {
-      "id": 1,
-      "title": "Create User Account",
-      "description": "Handles user account creation process",
-      "className": "UserAccount",
-      "componentType": "string",
-      "dataElements": 5,
-      "readingReferences": 2,
-      "writingReferences": 1,
-      "functionalMultiplier": 3,
-      "operations": 4,
-      "degreeOfCompletion": 0.75,
-      "previousFCId": 123,
-      "orderPosition": 1,
-      "isMLA": true,
-      "parentFCId": 12,
-      "subComponents": "[...]",
-      "subComponentType": "presentation",
-      "isReadonly": true
-    }
-  ],
-  "calculationDate": "2026-04-08",
-  "reportContactDetails": "string",
-  "reportNotes": "string",
-  "lockVersion": 3
-}
-```
-
-<h3 id="create-a-new-version-of-a-project-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|id|path|integer(int64)|true|ID of the project to version|
-|body|body|[ProjectRequest](#schemaprojectrequest)|true|none|
-|» projectName|body|string|true|Name of the project|
-|» version|body|integer(int32)|true|Version of the project|
-|» functionalComponents|body|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|List of functional components in the project|
-|»» id|body|integer(int64)|false|Unique identifier|
-|»» title|body|string|false|Title of the functional component|
-|»» description|body|string|false|Detailed description of the functional component|
-|»» className|body|string|false|Name of the class|
-|»» componentType|body|string|false|Type of the functional component|
-|»» dataElements|body|integer(int32)|false|Number of data elements|
-|»» readingReferences|body|integer(int32)|false|Number of reading references|
-|»» writingReferences|body|integer(int32)|false|Number of writing references|
-|»» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
-|»» operations|body|integer(int32)|false|Number of operations|
-|»» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|»» previousFCId|body|integer(int64)|false|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
-|»» orderPosition|body|integer(int32)|true|Position in the component list|
-|»» isMLA|body|boolean|true|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
-|»» parentFCId|body|integer(int64)|false|ID of the parent functional component, if part of multi-layer architecture|
-|»» subComponents|body|[any]|false|List of sub-components if part of multi-layer architecture|
-|»» subComponentType|body|string|false|Type of sub-component in multi-layer architecture|
-|»» isReadonly|body|boolean|true|Indicates if component is readonly|
-|» calculationDate|body|string(date)|false|Calculation date of the project|
-|» reportContactDetails|body|string|false|Optional contact details printed on the report|
-|» reportNotes|body|string|false|Optional calculation notes printed on the report|
-|» lockVersion|body|integer(int64)|false|The project's lockVersion from the response the edit is based on. Required when updating a project; the update is rejected with 409 if the project has changed since.|
-
-#### Enumerated Values
-
-|Parameter|Value|
-|---|---|
-|»» subComponentType|presentation|
-|»» subComponentType|businessLogic|
-|»» subComponentType|dataAccess|
-|»» subComponentType|integration|
-
-<h3 id="create-a-new-version-of-a-project-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Project version created successfully|None|
-|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|User does not have permission|None|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Original project not found|None|
-|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Original project is not the latest version|None|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## duplicateProject
-
-<a id="opIdduplicateProject"></a>
-
-`POST /projects/{id}/duplicate`
-
-<h3 id="duplicateproject-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|id|path|integer(int64)|true|none|
-
-> Example responses
-
-> 200 Response
-
-<h3 id="duplicateproject-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[ProjectResponse](#schemaprojectresponse)|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-<h1 id="project-api-authentication">Authentication</h1>
-
-Endpoint for token revocation
-
-## Logout and revoke JWT
-
-<a id="opIdlogout"></a>
-
-`POST /auth/logout`
-
-Revokes the current JWT by adding it to the blacklist. Clients must send the JWT in the Authorization header as 'Bearer <token>'. After logout, the token cannot be used for further requests.
-
-<h3 id="logout-and-revoke-jwt-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|Authorization|header|string|true|none|
-
-<h3 id="logout-and-revoke-jwt-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|Logout successful, token revoked|None|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Missing or invalid Authorization header|None|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Invalid, expired or blacklisted JWT|None|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## Validate JWT
-
-<a id="opIdvalidate"></a>
-
-`GET /auth/validateJWT`
-
-Dummy endpoint called by frontend to check JWT validity
-
-<h3 id="validate-jwt-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Token is valid|None|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Token is invalid, expired, or revoked|None|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-<h1 id="project-api-user-management">User Management</h1>
-
-Endpoints for managing user accounts
-
-## Get user by ID
-
-<a id="opIdgetByUserId"></a>
-
-`GET /appusers/{id}`
-
-Retrieves a specific user by their ID
-
-<h3 id="get-user-by-id-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|id|path|integer(int64)|true|none|
-
-> Example responses
-
-> 200 Response
-
-<h3 id="get-user-by-id-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|User found|[AppUserSummary](#schemaappusersummary)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|User not found|[AppUserSummary](#schemaappusersummary)|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Delete user account
-
-<a id="opIddeleteAppUser"></a>
-
-`DELETE /appusers/{id}`
-
-Permanently deletes the authenticated user's account
-
-<h3 id="delete-user-account-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|id|path|integer(int64)|true|none|
-
-<h3 id="delete-user-account-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|Account deleted successfully|None|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|User not authenticated|None|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Change user password
-
-<a id="opIdchangePassword"></a>
-
-`PUT /appusers/password`
-
-Allows authenticated users to change their password
-
-> Body parameter
-
-```json
-{
-  "currentPassword": "string",
-  "newPassword": "string"
-}
-```
-
-<h3 id="change-user-password-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[PasswordChangeRequest](#schemapasswordchangerequest)|true|none|
-|» currentPassword|body|string|true|none|
-|» newPassword|body|string|false|none|
-
-> Example responses
-
-> 200 Response
-
-<h3 id="change-user-password-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Password changed successfully|string|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Invalid password format|string|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|User not authenticated|string|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-<h1 id="project-api-functional-components">Functional Components</h1>
-
-Endpoints for managing functional components within projects
-
-## Create a new functional component
-
-<a id="opIdcreateFunctionalComponent"></a>
-
-`POST /functional-components/projects/{projectId}`
-
-Creates a new functional component in the specified project
-
-> Body parameter
-
-```json
-{
-  "id": 1,
-  "title": "Create User Account",
-  "description": "Handles user account creation process",
-  "className": "UserAccount",
-  "componentType": "string",
-  "dataElements": 5,
-  "readingReferences": 2,
-  "writingReferences": 1,
-  "functionalMultiplier": 3,
-  "operations": 4,
-  "degreeOfCompletion": 0.75,
-  "previousFCId": 123,
-  "orderPosition": 1,
-  "isMLA": true,
-  "parentFCId": 12,
-  "subComponents": "[...]",
-  "subComponentType": "presentation",
-  "isReadonly": true
-}
-```
-
-<h3 id="create-a-new-functional-component-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|projectId|path|integer(int64)|true|none|
-|body|body|[FunctionalComponentRequest](#schemafunctionalcomponentrequest)|true|none|
-|» id|body|integer(int64)|false|Unique identifier|
-|» title|body|string|false|Title of the functional component|
-|» description|body|string|false|Detailed description of the functional component|
-|» className|body|string|false|Name of the class|
-|» componentType|body|string|false|Type of the functional component|
-|» dataElements|body|integer(int32)|false|Number of data elements|
-|» readingReferences|body|integer(int32)|false|Number of reading references|
-|» writingReferences|body|integer(int32)|false|Number of writing references|
-|» functionalMultiplier|body|integer(int32)|false|Multiplier for functional points calculation|
-|» operations|body|integer(int32)|false|Number of operations|
-|» degreeOfCompletion|body|number(double)|false|Completion status (0.0 to 1.0)|
-|» previousFCId|body|integer(int64)|false|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
-|» orderPosition|body|integer(int32)|true|Position in the component list|
-|» isMLA|body|boolean|true|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
-|» parentFCId|body|integer(int64)|false|ID of the parent functional component, if part of multi-layer architecture|
-|» subComponents|body|[any]|false|List of sub-components if part of multi-layer architecture|
-|» subComponentType|body|string|false|Type of sub-component in multi-layer architecture|
-|» isReadonly|body|boolean|true|Indicates if component is readonly|
-
-#### Enumerated Values
-
-|Parameter|Value|
-|---|---|
-|» subComponentType|presentation|
-|» subComponentType|businessLogic|
-|» subComponentType|dataAccess|
-|» subComponentType|integration|
-
-> Example responses
-
-> 200 Response
-
-<h3 id="create-a-new-functional-component-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Functional component created successfully|[ProjectResponse](#schemaprojectresponse)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Invalid request data|[ProjectResponse](#schemaprojectresponse)|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized|[ProjectResponse](#schemaprojectresponse)|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Delete a functional component
-
-<a id="opIddeleteFunctionalComponent"></a>
-
-`DELETE /functional-components/{componentId}/projects/{projectId}`
-
-Soft deletes a functional component from the specified project
-
-<h3 id="delete-a-functional-component-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|componentId|path|integer(int64)|true|none|
-|projectId|path|integer(int64)|true|none|
-
-> Example responses
-
-> 204 Response
-
-<h3 id="delete-a-functional-component-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|Functional component deleted successfully|[ProjectResponse](#schemaprojectresponse)|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized|[ProjectResponse](#schemaprojectresponse)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Component or project not found|[ProjectResponse](#schemaprojectresponse)|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-<h1 id="project-api-token-generation">Token Generation</h1>
-
-Endpoint for generating token
-
-## Generate a JWT
-
-<a id="opIdgetToken"></a>
+| Code | Meaning | Recovery |
+| --- | --- | --- |
+| `STALE_LOCK_VERSION` | The project changed since the state you edited, or during your save. | Fetch the current state, compare, and reapply your changes with its current `lockVersion`. |
+| `NOT_LATEST_VERSION` | You tried to change an archived version. | Open the latest version; changing the request's `version` field cannot make this project editable. |
+| `PROJECT_NAME_ALREADY_EXISTS` | You already have access to a project with the requested creation name. | Choose another name, or use the existing project. |
+| `USERNAME_ALREADY_EXISTS` | The account username is already taken. | Choose another username. |
+| `ALREADY_MEMBER` | The user already has access to the project. | Keep the existing membership. |
+| `LAST_MEMBER` | Removal would leave no other active member. | Keep a member, or delete the project if that is your intent. |
+
+A `401` indicates an unusable session; sign in again. A `403` indicates insufficient permission or, for password changes, an incorrect current password. A `404` can mean that a project is unavailable to your account as well as that it does not exist. Do not assume a `404` reveals whether another user's project exists.
+
+## Authentication and sessions
+
+### Sign in or renew a session
 
 `POST /token`
 
-Generates a signed JWT. Login requires Basic credentials and X-Benefit-Login: 1. The rememberMe parameter picks a 30-day instead of a 24-hour token. With a Bearer token this renews the session: the new token keeps the current token's lifetime (rememberMe is ignored), the current token is revoked, and a login can't be renewed past 30 days.
+Exchange credentials for a JWT, or replace an existing JWT while preserving the session lifetime. The same endpoint serves both operations.
 
-<h3 id="generate-a-jwt-parameters">Parameters</h3>
+#### Authentication and permissions
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|rememberMe|query|boolean|false|none|
+For sign-in, use Basic credentials plus `X-Benefit-Login: 1`. For renewal, use a valid Bearer token. Do not send both credential schemes.
 
-> Example responses
+#### Parameters
 
-> 200 Response
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `rememberMe` | query | No | Boolean; defaults to `false`. Selects a 30-day token on sign-in; ignored during renewal. |
+| `X-Benefit-Login` | header | For Basic sign-in | Must be `1`. Not required for Bearer renewal. |
 
-<h3 id="generate-a-jwt-responses">Responses</h3>
+#### Request example
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Token generated successfully|Inline|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|User not authenticated, or the session can no longer be renewed|Inline|
-|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Missing Basic login header or origin rejected|Inline|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Failed to encode the token|Inline|
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/token" \
+  --user "$BENEFIT_USERNAME" \
+  --header 'X-Benefit-Login: 1'
+```
 
-<h3 id="generate-a-jwt-responseschema">Response Schema</h3>
+#### Successful response
 
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-<h1 id="project-api-comment-management">Comment Management</h1>
-
-Endpoints for managing project comments
-
-## Update a project comment
-
-<a id="opIdupdateComment"></a>
-
-`PUT /projects/{projectId}/comments/{commentId}`
-
-Updates an existing comment for the specified project
-
-> Body parameter
+`200 OK`
 
 ```json
 {
-  "text": "This requirement still needs validation"
+  "token": "<JWT>",
+  "tokenType": "Bearer",
+  "expiresIn": 86400
 }
 ```
 
-<h3 id="update-a-project-comment-parameters">Parameters</h3>
+The token is also returned in `Authorization: Bearer <JWT>`. `expiresIn` is in seconds. `<JWT>` is intentionally a placeholder; published examples never include a usable token.
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|projectId|path|integer(int64)|true|ID of the project|
-|commentId|path|integer(int64)|true|ID of the comment to update|
-|body|body|[CommentRequest](#schemacommentrequest)|true|none|
-|» text|body|string|true|Comment text|
+#### Errors and recovery
 
-> Example responses
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | Invalid credentials, invalid token, or the login can no longer be renewed. | Sign in with valid credentials. |
+| `403` | The Basic sign-in header is missing or the origin is rejected. | Send `X-Benefit-Login: 1`; check the browser origin configuration. |
+| `429` | Too many failed sign-in attempts. | Stop retrying immediately and wait before trying again. |
+| `500` | Token issuance failed. | Retry later; investigate backend logs if it persists. |
 
-> 200 Response
+#### Renew an existing session
 
-<h3 id="update-a-project-comment-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Comment updated successfully|[CommentResponse](#schemacommentresponse)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Comment or project not found|[CommentResponse](#schemacommentresponse)|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Delete a project comment
-
-<a id="opIddeleteComment"></a>
-
-`DELETE /projects/{projectId}/comments/{commentId}`
-
-Deletes a comment belonging to the specified project
-
-<h3 id="delete-a-project-comment-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|projectId|path|integer(int64)|true|ID of the project|
-|commentId|path|integer(int64)|true|ID of the comment to delete|
-
-<h3 id="delete-a-project-comment-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|Comment deleted successfully|None|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Comment or project not found|None|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Get comments for a project
-
-<a id="opIdgetComments"></a>
-
-`GET /projects/{projectId}/comments`
-
-Retrieves all comments for the specified project that the user can access
-
-<h3 id="get-comments-for-a-project-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|projectId|path|integer(int64)|true|ID of the project|
-
-> Example responses
-
-> 200 Response
-
-<h3 id="get-comments-for-a-project-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Comments returned successfully|Inline|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Project not found|Inline|
-
-<h3 id="get-comments-for-a-project-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[CommentResponse](#schemacommentresponse)]|false|none|[Response object containing a comment tied to a project version]|
-|» id|integer(int64)|false|none|Unique identifier of the comment|
-|» text|string|false|none|Comment text|
-|» projectId|integer(int64)|false|none|ID of the project version this comment belongs to|
-
-Status Code **404**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[CommentResponse](#schemacommentresponse)]|false|none|[Response object containing a comment tied to a project version]|
-|» id|integer(int64)|false|none|Unique identifier of the comment|
-|» text|string|false|none|Comment text|
-|» projectId|integer(int64)|false|none|ID of the project version this comment belongs to|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
-
-## Create a comment for a project
-
-<a id="opIdcreateComment"></a>
-
-`POST /projects/{projectId}/comments`
-
-Creates a new comment for the specified project
-
-> Body parameter
-
-```json
-{
-  "text": "This requirement still needs validation"
-}
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/token" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
 ```
 
-<h3 id="create-a-comment-for-a-project-parameters">Parameters</h3>
+A successful renewal has the same response shape as sign-in. Replace `BENEFIT_TOKEN` with the returned token. The old token immediately becomes unusable. To sign in with a 30-day lifetime, use `/token?rememberMe=true` with Basic credentials instead.
 
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|projectId|path|integer(int64)|true|ID of the project|
-|body|body|[CommentRequest](#schemacommentrequest)|true|none|
-|» text|body|string|true|Comment text|
+### Validate a session
 
-<h3 id="create-a-comment-for-a-project-responses">Responses</h3>
+`GET /auth/validateJWT`
 
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Comment created successfully|None|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Invalid comment data|None|
+Check whether the current Bearer token is accepted. This is useful when restoring a saved login.
 
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-bearerAuth
-</aside>
+#### Authentication and permissions
 
-# Schemas
+Bearer JWT; any active account.
 
-<h2 id="tocS_CommentRequest">CommentRequest</h2>
-<!-- backwards compatibility -->
-<a id="schemacommentrequest"></a>
-<a id="schema_CommentRequest"></a>
-<a id="tocScommentrequest"></a>
-<a id="tocscommentrequest"></a>
+#### Parameters
 
-```json
-{
-  "text": "This requirement still needs validation"
-}
+No path, query, or body parameters.
 
+#### Request example
+
+```bash
+curl --include --request GET \
+  --url "$BENEFIT_API_URL/auth/validateJWT" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
 ```
 
-Request object for creating or updating a project comment
+#### Successful response
 
-### Properties
+`200 OK`
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|text|string|true|none|Comment text|
+No response body.
 
-<h2 id="tocS_CommentResponse">CommentResponse</h2>
-<!-- backwards compatibility -->
-<a id="schemacommentresponse"></a>
-<a id="schema_CommentResponse"></a>
-<a id="tocScommentresponse"></a>
-<a id="tocscommentresponse"></a>
+#### Errors and recovery
 
-```json
-{
-  "id": 1,
-  "text": "The validation needs review",
-  "projectId": 7
-}
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
 
+### Sign out
+
+`POST /auth/logout`
+
+Revoke the presented JWT. It can no longer authenticate requests or renew the session.
+
+#### Authentication and permissions
+
+Bearer JWT; any active account.
+
+#### Parameters
+
+No path, query, or body parameters.
+
+#### Request example
+
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/auth/logout" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
 ```
 
-Response object containing a comment tied to a project version
+#### Successful response
 
-### Properties
+`204 No Content`
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|false|none|Unique identifier of the comment|
-|text|string|false|none|Comment text|
-|projectId|integer(int64)|false|none|ID of the project version this comment belongs to|
+No response body.
 
-<h2 id="tocS_FunctionalComponentRequest">FunctionalComponentRequest</h2>
-<!-- backwards compatibility -->
-<a id="schemafunctionalcomponentrequest"></a>
-<a id="schema_FunctionalComponentRequest"></a>
-<a id="tocSfunctionalcomponentrequest"></a>
-<a id="tocsfunctionalcomponentrequest"></a>
+Remove the token from client storage after signing out.
 
-```json
-{
-  "id": 1,
-  "title": "Create User Account",
-  "description": "Handles user account creation process",
-  "className": "UserAccount",
-  "componentType": "string",
-  "dataElements": 5,
-  "readingReferences": 2,
-  "writingReferences": 1,
-  "functionalMultiplier": 3,
-  "operations": 4,
-  "degreeOfCompletion": 0.75,
-  "previousFCId": 123,
-  "orderPosition": 1,
-  "isMLA": true,
-  "parentFCId": 12,
-  "subComponents": "[...]",
-  "subComponentType": "presentation",
-  "isReadonly": true
-}
+#### Errors and recovery
 
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+
+## Projects
+
+### List your projects
+
+`GET /projects`
+
+Return projects accessible to the authenticated user, including archived versions. There are no pagination or filter parameters.
+
+#### Authentication and permissions
+
+Bearer JWT; both owners and members see their accessible projects.
+
+#### Parameters
+
+No path, query, or body parameters.
+
+#### Request example
+
+```bash
+curl --include --request GET \
+  --url "$BENEFIT_API_URL/projects" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
 ```
 
-Request object for creating or updating functional components within a project
+#### Successful response
 
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|false|none|Unique identifier|
-|title|string|false|none|Title of the functional component|
-|description|string|false|none|Detailed description of the functional component|
-|className|string|false|none|Name of the class|
-|componentType|string|false|none|Type of the functional component|
-|dataElements|integer(int32)|false|none|Number of data elements|
-|readingReferences|integer(int32)|false|none|Number of reading references|
-|writingReferences|integer(int32)|false|none|Number of writing references|
-|functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
-|operations|integer(int32)|false|none|Number of operations|
-|degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|previousFCId|integer(int64)|false|none|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
-|orderPosition|integer(int32)|true|none|Position in the component list|
-|isMLA|boolean|true|none|Indicates if the functional component participates in multi-layer architecture (MLA) as either a parent or child component. 'true' means the component is part of MLA hierarchy.|
-|parentFCId|integer(int64)|false|none|ID of the parent functional component, if part of multi-layer architecture|
-|subComponents|[any]|false|none|List of sub-components if part of multi-layer architecture|
-|subComponentType|string|false|none|Type of sub-component in multi-layer architecture|
-|isReadonly|boolean|true|none|Indicates if component is readonly|
-
-#### Enumerated Values
-
-|Property|Value|
-|---|---|
-|subComponentType|presentation|
-|subComponentType|businessLogic|
-|subComponentType|dataAccess|
-|subComponentType|integration|
-
-<h2 id="tocS_ProjectRequest">ProjectRequest</h2>
-<!-- backwards compatibility -->
-<a id="schemaprojectrequest"></a>
-<a id="schema_ProjectRequest"></a>
-<a id="tocSprojectrequest"></a>
-<a id="tocsprojectrequest"></a>
+`200 OK`
 
 ```json
-{
-  "projectName": "User Authentication System",
-  "version": 1,
-  "functionalComponents": [
-    {
-      "id": 1,
-      "title": "Create User Account",
-      "description": "Handles user account creation process",
-      "className": "UserAccount",
-      "componentType": "string",
-      "dataElements": 5,
-      "readingReferences": 2,
-      "writingReferences": 1,
-      "functionalMultiplier": 3,
-      "operations": 4,
-      "degreeOfCompletion": 0.75,
-      "previousFCId": 123,
-      "orderPosition": 1,
-      "isMLA": true,
-      "parentFCId": 12,
-      "subComponents": "[...]",
-      "subComponentType": "presentation",
-      "isReadonly": true
-    }
-  ],
-  "calculationDate": "2026-04-08",
-  "reportContactDetails": "string",
-  "reportNotes": "string",
-  "lockVersion": 3
-}
-
-```
-
-Request object for creating or updating a project
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|projectName|string|true|none|Name of the project|
-|version|integer(int32)|true|none|Version of the project|
-|functionalComponents|[[FunctionalComponentRequest](#schemafunctionalcomponentrequest)]|false|none|List of functional components in the project|
-|calculationDate|string(date)|false|none|Calculation date of the project|
-|reportContactDetails|string|false|none|Optional contact details printed on the report|
-|reportNotes|string|false|none|Optional calculation notes printed on the report|
-|lockVersion|integer(int64)|false|none|The project's lockVersion from the response the edit is based on. Required when updating a project; the update is rejected with 409 if the project has changed since.|
-
-<h2 id="tocS_AppUserSummary">AppUserSummary</h2>
-<!-- backwards compatibility -->
-<a id="schemaappusersummary"></a>
-<a id="schema_AppUserSummary"></a>
-<a id="tocSappusersummary"></a>
-<a id="tocsappusersummary"></a>
-
-```json
-{
-  "id": 1,
-  "username": "john.doe"
-}
-
-```
-
-Summary information about an application user
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|false|none|Unique identifier of the user|
-|username|string|false|none|Username of the user|
-
-<h2 id="tocS_FunctionalComponentResponse">FunctionalComponentResponse</h2>
-<!-- backwards compatibility -->
-<a id="schemafunctionalcomponentresponse"></a>
-<a id="schema_FunctionalComponentResponse"></a>
-<a id="tocSfunctionalcomponentresponse"></a>
-<a id="tocsfunctionalcomponentresponse"></a>
-
-```json
-{
-  "id": 1,
-  "title": "Create User Account",
-  "description": "string",
-  "className": "UserAccount",
-  "componentType": "string",
-  "dataElements": 5,
-  "readingReferences": 2,
-  "writingReferences": 1,
-  "functionalMultiplier": 3,
-  "operations": 4,
-  "degreeOfCompletion": 0.75,
-  "previousFCId": 123,
-  "orderPosition": 1,
-  "isMLA": true,
-  "parentFCId": 12,
-  "subComponentType": "presentation",
-  "isReadonly": true,
-  "subComponents": [
-    null
-  ]
-}
-
-```
-
-Response object containing details on functional components within a project
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|false|none|Unique identifier|
-|title|string|false|none|Title of the functional component|
-|description|string|false|none|Detailed description of the functional component|
-|className|string|false|none|Name of the class|
-|componentType|string|false|none|Type of the functional component|
-|dataElements|integer(int32)|false|none|Number of data elements|
-|readingReferences|integer(int32)|false|none|Number of reading references|
-|writingReferences|integer(int32)|false|none|Number of writing references|
-|functionalMultiplier|integer(int32)|false|none|Multiplier for functional points calculation|
-|operations|integer(int32)|false|none|Number of operations|
-|degreeOfCompletion|number(double)|false|none|Completion status (0.0 to 1.0)|
-|previousFCId|integer(int64)|false|none|ID of this component's counterpart in the previous project version, used to diff versions in the PDF report and to carry over parent/subcomponent links when a new version is created. Not related to ordering; null if the component has no prior version.|
-|orderPosition|integer(int32)|false|none|Position in the component list|
-|isMLA|boolean|false|none|Whether the functional component is part of multi-layer architecture (MLA)|
-|parentFCId|integer(int64)|false|none|ID of the parent functional component, if part of multi-layer architecture (MLA)|
-|subComponentType|string|false|none|Type of sub-component in multi-layer architecture|
-|isReadonly|boolean|false|none|Indicates if this component is readonly (for sub-components)|
-|subComponents|[any]|false|none|List of sub-components for multi-layer architecture|
-
-<h2 id="tocS_ProjectAppUserResponse">ProjectAppUserResponse</h2>
-<!-- backwards compatibility -->
-<a id="schemaprojectappuserresponse"></a>
-<a id="schema_ProjectAppUserResponse"></a>
-<a id="tocSprojectappuserresponse"></a>
-<a id="tocsprojectappuserresponse"></a>
-
-```json
-{
-  "id": 1,
-  "appUser": {
-    "id": 1,
-    "username": "john.doe"
+[
+  {
+    "id": 11,
+    "projectName": "Benefit documentation example",
+    "version": 1,
+    "createdAt": "2026-11-18T17:06:23",
+    "versionCreatedAt": "2026-11-18T17:06:23",
+    "calculationDate": "2026-11-18",
+    "reportContactDetails": "Benefit team",
+    "reportNotes": "Initial review.",
+    "updatedAt": "2026-11-18T17:06:23",
+    "lockVersion": 0,
+    "active": true,
+    "functionalComponents": [],
+    "projectAppUsers": [
+      {
+        "id": 21,
+        "roleInProject": "OWNER",
+        "appUser": {
+          "id": 11,
+          "username": "docs_owner"
+        }
+      }
+    ]
   }
-}
-
+]
 ```
 
-Response object containing project-user relationship details
+The response is an array of [ProjectResponse](#projectresponse). An account with no accessible projects receives `[]`.
 
-### Properties
+#### Errors and recovery
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|false|none|ID of the project-user relationship|
-|appUser|[AppUserSummary](#schemaappusersummary)|false|none|AppUser details|
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
 
-<h2 id="tocS_ProjectResponse">ProjectResponse</h2>
-<!-- backwards compatibility -->
-<a id="schemaprojectresponse"></a>
-<a id="schema_ProjectResponse"></a>
-<a id="tocSprojectresponse"></a>
-<a id="tocsprojectresponse"></a>
+### Get a project
+
+`GET /projects/{id}`
+
+Fetch a project, its active component tree, membership, and current save counter. Use this response as the starting point for an edit.
+
+#### Authentication and permissions
+
+Bearer JWT. You must have access to the project; both **OWNER** and **MEMBER** can use this endpoint.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Project ID. |
+
+#### Request example
+
+```bash
+curl --include --request GET \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`200 OK`
 
 ```json
 {
-  "id": 1,
-  "projectName": "User Authentication Service",
+  "id": 11,
+  "projectName": "Benefit documentation example",
   "version": 1,
-  "createdAt": "2025-09-25T10:30:00",
-  "versionCreatedAt": "2025-09-25T15:45:00",
-  "calculationDate": "2026-04-08",
-  "reportContactDetails": "string",
-  "reportNotes": "string",
-  "updatedAt": "2025-09-25T15:45:00",
-  "lockVersion": 3,
+  "createdAt": "2026-11-18T17:06:23",
+  "versionCreatedAt": "2026-11-18T17:06:23",
+  "calculationDate": "2026-11-18",
+  "reportContactDetails": "Benefit team",
+  "reportNotes": "Initial review.",
+  "updatedAt": "2026-11-18T17:06:23",
+  "lockVersion": 0,
   "active": true,
-  "functionalComponents": [
-    {
-      "id": 1,
-      "title": "Create User Account",
-      "description": "string",
-      "className": "UserAccount",
-      "componentType": "string",
-      "dataElements": 5,
-      "readingReferences": 2,
-      "writingReferences": 1,
-      "functionalMultiplier": 3,
-      "operations": 4,
-      "degreeOfCompletion": 0.75,
-      "previousFCId": 123,
-      "orderPosition": 1,
-      "isMLA": true,
-      "parentFCId": 12,
-      "subComponentType": "presentation",
-      "isReadonly": true,
-      "subComponents": [
-        null
-      ]
-    }
-  ],
+  "functionalComponents": [],
   "projectAppUsers": [
     {
-      "id": 1,
+      "id": 21,
+      "roleInProject": "OWNER",
       "appUser": {
-        "id": 1,
-        "username": "john.doe"
+        "id": 11,
+        "username": "docs_owner"
       }
     }
   ]
 }
-
 ```
 
-Response object containing project details
+Returns [ProjectResponse](#projectresponse). A returned archived version can be read but not edited.
 
-### Properties
+#### Errors and recovery
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|false|none|Unique identifier of the project|
-|projectName|string|false|none|Name of the project|
-|version|integer(int32)|false|none|Version of the project|
-|createdAt|string(date-time)|false|none|Creation timestamp|
-|versionCreatedAt|string(date-time)|false|none|Last version update timestamp|
-|calculationDate|string(date)|false|none|Calculation date|
-|reportContactDetails|string|false|none|Optional contact details printed on the report|
-|reportNotes|string|false|none|Optional calculation notes printed on the report|
-|updatedAt|string(date-time)|false|none|Last update timestamp|
-|lockVersion|integer(int64)|false|none|Optimistic-lock counter. Send it back unchanged when updating the project; a stale value is rejected with 409|
-|active|boolean|false|none|Whether the project is active|
-|functionalComponents|[[FunctionalComponentResponse](#schemafunctionalcomponentresponse)]|false|none|Functional components in the project|
-|projectAppUsers|[[ProjectAppUserResponse](#schemaprojectappuserresponse)]|false|none|Users associated with the project|
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `404` | The project is missing or unavailable to your account. | Check the ID and project access. |
 
-<h2 id="tocS_PasswordChangeRequest">PasswordChangeRequest</h2>
-<!-- backwards compatibility -->
-<a id="schemapasswordchangerequest"></a>
-<a id="schema_PasswordChangeRequest"></a>
-<a id="tocSpasswordchangerequest"></a>
-<a id="tocspasswordchangerequest"></a>
+### Create a project
+
+`POST /projects`
+
+Create a new calculation. The caller becomes its owner. A name already accessible to the caller cannot be reused for another new project.
+
+#### Authentication and permissions
+
+Bearer JWT; any active account.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `projectName` | JSON body | Yes | Nonblank name, at most 255 characters. |
+| `version` | JSON body | Yes | Use `1` for a new calculation. |
+| Other fields | JSON body | No | See [ProjectRequest](#projectrequest); `lockVersion` is not needed for creation. |
+
+#### Request example
+
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/projects" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "projectName": "Benefit documentation example",
+  "version": 1,
+  "functionalComponents": [],
+  "calculationDate": "2026-11-18",
+  "reportContactDetails": "Benefit team",
+  "reportNotes": "Initial review."
+}'
+```
+
+#### Successful response
+
+`201 Created`
+
+```http
+Location: http://localhost:8080/projects/11
+```
+
+The response has no body. Follow `Location` with an authenticated GET to retrieve the resource.
+
+Unlike update and duplicate, creation does not return a project body.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `409` | You already have access to a project with this name. | Choose a new name; see `PROJECT_NAME_ALREADY_EXISTS`. |
+
+### Update a project
+
+`PUT /projects/{id}`
+
+Save changes to the latest version. Fetch the current project first, preserve its existing values, and send its current `lockVersion`. Renaming also renames its archived versions.
+
+#### Authentication and permissions
+
+Bearer JWT. You must be an **OWNER** of this project. A view-only member receives `403`.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Project ID. |
+| `projectName` | JSON body | Yes | Current name, unless intentionally renaming. |
+| `version` | JSON body | Yes | Keep the existing value unchanged. |
+| `lockVersion` | JSON body | Yes | Counter from the project response you edited. |
+| Remaining fields | JSON body | Preserve existing values | Complete calculation and report fields; see [ProjectRequest](#projectrequest). |
+
+#### Request example
+
+```bash
+curl --include --request PUT \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "projectName": "Benefit documentation example",
+  "version": 1,
+  "functionalComponents": [],
+  "calculationDate": "2026-11-18",
+  "reportContactDetails": "Benefit team",
+  "reportNotes": "Reviewed with the project owner.",
+  "lockVersion": 0
+}'
+```
+
+#### Successful response
+
+`200 OK`
 
 ```json
 {
-  "currentPassword": "string",
-  "newPassword": "string"
+  "id": 11,
+  "projectName": "Benefit documentation example",
+  "version": 1,
+  "createdAt": "2026-11-18T17:06:23",
+  "versionCreatedAt": "2026-11-18T17:06:23",
+  "calculationDate": "2026-11-18",
+  "reportContactDetails": "Benefit team",
+  "reportNotes": "Reviewed with the project owner.",
+  "updatedAt": "2026-11-18T17:06:22",
+  "lockVersion": 1,
+  "active": true,
+  "functionalComponents": [],
+  "projectAppUsers": [
+    {
+      "id": 21,
+      "roleInProject": "OWNER",
+      "appUser": {
+        "id": 11,
+        "username": "docs_owner"
+      }
+    }
+  ]
 }
-
 ```
 
-Request object containing details on password change
+The example updates a note on a project with no components. Keep your own component tree when editing an existing calculation. The returned `lockVersion` is the counter to use for the next edit.
 
-### Properties
+#### Errors and recovery
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|currentPassword|string|true|none|none|
-|newPassword|string|false|none|none|
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | You are a member, but not a project owner. | Ask an owner to make the change. |
+| `404` | Project or a referenced component is unavailable. | Check project access and component IDs. |
+| `409` | The project is archived or changed during the request. | Read the conflict `code`; see [conflict recovery](#conflicts-and-recovery). |
 
+#### Recover from a stale save
+
+```json
+{
+  "code": "STALE_LOCK_VERSION",
+  "message": "The project was changed by someone else. Reload it and try again."
+}
+```
+
+Fetch the current project, compare it with your edit, and reapply the changes you still want. Retry with the new state and its counter. If the code is `NOT_LATEST_VERSION`, open the latest project version instead.
+
+Omitting `lockVersion` returns `400` with this text body:
+
+```text
+lockVersion is required when updating a project
+```
+
+### Create a new project version
+
+`POST /projects/{id}/versions`
+
+Create a new project row and copy the source version's active components, memberships, and roles. The previous project becomes archived once a higher version exists.
+
+#### Authentication and permissions
+
+Bearer JWT. You must be an **OWNER** of this project. A view-only member receives `403`. The source must also be the latest version.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Source project ID. |
+| `projectName` | JSON body | Yes | Keep the source name to stay in its version history. |
+| `version` | JSON body | Yes | Supply the next version number; the backend does not select it for you. |
+| Report/date fields | JSON body | No | Values for the new version; preserve source values you want to keep. |
+
+#### Request example
+
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/versions" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "projectName": "Benefit documentation example",
+  "version": 2,
+  "functionalComponents": [],
+  "calculationDate": "2026-11-18",
+  "reportContactDetails": "Benefit team",
+  "reportNotes": "Initial review."
+}'
+```
+
+#### Successful response
+
+`201 Created`
+
+```http
+Location: http://localhost:8080/projects/13
+```
+
+The response has no body. Follow `Location` with an authenticated GET to retrieve the resource.
+
+Follow `Location` and use the new project ID for edits. Components are copied from the server-side source; a submitted `functionalComponents` array does not replace that copy. The new component IDs link back through `previousFCId`.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | You are a member, but not a project owner. | Ask an owner to make the change. |
+| `404` | The project is missing or unavailable to your account. | Check the ID and project access. |
+| `409` | The source is no longer the latest version. | Fetch the latest version and create the next version from it. |
+
+### Duplicate a project
+
+`POST /projects/{id}/duplicate`
+
+Copy an owned project and its active component tree into a separate calculation at version 1. The backend picks a free name such as `Benefit documentation example - Copy`. Only the caller owns the new project.
+
+#### Authentication and permissions
+
+Bearer JWT. You must be an **OWNER** of this project. A view-only member receives `403`.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Project ID to duplicate. |
+
+#### Request example
+
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/duplicate" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`200 OK`
+
+```json
+{
+  "id": 12,
+  "projectName": "Benefit documentation example - Copy",
+  "version": 1,
+  "createdAt": "2026-11-18T17:06:23",
+  "versionCreatedAt": "2026-11-18T17:06:23",
+  "calculationDate": "2026-11-18",
+  "reportContactDetails": "Benefit team",
+  "reportNotes": "Reviewed with the project owner.",
+  "updatedAt": "2026-11-18T17:06:23",
+  "lockVersion": 0,
+  "active": true,
+  "functionalComponents": [],
+  "projectAppUsers": [
+    {
+      "id": 23,
+      "roleInProject": "OWNER",
+      "appUser": {
+        "id": 11,
+        "username": "docs_owner"
+      }
+    }
+  ]
+}
+```
+
+Returns the new [ProjectResponse](#projectresponse) directly. This is a separate calculation, not the next version of the source.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | You are a member, but not a project owner. | Ask an owner to make the change. |
+| `404` | The project is missing or unavailable to your account. | Check the ID and project access. |
+
+### Delete a project
+
+`DELETE /projects/{id}`
+
+Soft-delete the specified project and its active components. This affects that project ID, not every row sharing its name.
+
+#### Authentication and permissions
+
+Bearer JWT. You must be an **OWNER** of this project. A view-only member receives `403`.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Project ID to delete. |
+
+#### Request example
+
+```bash
+curl --include --request DELETE \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`204 No Content`
+
+No response body.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | You are a member, but not a project owner. | Ask an owner to make the change. |
+| `404` | The project is missing or unavailable to your account. | Check the ID and project access. |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+
+## Project membership
+
+### Add a project member
+
+`POST /projects/{id}/users`
+
+Give an existing account view-only access to the project and its existing versions. Membership in new versions is copied from the source version.
+
+#### Authentication and permissions
+
+Bearer JWT. You must be an **OWNER** of this project. A view-only member receives `403`.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Project ID. |
+| `username` | JSON body | Yes | Nonblank username of an active account. |
+
+#### Request example
+
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/users" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "username": "docs_member"
+}'
+```
+
+#### Successful response
+
+`200 OK`
+
+```json
+{
+  "id": 11,
+  "projectName": "Benefit documentation example",
+  "version": 1,
+  "createdAt": "2026-11-18T17:06:23",
+  "versionCreatedAt": "2026-11-18T17:06:23",
+  "calculationDate": "2026-11-18",
+  "reportContactDetails": "Benefit team",
+  "reportNotes": "Reviewed with the project owner.",
+  "updatedAt": "2026-11-18T17:06:23",
+  "lockVersion": 1,
+  "active": true,
+  "functionalComponents": [],
+  "projectAppUsers": [
+    {
+      "id": 21,
+      "roleInProject": "OWNER",
+      "appUser": {
+        "id": 11,
+        "username": "docs_owner"
+      }
+    },
+    {
+      "id": 22,
+      "roleInProject": "MEMBER",
+      "appUser": {
+        "id": 12,
+        "username": "docs_member"
+      }
+    }
+  ]
+}
+```
+
+The added user has `roleInProject: "MEMBER"`. This endpoint cannot grant ownership.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | You are a member, but not a project owner. | Ask an owner to make the change. |
+| `404` | The project or active user is unavailable. | Check access and the username. |
+| `409` | The user is already a member. | Keep the existing membership; see `ALREADY_MEMBER`. |
+
+### Remove a project member
+
+`DELETE /projects/{id}/users/{appUserId}`
+
+Remove a user's access across the project's existing versions. Project data remains available to the remaining members.
+
+#### Authentication and permissions
+
+Bearer JWT. You must be an **OWNER** of this project. A view-only member receives `403`.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Project ID. |
+| `appUserId` | path | Yes | Account ID, not the project-user relationship ID. |
+
+#### Request example
+
+```bash
+curl --include --request DELETE \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/users/$APP_USER_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`204 No Content`
+
+No response body.
+
+An owner can remove their own membership if another active member remains. A remaining view-only member is not automatically promoted to owner.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | You are a member, but not a project owner. | Ask an owner to make the change. |
+| `404` | Project is unavailable or the account is not a member. | Check both IDs. |
+| `409` | No other active member would remain. | Keep a member or delete the project; see `LAST_MEMBER`. |
+
+## Functional components
+
+### Create a functional component
+
+`POST /functional-components/projects/{projectId}`
+
+Add a component to the latest project version. The backend appends it and normalizes component ordering, even though the request must include `orderPosition`.
+
+#### Authentication and permissions
+
+Bearer JWT. You must be an **OWNER** of this project. A view-only member receives `403`. The project must be the latest version.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `projectId` | path | Yes | Project ID. |
+| `orderPosition` | JSON body | Yes | Nonnegative integer; final position is assigned by the backend. |
+| `isMLA` | JSON body | Yes | Whether this component participates in the MLA hierarchy. |
+| Other fields | JSON body | See schema | See [FunctionalComponentRequest](#functionalcomponentrequest); `isReadonly` defaults to `false`. |
+
+#### Request example
+
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/functional-components/projects/$PROJECT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "title": "Register a customer",
+  "className": "Interactive end-user input service",
+  "componentType": "Interactive",
+  "dataElements": 5,
+  "readingReferences": 1,
+  "writingReferences": 1,
+  "degreeOfCompletion": 0.0,
+  "orderPosition": 0,
+  "isMLA": false,
+  "isReadonly": false
+}'
+```
+
+#### Successful response
+
+`200 OK`
+
+Selected fields from the returned [ProjectResponse](#projectresponse); timestamps and report fields are omitted from this example.
+
+```json
+{
+  "id": 11,
+  "projectName": "Benefit documentation example",
+  "version": 1,
+  "lockVersion": 2,
+  "functionalComponents": [
+    {
+      "id": 9301,
+      "title": "Register a customer",
+      "description": null,
+      "className": "Interactive end-user input service",
+      "componentType": "Interactive",
+      "dataElements": 5,
+      "readingReferences": 1,
+      "writingReferences": 1,
+      "functionalMultiplier": null,
+      "operations": null,
+      "degreeOfCompletion": 0.0,
+      "previousFCId": null,
+      "orderPosition": 0,
+      "isMLA": false,
+      "parentFCId": null,
+      "subComponentType": null,
+      "isReadonly": false,
+      "subComponents": null
+    }
+  ],
+  "projectAppUsers": [
+    {
+      "id": 21,
+      "roleInProject": "OWNER",
+      "appUser": {
+        "id": 11,
+        "username": "docs_owner"
+      }
+    }
+  ]
+}
+```
+
+Returns the whole updated [ProjectResponse](#projectresponse), not just the new component. Keep its new `lockVersion`. If you supply `parentFCId`, that parent must be active in the same project.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | You are a member, but not a project owner. | Ask an owner to make the change. |
+| `404` | Project or parent component is unavailable. | Check access and the parent ID. |
+| `409` | The project is archived or changed during the request. | Read the conflict `code`; see [conflict recovery](#conflicts-and-recovery). |
+
+### Delete a functional component
+
+`DELETE /functional-components/{componentId}/projects/{projectId}`
+
+Soft-delete a component and its subcomponents from the latest project version. The remaining display positions are normalized.
+
+#### Authentication and permissions
+
+Bearer JWT. You must be an **OWNER** of this project. A view-only member receives `403`. The project must be the latest version.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `componentId` | path | Yes | Component ID in the specified project. |
+| `projectId` | path | Yes | Project ID. |
+
+#### Request example
+
+```bash
+curl --include --request DELETE \
+  --url "$BENEFIT_API_URL/functional-components/$COMPONENT_ID/projects/$PROJECT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`204 No Content`
+
+No response body.
+
+Fetch the project again before the next full update: deletion advances `lockVersion` but this response has no body.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | You are a member, but not a project owner. | Ask an owner to make the change. |
+| `404` | Project or active component is unavailable. | Check project access and that the component belongs to this project. |
+| `409` | The project is archived or changed during the request. | Read the conflict `code`; see [conflict recovery](#conflicts-and-recovery). |
+
+## Comments
+
+### List project comments
+
+`GET /projects/{projectId}/comments`
+
+Return comments attached to one project version. Comments on other project IDs are not included.
+
+#### Authentication and permissions
+
+Bearer JWT. You must have access to the project; both **OWNER** and **MEMBER** can use this endpoint.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `projectId` | path | Yes | Project ID. |
+
+#### Request example
+
+```bash
+curl --include --request GET \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/comments" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`200 OK`
+
+```json
+[
+  {
+    "id": 8,
+    "text": "Reading references confirmed.",
+    "projectId": 11
+  }
+]
+```
+
+Returns an array of [CommentResponse](#commentresponse). The array is empty when there are no comments.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `404` | The project is missing or unavailable to your account. | Check the ID and project access. |
+
+### Create a comment
+
+`POST /projects/{projectId}/comments`
+
+Add a comment to the specified project version, including an archived version.
+
+#### Authentication and permissions
+
+Bearer JWT. You must have access to the project; both **OWNER** and **MEMBER** can use this endpoint.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `projectId` | path | Yes | Project ID. |
+| `text` | JSON body | Yes | Nonblank text, at most 2,000 characters. |
+
+#### Request example
+
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/comments" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "text": "Please confirm the reading references."
+}'
+```
+
+#### Successful response
+
+`201 Created`
+
+```http
+Location: http://localhost:8080/projects/11/comments/8
+```
+
+The response has no body. Use the ID in `Location` for update/delete, or list the project's comments to retrieve it.
+
+To retrieve it, list the project's comments. There is no single-comment GET endpoint; `Location` identifies the created comment for update and delete operations.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `404` | The project is missing or unavailable to your account. | Check the ID and project access. |
+
+### Update a comment
+
+`PUT /projects/{projectId}/comments/{commentId}`
+
+Replace the text of a comment attached to this project. Any account with project access can update it; the API does not restrict edits to the author.
+
+#### Authentication and permissions
+
+Bearer JWT. You must have access to the project; both **OWNER** and **MEMBER** can use this endpoint.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `projectId` | path | Yes | Project ID. |
+| `commentId` | path | Yes | Comment ID belonging to that project. |
+| `text` | JSON body | Yes | Nonblank replacement text, at most 2,000 characters. |
+
+#### Request example
+
+```bash
+curl --include --request PUT \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/comments/$COMMENT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "text": "Reading references confirmed."
+}'
+```
+
+#### Successful response
+
+`200 OK`
+
+```json
+{
+  "id": 8,
+  "text": "Reading references confirmed.",
+  "projectId": 11
+}
+```
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | The comment belongs to a different project. | Use its actual project ID. |
+| `404` | Project or comment is unavailable. | Check access and both IDs. |
+
+### Delete a comment
+
+`DELETE /projects/{projectId}/comments/{commentId}`
+
+Permanently remove a comment. Unlike projects and functional components, this operation does not soft-delete it.
+
+#### Authentication and permissions
+
+Bearer JWT. You must have access to the project; both **OWNER** and **MEMBER** can use this endpoint.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `projectId` | path | Yes | Project ID. |
+| `commentId` | path | Yes | Comment ID belonging to that project. |
+
+#### Request example
+
+```bash
+curl --include --request DELETE \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/comments/$COMMENT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`204 No Content`
+
+No response body.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | The comment belongs to a different project. | Use its actual project ID. |
+| `404` | Project or comment is unavailable. | Check access and both IDs. |
+
+## User accounts
+
+### Create an account
+
+`POST /appusers`
+
+Create an account with the requested application role. This is an administrator operation, not public registration.
+
+#### Authentication and permissions
+
+Bearer JWT from an **ADMIN** account. Project ownership does not grant this permission.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `username` | JSON body | Yes | Nonempty, unique account username. Usernames cannot be changed later. |
+| `password` | JSON body | Yes | Nonempty password, at most 64 Java characters; stored hashed. |
+| `role` | JSON body | Yes | `USER` or `ADMIN`. |
+
+#### Request example
+
+```bash
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/appusers" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "username": "docs_owner",
+  "password": "ExamplePass2026!",
+  "role": "USER"
+}'
+```
+
+#### Successful response
+
+`201 Created`
+
+```json
+{
+  "id": 11,
+  "username": "docs_owner"
+}
+```
+
+Returns [AppUserSummary](#appusersummary), without the password. Account creation currently uses a different validation policy from password replacement; the replacement policy is documented below.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | The caller is not an administrator. | Use an administrator account. |
+| `409` | The username is already taken. | Choose another username; see `USERNAME_ALREADY_EXISTS`. |
+
+### Get your account details
+
+`GET /appusers/{id}`
+
+Return your own account ID and username. This is not a general user-directory endpoint.
+
+#### Authentication and permissions
+
+Bearer JWT. This operation applies to your own account.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Your own account ID, available as `userId` in the JWT. |
+
+#### Request example
+
+```bash
+curl --include --request GET \
+  --url "$BENEFIT_API_URL/appusers/$APP_USER_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`200 OK`
+
+```json
+{
+  "id": 11,
+  "username": "docs_owner"
+}
+```
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | The ID belongs to another account. | Use your own account ID. |
+| `404` | The active account cannot be found. | Sign in again; check whether the account was deleted. |
+
+### Change your password
+
+`PUT /appusers/password`
+
+Verify the current password and replace it. Success invalidates **all existing sessions**, including the current one, by incrementing the account's `session_version`.
+
+#### Authentication and permissions
+
+Bearer JWT. This operation applies to your own account.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `currentPassword` | JSON body | Yes | Current password; nonblank and at most 72 Java characters. |
+| `newPassword` | JSON body | Yes | Nonblank replacement: 8–64 Unicode code points, at most 72 UTF-8 bytes, no null characters or line breaks. |
+
+#### Request example
+
+```bash
+curl --include --request PUT \
+  --url "$BENEFIT_API_URL/appusers/password" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "currentPassword": "ExamplePass2026!",
+  "newPassword": "UpdatedExample2026!"
+}'
+```
+
+#### Successful response
+
+`200 OK`
+
+```text
+Password changed successfully
+```
+
+This successful response is text, not JSON. Clear the old token and sign in again with the new password; token renewal with the old session will fail.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | The request contains missing or invalid fields. | Read the text response and correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | The current password is incorrect, or the account session changed during the request. | Check the current password; sign in again if needed. |
+
+### Delete your account
+
+`DELETE /appusers/{id}`
+
+Soft-delete your account, remove it from shared projects, and soft-delete projects where it is the only member. Existing tokens for the account stop working.
+
+#### Authentication and permissions
+
+Bearer JWT. This operation applies to your own account.
+
+#### Parameters
+
+| Name | Location | Required | Description |
+| --- | --- | --- | --- |
+| `id` | path | Yes | Your own account ID. |
+
+#### Request example
+
+```bash
+curl --include --request DELETE \
+  --url "$BENEFIT_API_URL/appusers/$APP_USER_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+#### Successful response
+
+`204 No Content`
+
+No response body.
+
+Remove the token and account details from client storage. This endpoint is not an administrator API for deleting other users.
+
+#### Errors and recovery
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
+| `403` | The ID belongs to another account. | Use your own account ID. |
+| `404` | The active account was not found. | Check the ID and whether it has already been deleted. |
+
+## Field reference
+
+The endpoint sections explain what to send for each operation. These tables describe the shared objects. See [api-docs.yaml](api-docs.yaml) for the generated types and validation constraints. A nullable field may contain `null`; a field that may be omitted is not necessarily preserved when omitted from an update.
+
+### ProjectRequest
+
+| Field | Type | Meaning and constraints |
+| --- | --- | --- |
+| `projectName` | string | Required, nonblank, at most 255 characters. Shared name groups project versions. |
+| `version` | integer | Nonnegative version number. Use `1` for creation, retain it for updates, and supply the next number when creating a version. |
+| `functionalComponents` | array of FunctionalComponentRequest | Complete component tree; defaults to empty when omitted. Preserve values during updates. Version creation copies components from the source instead. |
+| `calculationDate` | date or null | `YYYY-MM-DD`; omission clears it during a project update. |
+| `reportContactDetails` | string or null | At most 2,000 characters; omission clears it during an update. |
+| `reportNotes` | string or null | At most 5,000 characters; omission clears it during an update. |
+| `lockVersion` | integer | Required for project updates; use the current response's value. Not a project version number and not needed for creation. |
+
+### ProjectResponse
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | integer | ID of this project version. |
+| `projectName` | string | Shared name of the version history. |
+| `version` | integer | Version number. Highest version in the history is the latest. |
+| `createdAt` | date-time | Original creation time, retained when creating a version. |
+| `versionCreatedAt` | date-time | Creation time of this version. |
+| `calculationDate` | date or null | Calculation date. |
+| `reportContactDetails` | string or null | Report contact details. |
+| `reportNotes` | string or null | Report notes. |
+| `updatedAt` | date-time | Last update time, falling back to creation time. |
+| `lockVersion` | integer | Current save counter for the next full update. |
+| `active` | boolean | Whether the project is not soft-deleted. It does **not** mean this is the latest version. |
+| `functionalComponents` | array of FunctionalComponentResponse | Active top-level components, with children nested under their parent. Use `orderPosition` for display ordering; do not assume array order is meaningful. |
+| `projectAppUsers` | array of ProjectAppUserResponse | Accounts and their project-specific roles. |
+
+Project date-times use `YYYY-MM-DDTHH:mm:ss`, without a timezone suffix. `calculationDate` uses only `YYYY-MM-DD`.
+
+### FunctionalComponentRequest
+
+A component's input fields depend on its FiSMA class. The API stores the calculation inputs; functional point mathematics lives in the client. See the [calculation reference](centralized_calculations.md) for the class-specific formulas.
+
+| Field | Type | Meaning and constraints |
+| --- | --- | --- |
+| `id` | integer or null | Existing component ID for a full project update. Omit for a new component. |
+| `title` | string or null | At most 255 characters. |
+| `description` | string or null | At most 10,000 characters. |
+| `className` | string or null | FiSMA class name, at most 255 characters; for example `Interactive end-user input service`. |
+| `componentType` | string or null | Class-specific component type; the example uses `Interactive`. |
+| `dataElements` | integer or null | Nonnegative. |
+| `readingReferences` | integer or null | Nonnegative. |
+| `writingReferences` | integer or null | Nonnegative. |
+| `functionalMultiplier` | integer or null | At least 1 when supplied. |
+| `operations` | integer or null | Nonnegative. |
+| `degreeOfCompletion` | number or null | From 0 to 1, inclusive. |
+| `previousFCId` | integer or null | Counterpart in the previous project version; independent of ordering. Normally assigned by version creation. |
+| `orderPosition` | integer | Required and nonnegative; display position. Component creation assigns the final position. |
+| `isMLA` | boolean | Required. Indicates participation in the multi-layer architecture hierarchy. |
+| `parentFCId` | integer or null | Parent component in the same project. Root components have no parent. |
+| `subComponents` | array of FunctionalComponentRequest or null | Child components nested under their parent. Preserve children when updating an existing calculation. |
+| `subComponentType` | string or null | `presentation`, `businessLogic`, `dataAccess`, or `integration`. |
+| `isReadonly` | boolean | Defaults to `false`; cannot be null. Used for MLA child editing behavior, not account authorization. |
+
+### FunctionalComponentResponse
+
+Uses the same field names and JSON types as [FunctionalComponentRequest](#functionalcomponentrequest), with server-assigned `id` and ordering. `subComponents` contains nested response objects and may be `null`. The `previousFCId` and parent/child links refer to their respective project versions. Do not use a response object's nullable fields as evidence that the same values are valid in every request: request validation still applies.
+
+### ProjectAppUserResponse
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | integer | Project-user relationship ID. This is not the `appUserId` used when removing membership. |
+| `roleInProject` | string | `OWNER` or `MEMBER`. |
+| `appUser` | AppUserSummary | Account's ID and username. Use `appUser.id` to remove a member. |
+
+### ProjectMemberRequest
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `username` | string | Required, nonblank username of an existing account; surrounding whitespace is trimmed. |
+
+### AppUserRequest
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `username` | string | Required and nonempty. Unique account username. |
+| `password` | string | Required and nonempty, at most 64 Java characters; never returned by this API. |
+| `role` | string | Required: `USER` or `ADMIN`. |
+
+### AppUserSummary
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | integer | Account ID. |
+| `username` | string | Account username. |
+
+### PasswordChangeRequest
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `currentPassword` | string | Required, nonblank, at most 72 Java characters. |
+| `newPassword` | string | Required; 8–64 Unicode code points, nonblank, at most 72 UTF-8 bytes. Null characters and line breaks are not allowed. |
+
+### CommentRequest
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `text` | string | Required, nonblank, at most 2,000 characters. |
+
+### CommentResponse
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | integer | Comment ID. |
+| `text` | string | Comment text. |
+| `projectId` | integer | Project version the comment belongs to. |
+
+### TokenResponse
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `token` | string | Signed JWT to use in `Authorization: Bearer <token>`. |
+| `tokenType` | string | `Bearer`. |
+| `expiresIn` | integer | Token lifetime in seconds: normally 86,400, or 2,592,000 for a remembered sign-in. Renewal near the absolute session limit may be shorter. |
+
+The backend also returns `Authorization: Bearer <token>` as a response header. `session_version`, `auth_time`, and `jti` are JWT claims managed by the backend, not fields to add to TokenResponse or request bodies.
+
+### ConflictResponse
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `code` | string | Stable reason for the conflict; see [conflicts and recovery](#conflicts-and-recovery). |
+| `message` | string | Human-readable explanation. Use `code`, rather than matching message text, for client behavior. |
