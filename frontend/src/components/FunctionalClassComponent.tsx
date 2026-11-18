@@ -575,6 +575,7 @@ export default function FunctionalClassComponent({
                           type="number"
                           value={(value as number) || ""}
                           onChange={handleComponentChange}
+                          disabled={!canEdit}
                           className={uiStyles.parameterInput}
                         />
                       </div>
