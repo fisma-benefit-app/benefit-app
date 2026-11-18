@@ -626,7 +626,6 @@ export default function ProjectPage() {
                 <FunctionalPointSummary
                   project={project}
                   saveProject={saveProject}
-                  isOwner={isOwner}
                 />
               )}
           </div>

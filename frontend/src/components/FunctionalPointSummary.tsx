@@ -23,7 +23,6 @@ import ComponentClassIcons from "./ComponentClassIcons.tsx";
 type FunctionalClassComponentProps = {
   project: Project;
   saveProject: (showNotif?: boolean) => Promise<void>;
-  isOwner: boolean;
 };
 
 // All calculation logic moved to centralizedCalculations.ts
@@ -31,7 +30,6 @@ type FunctionalClassComponentProps = {
 export const FunctionalPointSummary = ({
   project,
   saveProject,
-  isOwner,
 }: FunctionalClassComponentProps) => {
   const translation = useTranslations();
   const { sortedProjects, returnLatestOrPreviousVersion } = useProjects();
