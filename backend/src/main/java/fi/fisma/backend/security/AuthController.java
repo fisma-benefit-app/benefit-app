@@ -2,6 +2,7 @@ package fi.fisma.backend.security;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -22,7 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "Endpoint for token revocation")
+@Tag(name = "Session Management", description = "Endpoints for validating and revoking sessions")
+@SecurityRequirement(name = "bearerAuth")
 public class AuthController {
 
   private final TokenBlacklistService blacklistService;
@@ -39,7 +41,6 @@ public class AuthController {
               + "After logout, the token cannot be used for further requests.",
       responses = {
         @ApiResponse(responseCode = "204", description = "Logout successful, token revoked"),
-        @ApiResponse(responseCode = "400", description = "Missing or invalid Authorization header"),
         @ApiResponse(responseCode = "401", description = "Invalid, expired or blacklisted JWT")
       })
   public void logout(HttpServletRequest request) {
@@ -62,7 +63,7 @@ public class AuthController {
   @GetMapping("/validateJWT")
   @Operation(
       summary = "Validate JWT",
-      description = "Dummy endpoint called by frontend to check JWT validity",
+      description = "Checks that the Bearer token belongs to an active session",
       responses = {
         @ApiResponse(responseCode = "200", description = "Token is valid"),
         @ApiResponse(responseCode = "401", description = "Token is invalid, expired, or revoked")

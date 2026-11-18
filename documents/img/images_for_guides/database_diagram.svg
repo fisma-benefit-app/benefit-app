@@ -1,0 +1,199 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1000" viewBox="0 0 1680 1000">
+<title>Benefit database schema</title>
+<desc>All six tables and columns from backend/src/main/resources/schema-dev.sql. Solid arrows show database foreign keys.</desc>
+<rect width="1680" height="1000" fill="#f7f9fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#62728a" stroke-width="1.3"/></marker></defs>
+<g font-family="DejaVu Sans, sans-serif">
+<text x="40" y="53" font-size="28" font-weight="bold" fill="#20314b">Benefit database schema</text>
+<text x="40" y="84" font-size="15" fill="#576982">PostgreSQL · source: backend/src/main/resources/schema-dev.sql</text>
+<path d="M 560 241 H 535.0 V 185 H 510" fill="none" stroke="#62728a" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 1060 213 H 1085 V 475 H 1060" fill="none" stroke="#62728a" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 1110 661 H 1085.0 V 475 H 1060" fill="none" stroke="#62728a" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 510 771 H 535.0 V 475 H 560" fill="none" stroke="#62728a" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="40" y="120" width="470" height="228" rx="8" fill="white" stroke="#d0d8e5"/>
+<rect x="40" y="120" width="470" height="6" rx="3" fill="#6554c0"/>
+<text x="57" y="153" font-size="20" font-weight="bold" fill="#20314b">app_users</text>
+<path d="M40,164 H510" stroke="#e0e6ef"/>
+<rect x="41" y="171" width="468" height="28" fill="#f6f8fb"/>
+<text x="52" y="191" font-size="10" font-weight="bold" fill="#6554c0">PK</text>
+<text x="80" y="191" font-size="15" fill="#20314b">id</text>
+<text x="496" y="191" text-anchor="end" font-size="13" fill="#61738c">bigserial</text>
+<text x="52" y="219" font-size="10" font-weight="bold" fill="#6554c0"></text>
+<text x="80" y="219" font-size="15" fill="#20314b">username</text>
+<text x="496" y="219" text-anchor="end" font-size="13" fill="#61738c">varchar(50)</text>
+<rect x="41" y="227" width="468" height="28" fill="#f6f8fb"/>
+<text x="52" y="247" font-size="10" font-weight="bold" fill="#6554c0"></text>
+<text x="80" y="247" font-size="15" fill="#20314b">password</text>
+<text x="496" y="247" text-anchor="end" font-size="13" fill="#61738c">varchar(64)</text>
+<text x="52" y="275" font-size="10" font-weight="bold" fill="#6554c0"></text>
+<text x="80" y="275" font-size="15" fill="#20314b">role</text>
+<text x="496" y="275" text-anchor="end" font-size="13" fill="#61738c">varchar(20)</text>
+<rect x="41" y="283" width="468" height="28" fill="#f6f8fb"/>
+<text x="52" y="303" font-size="10" font-weight="bold" fill="#6554c0"></text>
+<text x="80" y="303" font-size="15" fill="#20314b">session_version</text>
+<text x="496" y="303" text-anchor="end" font-size="13" fill="#61738c">bigint</text>
+<text x="52" y="331" font-size="10" font-weight="bold" fill="#6554c0"></text>
+<text x="80" y="331" font-size="15" fill="#20314b">deleted_at</text>
+<text x="496" y="331" text-anchor="end" font-size="13" fill="#61738c">timestamp(0)?</text>
+<rect x="560" y="120" width="500" height="172" rx="8" fill="white" stroke="#d0d8e5"/>
+<rect x="560" y="120" width="500" height="6" rx="3" fill="#087eae"/>
+<text x="577" y="153" font-size="20" font-weight="bold" fill="#20314b">projects_app_users</text>
+<path d="M560,164 H1060" stroke="#e0e6ef"/>
+<rect x="561" y="171" width="498" height="28" fill="#f6f8fb"/>
+<text x="572" y="191" font-size="10" font-weight="bold" fill="#087eae">PK</text>
+<text x="600" y="191" font-size="15" fill="#20314b">id</text>
+<text x="1046" y="191" text-anchor="end" font-size="13" fill="#61738c">bigserial</text>
+<text x="572" y="219" font-size="10" font-weight="bold" fill="#087eae">FK</text>
+<text x="600" y="219" font-size="15" fill="#20314b">project_id</text>
+<text x="1046" y="219" text-anchor="end" font-size="13" fill="#61738c">bigint</text>
+<rect x="561" y="227" width="498" height="28" fill="#f6f8fb"/>
+<text x="572" y="247" font-size="10" font-weight="bold" fill="#087eae">FK</text>
+<text x="600" y="247" font-size="15" fill="#20314b">app_user_id</text>
+<text x="1046" y="247" text-anchor="end" font-size="13" fill="#61738c">bigint</text>
+<text x="572" y="275" font-size="10" font-weight="bold" fill="#087eae"></text>
+<text x="600" y="275" font-size="15" fill="#20314b">role_in_project</text>
+<text x="1046" y="275" text-anchor="end" font-size="13" fill="#61738c">varchar(20)</text>
+<rect x="560" y="410" width="500" height="368" rx="8" fill="white" stroke="#d0d8e5"/>
+<rect x="560" y="410" width="500" height="6" rx="3" fill="#b74276"/>
+<text x="577" y="443" font-size="20" font-weight="bold" fill="#20314b">projects</text>
+<path d="M560,454 H1060" stroke="#e0e6ef"/>
+<rect x="561" y="461" width="498" height="28" fill="#f6f8fb"/>
+<text x="572" y="481" font-size="10" font-weight="bold" fill="#b74276">PK</text>
+<text x="600" y="481" font-size="15" fill="#20314b">id</text>
+<text x="1046" y="481" text-anchor="end" font-size="13" fill="#61738c">bigserial</text>
+<text x="572" y="509" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="509" font-size="15" fill="#20314b">project_name</text>
+<text x="1046" y="509" text-anchor="end" font-size="13" fill="#61738c">varchar(255)</text>
+<rect x="561" y="517" width="498" height="28" fill="#f6f8fb"/>
+<text x="572" y="537" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="537" font-size="15" fill="#20314b">version</text>
+<text x="1046" y="537" text-anchor="end" font-size="13" fill="#61738c">bigint</text>
+<text x="572" y="565" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="565" font-size="15" fill="#20314b">created_at</text>
+<text x="1046" y="565" text-anchor="end" font-size="13" fill="#61738c">timestamp(0)</text>
+<rect x="561" y="573" width="498" height="28" fill="#f6f8fb"/>
+<text x="572" y="593" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="593" font-size="15" fill="#20314b">version_created_at</text>
+<text x="1046" y="593" text-anchor="end" font-size="13" fill="#61738c">timestamp(0)</text>
+<text x="572" y="621" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="621" font-size="15" fill="#20314b">calculation_date</text>
+<text x="1046" y="621" text-anchor="end" font-size="13" fill="#61738c">date?</text>
+<rect x="561" y="629" width="498" height="28" fill="#f6f8fb"/>
+<text x="572" y="649" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="649" font-size="15" fill="#20314b">report_contact_details</text>
+<text x="1046" y="649" text-anchor="end" font-size="13" fill="#61738c">varchar(2000)?</text>
+<text x="572" y="677" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="677" font-size="15" fill="#20314b">report_notes</text>
+<text x="1046" y="677" text-anchor="end" font-size="13" fill="#61738c">varchar(5000)?</text>
+<rect x="561" y="685" width="498" height="28" fill="#f6f8fb"/>
+<text x="572" y="705" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="705" font-size="15" fill="#20314b">updated_at</text>
+<text x="1046" y="705" text-anchor="end" font-size="13" fill="#61738c">timestamp(0)?</text>
+<text x="572" y="733" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="733" font-size="15" fill="#20314b">deleted_at</text>
+<text x="1046" y="733" text-anchor="end" font-size="13" fill="#61738c">timestamp(0)?</text>
+<rect x="561" y="741" width="498" height="28" fill="#f6f8fb"/>
+<text x="572" y="761" font-size="10" font-weight="bold" fill="#b74276"></text>
+<text x="600" y="761" font-size="15" fill="#20314b">lock_version</text>
+<text x="1046" y="761" text-anchor="end" font-size="13" fill="#61738c">bigint</text>
+<rect x="1110" y="120" width="530" height="592" rx="8" fill="white" stroke="#d0d8e5"/>
+<rect x="1110" y="120" width="530" height="6" rx="3" fill="#7852ba"/>
+<text x="1127" y="153" font-size="20" font-weight="bold" fill="#20314b">functional_components</text>
+<path d="M1110,164 H1640" stroke="#e0e6ef"/>
+<rect x="1111" y="171" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="191" font-size="10" font-weight="bold" fill="#7852ba">PK</text>
+<text x="1150" y="191" font-size="15" fill="#20314b">id</text>
+<text x="1626" y="191" text-anchor="end" font-size="13" fill="#61738c">bigserial</text>
+<text x="1122" y="219" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="219" font-size="15" fill="#20314b">title</text>
+<text x="1626" y="219" text-anchor="end" font-size="13" fill="#61738c">varchar(255)?</text>
+<rect x="1111" y="227" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="247" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="247" font-size="15" fill="#20314b">description</text>
+<text x="1626" y="247" text-anchor="end" font-size="13" fill="#61738c">varchar(10000)?</text>
+<text x="1122" y="275" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="275" font-size="15" fill="#20314b">class_name</text>
+<text x="1626" y="275" text-anchor="end" font-size="13" fill="#61738c">varchar(255)?</text>
+<rect x="1111" y="283" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="303" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="303" font-size="15" fill="#20314b">component_type</text>
+<text x="1626" y="303" text-anchor="end" font-size="13" fill="#61738c">varchar(255)?</text>
+<text x="1122" y="331" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="331" font-size="15" fill="#20314b">data_elements</text>
+<text x="1626" y="331" text-anchor="end" font-size="13" fill="#61738c">bigint?</text>
+<rect x="1111" y="339" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="359" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="359" font-size="15" fill="#20314b">reading_references</text>
+<text x="1626" y="359" text-anchor="end" font-size="13" fill="#61738c">bigint?</text>
+<text x="1122" y="387" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="387" font-size="15" fill="#20314b">writing_references</text>
+<text x="1626" y="387" text-anchor="end" font-size="13" fill="#61738c">bigint?</text>
+<rect x="1111" y="395" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="415" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="415" font-size="15" fill="#20314b">functional_multiplier</text>
+<text x="1626" y="415" text-anchor="end" font-size="13" fill="#61738c">bigint?</text>
+<text x="1122" y="443" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="443" font-size="15" fill="#20314b">operations</text>
+<text x="1626" y="443" text-anchor="end" font-size="13" fill="#61738c">bigint?</text>
+<rect x="1111" y="451" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="471" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="471" font-size="15" fill="#20314b">degree_of_completion</text>
+<text x="1626" y="471" text-anchor="end" font-size="13" fill="#61738c">decimal?</text>
+<text x="1122" y="499" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="499" font-size="15" fill="#20314b">previous_fc_id</text>
+<text x="1626" y="499" text-anchor="end" font-size="13" fill="#61738c">bigint?</text>
+<rect x="1111" y="507" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="527" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="527" font-size="15" fill="#20314b">order_position</text>
+<text x="1626" y="527" text-anchor="end" font-size="13" fill="#61738c">bigint</text>
+<text x="1122" y="555" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="555" font-size="15" fill="#20314b">is_mla</text>
+<text x="1626" y="555" text-anchor="end" font-size="13" fill="#61738c">boolean</text>
+<rect x="1111" y="563" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="583" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="583" font-size="15" fill="#20314b">parent_fc_id</text>
+<text x="1626" y="583" text-anchor="end" font-size="13" fill="#61738c">bigint?</text>
+<text x="1122" y="611" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="611" font-size="15" fill="#20314b">sub_component_type</text>
+<text x="1626" y="611" text-anchor="end" font-size="13" fill="#61738c">varchar(50)?</text>
+<rect x="1111" y="619" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="639" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="639" font-size="15" fill="#20314b">is_readonly</text>
+<text x="1626" y="639" text-anchor="end" font-size="13" fill="#61738c">boolean?</text>
+<text x="1122" y="667" font-size="10" font-weight="bold" fill="#7852ba">FK</text>
+<text x="1150" y="667" font-size="15" fill="#20314b">project_id</text>
+<text x="1626" y="667" text-anchor="end" font-size="13" fill="#61738c">bigint</text>
+<rect x="1111" y="675" width="528" height="28" fill="#f6f8fb"/>
+<text x="1122" y="695" font-size="10" font-weight="bold" fill="#7852ba"></text>
+<text x="1150" y="695" font-size="15" fill="#20314b">deleted_at</text>
+<text x="1626" y="695" text-anchor="end" font-size="13" fill="#61738c">timestamp(0)?</text>
+<rect x="40" y="410" width="470" height="116" rx="8" fill="white" stroke="#d0d8e5"/>
+<rect x="40" y="410" width="470" height="6" rx="3" fill="#a06024"/>
+<text x="57" y="443" font-size="20" font-weight="bold" fill="#20314b">revoked_tokens</text>
+<path d="M40,454 H510" stroke="#e0e6ef"/>
+<rect x="41" y="461" width="468" height="28" fill="#f6f8fb"/>
+<text x="52" y="481" font-size="10" font-weight="bold" fill="#a06024">PK</text>
+<text x="80" y="481" font-size="15" fill="#20314b">jti</text>
+<text x="496" y="481" text-anchor="end" font-size="13" fill="#61738c">varchar</text>
+<text x="52" y="509" font-size="10" font-weight="bold" fill="#a06024"></text>
+<text x="80" y="509" font-size="15" fill="#20314b">expires_at</text>
+<text x="496" y="509" text-anchor="end" font-size="13" fill="#61738c">timestamp with time zone</text>
+<rect x="40" y="650" width="470" height="144" rx="8" fill="white" stroke="#d0d8e5"/>
+<rect x="40" y="650" width="470" height="6" rx="3" fill="#247c60"/>
+<text x="57" y="683" font-size="20" font-weight="bold" fill="#20314b">comments</text>
+<path d="M40,694 H510" stroke="#e0e6ef"/>
+<rect x="41" y="701" width="468" height="28" fill="#f6f8fb"/>
+<text x="52" y="721" font-size="10" font-weight="bold" fill="#247c60">PK</text>
+<text x="80" y="721" font-size="15" fill="#20314b">id</text>
+<text x="496" y="721" text-anchor="end" font-size="13" fill="#61738c">bigserial</text>
+<text x="52" y="749" font-size="10" font-weight="bold" fill="#247c60"></text>
+<text x="80" y="749" font-size="15" fill="#20314b">text</text>
+<text x="496" y="749" text-anchor="end" font-size="13" fill="#61738c">varchar(2000)</text>
+<rect x="41" y="757" width="468" height="28" fill="#f6f8fb"/>
+<text x="52" y="777" font-size="10" font-weight="bold" fill="#247c60">FK</text>
+<text x="80" y="777" font-size="15" fill="#20314b">project_id</text>
+<text x="496" y="777" text-anchor="end" font-size="13" fill="#61738c">bigint</text>
+<text x="40" y="894" font-size="15" fill="#40536f">PK = primary key    FK = foreign key    ? = nullable    Solid arrows point from foreign keys to primary keys.</text>
+<text x="40" y="924" font-size="15" fill="#40536f">Application links without SQL foreign keys: parent_fc_id and previous_fc_id refer to functional_components.id.</text>
+<text x="40" y="954" font-size="15" fill="#40536f">Usernames are unique case-insensitively. Defaults, checks and indexes are defined in the source SQL.</text>
+</g></svg>

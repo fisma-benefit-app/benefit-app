@@ -1,62 +1,57 @@
-# How to Generate API Documentation
+# Maintaining the API documentation
 
-Widdershins and Doctoc are **not** installed as npm dependencies (a global/local install of Widdershins causes `npm audit` problems), so both are always run through `npx`, which fetches and runs them on demand without adding them to the project.
+The API documentation has two parts:
 
-## Prerequisites
+- [`api.md`](../references/api.md) is the maintained, human-readable reference: quickstart, concepts, endpoint examples, permissions, and error recovery.
+- [`api-docs.yaml`](../references/api-docs.yaml) is the generated OpenAPI contract, exported from the running backend's annotations and DTOs.
 
-- Your Spring Boot project is running (see [Setting up Development Environment](../../README.md#setting-up-development-environment))
-- Node.js (and therefore `npx`) installed on your system
+Refresh both when an endpoint or its behavior changes. The export script updates only the OpenAPI file; it deliberately does not overwrite the reference with generated prose.
 
-## Generate api.md using script
+## Export the current OpenAPI contract
 
-The script lives in `backend/scripts/generate_api_docs.sh`. Make it executable and run it:
+Start the backend built from the revision you want to document, using the [development setup](../../README.md#setting-up-development-environment). The `dev` profile reseeds its database, so use a disposable local database when verifying examples.
 
-```bash
-cd backend/scripts
-chmod +x generate_api_docs.sh
-./generate_api_docs.sh
-```
-
-- This
-  - Checks if the backend is running and Node.js is installed
-  - Creates the `documents/references/` directory if it doesn't exist
-  - Downloads `api-docs.yaml` from the running backend
-  - Generates `api.md` with `npx widdershins`
-  - Adds a table of contents with `npx doctoc`
-
-## Generate api.md manually
-
-### Step 1: Download the OpenAPI Spec
-
-1. Open your browser at http://localhost:8080/v3/api-docs.yaml
-2. Save the file as `documents/references/api-docs.yaml` (overwrite it if it already exists)
-
-### Step 2: Generate Markdown Docs
-
-From the `documents/references/` folder, run:
+Run from the repository root:
 
 ```bash
-npx --yes widdershins api-docs.yaml -o api.md --summary true --expandBody true --code true --omitHeader true
+bash backend/scripts/generate_api_docs.sh
 ```
 
-This creates `documents/references/api.md` with:
+The script downloads `http://localhost:8080/v3/api-docs.yaml`. An HTTP or network failure leaves the existing specification intact. It does not need Node.js, Widdershins, or DocToc.
 
-- [x] Operation summaries as section titles
-- [x] Expanded request/response bodies
-- [x] No code samples or header
+To inspect the contract interactively while the backend is running, open [Swagger UI](http://localhost:8080/swagger-ui/index.html).
 
-### Step 3: Add or Update the Table of Contents
+## Update the reference
 
-From the `documents/references/` folder, run:
+Compare the exported paths and schemas with `api.md`, and update every affected endpoint and shared object definition. Use this order for each endpoint:
+
+1. Purpose and HTTP method/path.
+2. Authentication and permissions.
+3. Parameters, with operation-specific requirements and a link to shared fields.
+4. A complete cURL request with a valid, representative body.
+5. The successful status, headers where relevant, and response body. Explicitly identify excerpts; never show a body for `204`.
+6. Errors and what the caller should do next.
+
+Keep explanations of `lockVersion`, `session_version`, version history, membership, and component links in **Concepts and conventions**, then link to them from endpoints. Distinguish client-supplied fields from backend-managed JWT claims. Document replacement behavior and data-preservation requirements next to update operations.
+
+Keep the endpoint order in the same groups as the current reference. Put reusable object definitions under **Field reference** instead of flattening their nested fields into every endpoint. A readable successful example is more useful than a large generated object full of placeholders. Use a placeholder for a JWT rather than publishing a usable token.
+
+## Verify examples and navigation
+
+Exercise changed examples against a disposable local backend. Check the actual successful status, body, and headers, and test the relevant permission, validation, and conflict cases. For session changes, check renewal, logout, and password-change invalidation. Do not use a shared or deployed database for destructive examples.
+
+Check that every OpenAPI operation has a matching method/path in the reference and that documented fields match its schema. Review Markdown links and the rendered document.
+
+The table of contents includes section headings through level 2. Update it after changing headings:
 
 ```bash
-npx --yes doctoc api.md --maxlevel 2
+npx --yes doctoc documents/references/api.md --maxlevel 2
 ```
 
-This command scans all headings in `api.md` and inserts (or updates) a clickable Table of Contents at the top of the file. Level 3 headings are not included for readability.
+DocToc is run on demand, not added as a project dependency.
 
 ## Troubleshooting
 
-- `401 Unauthorized`: Ensure `/v3/api-docs.yaml` is not blocked in the `SecurityFilterChain` method in `backend/security/SecurityConfig.java`.
-- `npx: command not found`: Install/reinstall Node.js — `npx` ships with `npm`.
-- Slightly different heading anchors/TOC layout after regenerating: this is normal — newer Widdershins/Doctoc releases (fetched fresh by `npx` each run) can tweak anchor slugs and nesting slightly. Re-run `npx --yes doctoc api.md --maxlevel 2` after any manual edits to `api.md` to keep the TOC in sync.
+- **Connection refused:** start the backend on local port 8080 before exporting.
+- **HTTP error from the export:** inspect the backend logs and verify that `/v3/api-docs.yaml` is accessible. The export script leaves the previous specification in place.
+- **The reference disagrees with the contract:** inspect the controller, service, DTO validation, and exception handler. Fix annotations if necessary, export again, and revise the human explanation. Generated schemas do not replace verification of runtime behavior.

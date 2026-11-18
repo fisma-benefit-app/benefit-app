@@ -303,16 +303,18 @@ Schema initialization and seeding are controlled by Spring profiles, hardcoded i
 
 <details>
 <summary><b>Click here to view the database diagram</b></summary>
-<img src="./documents/img/images_for_guides/database_diagram.png" height="508" width="1290"/>
+<img src="./documents/img/images_for_guides/database_diagram.png" width="1290" alt="Benefit PostgreSQL tables and foreign keys"/>
+
+[Editable diagram](./documents/img/images_for_guides/database_diagram.svg) · [Schema source](./backend/src/main/resources/schema-dev.sql)
 </details><br>
 
 More information on how to access the database can be found in the [database guide](/documents/guides/database.md).
 
 ### API
 
-Benefit's API documentation is generated from the backend's live OpenAPI spec (SpringDoc) using Widdershins and Doctoc, run via `npx` (not installed as dependencies, since that causes `npm audit` problems).
+Benefit's [API reference](/documents/references/api.md) provides a quickstart, explanations of versioning and sessions, request/response examples, and error recovery. Its machine-readable companion, [api-docs.yaml](/documents/references/api-docs.yaml), is exported from the backend's live OpenAPI spec (SpringDoc).
 
-It can be viewed [here](/documents/references/api.md). It is **not** regenerated automatically — refresh it after any API change by running `backend/scripts/generate_api_docs.sh` against a running local backend, following the [API guide](/documents/guides/generate_api_docs.md).
+After an API change, run `bash backend/scripts/generate_api_docs.sh` against a running local backend to refresh the contract, then update the reference's prose and examples. The script does not overwrite the reference. Follow the [API maintenance guide](/documents/guides/generate_api_docs.md) for the workflow and verification steps.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

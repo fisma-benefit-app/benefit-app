@@ -1,7 +1,12 @@
 openapi: 3.1.0
 info:
   title: Project API
-  description: API documentation for the benefit application
+  description: |-
+    API reference for Benefit.
+
+    Sign in with `POST /token`, using Basic credentials and `X-Benefit-Login: 1`. Use the returned JWT as `Authorization: Bearer <token>` on subsequent requests. See the [authentication guide](../guides/authentication.md) for session renewal, expiration, and logout.
+
+    Project owners can edit the latest version and manage access. Added project members have view-only access to project data.
   version: 1.0.2
 servers:
 - url: http://localhost:8080
@@ -9,8 +14,8 @@ servers:
 tags:
 - name: Project Management
   description: Endpoints for managing projects
-- name: Authentication
-  description: Endpoint for token revocation
+- name: Session Management
+  description: Endpoints for validating and revoking sessions
 - name: User Management
   description: Endpoints for managing user accounts
 - name: Functional Components
@@ -58,9 +63,21 @@ paths:
         "404":
           description: Comment or project not found
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/CommentResponse"
+                type: string
+        "400":
+          description: Invalid comment data
+          content:
+            text/plain:
+              schema:
+                type: string
+        "403":
+          description: Comment does not belong to this project
+          content:
+            text/plain:
+              schema:
+                type: string
       security:
       - bearerAuth: []
     delete:
@@ -89,6 +106,16 @@ paths:
           description: Comment deleted successfully
         "404":
           description: Comment or project not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        "403":
+          description: Comment does not belong to this project
+          content:
+            text/plain:
+              schema:
+                type: string
       security:
       - bearerAuth: []
   /projects/{id}:
@@ -96,8 +123,7 @@ paths:
       tags:
       - Project Management
       summary: Get a project by ID
-      description: Retrieves a specific project if the authenticated user has access
-        to it
+      description: Retrieves a specific project if the authenticated user owns it
       operationId: getProject
       parameters:
       - name: id
@@ -117,15 +143,15 @@ paths:
         "404":
           description: Project not found
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
         "403":
           description: User does not have access to this project
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
       security:
       - bearerAuth: []
     put:
@@ -161,28 +187,28 @@ paths:
         "400":
           description: Invalid project data
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
         "404":
           description: Project not found
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
         "409":
           description: "Not the latest version, or the project changed since lockVersion\
             \ was read"
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                $ref: "#/components/schemas/ConflictResponse"
         "403":
           description: User does not have permission to update this project
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
       security:
       - bearerAuth: []
     delete:
@@ -204,57 +230,16 @@ paths:
           description: Project deleted successfully
         "404":
           description: Project not found
+          content:
+            text/plain:
+              schema:
+                type: string
         "403":
           description: User does not have permission to delete this project
-      security:
-      - bearerAuth: []
-  /appusers/{id}:
-    get:
-      tags:
-      - User Management
-      summary: Get user by ID
-      description: Retrieves a specific user by their ID
-      operationId: getByUserId
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: User found
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/AppUserSummary"
-        "404":
-          description: User not found
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppUserSummary"
-      security:
-      - bearerAuth: []
-    delete:
-      tags:
-      - User Management
-      summary: Delete user account
-      description: Permanently deletes the authenticated user's account
-      operationId: deleteAppUser
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "204":
-          description: Account deleted successfully
-        "401":
-          description: User not authenticated
+                type: string
       security:
       - bearerAuth: []
   /appusers/password:
@@ -262,7 +247,9 @@ paths:
       tags:
       - User Management
       summary: Change user password
-      description: Allows authenticated users to change their password
+      description: "Changes the authenticated user's password after verifying currentPassword.\
+        \ Success invalidates all existing sessions, including the current session;\
+        \ sign in again"
       operationId: changePassword
       requestBody:
         content:
@@ -271,6 +258,12 @@ paths:
               $ref: "#/components/schemas/PasswordChangeRequest"
         required: true
       responses:
+        "403":
+          description: Current password is incorrect
+          content:
+            text/plain:
+              schema:
+                type: string
         "200":
           description: Password changed successfully
           content:
@@ -280,15 +273,11 @@ paths:
         "400":
           description: Invalid password format
           content:
-            '*/*':
+            text/plain:
               schema:
                 type: string
         "401":
           description: User not authenticated
-          content:
-            '*/*':
-              schema:
-                type: string
       security:
       - bearerAuth: []
   /token:
@@ -296,14 +285,21 @@ paths:
       tags:
       - Token Generation
       summary: Generate a JWT
-      description: >-
-        Generates a signed JWT. Login requires Basic credentials and X-Benefit-Login: 1.
-        The rememberMe parameter picks a 30-day instead of a 24-hour token.
-        With a Bearer token this renews the session: the new token keeps the current token's
-        lifetime (rememberMe is ignored), the current token is revoked, and a login can't
-        be renewed past 30 days.
+      description: "Generates a signed JWT. Login requires Basic credentials and X-Benefit-Login:\
+        \ 1. The rememberMe parameter picks a 30-day instead of a 24-hour token. With\
+        \ a Bearer token this renews the session: the new token keeps the current\
+        \ token's lifetime (rememberMe is ignored), the current token is revoked,\
+        \ and a login can't be renewed past 30 days."
       operationId: getToken
       parameters:
+      - name: X-Benefit-Login
+        in: header
+        description: Required with value 1 for Basic login; not required for Bearer
+          renewal
+        schema:
+          type: string
+          enum:
+          - "1"
       - name: rememberMe
         in: query
         required: false
@@ -313,28 +309,35 @@ paths:
       responses:
         "200":
           description: Token generated successfully
-          content:
-            '*/*':
+          headers:
+            Authorization:
+              description: "Bearer token, also returned in the response body"
+              style: simple
               schema:
-                type: object
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
         "401":
           description: "User not authenticated, or the session can no longer be renewed"
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         "403":
           description: Missing Basic login header or origin rejected
+        "429":
+          description: Too many failed login attempts
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         "500":
           description: Failed to encode the token
-          content:
-            '*/*':
-              schema:
-                type: object
+      security:
+      - basicAuth: []
+      - bearerAuth: []
   /projects:
     get:
       tags:
@@ -370,6 +373,16 @@ paths:
           description: Project created successfully
         "400":
           description: Invalid project data
+          content:
+            text/plain:
+              schema:
+                type: string
+        "409":
+          description: A project with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConflictResponse"
       security:
       - bearerAuth: []
   /projects/{projectId}/comments:
@@ -400,11 +413,9 @@ paths:
         "404":
           description: Project not found
           content:
-            '*/*':
+            text/plain:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CommentResponse"
+                type: string
       security:
       - bearerAuth: []
     post:
@@ -432,6 +443,16 @@ paths:
           description: Comment created successfully
         "400":
           description: Invalid comment data
+          content:
+            text/plain:
+              schema:
+                type: string
+        "404":
+          description: Project not found
+          content:
+            text/plain:
+              schema:
+                type: string
       security:
       - bearerAuth: []
   /projects/{id}/versions:
@@ -439,7 +460,8 @@ paths:
       tags:
       - Project Management
       summary: Create a new version of a project
-      description: Creates a new version of an existing project
+      description: Creates a new version of an existing project if the authenticated
+        user owns it
       operationId: createProjectVersion
       parameters:
       - name: id
@@ -460,16 +482,93 @@ paths:
           description: Project version created successfully
         "404":
           description: Original project not found
+          content:
+            text/plain:
+              schema:
+                type: string
         "409":
           description: Original project is not the latest version
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConflictResponse"
         "403":
           description: User does not have permission
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          description: Invalid project data
+          content:
+            text/plain:
+              schema:
+                type: string
+      security:
+      - bearerAuth: []
+  /projects/{id}/users:
+    post:
+      tags:
+      - Project Management
+      summary: Add a user to a project
+      description: Gives another user view-only access to the project and all of its
+        versions. The authenticated user must be an owner
+      operationId: addUserToProject
+      parameters:
+      - name: id
+        in: path
+        description: ID of the project to share
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectMemberRequest"
+        required: true
+      responses:
+        "200":
+          description: User added; the updated project is returned
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+        "400":
+          description: Invalid username
+          content:
+            text/plain:
+              schema:
+                type: string
+        "404":
+          description: Project or user not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        "409":
+          description: User is already a member of the project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConflictResponse"
+        "403":
+          description: User is not an owner of the project
+          content:
+            text/plain:
+              schema:
+                type: string
       security:
       - bearerAuth: []
   /projects/{id}/duplicate:
     post:
       tags:
       - Project Management
+      summary: Duplicate a project
+      description: "Copies a project owned by the authenticated user and its active\
+        \ components into a new project at version 1, with a unique name and the authenticated\
+        \ user as its only member"
       operationId: duplicateProject
       parameters:
       - name: id
@@ -480,11 +579,23 @@ paths:
           format: int64
       responses:
         "200":
-          description: OK
+          description: Duplicated project returned
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProjectResponse"
+        "404":
+          description: Project not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        "403":
+          description: User is not an owner of the project
+          content:
+            text/plain:
+              schema:
+                type: string
       security:
       - bearerAuth: []
   /functional-components/projects/{projectId}:
@@ -492,7 +603,8 @@ paths:
       tags:
       - Functional Components
       summary: Create a new functional component
-      description: Creates a new functional component in the specified project
+      description: Creates a new functional component in the specified project. Requires
+        an owner and the latest project version
       operationId: createFunctionalComponent
       parameters:
       - name: projectId
@@ -517,57 +629,224 @@ paths:
         "400":
           description: Invalid request data
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
         "401":
           description: Unauthorized
+        "403":
+          description: User is not an owner of the project
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
+        "409":
+          description: "Project is not the latest version, or changed during the request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConflictResponse"
+        "404":
+          description: Project or parent component not found
+          content:
+            text/plain:
+              schema:
+                type: string
       security:
       - bearerAuth: []
   /auth/logout:
     post:
       tags:
-      - Authentication
+      - Session Management
       summary: Logout and revoke JWT
       description: "Revokes the current JWT by adding it to the blacklist. Clients\
         \ must send the JWT in the Authorization header as 'Bearer <token>'. After\
         \ logout, the token cannot be used for further requests."
       operationId: logout
-      parameters:
-      - name: Authorization
-        in: header
-        required: true
-        schema:
-          type: string
       responses:
         "204":
           description: "Logout successful, token revoked"
-        "400":
-          description: Missing or invalid Authorization header
         "401":
           description: "Invalid, expired or blacklisted JWT"
+      security:
+      - bearerAuth: []
+  /appusers:
+    post:
+      tags:
+      - User Management
+      summary: Create a new app user
+      description: Creates a user account. Only administrators can create accounts
+      operationId: createNewUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppUserRequest"
+        required: true
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
+        "409":
+          description: Username already taken
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConflictResponse"
+        "403":
+          description: User is not an admin
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          description: Invalid account data
+          content:
+            text/plain:
+              schema:
+                type: string
+      security:
+      - bearerAuth: []
   /auth/validateJWT:
     get:
       tags:
-      - Authentication
+      - Session Management
       summary: Validate JWT
-      description: Dummy endpoint called by frontend to check JWT validity
+      description: Checks that the Bearer token belongs to an active session
       operationId: validate
       responses:
         "200":
           description: Token is valid
         "401":
           description: "Token is invalid, expired, or revoked"
+      security:
+      - bearerAuth: []
+  /appusers/{id}:
+    get:
+      tags:
+      - User Management
+      summary: Get user by ID
+      description: Retrieves the authenticated user's own details; another user's
+        ID is rejected with 403
+      operationId: getByUserId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: User found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AppUserSummary"
+        "404":
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        "403":
+          description: Users can only view their own details
+          content:
+            text/plain:
+              schema:
+                type: string
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - User Management
+      summary: Delete user account
+      description: Soft deletes the authenticated user's account and invalidates its
+        sessions
+      operationId: deleteAppUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Account deleted successfully
+        "401":
+          description: User not authenticated
+        "403":
+          description: Users can only delete their own account
+          content:
+            text/plain:
+              schema:
+                type: string
+        "404":
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+      security:
+      - bearerAuth: []
+  /projects/{id}/users/{appUserId}:
+    delete:
+      tags:
+      - Project Management
+      summary: Remove a user from a project
+      description: Removes a user's access to the project and all of its versions.
+        The authenticated user must be an owner. The project is kept for the remaining
+        members
+      operationId: removeUserFromProject
+      parameters:
+      - name: id
+        in: path
+        description: ID of the project
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: appUserId
+        in: path
+        description: ID of the user to remove
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: User removed
+        "404":
+          description: "Project not found, or user is not a member"
+          content:
+            text/plain:
+              schema:
+                type: string
+        "409":
+          description: The user is the last member; delete the project instead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConflictResponse"
+        "403":
+          description: User is not an owner of the project
+          content:
+            text/plain:
+              schema:
+                type: string
+      security:
+      - bearerAuth: []
   /functional-components/{componentId}/projects/{projectId}:
     delete:
       tags:
       - Functional Components
       summary: Delete a functional component
-      description: Soft deletes a functional component from the specified project
+      description: Soft deletes a functional component from the specified project.
+        Requires an owner and the latest project version
       operationId: deleteFunctionalComponent
       parameters:
       - name: componentId
@@ -591,16 +870,24 @@ paths:
                 $ref: "#/components/schemas/ProjectResponse"
         "401":
           description: Unauthorized
+        "403":
+          description: User is not an owner of the project
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
         "404":
           description: Component or project not found
           content:
-            '*/*':
+            text/plain:
               schema:
-                $ref: "#/components/schemas/ProjectResponse"
+                type: string
+        "409":
+          description: "Project is not the latest version, or changed during the request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConflictResponse"
       security:
       - bearerAuth: []
 components:
@@ -732,13 +1019,8 @@ components:
         subComponents:
           type: array
           description: List of sub-components if part of multi-layer architecture
-          example: "[...]"
           items:
-            description: Request object for creating or updating functional components
-              within a project
-            required:
-            - isMLA
-            - orderPosition
+            $ref: "#/components/schemas/FunctionalComponentRequest"
         subComponentType:
           type: string
           description: Type of sub-component in multi-layer architecture
@@ -771,6 +1053,7 @@ components:
           format: int32
           description: Version of the project
           example: 1
+          minimum: 0
         functionalComponents:
           type: array
           description: List of functional components in the project
@@ -802,6 +1085,13 @@ components:
       required:
       - projectName
       - version
+    ConflictResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
     AppUserSummary:
       type: object
       description: Summary information about an application user
@@ -914,8 +1204,7 @@ components:
           type: array
           description: List of sub-components for multi-layer architecture
           items:
-            description: Response object containing details on functional components
-              within a project
+            $ref: "#/components/schemas/FunctionalComponentResponse"
     ProjectAppUserResponse:
       type: object
       description: Response object containing project-user relationship details
@@ -925,6 +1214,13 @@ components:
           format: int64
           description: ID of the project-user relationship
           example: 1
+        roleInProject:
+          type: string
+          description: User's role in the project
+          enum:
+          - OWNER
+          - MEMBER
+          example: OWNER
         appUser:
           $ref: "#/components/schemas/AppUserSummary"
           description: AppUser details
@@ -999,13 +1295,73 @@ components:
       properties:
         currentPassword:
           type: string
-          maxLength: 64
+          description: Current account password
+          maxLength: 72
           minLength: 0
+          writeOnly: true
         newPassword:
           type: string
+          description: Nonblank replacement password containing 8 to 64 Unicode code
+            points and at most 72 UTF-8 bytes. Null characters and line breaks are
+            not allowed.
+          writeOnly: true
       required:
       - currentPassword
+      - newPassword
+    TokenResponse:
+      type: object
+      description: Response object containing JWT token details
+      properties:
+        token:
+          type: string
+          description: The JWT token issued to the authenticated user
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        tokenType:
+          type: string
+          description: "Type of token, usually 'Bearer'"
+          example: Bearer
+        expiresIn:
+          type: integer
+          format: int64
+          description: Time in seconds until the token expires
+          example: 2592000
+    ProjectMemberRequest:
+      type: object
+      description: Request object for adding a user to a project
+      properties:
+        username:
+          type: string
+          description: Username of the user to add
+          example: john.doe
+          maxLength: 50
+          minLength: 0
+      required:
+      - username
+    AppUserRequest:
+      type: object
+      description: Request object for creating app users
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          maxLength: 64
+          minLength: 0
+          writeOnly: true
+        role:
+          type: string
+          enum:
+          - USER
+          - ADMIN
+      required:
+      - password
+      - role
+      - username
   securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
     bearerAuth:
       type: http
       scheme: bearer
