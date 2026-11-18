@@ -531,15 +531,14 @@ export const FunctionalPointSummary = ({
       </div>
 
       <div className="flex flex-row gap-2 mt-3 justify-center">
-        {isOwner && (
-          <button
-            onClick={handleExportCSV}
-            className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
-          >
-            {translation.functionalPointSummary.csv}{" "}
-            <FontAwesomeIcon icon={faDownload} />
-          </button>
-        )}
+        <button
+          onClick={handleExportCSV}
+          className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
+        >
+          {translation.functionalPointSummary.csv}{" "}
+          <FontAwesomeIcon icon={faDownload} />
+        </button>
+
         <button
           onClick={handleExportPdf}
           className="px-4 py-2 bg-fisma-blue hover:bg-fisma-dark-blue text-white cursor-pointer text-sm sm:text-base"
