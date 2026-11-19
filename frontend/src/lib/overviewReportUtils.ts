@@ -344,12 +344,24 @@ export const generateOverviewPDF = async (
       text: [
         `${labels.total} `,
         ...pointsParts(totalPoints, totalPossiblePoints, previousTotalPoints),
-        ` ${pointUnit} – ${percentDone(totalPoints, totalPossiblePoints)}`,
+        ` ${pointUnit}`,
       ],
-      fontSize: 11,
+      fontSize: 15,
       bold: true,
-      margin: [0, 0, 0, 10],
+      alignment: "center",
+      margin: [0, 2, 0, previousProject ? 4 : 10],
     },
+    ...(previousProject
+      ? [
+          {
+            text: labels.changed,
+            style: "small",
+            color: PDF_COLORS.changedBlue,
+            alignment: "center",
+            margin: [0, 0, 0, 10],
+          } as Content,
+        ]
+      : []),
     createArchitectureDiagram(
       createArchitectureDiagramData(
         calculateDiagramFigures(project.functionalComponents),
@@ -375,15 +387,6 @@ export const generateOverviewPDF = async (
       widths: ["*", 50, 130, 60],
     }),
     // Only a later version has anything to mark as changed.
-    ...(previousProject
-      ? [
-          {
-            text: labels.changed,
-            style: "small",
-            margin: [0, 10, 0, 0],
-          } as Content,
-        ]
-      : []),
   ];
 
   const explanationPage: Content[] = [
