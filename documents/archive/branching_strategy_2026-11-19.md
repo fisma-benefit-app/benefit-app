@@ -1,3 +1,5 @@
+> **Historical document — archived 2026-11-19.** Superseded by [current guidance](../guides/contributing.md). Commands and configuration below may be outdated or destructive; use the current guide for operational work.
+
 # Branching strategy guide
 
 This document further explains the branching strategy used in Benefit application's development and CI/CD pipeline.
@@ -50,7 +52,7 @@ The strategy is implemented as outlined below:
 
 A few notes regarding the strategy:
 
-1. The separate testing environment can be used to test features in an environment separate from production. See the [deployment guide](./deployment_guide.md) on how to deploy to the testing and production environments.
+1. The separate testing environment can be used to test features in an environment separate from production. See the [deployment guide](../guides/deployment_guide.md) on how to deploy to the testing and production environments.
 
 2. Since the `main` branch is continuously updated with changes made by developers and merged via pull requests, it’s important to regularly pull the latest version of `main` branch into the local environment before creating a new development branch.
 

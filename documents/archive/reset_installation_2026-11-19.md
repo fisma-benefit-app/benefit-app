@@ -1,3 +1,5 @@
+> **Historical document — archived 2026-11-19.** Superseded by [current guidance](../guides/development.md#reset-this-local-project). Commands and configuration below may be outdated or destructive; use the current guide for operational work.
+
 # How to Reset Installation
 
 This guide details how you can reset your local setup in case of inconsistencies (e.g. schema mismatches, corrupted caches).
@@ -5,7 +7,7 @@ This guide details how you can reset your local setup in case of inconsistencies
 ## 1. Basic Reset
 
 - Shut down backend and frontend.
-- Clear caches (see [caching.md](./caching.md)).
+- Clear caches (see [caching.md](./caching_2026-11-19.md)).
 - Restart backend and frontend.
 
 ## 2. If Using Docker

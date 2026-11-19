@@ -63,7 +63,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS app_users_username_lower_key ON app_users (LOW
 
 Local development seed data is in `database-seed-dev.sql`. For example, the user `user` has the password `user`. The `schema-dev.sql` and seed files are used only for local development (Spring profile `dev`). The backend refuses to start with the `dev` profile against a non-local database, because the seed deletes all rows first. Changes to the testing and production databases are applied by hand (see [database.md](database.md)).
 
-**There is no API for creating accounts.** New users are added by hand in the database with a BCrypt-hashed password (see [database.md](database.md)).
+**Administrators can create accounts with `POST /appusers`.** The request supplies a username, password, and `USER` or `ADMIN` role; ordinary users cannot create accounts. See the [API reference](../references/api.md#create-an-account). Accounts can also be provisioned by hand with a BCrypt-hashed password (see [database.md](database.md)).
 
 ![creating app user table in the schema sql-file](../img/images_for_guides/schema_sql_app_user_creation.png)
 
@@ -75,7 +75,7 @@ Image: Creating the user table in the schema file (older screenshot. The table i
 | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `domain/AppUser.java`                                        | JPA entity mapped to `app_users` (`id`, `username`, `password`, `deletedAt`).                                                                                                                                                                                                      |
 | `repository/AppUserRepository.java`                          | `findByUsernameActive(username)` and `findByIdActive(id)` return only users whose `deleted_at IS NULL`.                                                                                                                                                                            |
-| `security/UserDetailsServiceImpl.java`                       | Adapts `AppUser` to Spring Security's `UserDetails` (`AppUserDetails`). Every user gets the single authority `ROLE_USER`.                                                                                                                                                          |
+| `security/UserDetailsServiceImpl.java`                       | Adapts `AppUser` to Spring Security's `UserDetails` (`AppUserDetails`). The authority is `ROLE_USER` or `ROLE_ADMIN`, according to the account role.                                                                                                                                                          |
 | `api/AppUserController.java` / `service/AppUserService.java` | Get your own user, change your password (stored as a new BCrypt hash), and soft-delete your own account. Password changes use `PUT /appusers/password` with `currentPassword` and `newPassword`. There is no profile-update or username-change endpoint (see [D.3](#3-controllers-turn-the-token-back-into-database-rows)). |
 
 ![img.png](../img/images_for_guides/Java_AppUser_constructor.png)
@@ -115,7 +115,7 @@ Basic authentication is limited to `POST /token`, where clients must send `X-Ben
 
 1. `UserDetailsServiceImpl.loadUserByUsername()` first asks `LoginAttemptThrottleService` whether this username is locked out. It then calls `AppUserRepository.findByUsernameActive()`, which runs `SELECT ... FROM app_users WHERE username = ? AND deleted_at IS NULL`.
 2. The `DaoAuthenticationProvider` bean (in `SecurityConfig`) checks the submitted password against the stored hash with `BCryptPasswordEncoder`.
-3. On success, the failure counter for the username is reset. Spring builds an `Authentication` whose principal is an `AppUserDetails`, carrying the database `id`, `username` and `ROLE_USER`.
+3. On success, the failure counter for the username is reset. Spring builds an `Authentication` whose principal is an `AppUserDetails`, carrying the database `id`, `username` and the account's authority (`ROLE_USER` or `ROLE_ADMIN`).
 
 Failure responses:
 
@@ -242,7 +242,7 @@ When `POST /token` is authenticated with a Bearer token instead of Basic credent
 1. It reloads the user with `findByUsernameActive(sub)`. If the user has been deleted, renewal is refused.
 2. It keeps the current token's lifetime (`exp - iat`). **The `rememberMe` parameter is ignored**, so a 24 h token can't be renewed into a 30-day one.
 3. It keeps the original login time in `auth_time`. **A login can't be kept alive for more than 30 days** (`MAX_SESSION_AGE`): renewal is refused after that, and a renewed token's `exp` never goes past `auth_time + 30 days`. Tokens issued before `auth_time` existed use their `iat` instead.
-4. It issues a new token with the same claims as a login (`userId`, `scope=ROLE_USER`, a new `jti`).
+4. It issues a new token with the account claims (`userId` and the existing `scope`) and a new `jti`.
 5. It blacklists the old token's `jti`, so the old token stops working right away.
 
 The decoder and renewal service both compare the presented `session_version` with

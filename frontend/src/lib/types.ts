@@ -57,8 +57,11 @@ export type FunctionalComponentResponse = FunctionalComponentRequest & {
   id: number;
 };
 
+export type ProjectRole = "OWNER" | "MEMBER" | null;
+
 export type ProjectAppUserResponse = {
   id: number;
+  roleInProject: ProjectRole;
   appUser: AppUserSummary;
 };
 

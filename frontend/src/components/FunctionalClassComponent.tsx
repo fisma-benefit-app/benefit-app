@@ -46,7 +46,7 @@ type FunctionalClassComponentProps = {
   deleteFunctionalComponent: (componentId: number) => Promise<void>;
   project: Project;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
-  isLatest: boolean;
+  canEdit: boolean;
   collapsed: boolean;
   onCollapseChange: (componentId: number, collapsed: boolean) => void;
   debouncedSaveProject: () => void;
@@ -65,7 +65,7 @@ export default function FunctionalClassComponent({
   deleteFunctionalComponent,
   project,
   setProject,
-  isLatest,
+  canEdit,
   collapsed,
   onCollapseChange,
   debouncedSaveProject,
@@ -163,7 +163,7 @@ export default function FunctionalClassComponent({
     };
     setProject(updatedProject);
 
-    if (isLatest) {
+    if (canEdit) {
       debouncedSaveProject();
     }
   };
@@ -196,7 +196,7 @@ export default function FunctionalClassComponent({
     };
     setProject(updatedProject);
 
-    if (isLatest) {
+    if (canEdit) {
       debouncedSaveProject();
     }
   };
@@ -291,7 +291,7 @@ export default function FunctionalClassComponent({
     };
     setProject(updatedProject);
 
-    if (isLatest) {
+    if (canEdit) {
       debouncedSaveProject();
     }
   };
@@ -311,10 +311,14 @@ export default function FunctionalClassComponent({
         onMouseDown={(e) => {
           if (onCardClick && e.shiftKey) e.preventDefault();
         }}
-        className={`${uiStyles.card} ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-blue ring-2 ring-fisma-blue" : "border-fisma-gray"}`}
+        className={`${uiStyles.card} ${onCardClick ? "cursor-pointer" : ""} ${selected ? "border-fisma-dark-blue ring-2 ring-fisma-dark-blue shadow-lg" : "border-fisma-gray"}`}
         style={{
           borderLeftColor: classColors.border,
-          backgroundColor: classColors.card,
+          // A selected card gets a darker shade of the same colour (soft yellow
+          // -> deeper yellow), made by mixing in the class's own accent colour.
+          backgroundColor: selected
+            ? `color-mix(in srgb, ${classColors.card} 65%, ${classColors.border})`
+            : classColors.card,
         }}
       >
         <div className={uiStyles.header}>
@@ -354,7 +358,7 @@ export default function FunctionalClassComponent({
               value={component.title || ""}
               maxLength={255}
               onChange={handleComponentChange}
-              disabled={!isLatest}
+              disabled={!canEdit}
             />
           </div>
 
@@ -396,7 +400,7 @@ export default function FunctionalClassComponent({
                     value={component.degreeOfCompletion ?? ""}
                     onChange={handleComponentChange}
                     className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
-                    disabled={!isLatest}
+                    disabled={!canEdit}
                   />
                   <select
                     id="degreeOfCompletionOptions"
@@ -405,7 +409,7 @@ export default function FunctionalClassComponent({
                     )}
                     onChange={handleComponentChange}
                     className="border-2 border-fisma-dark-gray bg-white flex-1 min-w-[180px] max-w-[225px] p-2 text-base rounded-md"
-                    disabled={!isLatest}
+                    disabled={!canEdit}
                   >
                     <option disabled value="">
                       {translation.selectDegreeOfCompletion}
@@ -441,7 +445,7 @@ export default function FunctionalClassComponent({
                   className="w-full border-2 border-fisma-gray bg-white p-2 text-sm sm:text-base rounded-md"
                   rows={descriptionRowsExpanded ? 10 : 3}
                   maxLength={DESCRIPTION_MAX_LENGTH}
-                  disabled={!isLatest}
+                  disabled={!canEdit}
                   placeholder={translation.descriptionPlaceholder}
                 />
                 <p
@@ -466,7 +470,7 @@ export default function FunctionalClassComponent({
                   value={component.className || ""}
                   onChange={handleClassNameChange}
                   className={uiStyles.select}
-                  disabled={!isLatest}
+                  disabled={!canEdit}
                 >
                   <option value="">{translation.classNamePlaceholder}</option>
                   {classNameOptions.map((className) => (
@@ -483,7 +487,7 @@ export default function FunctionalClassComponent({
                       value={component.componentType || ""}
                       onChange={handleOptionTypeChange}
                       className={uiStyles.componentTypeSelect}
-                      disabled={!isLatest}
+                      disabled={!canEdit}
                     >
                       {component.className !==
                         "Interactive end-user input service" && (
@@ -515,7 +519,7 @@ export default function FunctionalClassComponent({
                       type="checkbox"
                       className="w-4 h-4"
                       checked={component.isMLA}
-                      disabled={!isMlaEligible || !isLatest}
+                      disabled={!isMlaEligible || !canEdit}
                       onChange={handleMLAChange}
                     />
                   )}
@@ -571,6 +575,7 @@ export default function FunctionalClassComponent({
                           type="number"
                           value={(value as number) || ""}
                           onChange={handleComponentChange}
+                          disabled={!canEdit}
                           className={uiStyles.parameterInput}
                         />
                       </div>
@@ -721,12 +726,12 @@ export default function FunctionalClassComponent({
           <button
             type="button"
             className={`${uiStyles.deleteButton} ${
-              isLatest
+              canEdit
                 ? uiStyles.deleteButtonActive
                 : uiStyles.deleteButtonDisabled
             }`}
             onClick={() => setConfirmModalOpen(true)}
-            disabled={!isLatest}
+            disabled={!canEdit}
             title={translation.delete}
           >
             <FontAwesomeIcon icon={faTrash} />

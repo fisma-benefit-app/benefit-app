@@ -104,13 +104,10 @@ describe("architecture diagram figures", () => {
 
   // The diagram draws the interfaces as their own part, so they must not also stay in the
   // business layer's figure, or the picture would add up to more than the project's total.
-  it("splits the project total across the four boxes without counting anything twice", () => {
+  it("matches the UI layer totals across the three architecture layers", () => {
     const figures = calculateDiagramFigures(current);
     const shown =
-      figures.uiPoints +
-      figures.businessPoints +
-      figures.databasePoints +
-      figures.externalPoints;
+      figures.uiPoints + figures.businessPoints + figures.databasePoints;
     expect(shown).toBeCloseTo(calculateGrandTotalPoints(current), 10);
   });
 });

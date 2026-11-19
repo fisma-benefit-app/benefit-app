@@ -1,3 +1,5 @@
+> **Historical document — archived 2026-11-19.** Superseded by [current guidance](https://github.com/fisma-benefit-app/benefit-app/releases). Commands and configuration below may be outdated or destructive; use the current guide for operational work.
+
 # Sprint 9 (8.-28.9.2025) changes:
 
 ## Frontend:

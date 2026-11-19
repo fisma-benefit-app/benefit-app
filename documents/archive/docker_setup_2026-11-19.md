@@ -1,3 +1,5 @@
+> **Historical document — archived 2026-11-19.** Superseded by [current guidance](../guides/development.md). Commands and configuration below may be outdated or destructive; use the current guide for operational work.
+
 # Docker Guide
 
 This guide explains how to run the Benefit App locally using Docker. It covers backend, frontend, and database setup.
@@ -19,7 +21,7 @@ docker --version
 - `docker-compose.yaml` (root) – defines services: database, backend, frontend.
 - `backend/Dockerfile.dev` – builds and runs the Spring Boot backend with Gradle.
 - `frontend/Dockerfile.dev` – builds and runs the Vite frontend.
-- `docker-compose.prod.yaml`, `backend/Dockerfile`, `frontend/Dockerfile` – the production-style stack for a self-hosted server. Not for local development; see the [deployment guide](./deployment_guide.md#self-hosted-server-with-docker).
+- `docker-compose.prod.yaml`, `backend/Dockerfile`, `frontend/Dockerfile` – the production-style stack for a self-hosted server. Not for local development; see the [deployment guide](../guides/deployment_guide.md#self-hosted-server-with-docker).
 - `application.yaml` (backend resources) – configures datasource.
   - Local: uses values from docker-compose.yaml
   - Heroku: uses injected environment variables

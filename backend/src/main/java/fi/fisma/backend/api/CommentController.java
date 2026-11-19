@@ -5,6 +5,8 @@ import fi.fisma.backend.dto.CommentResponse;
 import fi.fisma.backend.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +40,10 @@ public class CommentController {
       summary = "Get comments for a project",
       description = "Retrieves all comments for the specified project that the user can access")
   @ApiResponse(responseCode = "200", description = "Comments returned successfully")
-  @ApiResponse(responseCode = "404", description = "Project not found")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Project not found",
+      content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
   public ResponseEntity<List<CommentResponse>> getComments(
       @Parameter(description = "ID of the project") @PathVariable Long projectId,
       Authentication authentication) {
@@ -50,7 +55,14 @@ public class CommentController {
       summary = "Create a comment for a project",
       description = "Creates a new comment for the specified project")
   @ApiResponse(responseCode = "201", description = "Comment created successfully")
-  @ApiResponse(responseCode = "400", description = "Invalid comment data")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid comment data",
+      content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "Project not found",
+      content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
   public ResponseEntity<Void> createComment(
       @Parameter(description = "ID of the project") @PathVariable Long projectId,
       @Valid @RequestBody CommentRequest request,
@@ -69,7 +81,18 @@ public class CommentController {
       summary = "Update a project comment",
       description = "Updates an existing comment for the specified project")
   @ApiResponse(responseCode = "200", description = "Comment updated successfully")
-  @ApiResponse(responseCode = "404", description = "Comment or project not found")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Comment or project not found",
+      content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid comment data",
+      content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+  @ApiResponse(
+      responseCode = "403",
+      description = "Comment does not belong to this project",
+      content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
   public ResponseEntity<CommentResponse> updateComment(
       @Parameter(description = "ID of the project") @PathVariable Long projectId,
       @Parameter(description = "ID of the comment to update") @PathVariable Long commentId,
@@ -85,7 +108,14 @@ public class CommentController {
       summary = "Delete a project comment",
       description = "Deletes a comment belonging to the specified project")
   @ApiResponse(responseCode = "204", description = "Comment deleted successfully")
-  @ApiResponse(responseCode = "404", description = "Comment or project not found")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Comment or project not found",
+      content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+  @ApiResponse(
+      responseCode = "403",
+      description = "Comment does not belong to this project",
+      content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
   public ResponseEntity<Void> deleteComment(
       @Parameter(description = "ID of the project") @PathVariable Long projectId,
       @Parameter(description = "ID of the comment to delete") @PathVariable Long commentId,

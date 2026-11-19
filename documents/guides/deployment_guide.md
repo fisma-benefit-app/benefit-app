@@ -1,14 +1,16 @@
 # Deployment Guide
 
+For an outage or urgent recovery, start with [incident response](incident_response.md): identify the environment, inspect health/logs, and choose a recovery action.
+
 This guide describes the step-by-step process of deploying the backend (Heroku) and frontend (GitHub Pages).
 
-We can deploy the app to two different environments: testing (staging) and production environments. Testing deployments run **automatically** and production deployments must be done **manually**. Automated deployments are the preferred way of deploying the app. However, if needed, all deployments can be done manually.
+We can deploy the app to two different environments: testing (staging) and production environments. Heroku testing deployments run **automatically** and production deployments must be initiated **manually**. Scalingo backend deployment mode must be checked separately (see below). Automated deployments are the preferred way of deploying the app. However, if needed, all deployments can be done manually.
 
 *Note that deployment takes a few minutes to take effect, probably because of Github Pages deployment!*
 
 ### Prerequisites
 
-- Heroku account with CLI installed for logging (see [the guide](./heroku_cli_setup.md) on this if needed)
+- Heroku account with CLI installed for logging (see [Heroku CLI access](incident_response.md#heroku-status-and-logs) on this if needed)
 - Access to repo: https://github.com/fisma-benefit-app/benefit-app
 - Database credentials available in Heroku Config Vars
 - Heroku backend URLs set up in GitHub Actions repository secrets: `HEROKU_PRODUCTION_URL` and `HEROKU_TESTING_URL`
@@ -52,13 +54,13 @@ A second testing environment runs the backend on Scalingo (with its own PostgreS
 For setting up the Scalingo app and its database step by step (CLI, environment variables, schema, first user), see the [Scalingo deployment guide](./scalingo_deployment.md).
 
 - Frontend: https://fisma-benefit-app-testing.github.io/scalingo/ <-- on the [testing GitHub Pages site](#testing-github-pages-site)
-- Backend: deployed by Scalingo's GitHub auto-deploy on `main`. Scalingo does not report to the `run-deployments` workflow, so the frontend is deployed by its own workflow, [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml), on every push to `main` (it can also be run by hand from the Actions tab).
+- Backend: deployment mode is controlled in Scalingo. The [maintenance guide](scalingo_maintenance.md) records auto-deploy as disabled on 2026-11-14; verify the current dashboard setting and deployed revision. Scalingo does not report to the `run-deployments` workflow, so the frontend is deployed by its own workflow, [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml), on every push to `main` (it can also be run by hand from the Actions tab).
 
 ### One-time setup
 
 In the Scalingo app:
 
-1. Code tab: connect `fisma-benefit-app/benefit-app` and enable Auto Deploy on `main`.
+1. Code tab: connect `fisma-benefit-app/benefit-app`. Deliberately choose manual deployment or Auto Deploy on `main`, record that choice, and verify the deployed backend revision. The frontend deploys independently.
 2. Set these environment variables:
 
 | Variable                                                   | Value                                                                                                                                                                         |
@@ -82,7 +84,7 @@ scalingo --app <scalingo-app-name> logs --follow
 
 ## Backup Database
 
-Before any deployment, ensure a database backup is taken. There's two ways of doing this:
+Before any deployment, ensure a database backup is taken. Replace the quoted placeholders below with the confirmed target; prefer protected client configuration for credentials rather than putting passwords in shell history. Treat dumps as sensitive data. Restore only after coordinating the recovery point and writes with the service owner; see the [database guide](database.md). There's two ways of doing this:
 
 1) Back up via Heroku (requires login)
 
@@ -98,14 +100,14 @@ Before any deployment, ensure a database backup is taken. There's two ways of do
 ```
 ```bash
 # Make database backup
-pg_dump <db-url> > backup.sql
+pg_dump '<db-url>' > backup.sql
 
 # Example: pg_dump postgres://username:password@host:port/dbname > backup.sql
 ```
 
 ```bash
 # To restore the database if needed
-psql <db-url> < backup.sql
+psql '<db-url>' < backup.sql
 
 # Example: psql postgres://username:password@host:port/dbname < backup.sql
 ```
@@ -302,7 +304,7 @@ Things to know:
 
 If the backend container won't run, run the jar on the host and keep the database and frontend in Docker. From the repository root on the server:
 
-1. Start only the database. Use the production file, because its database is published on `127.0.0.1` only; the dev file publishes it to the internet. Compose checks the whole file, so `.env` still needs every value listed above.
+1. Start only the database. Use the production file to retain the server configuration. Do not use the development stack for server recovery: its dev backend deletes and reseeds data on startup. Compose checks the whole file, so `.env` still needs every value listed above.
 
    ```bash
    docker compose -f docker-compose.prod.yaml up -d db

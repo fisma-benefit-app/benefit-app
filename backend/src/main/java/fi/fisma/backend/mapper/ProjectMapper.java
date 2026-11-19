@@ -50,6 +50,7 @@ public class ProjectMapper {
                     pau ->
                         new ProjectAppUserResponse(
                             pau.getId(),
+                            pau.getRoleInProject(),
                             new AppUserSummary(
                                 pau.getAppUser().getId(), pau.getAppUser().getUsername())))
                 .collect(Collectors.toSet()));

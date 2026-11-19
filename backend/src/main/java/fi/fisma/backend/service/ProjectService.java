@@ -52,7 +52,7 @@ public class ProjectService {
    * @param projectId the ID of the project to retrieve
    * @param username the username of the user requesting the project
    * @return ProjectResponse
-   * @throws EntityNotFoundException if the project is not found or does not belong to the user
+   * @throws EntityNotFoundException if the project is not found or the user is not a member
    */
   public ProjectResponse getProject(Long projectId, String username) {
     return projectMapper.toResponse(findProjectForUser(projectId, username));
@@ -77,7 +77,8 @@ public class ProjectService {
    * @param projectUpdate the request object containing the updated project data
    * @param username the username of the user performing the update
    * @return the updated ProjectResponse
-   * @throws EntityNotFoundException if the project is not found or does not belong to the user
+   * @throws EntityNotFoundException if the project is not found or the user is not a member
+   * @throws UnauthorizedException if the user is not an owner of the project
    * @throws ConflictException if the project is not the latest version, or has changed since the
    *     request's lockVersion was read
    * @throws IllegalStateException if the request has no lockVersion or changes the version number
@@ -158,8 +159,9 @@ public class ProjectService {
    * @param versionRequest the request object containing the new version’s data
    * @param username the username of the user creating the new version
    * @return the created ProjectResponse representing the new version
-   * @throws EntityNotFoundException if the original project is not found or does not belong to the
-   *     user
+   * @throws EntityNotFoundException if the original project is not found or the user is not a
+   *     member
+   * @throws UnauthorizedException if the user is not an owner of the project
    */
   @Transactional
   public ProjectResponse createProjectVersion(
@@ -255,7 +257,8 @@ public class ProjectService {
    *
    * @param projectId the ID of the project to delete
    * @param username the username of the user performing the deletion
-   * @throws EntityNotFoundException if the project is not found or does not belong to the user
+   * @throws EntityNotFoundException if the project is not found or the user is not a member
+   * @throws UnauthorizedException if the user is not an owner of the project
    * @throws IllegalStateException if project is already deleted
    */
   public void deleteProject(Long projectId, String username) {
@@ -284,15 +287,15 @@ public class ProjectService {
 
   /**
    * Gives another user access to the project and to its other versions, so the new member sees the
-   * same version history as the rest. Every member has the same rights, including deleting the
-   * project.
+   * same version history as the rest. Only an owner can share a project.
    *
    * @param projectId the ID of the project to share
    * @param newMemberUsername the username of the user to add
-   * @param username the username of the user sharing the project, who must already be a member
+   * @param username the username of the owner sharing the project
    * @return the ProjectResponse with the updated member list
-   * @throws EntityNotFoundException if the project does not belong to the user, or no active user
-   *     has the given username
+   * @throws EntityNotFoundException if the project is not found, or no active user has the given
+   *     username
+   * @throws UnauthorizedException if the caller is not an owner of the project
    * @throws ConflictException if the user is already a member of the project
    */
   public ProjectResponse addUserToProject(
@@ -323,14 +326,14 @@ public class ProjectService {
   }
 
   /**
-   * Removes a user's access to the project and to its other versions. A member can remove anyone,
-   * including themselves; the project's data stays for the remaining members.
+   * Removes a user's access to the project and to its other versions. Only an owner can remove
+   * members; the project's data stays for the remaining members.
    *
    * @param projectId the ID of the project
    * @param appUserId the ID of the user to remove
-   * @param username the username of the member removing the user
-   * @throws EntityNotFoundException if the project does not belong to the caller, or the user is
-   *     not a member of it
+   * @param username the username of the owner removing the user
+   * @throws EntityNotFoundException if the project is not found, or the user is not a member
+   * @throws UnauthorizedException if the caller is not an owner of the project
    * @throws ConflictException if no other active member would be left, in which case the project
    *     should be deleted instead
    */
@@ -374,14 +377,15 @@ public class ProjectService {
   }
 
   /**
-   * Like {@link #findProjectForUser}, but also requires the project to be the latest version: older
-   * versions are archived and must not change, because reports compare a version with the one
+   * Like {@link #findProjectForOwner}, but also requires the project to be the latest version:
+   * older versions are archived and must not change, because reports compare a version with the one
    * before it.
    *
+   * @throws UnauthorizedException if the user is not an owner of the project
    * @throws ConflictException if a newer version of the project exists
    */
   public Project findEditableProject(Long projectId, String username) {
-    var project = findProjectForUser(projectId, username);
+    var project = findProjectForOwner(projectId, username);
     requireLatestVersion(project, username);
     return project;
   }
@@ -404,23 +408,45 @@ public class ProjectService {
     projectRepository
         .lockFamilyForMember(projectId, username)
         .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
-    // Membership could have changed while waiting for a concurrent removal to finish.
-    return findProjectForUser(projectId, username);
+    // Membership or ownership could have changed while waiting for the lock.
+    return findProjectForOwner(projectId, username);
   }
 
   /**
-   * Helper method that finds a project by its ID and verifies that it belongs to the specified
-   * user.
+   * Helper method that finds a project by its ID and verifies that the specified user is a member.
    *
    * @param projectId the ID of the project to find
-   * @param username the username of the user who owns the project
+   * @param username the username of the user requesting the project
    * @return Project
-   * @throws EntityNotFoundException if the project is not found or does not belong to the user
+   * @throws EntityNotFoundException if the project is not found or the user is not a member
    */
   public Project findProjectForUser(Long projectId, String username) {
     return projectRepository
         .findByProjectIdAndUsernameActive(projectId, username)
         .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
+  }
+
+  /**
+   * Finds a project the user can access and verifies that the user's project role is OWNER.
+   *
+   * @param projectId the ID of the project to find
+   * @param username the username of the user requesting the project
+   * @return Project
+   * @throws EntityNotFoundException if the project is not found or the user is not a member
+   * @throws UnauthorizedException if the user is a member but not an owner
+   */
+  public Project findProjectForOwner(Long projectId, String username) {
+    var project = findProjectForUser(projectId, username);
+    boolean isOwner =
+        project.getProjectAppUsers().stream()
+            .anyMatch(
+                projectAppUser ->
+                    username.equals(projectAppUser.getAppUser().getUsername())
+                        && projectAppUser.getRoleInProject() == EnumProjectRole.OWNER);
+    if (!isOwner) {
+      throw new UnauthorizedException("Only project owners can modify this project");
+    }
+    return project;
   }
 
   /**
@@ -450,7 +476,7 @@ public class ProjectService {
   @Transactional
   public Project duplicateProject(Long id, String username) {
     // Find the initial project in database
-    Project originalProject = findProjectForUser(id, username);
+    Project originalProject = findProjectForOwner(id, username);
 
     var appUser =
         appUserRepository
