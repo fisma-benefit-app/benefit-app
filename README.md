@@ -1,3 +1,8 @@
+[![Contributors][contributors-shield]][contributors-url]
+[![Last commit][commit-shield]][commit-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+
 <div align="center">
   <a href="https://www.fisma.fi/">
     <img src="https://www.fisma.fi/images/cropped-Fisma_logo.png" alt="FiSMA shield" width="200">
@@ -12,6 +17,10 @@
 Benefit is a function point analysis tool for the **FiSMA 1.1 method**. Use it to record functional requirements, calculate functional size, manage calculation versions, share projects, and export PDF and CSV reports.
 
 Developed in collaboration with [FiSMA ry](https://www.fisma.fi/) and [Haaga-Helia University of Applied Sciences](https://www.haaga-helia.fi/en).
+
+## Service down or behaving unexpectedly?
+
+Start with the [incident response guide](documents/guides/incident_response.md). It walks through identifying the environment, checking health and logs, choosing a recovery action, and confirming the service works again. You do not need to understand the architecture first.
 
 ## Services and environments
 
@@ -31,8 +40,11 @@ Run Docker commands from the repository root. Hosted log commands require the re
 | --- | --- |
 | Read local backend logs | `docker compose logs -f backend` |
 | Read local frontend logs | `docker compose logs -f frontend`; browser errors appear in DevTools → Console |
+| Read Heroku testing backend logs | `heroku logs --app fisma-benefit-app-testing --tail` |
 | Read production backend logs | `heroku logs --app fisma-benefit-app --tail` |
-| Read Scalingo backend logs | `scalingo --app fisma-benefit-app --region osc-fr1 logs --follow` |
+| Read Scalingo testing backend logs | `scalingo --app fisma-benefit-app --region osc-fr1 logs --follow` |
+| Check hosted health, status, and recent changes | [Environment checks](documents/guides/incident_response.md#identify-and-check-the-environment) |
+| Read self-hosted server logs | On the server checkout: `docker compose -f docker-compose.prod.yaml logs --tail=200 backend` |
 | Find build, test, or deployment logs | [GitHub Actions](https://github.com/fisma-benefit-app/benefit-app/actions) |
 | Refresh frontend caches | See [Caches](#caches) below |
 | Deploy or check what is running | [Deployment and operations](documents/guides/deployment_guide.md) |
@@ -50,7 +62,7 @@ docker compose restart frontend
 
 For a frontend running outside Docker, stop its dev server and run `npm run dev -- --force` from `frontend/`.
 
-For other local build/cache problems, see the [development guide](documents/guides/development.md). Hosted build-cache procedures belong in [deployment and operations](documents/guides/deployment_guide.md).
+For other local build/cache problems, see the [development guide](documents/guides/development.md). For hosted build failures, see [Heroku build cache](documents/guides/incident_response.md#heroku-build-cache). Purging a build cache affects the next build; it does not repair a running service or database.
 
 ## Find what you need
 
@@ -129,3 +141,12 @@ Benefit is distributed under the [MIT License](LICENSE).
 Representative supervisor: Heikki Naski, FiSMA ry
 
 Project: [fisma-benefit-app/benefit-app](https://github.com/fisma-benefit-app/benefit-app)
+
+[contributors-shield]: https://img.shields.io/github/contributors/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[contributors-url]: https://github.com/fisma-benefit-app/benefit-app/graphs/contributors
+[commit-shield]: https://img.shields.io/github/last-commit/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[commit-url]: https://github.com/fisma-benefit-app/benefit-app/commits/main/
+[issues-shield]: https://img.shields.io/github/issues/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[issues-url]: https://github.com/fisma-benefit-app/benefit-app/issues
+[license-shield]: https://img.shields.io/github/license/fisma-benefit-app/benefit-app.svg?style=for-the-badge
+[license-url]: https://github.com/fisma-benefit-app/benefit-app/blob/HEAD/LICENSE

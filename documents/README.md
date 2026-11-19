@@ -8,6 +8,7 @@ For service links, log commands, and cache shortcuts, use the [project README](.
 
 | Your task | Start here | Continue when needed |
 | --- | --- | --- |
+| Restore an unavailable or failing service | [Incident response](guides/incident_response.md) | Environment identification, health/log checks, targeted recovery, and verification. |
 | Perform a calculation or produce a report | [Using Benefit](guides/using_benefit.md) | [Calculation reference](references/centralized_calculations.md) for the implementation overview; worked FiSMA examples are a planned expansion of that reference. |
 | Set up a development environment | [Development guide](guides/development.md) | [Architecture](references/architecture.md), then [Contributing](guides/contributing.md). |
 | Change an existing feature | [Architecture](references/architecture.md#find-the-code-for-a-change) | The relevant subsystem reference below. |
@@ -32,6 +33,7 @@ The API owns the client-visible contract. Authentication explains its internal s
 
 ## Operate and maintain
 
+- [Incident response](guides/incident_response.md): start here during an outage; health, logs, caches, recovery, and verification.
 - [Deployment guide](guides/deployment_guide.md): shared deployment guidance and Heroku procedures.
 - [Scalingo setup](guides/scalingo_deployment.md) and [Scalingo maintenance](guides/scalingo_maintenance.md): installation and routine operation. These are planned for consolidation.
 - [Self-hosted / UpCloud guide](guides/upcloud_deployment.md): production-style Docker setup.
@@ -40,13 +42,13 @@ The API owns the client-visible contract. Authentication explains its internal s
 - [API documentation maintenance](guides/generate_api_docs.md): maintain the reference and export OpenAPI.
 - [Security assessment](guides/security_audit.md): scope, evidence, limitations, and retesting.
 
-The existing deployment documents disagree about Scalingo automatic deployment. Verify the actual provider setting before relying on either statement. A documentation date is not proof of the currently deployed configuration.
+Scalingo backend deployment mode is controlled in the provider dashboard. The maintenance guide records it as disabled on 2026-11-14; verify the current setting before relying on automatic deployment. The frontend workflow runs separately.
 
 ## Current documentation and historical records
 
-The [archive](archive/) contains earlier installation guides, sprint reports, demonstrations, and dated security evidence. Use it for history; follow the active guides for current behavior.
+The [archive index](archive/README.md) contains earlier installation guides, sprint reports, demonstrations, and dated security evidence. Use it for history; follow the active guides for current behavior.
 
-Open defects and proposed improvements belong in [GitHub issues](https://github.com/fisma-benefit-app/benefit-app/issues). Release history belongs in [GitHub Releases](https://github.com/fisma-benefit-app/benefit-app/releases). The existing [sprint changelog](changelog.md) and [known-errors notes](notes/known_errors.md) contain historical material and are planned for archival after useful current content is moved.
+Open defects and proposed improvements belong in [GitHub issues](https://github.com/fisma-benefit-app/benefit-app/issues). Release history belongs in [GitHub Releases](https://github.com/fisma-benefit-app/benefit-app/releases). Superseded Docker, reset, cache, logging, branching, and Heroku CLI guides, historical error notes, and the September 2025 sprint changelog have been archived. Their current replacements are listed in the archive index.
 
 ## Keeping these documents current
 

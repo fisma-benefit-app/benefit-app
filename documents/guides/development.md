@@ -153,6 +153,7 @@ To format changed code, use `./gradlew spotlessApply` under `backend/`, or the i
 | Backend cannot connect to `db` when run on the host | Use the localhost JDBC URL above. | Backend health returns `UP`. |
 | Port 5173, 8080, or 5433 is occupied | Stop the competing stack/process or adjust host ports and the related API/origin settings. | Only the intended process owns the port; browser requests use the adjusted URL. |
 | Dev-profile startup is refused for a non-local database | Verify the intended target and profile. Use disposable local data for dev. | Start uses the intended profile and database; do not bypass the guard. |
+| Login fails only when launched from an IDE | Compare the IDE launch profile, JDK, working directory, and environment with the documented terminal setup. | The same configuration succeeds from both launch paths. |
 | Authentication fails | Read backend logs and the browser request/status before changing settings. Check API URL, origin, and database connectivity. | Health works and the sign-in request succeeds. |
 | Dependencies appear stale in Docker | Rebuild with `docker compose up --build -V`. | Container build and dependency loading complete successfully. |
 | File changes are not detected on Windows | Prefer the WSL filesystem and inspect the polling settings rather than keeping the checkout on `/mnt/c/`. | A small source edit reloads the expected process. |

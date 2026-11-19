@@ -1,3 +1,5 @@
+> **Historical document — archived 2026-11-19.** Superseded by [current guidance](../guides/development.md#troubleshoot-by-symptom). Commands and configuration below may be outdated or destructive; use the current guide for operational work.
+
 # Known errors
 
 This document logs issues that are not going to be fixed because they're
