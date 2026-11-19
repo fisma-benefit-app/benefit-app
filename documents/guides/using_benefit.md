@@ -6,9 +6,27 @@ Use this guide to create a FiSMA calculation, understand the result, manage vers
 
 Open the service linked from the [README](../../README.md#services-and-environments) and sign in with the account provided to you. Accounts are created by an administrator; there is no public self-registration workflow.
 
-Benefit measures functional size using the FiSMA 1.1 method. A functional requirement, such as registering a customer or producing a report, is different from a technical implementation detail such as caching or internal logging. The method and your analysis conventions determine what to count; the application does not infer those requirements for you.
-
 A successful first session is: create a project → add and classify a component → enter its inputs and completion → save → inspect a report.
+
+## FiSMA 1.1 Method Overview
+
+Function point analysis measures the functional size of software. That measurement can support productivity analysis and workload estimation. Several function point analysis methods exist; Benefit uses **FiSMA 1.1**.
+
+In FiSMA 1.1, each user-relevant function is classified into a function category and function type, and entered as a row in a table. Each function has a unique identifier and the measurable attributes required by its category/type:
+
+- Data elements.
+- Read references.
+- Write references.
+- Operations.
+- Function factor.
+
+Examples of functionality to classify include a list view on a web page, a CSV report, an integration, or data storage represented by a database table. The method and your analysis conventions determine how to identify and count these; the application does not infer the requirements for you.
+
+Technical features such as internal logging and developer utilities, and quality-related features such as caching, are not counted as additional user functions. Functional size measures functional requirements rather than the technical work needed to implement them.
+
+In Benefit, these rows are called **functional components**. The [component workflow](#add-and-classify-a-component) below explains how to enter them. For the implementation of the point formulas and totals, see the [calculation reference](../references/centralized_calculations.md).
+
+The [northernSCOPE™ concept](../../README.md#northernscope-concept) provides the broader FiSMA context retained in the project README.
 
 ## Understand your access
 

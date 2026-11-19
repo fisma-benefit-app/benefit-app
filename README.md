@@ -68,6 +68,7 @@ For other local build/cache problems, see the [development guide](documents/guid
 
 | I want to… | Start here |
 | --- | --- |
+| Understand what FiSMA 1.1 measures and what to count | [FiSMA 1.1 Method Overview](documents/guides/using_benefit.md#fisma-11-method-overview) |
 | Perform an analysis, manage versions, or export a report | [Using Benefit](documents/guides/using_benefit.md) |
 | Run the app locally and make a first change | [Development guide](documents/guides/development.md) |
 | Understand the architecture and find the relevant code | [Architecture](documents/references/architecture.md) |
