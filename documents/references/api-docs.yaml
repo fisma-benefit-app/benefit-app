@@ -1233,6 +1233,10 @@ components:
           format: int64
           description: Unique identifier of the project
           example: 1
+        familyId:
+          type: string
+          format: uuid
+          description: Immutable identifier shared by versions of this project
         projectName:
           type: string
           description: Name of the project

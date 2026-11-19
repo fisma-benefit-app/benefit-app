@@ -104,7 +104,7 @@ For a network failure, check the connection and save status before retrying or r
 
 Use **Archive as version** on the latest owned project to preserve a snapshot and continue in a new version. Confirm the action and use the version selector to inspect the history afterward.
 
-The older project version becomes read-only. The new version gets copied components and retains access roles, while internal links let reports compare components across versions. Renaming the latest calculation also renames the history grouped under its name.
+The older project version becomes read-only. The new version gets copied components and retains access roles, while internal links let reports compare components across versions. Renaming the latest calculation also renames its version history. Matching names do not link independently created projects.
 
 A duplicate is different: the project-list duplicate action creates a separate calculation at version 1 with a new name, owned only by you. Use duplication when you want an independent starting point rather than another version of the same calculation.
 

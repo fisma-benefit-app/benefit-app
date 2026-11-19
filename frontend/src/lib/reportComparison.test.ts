@@ -41,6 +41,7 @@ const subComponent = (
 
 const project = (functionalComponents: TGenericComponent[]): Project => ({
   id: 1,
+  familyId: "fb3f7909-55cc-4bdf-a581-ee34285eac47",
   projectName: "Project",
   version: 1,
   reportContactDetails: null,

@@ -83,8 +83,14 @@ VALUES  -- 1: baseline smoke-test project
          LEFT('[Edge case] Max-length report notes (5000 chars). ' || REPEAT('Note about scope, assumptions and calculation rationale. ', 300), 5000),
          NOW() - INTERVAL '3 days', NULL),
 
-        -- 10: kitchen sink v2 - same project_name and created_at as project 4, like createProjectVersion()
+        -- 10: kitchen sink v2 - shares its family with project 4
         (10, '[Kitchen sink] Every component type + MLA', 2, NOW() - INTERVAL '15 days', NOW() - INTERVAL '2 days', NULL, 'Reference project - not a real benefit calculation.', 'Version 2 of the kitchen sink: some components changed, one removed and one added compared to version 1. See file header comment in database-seed-dev.sql.', NOW() - INTERVAL '1 days', NULL);
+
+-- Set the known lineage of the two archived seed projects.
+UPDATE projects AS version
+SET family_id = root.family_id
+FROM projects AS root
+WHERE (version.id, root.id) IN ((7, 6), (10, 4));
 
 -- ===========================================================================================
 -- Project 1: project-x - baseline smoke-test data (unchanged in spirit from the original seed)

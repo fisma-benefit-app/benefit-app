@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /*
  * Utility class for setting up commonly used test data and mock behaviors.
@@ -20,6 +21,7 @@ public class StandaloneSetup {
   public static ProjectResponse project() {
     return new ProjectResponse(
         1L,
+        UUID.randomUUID(),
         "Test Project",
         1,
         LocalDateTime.now(),
@@ -38,6 +40,7 @@ public class StandaloneSetup {
     return List.of(
         new ProjectResponse(
             1L,
+            UUID.randomUUID(),
             "P1",
             1,
             LocalDateTime.now(),
@@ -52,6 +55,7 @@ public class StandaloneSetup {
             Set.of()),
         new ProjectResponse(
             2L,
+            UUID.randomUUID(),
             "P2",
             1,
             LocalDateTime.now(),
@@ -69,6 +73,7 @@ public class StandaloneSetup {
   public static ProjectResponse savedProject() {
     return new ProjectResponse(
         1L,
+        UUID.randomUUID(),
         "New Project",
         1,
         LocalDateTime.now(),
@@ -86,6 +91,7 @@ public class StandaloneSetup {
   public static ProjectResponse savedVersion() {
     return new ProjectResponse(
         2L,
+        UUID.randomUUID(),
         "Versioned Project",
         2,
         LocalDateTime.now(),

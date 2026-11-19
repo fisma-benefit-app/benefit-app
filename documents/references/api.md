@@ -93,7 +93,7 @@ The `role` of an account (`USER` or `ADMIN`) and its `roleInProject` (`OWNER` or
 
 ### Project versions and lockVersion
 
-Projects with the same `projectName` belong to the same version history. The highest `version` is the latest; older versions can be read but cannot be edited. A new project version has its own project ID.
+Projects with the same backend-assigned `familyId` belong to the same version history. Display names do not establish identity; independently created and duplicated projects start separate families. The highest `version` is the latest; older versions can be read but cannot be edited. A new project version has its own project ID.
 
 `version` is the calculation's version number. `lockVersion` is a separate save counter that protects against concurrent edits:
 
@@ -579,8 +579,8 @@ Bearer JWT. You must be an **OWNER** of this project. A view-only member receive
 | Name | Location | Required | Description |
 | --- | --- | --- | --- |
 | `id` | path | Yes | Source project ID. |
-| `projectName` | JSON body | Yes | Keep the source name to stay in its version history. |
-| `version` | JSON body | Yes | Supply the next version number; the backend does not select it for you. |
+| `projectName` | JSON body | Yes | Required by request validation; the backend retains the source project name. |
+| `version` | JSON body | Yes | Required by request validation; the backend selects the source version plus one. |
 | Report/date fields | JSON body | No | Values for the new version; preserve source values you want to keep. |
 
 #### Request example
@@ -1376,8 +1376,8 @@ The endpoint sections explain what to send for each operation. These tables desc
 
 | Field | Type | Meaning and constraints |
 | --- | --- | --- |
-| `projectName` | string | Required, nonblank, at most 255 characters. Shared name groups project versions. |
-| `version` | integer | Nonnegative version number. Use `1` for creation, retain it for updates, and supply the next number when creating a version. |
+| `projectName` | string | Required, nonblank, at most 255 characters. Display name; version creation retains the source name. |
+| `version` | integer | Nonnegative version number. Use `1` for creation and retain it for updates. Version creation selects the source version plus one, ignoring this supplied value. |
 | `functionalComponents` | array of FunctionalComponentRequest | Complete component tree; defaults to empty when omitted. Preserve values during updates. Version creation copies components from the source instead. |
 | `calculationDate` | date or null | `YYYY-MM-DD`; omission clears it during a project update. |
 | `reportContactDetails` | string or null | At most 2,000 characters; omission clears it during an update. |
@@ -1389,6 +1389,7 @@ The endpoint sections explain what to send for each operation. These tables desc
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `id` | integer | ID of this project version. |
+| `familyId` | UUID string | Immutable backend-assigned identity shared by this project’s versions. |
 | `projectName` | string | Shared name of the version history. |
 | `version` | integer | Version number. Highest version in the history is the latest. |
 | `createdAt` | date-time | Original creation time, retained when creating a version. |

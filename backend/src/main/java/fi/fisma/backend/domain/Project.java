@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +34,10 @@ public class Project {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @Setter(AccessLevel.NONE)
+  @Column(name = "family_id", nullable = false, updatable = false)
+  private UUID familyId = UUID.randomUUID();
 
   @NotBlank(message = "Project name is required")
   @Size(max = 255, message = "Project name must not exceed 255 characters")

@@ -89,7 +89,7 @@ Manual and debounced saves share `persistProject` in `ProjectPage`. Normal autos
 
 ## Understand the data model
 
-A project row represents one version. Rows sharing `projectName` form a history; this is why renaming can affect archived versions. Membership has a separate relationship ID, account ID, and `roleInProject`.
+A project row represents one version. Rows sharing an immutable `familyId` form a history. Independently created or duplicated projects get a new family ID, even when their display names match. Renaming updates the accessible versions in that family. Membership has a separate relationship ID, account ID, and `roleInProject`.
 
 Top-level functional components contain children for multi-layer architecture. `orderPosition` controls display order. `previousFCId` points to the predecessor copied during version creation, and `parentFCId` links children within a project. These have different purposes; do not substitute one ID for another.
 

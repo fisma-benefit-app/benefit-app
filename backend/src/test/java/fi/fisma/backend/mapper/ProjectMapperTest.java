@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -83,6 +84,7 @@ class ProjectMapperTest {
     LocalDateTime timestamp = LocalDateTime.of(2026, 9, 3, 12, 0);
     return new Project(
         1L,
+        UUID.randomUUID(),
         "Test Project",
         1,
         timestamp,

@@ -1,3 +1,4 @@
+import { getProjectFamilyKey } from "../lib/projectFamily";
 import { Project, ComponentType, TGenericComponent } from "../lib/types";
 import { downloadProjectComponentsCsv } from "../lib/csvExportUtils";
 import { generateCalculationReportPDF } from "../lib/calculationReportUtils";
@@ -40,7 +41,9 @@ export const FunctionalPointSummary = ({
 
   //Get all versions of the same project
   const allProjectVersions: Project[] = sortedProjects.filter(
-    (projectInArray) => project?.projectName === projectInArray.projectName,
+    (projectInArray) =>
+      project &&
+      getProjectFamilyKey(project) === getProjectFamilyKey(projectInArray),
   );
   //Get previous version for PDF-report changes comparison
   const previousOrCurrent = returnLatestOrPreviousVersion(

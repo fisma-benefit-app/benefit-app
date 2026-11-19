@@ -25,6 +25,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS app_users_username_lower_key ON app_users (LOW
 CREATE TABLE IF NOT EXISTS projects
 (
     id                  BIGSERIAL PRIMARY KEY,
+    family_id           UUID NOT NULL DEFAULT gen_random_uuid(),
     project_name        VARCHAR(255) NOT NULL,
     version             BIGINT NOT NULL,
     created_at          TIMESTAMP(0) NOT NULL,
@@ -36,6 +37,8 @@ CREATE TABLE IF NOT EXISTS projects
     deleted_at          TIMESTAMP(0),
     lock_version        BIGINT NOT NULL DEFAULT 0
 );
+
+CREATE INDEX IF NOT EXISTS idx_projects_family_id ON projects (family_id);
 
 CREATE TABLE IF NOT EXISTS functional_components
 (

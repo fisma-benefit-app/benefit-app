@@ -85,7 +85,8 @@ public class ProjectService {
    */
   public ProjectResponse updateProject(
       Long projectId, ProjectRequest projectUpdate, String username) {
-    var project = findEditableProject(projectId, username);
+    var project = lockProjectFamily(projectId, username);
+    requireLatestVersion(project, username);
     if (projectUpdate.getLockVersion() == null) {
       throw new IllegalStateException("lockVersion is required when updating a project");
     }
@@ -98,7 +99,7 @@ public class ProjectService {
       throw new IllegalStateException("The version number of a project cannot be changed");
     }
 
-    // Versions are grouped by name, so renaming the latest version renames the archived ones too.
+    // Keep the display name consistent across versions of this project.
     if (!project.getProjectName().equals(projectUpdate.getProjectName())) {
       versionsOf(project, username)
           .forEach(version -> version.setProjectName(projectUpdate.getProjectName()));
@@ -165,7 +166,11 @@ public class ProjectService {
   @Transactional
   public ProjectResponse createProjectVersion(
       Long projectId, ProjectRequest versionRequest, String username) {
-    var originalProject = findEditableProject(projectId, username);
+    var originalProject = lockProjectFamily(projectId, username);
+    requireLatestVersion(originalProject, username);
+    if (originalProject.getVersion() == Integer.MAX_VALUE) {
+      throw new IllegalStateException("The project has reached the maximum version number");
+    }
 
     var newVersion = projectMapper.createNewVersion(originalProject, versionRequest);
 
@@ -257,7 +262,7 @@ public class ProjectService {
    * @throws IllegalStateException if project is already deleted
    */
   public void deleteProject(Long projectId, String username) {
-    var project = findProjectForOwner(projectId, username);
+    var project = lockProjectFamily(projectId, username);
 
     // Check if already deleted
     if (project.getDeletedAt() != null) {
@@ -295,7 +300,7 @@ public class ProjectService {
    */
   public ProjectResponse addUserToProject(
       Long projectId, String newMemberUsername, String username) {
-    var project = findProjectForOwner(projectId, username);
+    var project = lockProjectFamily(projectId, username);
     var newMember =
         appUserRepository
             .findByUsernameActive(newMemberUsername)
@@ -333,27 +338,35 @@ public class ProjectService {
    *     should be deleted instead
    */
   public void removeUserFromProject(Long projectId, Long appUserId, String username) {
-    var project = findProjectForOwner(projectId, username);
+    var project = lockProjectFamily(projectId, username);
     if (!isMember(project, appUserId)) {
       throw new EntityNotFoundException("User " + appUserId + " is not a member of this project");
     }
 
-    boolean otherActiveMemberRemains =
-        project.getProjectAppUsers().stream()
-            .map(ProjectAppUser::getAppUser)
-            .anyMatch(user -> !user.getId().equals(appUserId) && user.getDeletedAt() == null);
-    if (!otherActiveMemberRemains) {
+    var affectedVersions =
+        versionsOf(project, username).stream()
+            .filter(version -> isMember(version, appUserId))
+            .toList();
+    boolean leavesVersionWithoutAnActiveMember =
+        affectedVersions.stream()
+            .anyMatch(
+                version ->
+                    version.getProjectAppUsers().stream()
+                        .map(ProjectAppUser::getAppUser)
+                        .noneMatch(
+                            user ->
+                                !user.getId().equals(appUserId) && user.getDeletedAt() == null));
+    if (leavesVersionWithoutAnActiveMember) {
       throw new ConflictException(
           ConflictException.LAST_MEMBER,
           "The last member cannot be removed from a project; delete the project instead");
     }
 
-    versionsOf(project, username)
-        .forEach(
-            version ->
-                version
-                    .getProjectAppUsers()
-                    .removeIf(pau -> pau.getAppUser().getId().equals(appUserId)));
+    affectedVersions.forEach(
+        version ->
+            version
+                .getProjectAppUsers()
+                .removeIf(pau -> pau.getAppUser().getId().equals(appUserId)));
     // orphanRemoval deletes the removed rows on flush.
     projectRepository.flush();
   }
@@ -373,6 +386,11 @@ public class ProjectService {
    */
   public Project findEditableProject(Long projectId, String username) {
     var project = findProjectForOwner(projectId, username);
+    requireLatestVersion(project, username);
+    return project;
+  }
+
+  private void requireLatestVersion(Project project, String username) {
     boolean hasNewerVersion =
         versionsOf(project, username).stream().anyMatch(v -> v.getVersion() > project.getVersion());
     if (hasNewerVersion) {
@@ -380,14 +398,18 @@ public class ProjectService {
           ConflictException.NOT_LATEST_VERSION,
           "Only the latest version of a project can be edited");
     }
-    return project;
   }
 
-  /** The user's projects that are versions of the given one (same name), the project included. */
   private List<Project> versionsOf(Project project, String username) {
-    return projectRepository.findAllByUsernameActive(username).stream()
-        .filter(p -> p.getProjectName().equals(project.getProjectName()))
-        .toList();
+    return projectRepository.findActiveVersions(project.getFamilyId(), username);
+  }
+
+  private Project lockProjectFamily(Long projectId, String username) {
+    projectRepository
+        .lockFamilyForMember(projectId, username)
+        .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
+    // Membership or ownership could have changed while waiting for the lock.
+    return findProjectForOwner(projectId, username);
   }
 
   /**
@@ -429,9 +451,8 @@ public class ProjectService {
 
   /**
    * Picks "<name> - Copy", or "<name> - Copy 2", "<name> - Copy 3", ... for the first one that none
-   * of the user's projects has (case-insensitively), because a shared name would make the copy a
-   * version of that project. The original name is truncated to keep the result within the maximum
-   * length.
+   * of the user's projects has (case-insensitively). The original name is truncated to keep the
+   * result within the maximum length.
    */
   private String freeDuplicateName(String originalName, String username) {
     Set<String> takenNames =
