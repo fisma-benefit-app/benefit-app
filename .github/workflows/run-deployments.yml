@@ -55,6 +55,7 @@ jobs:
         run: |
           cd frontend
           npm ci
+          echo "TEST PROD URL" ${{ vars.PRODUCTION_URL }}
 
       - name: Configure Git
         env:
