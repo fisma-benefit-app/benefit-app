@@ -2,6 +2,7 @@ name: Run deployments
 
 on:
   deployment_status:
+  workflow_dispatch: 
 
 permissions: {}
 
