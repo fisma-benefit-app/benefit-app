@@ -28,9 +28,10 @@ jobs:
     name: Deploy FE to production environment
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'deployment_status' &&
-      github.event.deployment_status.environment == 'fisma-benefit-app' &&
-      github.event.deployment_status.state == 'success'
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'deployment_status' &&
+       github.event.deployment_status.environment == 'fisma-benefit-app' &&
+       github.event.deployment_status.state == 'success')
     permissions:
       contents: write
 
