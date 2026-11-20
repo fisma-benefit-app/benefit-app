@@ -66,7 +66,7 @@ jobs:
 
       - name: Deploy FE to GitHub Pages production environment
         env:
-          VITE_API_URL: ${{ secrets.HEROKU_PRODUCTION_URL }}
+          VITE_API_URL: ${{ vars.PRODUCTION_URL }}
           VITE_BASE_PATH: /benefit-app/
         run: |
           cd frontend
