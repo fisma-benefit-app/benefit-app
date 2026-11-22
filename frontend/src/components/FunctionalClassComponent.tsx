@@ -40,6 +40,7 @@ import SubComponentsModal from "./SubComponentsModal.tsx";
 import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 import FunctionalClassSubComponent from "./FunctionalClassSubComponent.tsx";
 import { compactViewStyles, fullViewStyles } from "../lib/uiStyles.ts";
+import ViewOnlyTooltipWrapper from "./ViewOnlyTooltipWrapper.tsx"
 
 type FunctionalClassComponentProps = {
   component: TGenericComponent;
@@ -47,6 +48,7 @@ type FunctionalClassComponentProps = {
   project: Project;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
   canEdit: boolean;
+  viewOnlyTip?: string | null;
   collapsed: boolean;
   onCollapseChange: (componentId: number, collapsed: boolean) => void;
   debouncedSaveProject: () => void;
@@ -66,6 +68,7 @@ export default function FunctionalClassComponent({
   project,
   setProject,
   canEdit,
+  viewOnlyTip = null,
   collapsed,
   onCollapseChange,
   debouncedSaveProject,
@@ -112,18 +115,18 @@ export default function FunctionalClassComponent({
   // Calculate total points including subcomponents
   const totalPointsWithSubComponents = component.subComponents
     ? component.subComponents.reduce(
-        (total, subComp) =>
-          total + calculateComponentPoints(subComp as TGenericComponent),
-        pointsByDegreeOfCompletion,
-      )
+      (total, subComp) =>
+        total + calculateComponentPoints(subComp as TGenericComponent),
+      pointsByDegreeOfCompletion,
+    )
     : pointsByDegreeOfCompletion;
 
   const totalFullPointsWithSubComponents = component.subComponents
     ? component.subComponents.reduce(
-        (total, subComp) =>
-          total + calculateBasePoints(subComp as TGenericComponent),
-        fullPoints,
-      )
+      (total, subComp) =>
+        total + calculateBasePoints(subComp as TGenericComponent),
+      fullPoints,
+    )
     : fullPoints;
 
   const degreeOfCompletionOptions = new Map([
@@ -449,11 +452,10 @@ export default function FunctionalClassComponent({
                   placeholder={translation.descriptionPlaceholder}
                 />
                 <p
-                  className={`text-xs text-right ${
-                    descriptionLength >= DESCRIPTION_MAX_LENGTH
+                  className={`text-xs text-right ${descriptionLength >= DESCRIPTION_MAX_LENGTH
                       ? "text-red-600 font-medium"
                       : "text-gray-500"
-                  }`}
+                    }`}
                 >
                   {descriptionLength >= DESCRIPTION_MAX_LENGTH &&
                     `${translation.descriptionMaxLengthReached}: `}
@@ -491,10 +493,10 @@ export default function FunctionalClassComponent({
                     >
                       {component.className !==
                         "Interactive end-user input service" && (
-                        <option value="">
-                          {translation.componentTypePlaceholder}
-                        </option>
-                      )}
+                          <option value="">
+                            {translation.componentTypePlaceholder}
+                          </option>
+                        )}
                       {componentTypeOptions.map((option) => (
                         <option key={option} value={option}>
                           {translation.componentTypeOptions[option]}
@@ -616,16 +618,16 @@ export default function FunctionalClassComponent({
                   {showMLATotal
                     ? totalFullPointsWithSubComponents > 0
                       ? (
-                          (totalPointsWithSubComponents /
-                            totalFullPointsWithSubComponents) *
-                          100
-                        ).toFixed(1)
+                        (totalPointsWithSubComponents /
+                          totalFullPointsWithSubComponents) *
+                        100
+                      ).toFixed(1)
                       : "0.0"
                     : fullPoints > 0
                       ? (
-                          (pointsByDegreeOfCompletion / fullPoints) *
-                          100
-                        ).toFixed(1)
+                        (pointsByDegreeOfCompletion / fullPoints) *
+                        100
+                      ).toFixed(1)
                       : "0.0"}
                   %)
                 </span>
@@ -661,8 +663,8 @@ export default function FunctionalClassComponent({
                   {pointsByDegreeOfCompletion.toFixed(2)} (
                   {fullPoints > 0
                     ? ((pointsByDegreeOfCompletion / fullPoints) * 100).toFixed(
-                        1,
-                      )
+                      1,
+                    )
                     : "0.0"}
                   %)
                 </span>
@@ -723,19 +725,20 @@ export default function FunctionalClassComponent({
 
         {/* Delete button */}
         {!collapsed && !isCompactMode && (
-          <button
-            type="button"
-            className={`${uiStyles.deleteButton} ${
-              canEdit
-                ? uiStyles.deleteButtonActive
-                : uiStyles.deleteButtonDisabled
-            }`}
-            onClick={() => setConfirmModalOpen(true)}
-            disabled={!canEdit}
-            title={translation.delete}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
+          <ViewOnlyTooltipWrapper message={viewOnlyTip}>
+            <button
+              type="button"
+              className={`${uiStyles.deleteButton} ${canEdit
+                  ? uiStyles.deleteButtonActive
+                  : uiStyles.deleteButtonDisabled
+                }`}
+              onClick={() => setConfirmModalOpen(true)}
+              disabled={!canEdit}
+              title={viewOnlyTip ? undefined : translation.delete}
+            >
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </ViewOnlyTooltipWrapper>
         )}
       </form>
 

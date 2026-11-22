@@ -307,6 +307,8 @@ export const translations = {
       comments: "Comments",
       commentsTitle: "Comments",
       projectViewOnly: "You have view-only access to this project.",
+      viewOnlyDisabledTip:
+        "This button is disabled because you have view-only access to this project.",
       archivedVersionReadOnly: "Archived version: read-only comments.",
       noCommentsYet: "No comments yet.",
       addCommentPlaceholder: "Add a comment...",
@@ -745,6 +747,8 @@ export const translations = {
       comments: "Kommentit",
       commentsTitle: "Kommentit",
       projectViewOnly: "Sinulla on tähän projektiin vain katseluoikeus.",
+      viewOnlyDisabledTip:
+        "Painike on poistettu käytöstä, koska sinulla on vain katseluoikeus tähän projektiin.",
       archivedVersionReadOnly:
         "Arkistoitu versio: kommentit ovat vain luku -tilassa.",
       noCommentsYet: "Ei kommentteja vielä.",
