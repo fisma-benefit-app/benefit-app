@@ -1198,7 +1198,7 @@ Bearer JWT from an **ADMIN** account. Project ownership does not grant this perm
 | Name | Location | Required | Description |
 | --- | --- | --- | --- |
 | `username` | JSON body | Yes | Nonempty, unique account username. Usernames cannot be changed later. |
-| `password` | JSON body | Yes | Nonempty password, at most 72 Java characters; stored hashed. |
+| `password` | JSON body | Yes | Nonblank password: 8–72 Unicode code points, at most 72 UTF-8 bytes, no null characters or line breaks; stored hashed. |
 | `role` | JSON body | Yes | `USER` or `ADMIN`. |
 
 #### Request example
@@ -1226,7 +1226,7 @@ curl --include --request POST \
 }
 ```
 
-Returns [AppUserSummary](#appusersummary), without the password. Account creation currently uses a different validation policy from password replacement; the replacement policy is documented below.
+Returns [AppUserSummary](#appusersummary), without the password. Account creation enforces the same password policy as password replacement.
 
 #### Errors and recovery
 
@@ -1453,7 +1453,7 @@ Uses the same field names and JSON types as [FunctionalComponentRequest](#functi
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `username` | string | Required and nonempty. Unique account username. |
-| `password` | string | Required and nonempty, at most 72 Java characters; never returned by this API. |
+| `password` | string | Required; 8–72 Unicode code points, nonblank, at most 72 UTF-8 bytes. Null characters and line breaks are not allowed. Never returned by this API. |
 | `role` | string | Required: `USER` or `ADMIN`. |
 
 ### AppUserSummary

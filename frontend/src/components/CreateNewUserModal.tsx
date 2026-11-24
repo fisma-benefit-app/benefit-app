@@ -66,6 +66,23 @@ export default function CreateNewUserModal({
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
 
+    const codePointCount = Array.from(password).length;
+    const utf8ByteLength = new TextEncoder().encode(password).length;
+
+    if (codePointCount < 8 || codePointCount > 72 || utf8ByteLength > 72) {
+      displayError(translation.passwordLengthRequirements);
+      return;
+    }
+
+    if (
+      password.trim().length === 0 ||
+      /[\0\r\n]/.test(password) ||
+      /\p{Surrogate}/u.test(password)
+    ) {
+      displayError(translation.passwordInvalid);
+      return;
+    }
+
     if (password !== confirmPassword) {
       displayError(translation.passwordsDontMatch);
       return;
@@ -115,7 +132,7 @@ export default function CreateNewUserModal({
         <h2 className="text-white text-2xl font-bold text-center bg-fisma-dark-blue mb-4 -mx-4 -mt-4 px-4 py-2">
           {translation.header}
         </h2>
-        <div className="h-8 mb-4 flex items-center justify-center">
+        <div className="min-h-8 mb-4 flex items-center justify-center">
           {loading ? (
             <DotLoadingSpinner />
           ) : (
@@ -176,9 +193,7 @@ export default function CreateNewUserModal({
             {translation.password}
           </label>
           <input
-            ref={inputRef}
             type="password"
-            maxLength={50}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
@@ -186,6 +201,9 @@ export default function CreateNewUserModal({
             required
             className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
           />
+          <p className="text-xs text-white/90">
+            {translation.passwordLengthRequirements}
+          </p>
 
           <label
             htmlFor="confirmPassword"
@@ -194,9 +212,7 @@ export default function CreateNewUserModal({
             {translation.confirmPassword}
           </label>
           <input
-            ref={inputRef}
             type="password"
-            maxLength={60}
             value={confirmPassword}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
