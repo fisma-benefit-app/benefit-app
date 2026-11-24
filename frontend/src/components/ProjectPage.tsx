@@ -42,7 +42,7 @@ import useDebounce from "../hooks/useDebounce.ts";
 import useLanguage from "../hooks/useLanguage.tsx";
 
 import ShortcutTooltip from "./ShortcutTooltip.tsx";
-import ViewOnlyTooltipWrapper from "./ViewOnlyTooltipWrapper.tsx"
+import ViewOnlyTooltipWrapper from "./ViewOnlyTooltipWrapper.tsx";
 
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { useAlert } from "../hooks/useAlert.ts";
@@ -55,9 +55,9 @@ function updateMlaSubComponents(components: TGenericComponent[]) {
   return components.map((comp) =>
     comp.isMLA && comp.subComponents
       ? {
-        ...comp,
-        subComponents: updateSubComponents(comp, comp.subComponents),
-      }
+          ...comp,
+          subComponents: updateSubComponents(comp, comp.subComponents),
+        }
       : comp,
   );
 }
@@ -149,10 +149,10 @@ export default function ProjectPage() {
   const visibleComponents = componentSearchQueryEmpty
     ? sortedComponents
     : sortedComponents.filter((component) =>
-      (component.title || "")
-        .toLowerCase()
-        .includes(componentSearchQuery.trim().toLowerCase()),
-    );
+        (component.title || "")
+          .toLowerCase()
+          .includes(componentSearchQuery.trim().toLowerCase()),
+      );
 
   // Alert functionality
   const { showNotification, updateNotification, hideNotification } = useAlert();
@@ -538,10 +538,11 @@ export default function ProjectPage() {
       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start px-5 pt-24 xl:pt-20">
         {/* SUMMARY (on top for small screens, on right for large - now with sticky dropdown on mobile) */}
         <div
-          className={`${isSummaryMenuOpen ? "block" : "hidden"} ${!isPanelOpen
+          className={`${isSummaryMenuOpen ? "block" : "hidden"} ${
+            !isPanelOpen
               ? "xl:hidden"
               : "xl:block xl:w-[360px] xl:shrink-0 2xl:w-[420px]"
-            } fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none transition-all duration-300`}
+          } fixed xl:static top-20 left-0 right-0 z-30 xl:z-auto w-full xl:sticky xl:top-20 mb-10 xl:mb-0 xl:order-2 bg-white xl:bg-transparent max-h-[calc(100vh-5rem)] overflow-y-auto px-5 xl:px-0 py-4 xl:py-0 shadow-lg xl:shadow-none transition-all duration-300`}
         >
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
@@ -558,10 +559,11 @@ export default function ProjectPage() {
               <ViewOnlyTooltipWrapper message={viewOnlyTip}>
                 <button
                   onClick={handleCreateFunctionalComponent}
-                  className={`w-full ${canEdit && !loadingProject
+                  className={`w-full ${
+                    canEdit && !loadingProject
                       ? "bg-fisma-blue hover:bg-fisma-dark-blue cursor-pointer"
                       : "bg-fisma-gray"
-                    } text-white py-3 px-4`}
+                  } text-white py-3 px-4`}
                   disabled={!canEdit || loadingProject}
                 >
                   {translation.newFunctionalComponent}
@@ -616,8 +618,9 @@ export default function ProjectPage() {
                 {translation.comments}
                 <FontAwesomeIcon
                   icon={faChevronDown}
-                  className={`text-xs transition-transform ${commentsOpen ? "rotate-180" : ""
-                    }`}
+                  className={`text-xs transition-transform ${
+                    commentsOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 

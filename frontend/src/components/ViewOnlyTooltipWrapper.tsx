@@ -16,10 +16,7 @@ export default function DisabledReasonTooltip({
   if (!message) return <>{children}</>;
 
   return (
-    <div
-      className={`group relative ${className}`}
-      aria-describedby={tooltipId}
-    >
+    <div className={`group relative ${className}`} aria-describedby={tooltipId}>
       {children}
       <div
         id={tooltipId}
