@@ -1,87 +1,119 @@
-name: Run deployments
+name: Publish production frontend
 
-# Run manually on main after the Scalingo production backend is deployed.
-# The legacy Heroku production integration can also trigger a Pages publish.
+# Deploy the backend manually in the Scalingo benefit app. Start this workflow
+# after that deploy succeeds and copy its full SHA from the deployment history.
+# The supplied SHA is the handoff from Scalingo. This workflow publishes Pages.
 on:
-  deployment_status:
-  workflow_dispatch: 
+  workflow_dispatch:
+    inputs:
+      backend_sha:
+        description: Full commit SHA from the successful production Scalingo deployment
+        required: true
+        type: string
 
+# The publish job grants the repository write permission needed for gh-pages.
 permissions: {}
 
+# Keep two manual runs from publishing to the same Pages branch at once.
+concurrency:
+  group: benefit-production-pages
+
 jobs:
-  # Reports a successful Heroku production deployment. The backend is
-  # deployed by the provider before GitHub receives this event.
-  deploy-backend-to-production-environment:
-    name: Deploy BE to production environment
+  publish:
+    name: Publish and verify production Pages
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'deployment_status' &&
-      github.event.deployment_status.environment == 'fisma-benefit-app' &&
-      github.event.deployment_status.state == 'success'
-
-    steps:
-      - name: Debug Event Info
-        run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "Environment: ${{ github.event.deployment_status.environment }}"
-          echo "State: ${{ github.event.deployment_status.state }}"
-
-      - name: Echo Heroku automatic deployment
-        run: echo "Backend is deployed automatically in Heroku"
-
-  deploy-frontend-to-production-environment:
-    name: Deploy FE to production environment
-    runs-on: ubuntu-latest
-    if: |
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'deployment_status' &&
-       github.event.deployment_status.environment == 'fisma-benefit-app' &&
-       github.event.deployment_status.state == 'success')
-    # The production build is pushed to the gh-pages branch of this repo.
+    timeout-minutes: 15
     permissions:
       contents: write
+    defaults:
+      run:
+        shell: bash
 
     steps:
-      - name: Debug Event Info
+      # Start at the dispatch commit on main and fetch its history so the job
+      # can verify earlier release commits. Configure Git for publishing later.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Check that the input names a real commit in main's history. It can be
+      # older than the dispatch commit if main advanced after the backend deploy.
+      # The step output carries the selected SHA through the build and checks.
+      - name: Check out the deployed backend revision
+        id: release
+        env:
+          BACKEND_SHA: ${{ inputs.backend_sha }}
         run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "Environment: ${{ github.event.deployment_status.environment }}"
-          echo "State: ${{ github.event.deployment_status.state }}"
+          if [[ ! "$BACKEND_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo 'Enter the full 40-character commit SHA from Scalingo.'
+            exit 1
+          fi
+          release_sha="${BACKEND_SHA,,}"
+          if [[ "$(git cat-file -t "$release_sha" 2>/dev/null)" != commit ]] ||
+             ! git merge-base --is-ancestor "$release_sha" "$GITHUB_SHA"; then
+            echo 'The supplied SHA must identify a commit in the history of main.'
+            exit 1
+          fi
+          git checkout --detach "$release_sha"
+          echo "sha=$release_sha" >> "$GITHUB_OUTPUT"
 
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
 
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm ci
-          echo "TEST PROD URL" ${{ vars.PRODUCTION_URL }}
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
 
-      # GitHub supplies GITHUB_TOKEN for each run. The job's contents: write
-      # permission lets npm run deploy:production push to this repository.
-      - name: Configure Git
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Use the authenticated origin for the Pages push.
-          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-
-      # PRODUCTION_URL is a repository Actions variable under Settings →
-      # Secrets and variables → Actions → Variables. It holds the public
-      # Scalingo API origin. Vite embeds it as VITE_API_URL in the Pages build.
-      # VITE_BASE_PATH is the /benefit-app/ path on the production Pages site.
-      - name: Deploy FE to GitHub Pages production environment
+      # PRODUCTION_URL is the public API origin under Settings → Secrets and
+      # variables → Actions → Variables. VITE_BASE_PATH is the site's
+      # /benefit-app/ path. Vite uses both values when building the frontend.
+      - name: Build the matching production frontend
+        working-directory: frontend
         env:
           VITE_API_URL: ${{ vars.PRODUCTION_URL }}
           VITE_BASE_PATH: /benefit-app/
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
         run: |
-          cd frontend
-          npm run deploy:production
+          npm run build:production
+          # write:version reads GITHUB_SHA. Override it for this command so
+          # version.json records the release SHA instead of the dispatch SHA.
+          GITHUB_SHA="$RELEASE_SHA" npm run write:version
+          jq -e --arg sha "$RELEASE_SHA" '.sha == $sha' dist/version.json
+
+      # GitHub generates GITHUB_TOKEN for this run. The deploy script uses the
+      # authenticated origin to push to gh-pages in the same repository.
+      - name: Configure Git for publishing
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+
+      # The npm flag skips predeploy so gh-pages publishes the dist directory
+      # whose version.json was already checked.
+      - name: Publish the matching frontend to production Pages
+        working-directory: frontend
+        run: npm --ignore-scripts run deploy:production
+
+      # The git push finishes before Pages necessarily serves the new build.
+      # Poll the public version.json and require the selected SHA.
+      - name: Confirm Pages serves the selected commit
+        env:
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          for attempt in {1..60}; do
+            sha=$(curl --fail --silent --max-time 5 \
+              "https://fisma-benefit-app.github.io/benefit-app/version.json?cb=$(date +%s)" |
+              jq -r '.sha' || true)
+            if [[ "$sha" == "$RELEASE_SHA" ]]; then
+              echo "Production Pages serves $RELEASE_SHA."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Production Pages did not publish $RELEASE_SHA. Check the Pages build before retrying."
+          exit 1
