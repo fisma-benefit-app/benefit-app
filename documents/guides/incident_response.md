@@ -18,14 +18,13 @@ Open the affected frontend from the [service list](../../README.md#services-and-
 | Environment | Management / backend target | Health check |
 | --- | --- | --- |
 | Heroku production | [Dashboard: fisma-benefit-app](https://dashboard.heroku.com/apps/fisma-benefit-app) | Use the app's **Open app** URL and append `/actuator/health`. |
-| Heroku testing | [Dashboard: fisma-benefit-app-testing](https://dashboard.heroku.com/apps/fisma-benefit-app-testing) | Use this testing app's **Open app** URL and append `/actuator/health`. |
-| Scalingo testing | [Dashboard: osc-fr1 / fisma-benefit-app](https://dashboard.scalingo.com/apps/osc-fr1/fisma-benefit-app) | [Backend health](https://fisma-benefit-app.osc-fr1.scalingo.io/actuator/health) |
+| Scalingo testing | [Dashboard: osc-fr1 / benefit-testing](https://dashboard.scalingo.com/apps/osc-fr1/benefit-testing) | [Backend health](https://benefit-testing.osc-fr1.scalingo.io/actuator/health) |
 | Local development | Repository checkout, development Compose stack | [Backend health](http://localhost:8080/actuator/health) |
 | Self-hosted / UpCloud | Server checkout and `docker-compose.prod.yaml`; see [server guide](upcloud_deployment.md) for access/setup | On the server's public origin, request `/api/actuator/health` through nginx. |
 
 A successful health response reports `UP`. Also test the failing user action: health alone does not prove login, frontend configuration, permissions, or saving work.
 
-The Heroku production app and Scalingo testing app share the name `fisma-benefit-app`; always check the provider too. Server addresses and access credentials must come from the current administrators, not a historical archive.
+Get server addresses and access credentials from the current administrators.
 
 ### Heroku status and logs
 
@@ -45,19 +44,19 @@ heroku logs --app fisma-benefit-app --num=200
 heroku logs --app fisma-benefit-app --tail
 ```
 
-For testing, use `--app fisma-benefit-app-testing` on each command. Stop a log stream with Ctrl+C. To narrow output to web dynos, add `--dyno=web` to the log command. Save relevant sanitized evidence promptly: provider log history is limited. See [Heroku logging](https://devcenter.heroku.com/articles/logging).
+Stop a log stream with Ctrl+C. To narrow output to web dynos, add `--dyno=web` to the log command. Save relevant sanitized evidence promptly since the provider log history is limited. See [Heroku logging](https://devcenter.heroku.com/articles/logging).
 
 ### Scalingo status and logs
 
 Use an authenticated [Scalingo CLI](https://doc.scalingo.com/tools/cli/start):
 
 ```bash
-scalingo --app fisma-benefit-app --region osc-fr1 ps
-scalingo --app fisma-benefit-app --region osc-fr1 deployments
-scalingo --app fisma-benefit-app --region osc-fr1 logs --follow
+scalingo --app benefit-testing --region osc-fr1 ps
+scalingo --app benefit-testing --region osc-fr1 deployments
+scalingo --app benefit-testing --region osc-fr1 logs --follow
 ```
 
-The [maintenance guide](scalingo_maintenance.md) covers database checks and backups. Check the dashboard's deployment configuration rather than assuming automatic backend deployment is enabled. The frontend has a separate [GitHub Actions workflow](../../.github/workflows/deploy-scalingo-testing-frontend.yml), so compare its deployed revision with the backend deployment. The frontend exposes build metadata at [version.json](https://fisma-benefit-app-testing.github.io/scalingo/version.json).
+Check which job failed in [Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml). The frontend exposes its deployed revision in [version.json](https://fisma-benefit-app-testing.github.io/scalingo/version.json). The [maintenance guide](scalingo_maintenance.md) covers database checks and backups.
 
 ### Local or self-hosted Docker logs
 

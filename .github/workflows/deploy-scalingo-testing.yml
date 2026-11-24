@@ -1,0 +1,164 @@
+name: Deploy Scalingo testing
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: scalingo-testing-${{ github.ref }}
+
+env:
+  TESTING_API_URL: https://benefit-testing.osc-fr1.scalingo.io
+  TESTING_PAGES_ORIGIN: https://fisma-benefit-app-testing.github.io
+  TESTING_BASE_PATH: /scalingo/
+
+jobs:
+  deploy-backend:
+    name: Deploy backend to Scalingo testing
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install the Scalingo CLI
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl --fail --silent --show-error --location --output scalingo.tar.gz \
+            https://github.com/Scalingo/cli/releases/download/1.52.0/scalingo_1.52.0_linux_amd64.tar.gz
+          echo 'ced4bbd616235738288c4789e9940a821b27e5e5ba8f13250543f97f51682651  scalingo.tar.gz' | sha256sum --check
+          tar -xzf scalingo.tar.gz --strip-components=1 scalingo_1.52.0_linux_amd64/scalingo
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      - name: Deploy the backend from this commit
+        env:
+          SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_TESTING_API_TOKEN }}
+        run: |
+          : "${SCALINGO_API_TOKEN:?Set the SCALINGO_TESTING_API_TOKEN Actions secret}"
+          git archive --format=tar.gz --prefix=benefit-app/ --output="$RUNNER_TEMP/benefit-backend.tar.gz" "$GITHUB_SHA" backend/
+          scalingo login --api-token "$SCALINGO_API_TOKEN"
+          scalingo --region osc-fr1 --app benefit-testing deploy "$RUNNER_TEMP/benefit-backend.tar.gz" "$GITHUB_SHA"
+
+      - name: Verify backend health and browser access
+        run: |
+          curl --fail --silent --show-error --max-time 10 --retry 5 "$TESTING_API_URL/actuator/health" |
+            jq -e '.status == "UP"'
+          curl --fail --silent --show-error --max-time 10 --dump-header - --output /dev/null \
+            --request OPTIONS \
+            --header "Origin: $TESTING_PAGES_ORIGIN" \
+            --header 'Access-Control-Request-Method: POST' \
+            --header 'Access-Control-Request-Headers: authorization,x-benefit-login' \
+            "$TESTING_API_URL/token" |
+            tr -d '\r' | grep -Fix "access-control-allow-origin: $TESTING_PAGES_ORIGIN" ||
+            { echo "Set CORS_ALLOWED_ORIGINS on benefit-testing to include $TESTING_PAGES_ORIGIN"; exit 1; }
+
+  deploy-frontend:
+    name: Publish testing frontend to GitHub Pages
+    needs: deploy-backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # The testing frontend lives in its own GitHub Pages site, the repo
+      # fisma-benefit-app-testing/fisma-benefit-app-testing.github.io. The workflow pushes there
+      # with that repo's deploy key (its private half is this repo's TESTING_PAGES_DEPLOY_KEY
+      # secret).
+      - name: Load the testing Pages deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.TESTING_PAGES_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          # A key pasted into the secret in a browser can get Windows line endings, which
+          # OpenSSH rejects ("error in libcrypto"), so strip them.
+          echo "$DEPLOY_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          if ! ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null; then
+            echo "Error: TESTING_PAGES_DEPLOY_KEY is not a valid private key. Paste the whole private key file into the secret, including the BEGIN and END lines."
+            exit 1
+          fi
+          # Compare with the fingerprint of the deploy key in the testing repo's Settings -> Deploy keys.
+          ssh-keygen -l -f ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Deploy FE to the testing GitHub Pages site
+        working-directory: frontend
+        run: VITE_API_URL="$TESTING_API_URL" VITE_BASE_PATH="$TESTING_BASE_PATH" npm run deploy:testing
+
+  e2e-tests:
+    name: Run E2E tests against Scalingo testing environment
+    needs: deploy-frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: playwright/package-lock.json
+
+      # GitHub Pages publishes a minute or so after the push, and write-version.mjs puts this
+      # run's commit SHA into version.json, so wait until the new build is what's served.
+      - name: Wait for the deployed frontend
+        run: |
+          for attempt in $(seq 30); do
+            sha=$(curl -sf -m 10 "${TESTING_PAGES_ORIGIN}${TESTING_BASE_PATH}version.json?cb=$(date +%s)" | jq -r '.sha' || true)
+            if [ "$sha" = "$GITHUB_SHA" ]; then
+              echo "Frontend serves $sha"
+              exit 0
+            fi
+            echo "Frontend serves '${sha:-nothing}', waiting for $GITHUB_SHA (attempt $attempt)..."
+            sleep 10
+          done
+          echo "Frontend did not publish $GITHUB_SHA in time"
+          exit 1
+
+      - name: Install dependencies
+        working-directory: playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: playwright
+        env:
+          SCALINGO_E2E_TEST_USERNAME: ${{ secrets.SCALINGO_E2E_TEST_USERNAME }}
+          SCALINGO_E2E_TEST_PASSWORD: ${{ secrets.SCALINGO_E2E_TEST_PASSWORD }}
+        run: |
+          : "${SCALINGO_E2E_TEST_USERNAME:?Set the SCALINGO_E2E_TEST_USERNAME Actions secret}"
+          : "${SCALINGO_E2E_TEST_PASSWORD:?Set the SCALINGO_E2E_TEST_PASSWORD Actions secret}"
+          export SCALINGO_E2E_LOGIN_URL="${TESTING_PAGES_ORIGIN}${TESTING_BASE_PATH}#/login"
+          npx playwright test --project=chromium --reporter=list

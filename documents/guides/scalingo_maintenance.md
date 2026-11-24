@@ -8,11 +8,11 @@ Written on 2026-11-14. Checked against Scalingo CLI 1.51.1. This guide's command
 
 | Thing | Value |
 |---|---|
-| App | `fisma-benefit-app` |
+| App | `benefit-testing` |
 | Region | `osc-fr1` |
-| Dashboard | https://dashboard.scalingo.com/apps/osc-fr1/fisma-benefit-app |
-| Backend | https://fisma-benefit-app.osc-fr1.scalingo.io |
-| Health check | https://fisma-benefit-app.osc-fr1.scalingo.io/actuator/health |
+| Dashboard | https://dashboard.scalingo.com/apps/osc-fr1/benefit-testing |
+| Backend | https://benefit-testing.osc-fr1.scalingo.io |
+| Health check | https://benefit-testing.osc-fr1.scalingo.io/actuator/health |
 | Frontend | https://fisma-benefit-app-testing.github.io/scalingo/ |
 | Frontend version | https://fisma-benefit-app-testing.github.io/scalingo/version.json |
 | Database | PostgreSQL add-on, plan `postgresql-starter-512` |
@@ -20,16 +20,14 @@ Written on 2026-11-14. Checked against Scalingo CLI 1.51.1. This guide's command
 
 ## Deploying the backend
 
-**Automatic deployment is currently off** (checked 2026-11-14 with). Merging to `main` does **not** update the Scalingo backend. Someone has to deploy it.
-
-The frontend is different: [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml) publishes it on every push to `main`. So after a merge, the frontend is already new while the backend is still old, until someone deploys.
+[Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml) deploys the backend and frontend on pushes to `main`, then runs Playwright. To redeploy, run that workflow manually on `main`.
 
 ### Before deploying
 
 1. **See what is running now:**
 
    ```powershell
-   scalingo --app fisma-benefit-app --region osc-fr1 deployments
+   scalingo --app benefit-testing --region osc-fr1 deployments
    ```
 
    The newest row's `GIT REF` is the commit the backend runs.
@@ -56,33 +54,25 @@ A build takes about 1–3 minutes. If the build fails, the old version keeps run
 ### After deploying
 
 1. Check that `ps` shows `web-1` as `running` with a fresh `CREATED AT` time (see [Is it healthy?](#is-it-healthy)).
-2. Open the [health check URL](https://fisma-benefit-app.osc-fr1.scalingo.io/actuator/health). It should say `{"status":"UP"}`.
+2. Open the [health check URL](https://benefit-testing.osc-fr1.scalingo.io/actuator/health). It should say `{"status":"UP"}`.
 3. Log in on the frontend and test features (e.g opening a project, saving something, downloading pdf's...)
-
-### Turning automatic deployment on
-
-Only do this if the team decides it wants it. App → **Deploy** tab → **Automatic deploy** → branch `main`. With it on, migrations still have to be run by hand, so a merge that adds a migration can break login until someone runs it.
-
-### The frontend
-
-The frontend needs no action. To redeploy it by hand: GitHub → **Actions** → **Deploy Scalingo testing frontend** → **Run workflow**. Check `version.json` (see the quick reference): `sha` is the commit it was built from.
 
 ## Is it healthy?
 
 ```powershell
-scalingo --app fisma-benefit-app --region osc-fr1 apps-info
-scalingo --app fisma-benefit-app --region osc-fr1 ps
+scalingo --app benefit-testing --region osc-fr1 apps-info
+scalingo --app benefit-testing --region osc-fr1 ps
 ```
 
 - `apps-info` → `Status` should be `running`.
 - `ps` → `web-1` should be `running`. `CREATED AT` tells you when the container last (re)started.
 
-Then open the [health check URL](https://fisma-benefit-app.osc-fr1.scalingo.io/actuator/health).
+Then open the [health check URL](https://benefit-testing.osc-fr1.scalingo.io/actuator/health).
 
 ### Logs
 
 ```powershell
-scalingo --app fisma-benefit-app --region osc-fr1 logs --follow
+scalingo --app benefit-testing --region osc-fr1 logs --follow
 ```
 
 Without `--follow`, it prints the latest lines and stops. Add `--lines 500` to see further back. The dashboard's **Logs** tab shows the same.
@@ -92,7 +82,7 @@ On startup, the log ends with `Started BackendApplication`. If the app crashes, 
 ### Restart
 
 ```powershell
-scalingo --app fisma-benefit-app --region osc-fr1 restart
+scalingo --app benefit-testing --region osc-fr1 restart
 ```
 
 This may print nothing for a while. That's normal. Check with `ps` that `CREATED AT` changed, or use the dashboard's **Restart** button.
@@ -110,7 +100,7 @@ The full list and what each one is for is in [step 5 of the deployment guide](./
 ### Open a console
 
 ```powershell
-scalingo --app fisma-benefit-app --region osc-fr1 pgsql-console
+scalingo --app benefit-testing --region osc-fr1 pgsql-console
 ```
 
 Useful commands inside: `\d` lists tables, `\d app_users` shows one table's columns, `\q` quits.
@@ -134,13 +124,13 @@ Don't run a migration twice. Don't run `schema-dev.sql` on a database that has d
 
 ```powershell
 # List backups
-scalingo --app fisma-benefit-app --region osc-fr1 --addon postgresql backups
+scalingo --app benefit-testing --region osc-fr1 --addon postgresql backups
 
 # Make one now
-scalingo --app fisma-benefit-app --region osc-fr1 --addon postgresql backups-create
+scalingo --app benefit-testing --region osc-fr1 --addon postgresql backups-create
 
 # Download the newest one to your Downloads folder
-scalingo --app fisma-benefit-app --region osc-fr1 --addon postgresql backups-download --output $HOME\Downloads\scalingo-backup.tar.gz
+scalingo --app benefit-testing --region osc-fr1 --addon postgresql backups-download --output $HOME\Downloads\scalingo-backup.tar.gz
 ```
 
 Backups contain user data. Don't commit them or leave them lying around; delete the download when you're done.
@@ -163,9 +153,9 @@ If the CLI says you're not logged in, or the API token stops working, log in aga
 ## Access
 
 ```powershell
-scalingo --app fisma-benefit-app --region osc-fr1 collaborators
-scalingo --app fisma-benefit-app --region osc-fr1 collaborators-add <email>
-scalingo --app fisma-benefit-app --region osc-fr1 collaborators-remove <email>
+scalingo --app benefit-testing --region osc-fr1 collaborators
+scalingo --app benefit-testing --region osc-fr1 collaborators-add <email>
+scalingo --app benefit-testing --region osc-fr1 collaborators-remove <email>
 ```
 
 When someone leaves the team, remove them here and have them revoke their API tokens. When the team changes, also update the testing GitHub organization, as described in the [deployment guide](./deployment_guide.md#testing-github-pages-site).
@@ -176,7 +166,7 @@ When someone leaves the team, remove them here and have them revoke their API to
 |---|---|---|
 | Login fails with `401 UNAUTHORIZED` | A migration hasn't been run, or `JWT_PRIVATE_KEY` is wrong | Check the logs. Run the missing migrations. Check the key |
 | Frontend says *Cannot reach server* | The backend is down, or CORS blocks the frontend | Check the health URL and `ps`. Check that `CORS_ALLOWED_ORIGINS` is the frontend URL.
-| A new feature works on Heroku testing but not on Scalingo | The Scalingo backend hasn't been deployed since the merge | Compare `deployments` with `main`. Deploy |
+| Testing is behind `main` | The deployment failed or is still running | Check the Deploy Scalingo testing workflow and compare `deployments` with `main` |
 | `restart` prints nothing | Normal; it's waiting on the platform | Check `ps` or the dashboard |
 
 ## Routine checks
@@ -193,6 +183,6 @@ Before a sprint review, or about once every month:
 ## See also
 
 - [Scalingo deployment guide](./scalingo_deployment.md): first-time setup
-- [Deployment guide](./deployment_guide.md#scalingo-testing-environment-alongside-heroku): how the Scalingo frontend is built and published
+- [Deployment guide](./deployment_guide.md#scalingo-testing-environment): how the Scalingo frontend is built and published
 - [Database guide](./database.md): profiles, seeding and migrations
 - [Scalingo documentation](https://doc.scalingo.com)
