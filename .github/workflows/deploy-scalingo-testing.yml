@@ -1,0 +1,152 @@
+name: Deploy Scalingo testing
+
+# Scalingo's GitHub integration deploys the backend from main. This workflow
+# publishes the frontend to GitHub Pages and can run Playwright after deployment.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+# Keep two runs from publishing or testing over each other on the shared site.
+concurrency:
+  group: scalingo-testing-${{ github.ref }}
+
+# These public URLs and paths are workflow environment variables. Vite embeds
+# TESTING_API_URL and TESTING_BASE_PATH in the frontend at build time.
+# TESTING_PAGES_ORIGIN must match an origin in the Scalingo app's
+# CORS_ALLOWED_ORIGINS. Playwright combines it with TESTING_BASE_PATH.
+env:
+  TESTING_API_URL: https://benefit-testing.osc-fr1.scalingo.io
+  TESTING_PAGES_ORIGIN: https://fisma-benefit-app-testing.github.io
+  TESTING_BASE_PATH: /scalingo/
+
+jobs:
+  deploy-frontend:
+    name: Publish testing frontend to GitHub Pages
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # TESTING_PAGES_DEPLOY_KEY holds the private SSH key under this repo's
+      # Settings → Secrets and variables → Actions → Secrets. The public
+      # key has write access under Settings → Deploy keys in
+      # fisma-benefit-app-testing/fisma-benefit-app-testing.github.io.
+      - name: Load the testing Pages deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.TESTING_PAGES_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          # A key pasted into the secret in a browser can get Windows line endings, which
+          # OpenSSH rejects ("error in libcrypto"), so strip them.
+          echo "$DEPLOY_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          if ! ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null; then
+            echo "Error: TESTING_PAGES_DEPLOY_KEY is not a valid private key. Paste the whole private key file into the secret, including the BEGIN and END lines."
+            exit 1
+          fi
+          # Compare with the fingerprint of the deploy key in the testing repo's Settings -> Deploy keys.
+          ssh-keygen -l -f ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      # The npm script pushes built files to scalingo/ on the testing
+      # repository's gh-pages branch using the SSH key loaded above.
+      - name: Deploy FE to the testing GitHub Pages site
+        working-directory: frontend
+        run: VITE_API_URL="$TESTING_API_URL" VITE_BASE_PATH="$TESTING_BASE_PATH" npm run deploy:testing
+
+  e2e-tests:
+    name: Run E2E tests against Scalingo testing environment
+    # Scalingo waits for push checks before deploying the backend. Dispatch
+    # this workflow on main after confirming the backend revision in Scalingo.
+    if: github.event_name == 'workflow_dispatch'
+    needs: deploy-frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # Health checks server readiness. The preflight checks whether the Pages
+      # frontend can send the headers used by the browser login request.
+      - name: Verify backend health and browser access
+        run: |
+          curl --fail --silent --show-error --max-time 10 --retry 5 "$TESTING_API_URL/actuator/health" |
+            jq -e '.status == "UP"'
+          curl --fail --silent --show-error --max-time 10 --dump-header - --output /dev/null \
+            --request OPTIONS \
+            --header "Origin: $TESTING_PAGES_ORIGIN" \
+            --header 'Access-Control-Request-Method: POST' \
+            --header 'Access-Control-Request-Headers: authorization,x-benefit-login' \
+            "$TESTING_API_URL/token" |
+            tr -d '\r' | grep -Fix "access-control-allow-origin: $TESTING_PAGES_ORIGIN" ||
+            { echo "Set CORS_ALLOWED_ORIGINS on benefit-testing to include $TESTING_PAGES_ORIGIN"; exit 1; }
+
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: playwright/package-lock.json
+
+      # Wait for Pages to serve this run's frontend commit. version.json
+      # describes the Pages build. Check the backend revision in Scalingo.
+      - name: Wait for the deployed frontend
+        run: |
+          for attempt in $(seq 30); do
+            sha=$(curl -sf -m 10 "${TESTING_PAGES_ORIGIN}${TESTING_BASE_PATH}version.json?cb=$(date +%s)" | jq -r '.sha' || true)
+            if [ "$sha" = "$GITHUB_SHA" ]; then
+              echo "Frontend serves $sha"
+              exit 0
+            fi
+            echo "Frontend serves '${sha:-nothing}', waiting for $GITHUB_SHA (attempt $attempt)..."
+            sleep 10
+          done
+          echo "Frontend did not publish $GITHUB_SHA in time"
+          exit 1
+
+      - name: Install dependencies
+        working-directory: playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      # Both SCALINGO_E2E_TEST_* values are repository Actions secrets in
+      # the source repo. They belong to a dedicated application user in the
+      # testing database. Playwright signs in and creates and deletes test data.
+      - name: Run Playwright tests
+        working-directory: playwright
+        env:
+          SCALINGO_E2E_TEST_USERNAME: ${{ secrets.SCALINGO_E2E_TEST_USERNAME }}
+          SCALINGO_E2E_TEST_PASSWORD: ${{ secrets.SCALINGO_E2E_TEST_PASSWORD }}
+        run: |
+          : "${SCALINGO_E2E_TEST_USERNAME:?Set the SCALINGO_E2E_TEST_USERNAME Actions secret}"
+          : "${SCALINGO_E2E_TEST_PASSWORD:?Set the SCALINGO_E2E_TEST_PASSWORD Actions secret}"
+          export SCALINGO_E2E_LOGIN_URL="${TESTING_PAGES_ORIGIN}${TESTING_BASE_PATH}#/login"
+          npx playwright test --project=chromium --reporter=list

@@ -2,209 +2,64 @@
 
 For an outage or urgent recovery, start with [incident response](incident_response.md): identify the environment, inspect health/logs, and choose a recovery action.
 
-This guide describes the step-by-step process of deploying the backend (Heroku) and frontend (GitHub Pages).
-
-We can deploy the app to two different environments: testing (staging) and production environments. Heroku testing deployments run **automatically** and production deployments must be initiated **manually**. Scalingo backend deployment mode must be checked separately (see below). Automated deployments are the preferred way of deploying the app. However, if needed, all deployments can be done manually.
-
-*Note that deployment takes a few minutes to take effect, probably because of Github Pages deployment!*
-
-### Prerequisites
-
-- Heroku account with CLI installed for logging (see [Heroku CLI access](incident_response.md#heroku-status-and-logs) on this if needed)
-- Access to repo: https://github.com/fisma-benefit-app/benefit-app
-- Database credentials available in Heroku Config Vars
-- Heroku backend URLs set up in GitHub Actions repository secrets: `HEROKU_PRODUCTION_URL` and `HEROKU_TESTING_URL`
-- Under Deploy -> Authorize GitHub to use your Heroku account -> Authorize Github
-
-URL values can be found in the `backend-credentials` repository.
-
-## Deployment workflow
-
-Our deployments are handled via Heroku and a GitHub Actions workflow `run-deployments`. See the workflow file here: [run-deployments.yml](../../.github/workflows/run-deployments.yml)
-
-The workflow file is triggered when any backend deployment is done in Heroku. Testing deployments occur automatically after each merge to the `main` branch (i.e., when changes are merged into `main`). Production deployments are triggered manually in Heroku, which then triggers the frontend production deployment via automated workflow.
-
-The workflow file recognizes which GitHub repository environment (`fisma-benefit-app` for production and `fisma-benefit-app-testing` for testing) is deployed in Heroku, and based on this deploys frontend to either production or testing.
+Testing deploys automatically from `main` to Scalingo and GitHub Pages.
 
 ## Testing GitHub Pages site
 
-The testing frontends are published to their own GitHub Pages site, separate from production, so a production deployment never touches them and testing and production don't share a browser origin.
+Testing uses a separate browser origin from [production](https://fisma-benefit-app.github.io/benefit-app/). Scalingo allows the testing origin so the browser can call the testing API.
 
-- Site: https://fisma-benefit-app-testing.github.io, from the repo [fisma-benefit-app-testing/fisma-benefit-app-testing.github.io](https://github.com/fisma-benefit-app-testing/fisma-benefit-app-testing.github.io) in the separate GitHub organization `fisma-benefit-app-testing`. Don't rename the repo: a repo named `<org>.github.io` is served from the site's root, any other name adds the repo name to every URL.
-- Heroku testing frontend: https://fisma-benefit-app-testing.github.io/heroku/
-- Scalingo testing frontend: https://fisma-benefit-app-testing.github.io/scalingo/
-- The repo holds only the built sites, on its `gh-pages` branch. Don't edit it by hand: every testing deployment overwrites its own folder.
+- Frontend: https://fisma-benefit-app-testing.github.io/scalingo/
+- Repository: [fisma-benefit-app-testing/fisma-benefit-app-testing.github.io](https://github.com/fisma-benefit-app-testing/fisma-benefit-app-testing.github.io). GitHub Pages serves the `gh-pages` branch from its root.
+- The workflow publishes the `scalingo` directory using the repository write deploy key. Its private half is the `TESTING_PAGES_DEPLOY_KEY` Actions secret in the main repository.
 
-How the workflows publish there:
+Keep the `<org>.github.io` repository name to preserve the root Pages URL. The workflow replaces the built files in `scalingo/` on each publish. Make frontend changes in the main source repository.
 
-- The repo has a deploy key with write access. Its private half is the Actions secret `TESTING_PAGES_DEPLOY_KEY` in this repo. `run-deployments.yml` and `deploy-scalingo-testing-frontend.yml` load it and push over SSH (`npm run deploy:testing` / `deploy:scalingo-testing`, see `frontend/package.json`).
-- New organizations have deploy keys disabled by default. They are allowed in the `fisma-benefit-app-testing` organization settings.
-- The repo's Settings → Pages deploys from the `gh-pages` branch, root.
+If creating or rotating a key, confirm the testing organization [allows deploy keys](https://docs.github.com/en/organizations/managing-organization-settings/restricting-deploy-keys-in-your-organization).
 
-Both testing backends must allow the testing site in CORS. Set `CORS_ALLOWED_ORIGINS=https://fisma-benefit-app-testing.github.io` on the Heroku testing app (Config Vars) and on the Scalingo app (Environment tab), then restart them. The backend default allows only the production site.
+To rotate the key, generate an Ed25519 key pair, add the new public key under **Settings → Deploy keys** on the testing Pages repository with write access, and update `TESTING_PAGES_DEPLOY_KEY` in the main repository. Remove the old deploy key after verifying the new one. Keep the testing organization’s owners current when maintainers change.
 
-To replace the deploy key (if it leaks, or someone removes it), generate a new pair with `ssh-keygen -t ed25519 -C "benefit-app testing deploy" -f testing_deploy_key -N ""`, add `testing_deploy_key.pub` to the testing repo's Settings → Deploy keys with **Allow write access**, put the contents of `testing_deploy_key` in the `TESTING_PAGES_DEPLOY_KEY` secret, delete both files and remove the old deploy key.
+## Scalingo testing environment
 
-When the team changes, update the owners of the `fisma-benefit-app-testing` organization together with the main organization.
+[Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml) publishes the testing frontend on pushes to `main`. Scalingo’s GitHub integration automatically deploys the backend from `main` once its GitHub checks finish.
 
-## Scalingo testing environment (alongside Heroku)
+### Scalingo setup
 
-A second testing environment runs the backend on Scalingo (with its own PostgreSQL database). It is meant to replace the Heroku testing environment once it has proven itself, so the two run side by side for now.
+- App: [`benefit-testing` in `osc-fr1`](https://dashboard.scalingo.com/apps/osc-fr1/benefit-testing). API: `https://benefit-testing.osc-fr1.scalingo.io`.
+- Set `PROJECT_DIR=backend` and configure the testing PostgreSQL add-on, `SPRING_DATASOURCE_*` variables, and testing `JWT_PRIVATE_KEY` as described in the [Scalingo setup guide](scalingo_deployment.md).
+- Set `CORS_ALLOWED_ORIGINS` to include `https://fisma-benefit-app-testing.github.io`, then restart or redeploy the app. The value is an origin without a path.
+- In **Deploy → Configuration**, link `fisma-benefit-app/benefit-app` and enable **Automatic deploy** for `main`.
+- Initialize the testing database and provision a dedicated Playwright user that can create and delete its own projects. [Scalingo maintenance](scalingo_maintenance.md) covers logs, backups, and manual migrations.
 
-For setting up the Scalingo app and its database step by step (CLI, environment variables, schema, first user), see the [Scalingo deployment guide](./scalingo_deployment.md).
+### GitHub Actions secrets
 
-- Frontend: https://fisma-benefit-app-testing.github.io/scalingo/ <-- on the [testing GitHub Pages site](#testing-github-pages-site)
-- Backend: deployment mode is controlled in Scalingo. The [maintenance guide](scalingo_maintenance.md) records auto-deploy as disabled on 2026-11-14; verify the current dashboard setting and deployed revision. Scalingo does not report to the `run-deployments` workflow, so the frontend is deployed by its own workflow, [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml), on every push to `main` (it can also be run by hand from the Actions tab).
+| Secret | Value |
+| --- | --- |
+| `TESTING_PAGES_DEPLOY_KEY` | The private half of the write deploy key on the testing Pages repository. |
+| `SCALINGO_E2E_TEST_USERNAME` | Dedicated Playwright test username in the testing database. |
+| `SCALINGO_E2E_TEST_PASSWORD` | Password for that user. |
 
-### One-time setup
+### Run Playwright after deployment
 
-In the Scalingo app:
+Confirm in the Scalingo deployment history that the latest successful deployment is the current `main` commit. Then run **Deploy Scalingo testing** on `main` from GitHub Actions. The manual run republishes the frontend, checks backend health and CORS, waits for Pages to serve that commit, and runs Playwright. Playwright is manual at this stage because Scalingo waits for push checks to finish before starting the backend deployment.
 
-1. Code tab: connect `fisma-benefit-app/benefit-app`. Deliberately choose manual deployment or Auto Deploy on `main`, record that choice, and verify the deployed backend revision. The frontend deploys independently.
-2. Set these environment variables:
+## Database backups
 
-| Variable                                                   | Value                                                                                                                                                                         |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PROJECT_DIR`                                              | `backend` (Scalingo builds only that directory, like `PROJECT_PATH` on Heroku)                                                                                                |
-| `SPRING_DATASOURCE_URL`                                    | JDBC form of the database URL, `jdbc:postgresql://<host>:<port>/<database>?sslmode=require`. Scalingo's `SCALINGO_POSTGRESQL_URL` is `postgres://...` and does not work as is |
-| `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | From `SCALINGO_POSTGRESQL_URL`                                                                                                                                                |
-| `JWT_PRIVATE_KEY`                                          | A key of its own for this environment, see [authentication](./authentication.md)                                                                                              |
-| `CORS_ALLOWED_ORIGINS`                                     | `https://fisma-benefit-app-testing.github.io`, the [testing GitHub Pages site](#testing-github-pages-site). The default allows only the production site                       |
+Before deployment, confirm the target app and check that a recent backup succeeded. Take a fresh backup before applying migrations. Use the [app names in the database guide](database.md#access-via-scalingo-cli) and the [Scalingo backup commands](scalingo_maintenance.md#backups).
 
-3. Java 21 comes from `backend/system.properties` and the start command from `backend/Procfile`. Do not set `SPRING_PROFILES_ACTIVE=dev`.
-4. The database starts empty and migrations are manual, as everywhere else. Load `schema-dev.sql` without its `DROP TABLE` line and add the first user, as in [step 5 of the UpCloud guide](./upcloud_deployment.md#5-create-the-database-schema-and-first-user), or restore a dump from the Heroku testing database.
+For a manual backup in the database dashboard, open **Backups → Logical backups** and select **Trigger manual backup**. For a local dump, follow [Scalingo’s workstation procedure](https://doc.scalingo.com/databases/postgresql/shared-resources/guides/backing-up#from-your-workstation) using a database tunnel. Keep downloaded backups out of the repository. Before [restoring a backup](https://doc.scalingo.com/databases/postgresql/shared-resources/guides/restoring), confirm the target, recovery point, and expected downtime with the service owner.
 
-In the GitHub repository, add the Actions secret `SCALINGO_TESTING_URL`: the Scalingo backend URL (`https://<app>.osc-fr1.scalingo.io`, no trailing slash). The frontend is built with this URL baked in.
+## Production deployments
 
-### Logs
+1. Open the [production Scalingo app](https://dashboard.scalingo.com/apps/osc-fr1/benefit) and manually deploy the intended revision from `main`. Apply any required migrations in the order described in the [database guide](database.md).
+2. Confirm the deployment succeeded and the [production health endpoint](https://benefit.osc-fr1.scalingo.io/actuator/health) reports `UP`.
+3. If publishing the production frontend, run [Run deployments](../../.github/workflows/run-deployments.yml) manually on `main` after verifying it points to the intended release. The workflow reads the backend URL from the GitHub Actions variable `PRODUCTION_URL`.
+4. Verify login in the [production app](https://fisma-benefit-app.github.io/benefit-app/).
 
-```bash
-scalingo --app <scalingo-app-name> logs --follow
-```
-
-## Backup Database
-
-Before any deployment, ensure a database backup is taken. Replace the quoted placeholders below with the confirmed target; prefer protected client configuration for credentials rather than putting passwords in shell history. Treat dumps as sensitive data. Restore only after coordinating the recovery point and writes with the service owner; see the [database guide](database.md). There's two ways of doing this:
-
-1) Back up via Heroku (requires login)
-
-```bash
-# Go to Heroku Postman add-on
-# Go to durability -> Create manual backup
-```
-
-2) Back up via terminal
-
-```bash
-# Get credentials from the backend-credentials repo.
-```
-```bash
-# Make database backup
-pg_dump '<db-url>' > backup.sql
-
-# Example: pg_dump postgres://username:password@host:port/dbname > backup.sql
-```
-
-```bash
-# To restore the database if needed
-psql '<db-url>' < backup.sql
-
-# Example: psql postgres://username:password@host:port/dbname < backup.sql
-```
-
-
-## Automatic deployments
-
-Automatic deployments are used when deploying the app to production and testing environments. This is the usual way to do deployments.
-
-### Testing deployments
-
-Testing deployment is initiated **automatically**, and it runs **automatically**. The testing deployment process works as follows:
-
-1. Heroku testing app is set up to automatically deploy to testing after each merge to `main`. There is no need to manually trigger the testing deployment in Heroku (but it can be done, for example, in case of deployment issues).
-2. Heroku's automatic deployment triggers the `run-deployments` GitHub Actions workflow which
-
-- echos a message that backend testing deployment is handled by Heroku and not the workflow itself
-- deploys frontend to the [testing GitHub Pages site](#testing-github-pages-site)
-
-Heroku deploys only the `backend` directory thanks to the `subdir-heroku-buildpack` using the `PROJECT_PATH` config variable.
-
-### Testing logging
-
-Use Heroku CLI to monitor backend logs:
-
-```bash
-heroku login
-heroku logs --tail --app fisma-benefit-app-testing
-```
-
-Frontend build logs (GitHub Actions) can be found here: https://github.com/fisma-benefit-app/benefit-app/actions (look for “pages-build-deployment”)
-
-### Production deployments
-
-Production deployment is initiated **manually**, but it runs **automatically**. To deploy to production environments, follow these steps:
-
-1. Open Heroku production app: https://dashboard.heroku.com/apps/fisma-benefit-app
-2. Go to Deploy tab
-3. Ensure GitHub repository `fisma-benefit-app/benefit-app` is connected: we use the same repository for both testing and production deployments
-4. Under `Manual deploy`, select `main` branch and click `Deploy Branch`
-5. This triggers the `run-deployments` GitHub Actions workflow which
-
-- echos a message that backend production deployment is handled by Heroku and not the workflow itself
-- deploys frontend to GitHub Pages production environment
-
-Heroku deploys only the `backend` directory thanks to the `subdir-heroku-buildpack` using the `PROJECT_PATH` config variable.
-
-The testing frontends are on a [separate GitHub Pages site](#testing-github-pages-site), so a production deployment doesn't affect them.
-
-- Production URL: https://fisma-benefit-app.github.io/benefit-app/
-- Testing URL: https://fisma-benefit-app-testing.github.io/heroku/
-
-### Production logging
-
-Use Heroku CLI to monitor backend logs:
-
-```bash
-heroku login
-heroku logs --tail --app fisma-benefit-app
-```
-
-Frontend build logs (GitHub Actions) can be found here: https://github.com/fisma-benefit-app/benefit-app/actions (look for “pages-build-deployment”)
-
-## Manual deployments
-
-Every deployment can be run manually. Use these steps if something goes wrong with the automated workflow.
-
-- manual backend deployments to Heroku are done in Heroku dashboard (requires to be logged in)
-- manual frontend deployments to GitHub Pages are done from CLI
-
-## Manual deployment to backend in Heroku
-
-Follow these steps:
-
-1. Open the correct Heroku app (must be logged in):
-
-- production: https://dashboard.heroku.com/apps/fisma-benefit-app
-- testing: https://dashboard.heroku.com/apps/fisma-benefit-app-testing
-
-2. Go to Deploy tab
-3. Ensure GitHub repository (`fisma-benefit-app/benefit-app`) is connected: we use the same repository for both testing and production deployments
-4. Under `Manual deploy`, select `main` branch and click `Deploy Branch`
-5. This deploys only the backend to Heroku (thanks to `subdir-heroku-buildpack`)
-
-### Backend logging
-
-Use Heroku CLI to monitor backend logs:
-
-```bash
-heroku login
-heroku logs --tail --app fisma-benefit-app # production logs
-heroku logs --tail --app fisma-benefit-app-testing # testing logs
-```
+For testing, see [Scalingo testing environment](#scalingo-testing-environment). To redeploy testing manually, deploy `main` from the testing Scalingo dashboard, then run **Deploy Scalingo testing** on `main` from Actions.
 
 ## Manual deployment to frontend from CLI
 
-Frontend is deployed automatically with Heroku backend. But if it is required to deploy the Frontend to a Github Pages enviroment manually, follow these steps:
+To publish the frontend to GitHub Pages from the CLI, follow these steps.
 
 ### 1. Install dependencies
 
@@ -219,17 +74,17 @@ Create or edit `frontend/.env.production` and `frontend/.env.testing` with the c
 
 ```bash
 # .env.production
-VITE_API_URL=https://fisma-benefit-app-XXXXXXXXX.herokuapp.com
+VITE_API_URL=https://benefit.osc-fr1.scalingo.io
 VITE_BASE_PATH=/benefit-app/
 ```
 
 ```bash
 # .env.testing
-VITE_API_URL=https://fisma-benefit-app-testing-XXXXXXXXX.herokuapp.com
-VITE_BASE_PATH=/heroku/
+VITE_API_URL=https://benefit-testing.osc-fr1.scalingo.io
+VITE_BASE_PATH=/scalingo/
 ```
 
-`VITE_BASE_PATH` must be set here so that Vite knows to dynamically set the base path according to the run deployment script. Without `VITE_BASE_PATH`, deployment fails. You also need the correct backend URLs for `VITE_API_URL`. You can find the URLs in the `backend-credentials` repository.
+`VITE_BASE_PATH` must be set here so that Vite knows to dynamically set the base path according to the run deployment script. Without `VITE_BASE_PATH`, deployment fails. You also need the correct backend URLs for `VITE_API_URL`. The hosted URLs are shown above.
 
 ### 3. Build & Deploy
 
@@ -259,17 +114,17 @@ These run:
 - production:
   - deploy → publishes `dist/` to GitHub Pages (`gh-pages` branch)
 - testing:
-  - deploy → publishes `dist/` to the testing GitHub Pages site (`fisma-benefit-app-testing/fisma-benefit-app-testing.github.io`, `gh-pages` branch, `heroku` directory)
+  - deploy → publishes `dist/` to the testing GitHub Pages site (`fisma-benefit-app-testing/fisma-benefit-app-testing.github.io`, `gh-pages` branch, `scalingo` directory)
 
 ### 4. Verify deployment
 
 - Check the GitHub repo's Settings → Pages to confirm deployment (`benefit-app` for production, `fisma-benefit-app-testing.github.io` for testing)
 - Access production frontend at: https://fisma-benefit-app.github.io/benefit-app/
-- Access testing frontend at: https://fisma-benefit-app-testing.github.io/heroku/
+- Access testing frontend at: https://fisma-benefit-app-testing.github.io/scalingo/
 
 ## Self-hosted server with Docker
 
-For a server of your own (e.g. UpCloud) instead of Heroku and GitHub Pages, run the whole stack from `docker-compose.prod.yaml`. For a step-by-step walkthrough from an empty server to a working login, see the [UpCloud deployment guide](./upcloud_deployment.md).
+For a server of your own (e.g. UpCloud) instead of Scalingo and GitHub Pages, run the whole stack from `docker-compose.prod.yaml`. For a step-by-step walkthrough from an empty server to a working login, see the [UpCloud deployment guide](./upcloud_deployment.md).
 
 ```bash
 docker compose -f docker-compose.prod.yaml up -d --build
@@ -339,5 +194,5 @@ Prefer the jar over `./gradlew bootRun` here: `bootRun` keeps Gradle in memory n
 ## Important notes
 
 - Always backup the database before backend deployment
-- Ensure `.env.testing` and `.env.production` have the correct Heroku backend URLs and base paths before building frontend to testing or production
+- Ensure `.env.testing` and `.env.production` have the correct backend URLs and base paths before building frontend to testing or production
 - Run correct frontend deployment scripts to deploy to correct environments (`npm run deploy:testing` for testing, `npm run deploy:production` for production)

@@ -27,7 +27,6 @@ Start with the [incident response guide](documents/guides/incident_response.md).
 | Service | Open |
 | --- | --- |
 | Production | [Benefit](https://fisma-benefit-app.github.io/benefit-app/#/login) |
-| Heroku testing | [Testing app](https://fisma-benefit-app-testing.github.io/heroku/#/login) |
 | Scalingo testing | [Testing app](https://fisma-benefit-app-testing.github.io/scalingo/#/login) |
 | Local frontend | [localhost:5173/benefit-app/login](http://localhost:5173/benefit-app/login) |
 | Local backend health | [localhost:8080/actuator/health](http://localhost:8080/actuator/health) |
@@ -40,9 +39,8 @@ Run Docker commands from the repository root. Hosted log commands require the re
 | --- | --- |
 | Read local backend logs | `docker compose logs -f backend` |
 | Read local frontend logs | `docker compose logs -f frontend`; browser errors appear in DevTools → Console |
-| Read Heroku testing backend logs | `heroku logs --app fisma-benefit-app-testing --tail` |
-| Read production backend logs | `heroku logs --app fisma-benefit-app --tail` |
-| Read Scalingo testing backend logs | `scalingo --app fisma-benefit-app --region osc-fr1 logs --follow` |
+| Read production backend logs | `scalingo --app benefit --region osc-fr1 logs --follow` |
+| Read Scalingo testing backend logs | `scalingo --app benefit-testing --region osc-fr1 logs --follow` |
 | Check hosted health, status, and recent changes | [Environment checks](documents/guides/incident_response.md#identify-and-check-the-environment) |
 | Read self-hosted server logs | On the server checkout: `docker compose -f docker-compose.prod.yaml logs --tail=200 backend` |
 | Find build, test, or deployment logs | [GitHub Actions](https://github.com/fisma-benefit-app/benefit-app/actions) |
@@ -62,7 +60,7 @@ docker compose restart frontend
 
 For a frontend running outside Docker, stop its dev server and run `npm run dev -- --force` from `frontend/`.
 
-For other local build/cache problems, see the [development guide](documents/guides/development.md). For hosted build failures, see [Heroku build cache](documents/guides/incident_response.md#heroku-build-cache). Purging a build cache affects the next build; it does not repair a running service or database.
+For local build or cache problems, see the [development guide](documents/guides/development.md). For hosted build failures, see the [Scalingo deployment cache](documents/guides/incident_response.md#scalingo-deployment-cache).
 
 ## Find what you need
 

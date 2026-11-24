@@ -7,7 +7,7 @@ This guide explains each step for how to deploy your app to Scalingo, and the [l
 ## What you end up with
 
 ```
-browser ──► https://fisma-benefit-app.osc-fr1.scalingo.io  (Scalingo app, Java buildpack)
+browser ──► https://benefit-testing.osc-fr1.scalingo.io  (Scalingo app, Java buildpack)
                 └──► PostgreSQL add-on  benefit-demo-1234.postgresql.c.osc-fr1.scalingo-dbs.com:12345
 ```
 
@@ -81,11 +81,11 @@ The token gives full access to your account. Treat it like a password, and revok
 
 ## 3. Create the app and the PostgreSQL add-on
 
-Skip this if `fisma-benefit-app` and its database already exist.
+Use `benefit-testing` for testing and `benefit` for production. Skip this step if the target app and its database already exist.
 
 **Dashboard:**
 
-1. **Create an app** → name `fisma-benefit-app`, region `osc-fr1`.
+1. **Create an app** → use the name for the target environment in region `osc-fr1`.
 2. Open the app → **Resources** tab (called **Addons** in some versions) → **Add an addon** → **PostgreSQL** → pick a plan.
 
 The add-on must belong to **the same app as the backend**. Then Scalingo sets two variables on that app automatically: `SCALINGO_POSTGRESQL_URL` and `DATABASE_URL`, which holds the same value. Our backend uses neither directly (it reads the `SPRING_DATASOURCE_*` variables from step 5), but leave both in place: the add-on manages them and Scalingo's CLI tools such as `db-tunnel` use them.
@@ -146,10 +146,10 @@ Variable changes take effect only after a restart or deploy (step 8).
 
 ## 6. Log in with the default database user
 
-On Powershell, run:
+For testing, run this in PowerShell. For production, use `--app benefit`.
 
 ```powershell
-scalingo --app fisma-benefit-app --region osc-fr1 pgsql-console
+scalingo --app benefit-testing --region osc-fr1 pgsql-console
 ```
 
 It should automatically log you in. However, if a password is required, please see step 4 for help where to find the password in the environment variable `SCALINGO_POSTGRESQL_URL`.
@@ -170,10 +170,10 @@ You can check existing tables using this command:
 
 ### 6b. Populate the database (for testing) OR create the first user/migrate previous production database (for production)
 
-Log into the database, if you already haven't:
+Connect to the database for the intended environment. This command opens testing.
 
 ```powershell
-scalingo --app fisma-benefit-app --region osc-fr1 pgsql-console
+scalingo --app benefit-testing --region osc-fr1 pgsql-console
 ```
 
 **Your approach here depends on whether the deployment is for a testing or a production environment: please read the next steps carefully.**
@@ -184,9 +184,7 @@ To populate a testing environment's empty database with data, you may use the qu
 **For a production environment**
 In the case of a production deployment, you may not wish to populate the database with test data. 
 
-If Scalingo will become the long-term solution for a production deployment, you may wish to migrate the existing service's (i.e Heroku's) database to the new Scalingo's database. There are **no steps in this guide** for that.
-
-If the existing production database will not be migrated yet, create a first user for the database.
+Only create a first user when provisioning a new, empty production database. For an existing production database, use its current accounts and apply any required migrations.
 
 The backend expects bcrypt password hashes (`$2a$10$…`). Postgres's `pgcrypto` extension can create them.
 
@@ -218,11 +216,9 @@ The build log appears under the app's **Deploy** tab.
 1. App → overview page or **Resources** tab → **Restart**. (If the app has never been deployed, there's nothing to restart; step 7 picks up the variables.)
 2. App → **Logs** tab.
 
-To see whether backend is running, check the health endpoint from your own machine:
+Check the [testing health endpoint](https://benefit-testing.osc-fr1.scalingo.io/actuator/health) or the [production health endpoint](https://benefit.osc-fr1.scalingo.io/actuator/health).
 
-https://fisma-benefit-app.osc-fr1.scalingo.io/actuator/health
-
-You should see `{"status":"UP"}`. Then open the frontend (for the testing environment: https://fisma-benefit-app-testing.github.io/scalingo/, see [the deployment guide](./deployment_guide.md#scalingo-testing-environment-alongside-heroku) for how it is built and deployed), log in with the user from step 6b, create a project, reload, and check it's still there.
+You should see `{"status":"UP"}`. Then open the frontend (for the testing environment: https://fisma-benefit-app-testing.github.io/scalingo/, see [the deployment guide](./deployment_guide.md#scalingo-testing-environment) for how it is built and deployed), log in with the user from step 6b, create a project, reload, and check it's still there.
 
 ## Security clean-up
 
@@ -232,35 +228,9 @@ Do this whenever a secret has been pasted somewhere it shouldn't be, and once af
 2. **Reset the database password:** app → **Resources** → PostgreSQL add-on → **Users** → reset. Then update `SPRING_DATASOURCE_PASSWORD` and restart.
 3. **Never commit** connection strings, tokens or keys. Keep them in Scalingo's Environment tab.
 
-## 9. Link frontend to the backend
+## 9. Enable the testing deployment workflow
 
-The current frontend (as of 2026-10-28) is hosted on GitHub Pages at
-`https://fisma-benefit-app-testing.github.io/scalingo/`.
-
-The GitHub Actions workflow [sets `VITE_API_URL` from the
-`SCALINGO_TESTING_URL` secret](../../.github/workflows/deploy-scalingo-testing-frontend.yml#L46).
-The [frontend API code](../../frontend/src/api/authorization.ts#L3) reads
-`VITE_API_URL`, and [Vite checks that it is set](../../frontend/vite.config.ts#L14).
-Vite embeds the value in the build, so the browser uses the Scalingo API rather
-than the Heroku API. To configure it:
-
-1. In the GitHub repository, add the Actions secret `SCALINGO_TESTING_URL` with
-   the backend URL, such as `https://<app>.osc-fr1.scalingo.io`. Do not include
-   a trailing slash. This is the backend's public URL, not the database URL.
-2. Ensure the Scalingo app is connected to this repository and configured to
-   deploy `main` (step 7). Scalingo deploys the backend; it does not deploy the
-   frontend.
-3. The workflow [deploy-scalingo-testing-frontend.yml](../../.github/workflows/deploy-scalingo-testing-frontend.yml)
-   builds and publishes the frontend on every push to `main`. It can also be
-   started manually from the GitHub Actions tab. The frontend build and publish
-   commands are `build:testing` and `deploy:scalingo-testing` in
-   [frontend/package.json](../../frontend/package.json).
-
-The Scalingo frontend is published to the `scalingo` subdirectory of the
-[testing GitHub Pages site](./deployment_guide.md#testing-github-pages-site),
-which is separate from production, so production deployments don't affect it.
-The Scalingo app's `CORS_ALLOWED_ORIGINS` must be
-`https://fisma-benefit-app-testing.github.io` (step 5).
+Follow the [testing deployment setup](./deployment_guide.md#scalingo-testing-environment) for the GitHub Actions secrets and CORS settings. Scalingo auto-deploys `benefit-testing` from `main`. The workflow publishes the [testing frontend](https://fisma-benefit-app-testing.github.io/scalingo/) and supports running Playwright after deployment.
 
 ## What went wrong on the way
 
@@ -276,6 +246,6 @@ Each entry says how to recognise the problem.
 
 ## See also
 
-- [Deployment guide](./deployment_guide.md#scalingo-testing-environment-alongside-heroku): how the Scalingo testing frontend is built and deployed (the `SCALINGO_TESTING_URL` secret and its GitHub Actions workflow)
+- [Deployment guide](./deployment_guide.md#scalingo-testing-environment): how the testing backend, frontend, and Playwright checks run in GitHub Actions
 - [Database guide](./database.md): profiles, seeding and manual migrations
 - [Scalingo documentation](https://doc.scalingo.com)
