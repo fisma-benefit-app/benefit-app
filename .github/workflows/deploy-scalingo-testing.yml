@@ -18,8 +18,10 @@ defaults:
 concurrency:
   group: scalingo-testing-${{ github.ref }}
 
-# Vite embeds the public API URL into the frontend at build time. The Pages
-# origin is also the origin that the backend must allow in CORS.
+# These public URLs and paths are workflow environment variables. Vite embeds
+# TESTING_API_URL and TESTING_BASE_PATH in the frontend at build time.
+# TESTING_PAGES_ORIGIN must match an origin in the Scalingo app's
+# CORS_ALLOWED_ORIGINS. Playwright combines it with TESTING_BASE_PATH.
 env:
   TESTING_API_URL: https://benefit-testing.osc-fr1.scalingo.io
   TESTING_PAGES_ORIGIN: https://fisma-benefit-app-testing.github.io
@@ -51,10 +53,10 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      # The testing frontend lives in its own GitHub Pages site, the repo
-      # fisma-benefit-app-testing/fisma-benefit-app-testing.github.io. The workflow pushes there
-      # with that repo's deploy key (its private half is this repo's TESTING_PAGES_DEPLOY_KEY
-      # secret).
+      # TESTING_PAGES_DEPLOY_KEY holds the private SSH key under this repo's
+      # Settings → Secrets and variables → Actions → Secrets. The public
+      # key has write access under Settings → Deploy keys in
+      # fisma-benefit-app-testing/fisma-benefit-app-testing.github.io.
       - name: Load the testing Pages deploy key
         env:
           DEPLOY_KEY: ${{ secrets.TESTING_PAGES_DEPLOY_KEY }}
@@ -72,6 +74,8 @@ jobs:
           ssh-keygen -l -f ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
+      # The npm script pushes built files to scalingo/ on the testing
+      # repository's gh-pages branch using the SSH key loaded above.
       - name: Deploy FE to the testing GitHub Pages site
         working-directory: frontend
         run: VITE_API_URL="$TESTING_API_URL" VITE_BASE_PATH="$TESTING_BASE_PATH" npm run deploy:testing
@@ -133,6 +137,9 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
+      # Both SCALINGO_E2E_TEST_* values are repository Actions secrets in
+      # the source repo. They belong to a dedicated application user in the
+      # testing database. Playwright signs in and creates and deletes test data.
       - name: Run Playwright tests
         working-directory: playwright
         env:
