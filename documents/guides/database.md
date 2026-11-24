@@ -91,21 +91,27 @@ scalingo --app benefit --region osc-fr1 pgsql-console # production
 
 See the [Scalingo maintenance guide](scalingo_maintenance.md#backups) for backups. Use the corresponding app name for the database you intend to back up.
 
-### Access via direct psql
+### Access via psql from a workstation
 
-You can also connect using the affected Scalingo app’s [database connection details](scalingo_deployment.md#4-find-the-database-connection-details):
+For a private Scalingo PostgreSQL add-on, open an [encrypted tunnel](https://doc.scalingo.com/platform/databases/access#encrypted-tunnel) from your workstation. This example targets testing. Use `--app benefit` for production.
 
 ```sh
-psql -h <host> -p <port> -U <username> <database>
+scalingo --app benefit-testing --region osc-fr1 db-tunnel SCALINGO_POSTGRESQL_URL
 ```
 
-You’ll be prompted for the password.
+Keep the tunnel open. In a second terminal, use the local port shown by the tunnel and the [database name and username](scalingo_deployment.md#4-find-the-database-connection-details) from the same app.
+
+```sh
+psql -h 127.0.0.1 -p <local-port> -U <username> <database>
+```
+
+Enter the database password when prompted.
 
 ### Access via DBeaver (GUI)
 
 - 1. Install [DBeaver](https://dbeaver.io/download/).
 - 2. Go to Database → New Connection → PostgreSQL.
-- 3. Enter the connection details from the affected Scalingo app (host, port, database, username, password).
+- 3. With the tunnel open, use host `127.0.0.1`, the local tunnel port, and the name and credentials of the affected database.
 - 4. Click Finish. The database schema and tables will appear in the left-hand panel.
 
 ### Update database manually

@@ -6,9 +6,15 @@ Testing deploys automatically from `main` to Scalingo and GitHub Pages.
 
 ## Testing GitHub Pages site
 
+Testing uses a separate browser origin from [production](https://fisma-benefit-app.github.io/benefit-app/). Scalingo allows the testing origin so the browser can call the testing API.
+
 - Frontend: https://fisma-benefit-app-testing.github.io/scalingo/
 - Repository: [fisma-benefit-app-testing/fisma-benefit-app-testing.github.io](https://github.com/fisma-benefit-app-testing/fisma-benefit-app-testing.github.io). GitHub Pages serves the `gh-pages` branch from its root.
 - The workflow publishes the `scalingo` directory using the repository write deploy key. Its private half is the `TESTING_PAGES_DEPLOY_KEY` Actions secret in the main repository.
+
+Keep the `<org>.github.io` repository name to preserve the root Pages URL. The workflow replaces the built files in `scalingo/` on each publish. Make frontend changes in the main source repository.
+
+If creating or rotating a key, confirm the testing organization [allows deploy keys](https://docs.github.com/en/organizations/managing-organization-settings/restricting-deploy-keys-in-your-organization).
 
 To rotate the key, generate an Ed25519 key pair, add the new public key under **Settings → Deploy keys** on the testing Pages repository with write access, and update `TESTING_PAGES_DEPLOY_KEY` in the main repository. Remove the old deploy key after verifying the new one. Keep the testing organization’s owners current when maintainers change.
 
@@ -38,7 +44,9 @@ Confirm in the Scalingo deployment history that the latest successful deployment
 
 ## Database backups
 
-Confirm the target app and take a backup before applying migrations. Use the [Scalingo backup procedure](scalingo_maintenance.md#backups) with the app listed in the [database guide](database.md#access-via-scalingo-cli). Coordinate restores with the service owner.
+Before deployment, confirm the target app and check that a recent backup succeeded. Take a fresh backup before applying migrations. Use the [app names in the database guide](database.md#access-via-scalingo-cli) and the [Scalingo backup commands](scalingo_maintenance.md#backups).
+
+For a manual backup in the database dashboard, open **Backups → Logical backups** and select **Trigger manual backup**. For a local dump, follow [Scalingo’s workstation procedure](https://doc.scalingo.com/databases/postgresql/shared-resources/guides/backing-up#from-your-workstation) using a database tunnel. Keep downloaded backups out of the repository. Before [restoring a backup](https://doc.scalingo.com/databases/postgresql/shared-resources/guides/restoring), confirm the target, recovery point, and expected downtime with the service owner.
 
 ## Production deployments
 
