@@ -93,7 +93,7 @@ class AuthFlowIntegrationTest {
         "CREATE TABLE IF NOT EXISTS app_users ("
             + "id BIGSERIAL PRIMARY KEY, "
             + "username VARCHAR(50) NOT NULL, "
-            + "password VARCHAR(64) NOT NULL, "
+            + "password VARCHAR(72) NOT NULL, "
             + "role VARCHAR(20) NOT NULL DEFAULT 'USER', "
             + "session_version BIGINT NOT NULL DEFAULT 0, "
             + "deleted_at TIMESTAMP(0))");
@@ -393,7 +393,7 @@ class AuthFlowIntegrationTest {
   }
 
   private static Stream<String> validNewPasswords() {
-    return Stream.of("password", "a".repeat(64), "a".repeat(60) + "😀".repeat(3));
+    return Stream.of("password", "a".repeat(72), "a".repeat(60) + "😀".repeat(3));
   }
 
   @Test
@@ -433,7 +433,7 @@ class AuthFlowIntegrationTest {
         "a".repeat(62) + "\n😀",
         "a".repeat(8) + "\r",
         "😀".repeat(4),
-        "a".repeat(65),
+        "a".repeat(73),
         "ä".repeat(36) + "a");
   }
 

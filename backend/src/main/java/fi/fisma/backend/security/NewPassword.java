@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 @Constraint(validatedBy = NewPassword.Validator.class)
 public @interface NewPassword {
   String message() default
-      "New password must be nonblank, contain 8 to 64 Unicode characters, and fit within 72 UTF-8"
+      "New password must be nonblank, contain 8 to 72 Unicode characters, and fit within 72 UTF-8"
           + " bytes. Null characters and line breaks are unsupported.";
 
   Class<?>[] groups() default {};
@@ -34,7 +34,7 @@ public @interface NewPassword {
       }
       int characters = password.codePointCount(0, password.length());
       return characters >= 8
-          && characters <= 64
+          && characters <= 72
           && !BLANK.matcher(password).matches()
           // BCrypt can match a shorter password when the replacement contains NULs.
           && password.indexOf('\0') == -1

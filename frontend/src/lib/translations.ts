@@ -416,7 +416,7 @@ export const translations = {
         "Changing your password will sign you out on all devices, including this one. You’ll need to sign in again with your new password.",
       passwordsDoNotMatch: "Passwords do not match",
       passwordLengthRequirements:
-        "Use 8–64 characters and at most 72 bytes in UTF-8. Some characters use more than one byte.",
+        "Use 8–72 characters and at most 72 bytes in UTF-8. Some characters use more than one byte.",
       passwordInvalid:
         "The password is blank or contains unsupported characters.",
       passwordUpdated:
@@ -858,7 +858,7 @@ export const translations = {
         "Salasanan vaihtaminen kirjaa sinut ulos kaikilta laitteilta, myös tältä laitteelta. Kirjaudu sen jälkeen uudelleen uudella salasanallasi.",
       passwordsDoNotMatch: "Salasanat eivät täsmää",
       passwordLengthRequirements:
-        "Käytä 8–64 merkkiä ja enintään 72 tavua UTF-8-muodossa. Osa merkeistä vie useamman kuin yhden tavun.",
+        "Käytä 8–72 merkkiä ja enintään 72 tavua UTF-8-muodossa. Osa merkeistä vie useamman kuin yhden tavun.",
       passwordInvalid:
         "Salasana on tyhjä tai sisältää merkkejä, joita ei tueta.",
       passwordUpdated:

@@ -33,10 +33,11 @@ public class AppUser {
   @Column(name = "username", unique = true)
   private String username;
 
-  // Why max 64 characters? See OWASP's Authentication Cheat Sheet:
+  // Why max 72 characters? BCrypt accepts at most 72 UTF-8 bytes; see OWASP's Authentication Cheat
+  // Sheet:
   // https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
   @NotEmpty(message = "Password is required")
-  @Size(max = 64, message = "Password must not exceed 64 characters")
+  @Size(max = 72, message = "Password must not exceed 72 characters")
   @Column(name = "password")
   private String password;
 
@@ -56,7 +57,7 @@ public class AppUser {
           @Size(max = 50, message = "Username must not exceed 50 characters")
           String username,
       @NotEmpty(message = "Password is required")
-          @Size(max = 64, message = "Password must not exceed 64 characters")
+          @Size(max = 72, message = "Password must not exceed 72 characters")
           String password,
       @NotNull(message = "Role is required") EnumUserRole role) {
     this.username = username;

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS app_users
 (
     id              BIGSERIAL PRIMARY KEY,
     username        VARCHAR(50) NOT NULL,
-    password        VARCHAR(64) NOT NULL,
+    password        VARCHAR(72) NOT NULL,
     session_version BIGINT NOT NULL DEFAULT 0 CHECK (session_version >= 0),
     deleted_at      TIMESTAMP(0) -- no fractions of seconds
 );
@@ -320,7 +320,7 @@ These follow from the design above and are worth knowing when debugging or chang
 
 - **Revocation is database-backed.** Instances using the same database share persisted revoked-token rows; rejection survived backend recreation in the local audit. Integration tests cover logout, protected requests and revoked-token renewal across accepted scheme casings. Hosted schema/configuration and deployed revisions still need verification. Login-attempt counters remain in memory and reset on restart; they are not shared across instances.
 - **Password changes require the current password** ([#974](https://github.com/fisma-benefit-app/benefit-app/issues/974)). `PUT /appusers/password` accepts `currentPassword` and `newPassword`. The unused `PUT /appusers/{id}` route has been removed. Missing current passwords are rejected with `400` and incorrect ones with `403`, without changing the password. A successful change invalidates every existing session, including the current one, through the durable session version (#979); the user must sign in again.
-- **Replacement passwords must be nonblank and contain 8–64 Unicode code points** ([#975](https://github.com/fisma-benefit-app/benefit-app/issues/975)). The policy caps them at 72 UTF-8 bytes, excludes null characters because of how BCrypt handles them, and excludes line breaks because browser password fields strip them. Invalid replacements are rejected with `400`. Existing passwords still work for login and current-password verification.
+- **Replacement passwords must be nonblank and contain 8–72 Unicode code points** ([#975](https://github.com/fisma-benefit-app/benefit-app/issues/975)). The policy caps them at 72 UTF-8 bytes, excludes null characters because of how BCrypt handles them, and excludes line breaks because browser password fields strip them. Invalid replacements are rejected with `400`. Existing passwords still work for login and current-password verification.
 - **Deleting an account works through the database, not the token.** `AccountSessionValidator` requires an active account, so an existing JWT is rejected on protected requests and renewal after deletion. Resource lookups also filter on `deleted_at IS NULL`.
 - **A login lasts at most 30 days**, however often the session is extended. After that the user has to log in again.
 - **Tokens are readable by page JavaScript** (localStorage), so an XSS bug would expose them. The prod and testing frontends share one GitHub Pages origin and so share localStorage, which is why the keys are prefixed with the base path.

@@ -19,6 +19,6 @@ public class PasswordChangeRequest {
       requiredMode = Schema.RequiredMode.REQUIRED,
       accessMode = Schema.AccessMode.WRITE_ONLY,
       description =
-          "Nonblank replacement password containing 8 to 64 Unicode code points and at most 72 UTF-8 bytes. Null characters and line breaks are not allowed.")
+          "Nonblank replacement password containing 8 to 72 Unicode code points and at most 72 UTF-8 bytes. Null characters and line breaks are not allowed.")
   private String newPassword;
 }
