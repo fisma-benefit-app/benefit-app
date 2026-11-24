@@ -1,4 +1,4 @@
-import { calculateGrandTotalPossiblePoints } from "./centralizedCalculations.ts";
+import { calculateBasePoints } from "./centralizedCalculations.ts";
 import {
   createSubComponents,
   isMultiLayerArchitectureComponent,
@@ -10,6 +10,16 @@ import {
   MLAsubComponent,
   TGenericComponent,
 } from "./types.ts";
+
+export const quickCalculationArchitectures = [
+  "threeLayer",
+  "singlePlatform",
+  "isolatedUi",
+  "isolatedDatabase",
+] as const;
+
+export type QuickCalculationArchitecture =
+  (typeof quickCalculationArchitectures)[number];
 
 export type QuickCalculationKey =
   | "query"
@@ -128,8 +138,6 @@ const applyAverageMessage = (
   };
 };
 
-// One average item of a class as a real component, with its multi-layer sub-components when the
-// class has any (the quick calculation always assumes a three-layer architecture).
 const buildAverageComponent = (
   { key, className }: (typeof quickCalculationItems)[number],
   averages: QuickCalculationAverages,
@@ -138,7 +146,7 @@ const buildAverageComponent = (
   degreeOfCompletion: number,
 ): TGenericComponent => {
   const average = averages[key];
-  const component = resetFunctionalComponentParameters({
+  return resetFunctionalComponentParameters({
     id: 0,
     title,
     description: null,
@@ -155,7 +163,23 @@ const buildAverageComponent = (
     isMLA: false,
     parentFCId: null,
   });
+};
 
+// Projects always include the three-layer messages for eligible components.
+const buildProjectComponent = (
+  item: (typeof quickCalculationItems)[number],
+  averages: QuickCalculationAverages,
+  title: string,
+  orderPosition: number,
+  degreeOfCompletion: number,
+): TGenericComponent => {
+  const component = buildAverageComponent(
+    item,
+    averages,
+    title,
+    orderPosition,
+    degreeOfCompletion,
+  );
   if (!isMultiLayerArchitectureComponent(component)) return component;
   return {
     ...component,
@@ -169,16 +193,37 @@ const buildAverageComponent = (
 export const calculateQuickCalculationSize = (
   counts: QuickCalculationCounts,
   averages: QuickCalculationAverages,
-): number =>
-  quickCalculationItems.reduce(
-    (sum, item) =>
-      sum +
-      counts[item.key] *
-        calculateGrandTotalPossiblePoints([
-          buildAverageComponent(item, averages, "", 0, 1),
-        ]),
+  architecture: QuickCalculationArchitecture,
+): number => {
+  const itemPoints = Object.fromEntries(
+    quickCalculationItems.map((item) => [
+      item.key,
+      calculateBasePoints(buildAverageComponent(item, averages, "", 0, 1)),
+    ]),
+  ) as Record<QuickCalculationKey, number>;
+  const baseSize = quickCalculationItems.reduce(
+    (sum, { key }) => sum + counts[key] * itemPoints[key],
     0,
   );
+
+  // Each split contributes two sending and two receiving messages per affected item.
+  const uiItems = counts.query + counts.input;
+  const messagePairSize = itemPoints.interfaceTo + itemPoints.interfaceFrom;
+  switch (architecture) {
+    case "singlePlatform":
+      return baseSize;
+    case "isolatedUi":
+      return (
+        baseSize +
+        (2 * uiItems * itemPoints.interfaceTo +
+          2 * uiItems * itemPoints.interfaceFrom)
+      );
+    case "isolatedDatabase":
+      return baseSize + 2 * counts.entity * messagePairSize;
+    case "threeLayer":
+      return baseSize + 2 * (uiItems + counts.entity) * messagePairSize;
+  }
+};
 
 export const countGeneratedComponents = (
   counts: QuickCalculationCounts,
@@ -189,7 +234,7 @@ export const countGeneratedComponents = (
       sum +
       counts[item.key] *
         (1 +
-          (buildAverageComponent(item, averages, "", 0, 1).subComponents
+          (buildProjectComponent(item, averages, "", 0, 1).subComponents
             ?.length ?? 0)),
     0,
   );
@@ -206,7 +251,7 @@ export const buildQuickCalculationComponents = (
   for (const item of quickCalculationItems) {
     for (let number = 1; number <= counts[item.key]; number++) {
       components.push(
-        buildAverageComponent(
+        buildProjectComponent(
           item,
           averages,
           `${titles[item.key]} ${number}`,

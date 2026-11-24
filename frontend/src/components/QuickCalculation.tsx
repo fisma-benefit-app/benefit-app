@@ -16,6 +16,7 @@ import {
 } from "../lib/fc-service-functions.ts";
 import {
   MAX_GENERATED_COMPONENTS,
+  QuickCalculationArchitecture,
   QuickCalculationAverage,
   QuickCalculationCounts,
   QuickCalculationKey,
@@ -23,6 +24,7 @@ import {
   calculateQuickCalculationSize,
   countGeneratedComponents,
   defaultQuickCalculationAverages,
+  quickCalculationArchitectures,
   quickCalculationItems,
 } from "../lib/quickCalculation.ts";
 import { ComponentType, TGenericComponent } from "../lib/types.ts";
@@ -60,6 +62,8 @@ const QuickCalculation = () => {
     entity: "",
     rule: "",
   });
+  const [architecture, setArchitecture] =
+    useState<QuickCalculationArchitecture>("threeLayer");
   const [averages, setAverages] = useState(defaultQuickCalculationAverages);
   const [projectName, setProjectName] = useState("");
   const [markAllComplete, setMarkAllComplete] = useState(false);
@@ -69,7 +73,15 @@ const QuickCalculation = () => {
   const counts = Object.fromEntries(
     quickCalculationItems.map(({ key }) => [key, toCount(countInputs[key])]),
   ) as QuickCalculationCounts;
-  const size = Math.round(calculateQuickCalculationSize(counts, averages));
+  const size = Math.round(
+    calculateQuickCalculationSize(counts, averages, architecture),
+  );
+  const projectSize =
+    architecture === "threeLayer"
+      ? size
+      : Math.round(
+          calculateQuickCalculationSize(counts, averages, "threeLayer"),
+        );
   const tooLarge =
     countGeneratedComponents(counts, averages) > MAX_GENERATED_COMPONENTS;
 
@@ -182,23 +194,19 @@ const QuickCalculation = () => {
             {translation.architecture}
           </label>
           <select
-            disabled
             id="platformList"
             name="platformList"
-            className="w-full max-w-[200px] p-2 border bg-gray-400 border-[#ccc] rounded text-base"
+            value={architecture}
+            onChange={(e) =>
+              setArchitecture(e.target.value as QuickCalculationArchitecture)
+            }
+            className="w-full p-2 border border-[#ccc] bg-white rounded text-base"
           >
-            <option value="4">
-              {translation.architectureOptions.threeLayer}
-            </option>
-            <option value="1">
-              {translation.architectureOptions.singlePlatform}
-            </option>
-            <option value="2">
-              {translation.architectureOptions.isolatedUi}
-            </option>
-            <option value="3">
-              {translation.architectureOptions.isolatedDatabase}
-            </option>
+            {quickCalculationArchitectures.map((option) => (
+              <option key={option} value={option}>
+                {translation.architectureOptions[option]}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -355,7 +363,7 @@ const QuickCalculation = () => {
               <div className="flex items-center gap-4">
                 <button
                   type="submit"
-                  disabled={loading || tooLarge || size === 0}
+                  disabled={loading || tooLarge || projectSize === 0}
                   className="bg-[#1e73be] hover:bg-[#13517a] disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 px-8 border-0 rounded text-base cursor-pointer"
                 >
                   {translation.createProject}

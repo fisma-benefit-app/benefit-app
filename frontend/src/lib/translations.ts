@@ -109,7 +109,7 @@ export const translations = {
       result: "Functional size",
       createProjectHeader: "Create a project from this calculation",
       createProjectDescription:
-        "Creates a new project with one component for each counted item, using the average values above.",
+        "Creates a new project with one component for each counted item, using the average values above. Projects always use the three-layer architecture.",
       markAllComplete:
         "Mark all components as complete (otherwise they start at 0 %)",
       createProject: "Create project",
@@ -550,7 +550,7 @@ export const translations = {
       result: "Toiminnallinen koko",
       createProjectHeader: "Luo projekti tästä laskelmasta",
       createProjectDescription:
-        "Luo uuden projektin, jossa on yksi komponentti jokaista laskettua kohdetta kohti ylläolevilla keskiarvoilla.",
+        "Luo uuden projektin, jossa on yksi komponentti jokaista laskettua kohdetta kohti ylläolevilla keskiarvoilla. Projektit käyttävät aina kolmikerrosarkkitehtuuria.",
       markAllComplete:
         "Merkitse kaikki komponentit valmiiksi (muuten ne alkavat 0 %:sta)",
       createProject: "Luo projekti",
