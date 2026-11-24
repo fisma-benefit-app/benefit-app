@@ -1,4 +1,4 @@
-import { ReactNode, useLayoutEffect, useMemo, useRef } from "react";
+import { ReactNode, useLayoutEffect, useRef } from "react";
 import type { TGenericComponent } from "../lib/types.ts";
 
 type MasonryComponentGridProps = {
@@ -16,23 +16,6 @@ export default function MasonryComponentGrid({
 }: MasonryComponentGridProps) {
   const previousItemRects = useRef<Map<number, DOMRect>>(new Map());
   const previousColumnCount = useRef(columnCount);
-
-  const columns = useMemo(() => {
-    const nextColumns = Array.from(
-      { length: columnCount },
-      () => [] as number[],
-    );
-
-    items.forEach((_, index) => {
-      // Keep the source order stable. Rebalancing based on measured card
-      // heights makes cards appear to be sorted again whenever their width
-      // changes during a panel toggle.
-      const columnIndex = index % columnCount;
-      nextColumns[columnIndex].push(index);
-    });
-
-    return nextColumns;
-  }, [columnCount, items]);
 
   useLayoutEffect(() => {
     const grid = gridRef.current;
@@ -80,26 +63,26 @@ export default function MasonryComponentGrid({
 
     previousItemRects.current = currentItemRects;
     previousColumnCount.current = columnCount;
-  }, [columnCount, columns, gridRef]);
+  }, [columnCount, items, gridRef]);
 
+  // Cards are placed straight into the grid, row by row, so every card in a
+  // row starts at the same height. A tall card (e.g. one with the MLA box
+  // open) makes its row taller and leaves empty space next to it, instead of
+  // pushing only its own column down and offsetting the rows (#1063).
   return (
     <div
       ref={gridRef}
       data-column-count={columnCount}
-      className="grid w-full gap-5"
+      className="grid w-full items-start gap-5"
       style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
     >
-      {columns.map((column, columnIndex) => (
-        <div key={columnIndex} className="flex min-w-0 flex-col gap-5">
-          {column.map((itemIndex) => (
-            <div
-              key={items[itemIndex].id}
-              data-masonry-item={items[itemIndex].id}
-              className="min-w-0 w-full"
-            >
-              {renderItem(items[itemIndex], itemIndex)}
-            </div>
-          ))}
+      {items.map((item, index) => (
+        <div
+          key={item.id}
+          data-masonry-item={item.id}
+          className="min-w-0 w-full"
+        >
+          {renderItem(item, index)}
         </div>
       ))}
     </div>
