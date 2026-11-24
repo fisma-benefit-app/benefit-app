@@ -60,6 +60,10 @@ export const translations = {
       noUsernameError: "User needs a username!",
       noPasswordError: "User needs a password!",
       passwordsDontMatch: "Passwords do not match!",
+      passwordLengthRequirements:
+        "Use 8–72 characters and at most 72 bytes in UTF-8. Some characters use more than one byte.",
+      passwordInvalid:
+        "The password is blank or contains unsupported characters.",
       cancel: "Cancel",
       createUser: "Create User",
       usernameTakenError: "Username is already taken!",
@@ -504,6 +508,10 @@ export const translations = {
       noUsernameError: "Käyttäjä tarvitsee nimen!",
       noPasswordError: "Käyttäjä tarvitsee salasanan!",
       passwordsDontMatch: "Salasanat eivät täsmää!",
+      passwordLengthRequirements:
+        "Käytä 8–72 merkkiä ja enintään 72 tavua UTF-8-muodossa. Osa merkeistä vie useamman kuin yhden tavun.",
+      passwordInvalid:
+        "Salasana on tyhjä tai sisältää merkkejä, joita ei tueta.",
       cancel: "Peruuta",
       createUser: "Luo käyttäjä",
       usernameTakenError: "Käyttäjänimi on jo olemassa!",

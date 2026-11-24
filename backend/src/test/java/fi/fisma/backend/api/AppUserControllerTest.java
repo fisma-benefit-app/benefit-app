@@ -16,6 +16,9 @@ import fi.fisma.backend.security.TokenBlacklistService;
 import fi.fisma.backend.security.UserDetailsServiceImpl;
 import fi.fisma.backend.service.AppUserService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -81,5 +84,52 @@ class AppUserControllerTest {
 
     assertThat(response).hasStatus(HttpStatus.NO_CONTENT);
     verify(appUserService).deleteAppUser(eq(1L), any(Authentication.class));
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(
+      strings = {
+        "",
+        "1234567",
+        "        ",
+        "\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003",
+        "aaaaaaa\0",
+        "aaaaaaaa\n",
+        "aaaaaaaa\r",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "ääääääääääääääääääääääääääääääääääääa"
+      })
+  void createUserRejectsInvalidPassword(String invalidPassword) {
+    String passwordJson =
+        invalidPassword == null
+            ? "null"
+            : "\""
+                + invalidPassword
+                    .replace("\\", "\\\\")
+                    .replace("\0", "\\u0000")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                + "\"";
+
+    var response =
+        mockMvcTester
+            .post()
+            .uri("/appusers")
+            .with(jwtAuth)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                {
+                  "username": "new-user",
+                  "password": %s,
+                  "role": "USER"
+                }
+                """
+                    .formatted(passwordJson))
+            .exchange();
+
+    assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+    verifyNoInteractions(appUserService);
   }
 }

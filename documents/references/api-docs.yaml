@@ -1350,8 +1350,7 @@ components:
           minLength: 1
         password:
           type: string
-          maxLength: 72
-          minLength: 0
+          description: Nonblank password containing 8 to 72 Unicode code points and at most 72 UTF-8 bytes. Null characters and line breaks are not allowed.
           writeOnly: true
         role:
           type: string

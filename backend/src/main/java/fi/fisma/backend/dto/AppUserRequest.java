@@ -1,10 +1,10 @@
 package fi.fisma.backend.dto;
 
 import fi.fisma.backend.domain.EnumUserRole;
+import fi.fisma.backend.security.NewPassword;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data // Make request-type DTO mutable
@@ -13,9 +13,12 @@ public class AppUserRequest {
   @NotEmpty(message = "Username is required")
   String username;
 
-  @NotEmpty(message = "Password is required")
-  @Size(max = 72, message = "Password must not exceed 72 characters")
-  @Schema(accessMode = Schema.AccessMode.WRITE_ONLY)
+  @NewPassword
+  @Schema(
+      requiredMode = Schema.RequiredMode.REQUIRED,
+      accessMode = Schema.AccessMode.WRITE_ONLY,
+      description =
+          "Nonblank password containing 8 to 72 Unicode code points and at most 72 UTF-8 bytes. Null characters and line breaks are not allowed.")
   String password;
 
   @NotNull(message = "Role is required")
