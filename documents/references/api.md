@@ -1198,7 +1198,7 @@ Bearer JWT from an **ADMIN** account. Project ownership does not grant this perm
 | Name | Location | Required | Description |
 | --- | --- | --- | --- |
 | `username` | JSON body | Yes | Nonempty, unique account username. Usernames cannot be changed later. |
-| `password` | JSON body | Yes | Nonempty password, at most 64 Java characters; stored hashed. |
+| `password` | JSON body | Yes | Nonempty password, at most 72 Java characters; stored hashed. |
 | `role` | JSON body | Yes | `USER` or `ADMIN`. |
 
 #### Request example
@@ -1295,7 +1295,7 @@ Bearer JWT. This operation applies to your own account.
 | Name | Location | Required | Description |
 | --- | --- | --- | --- |
 | `currentPassword` | JSON body | Yes | Current password; nonblank and at most 72 Java characters. |
-| `newPassword` | JSON body | Yes | Nonblank replacement: 8–64 Unicode code points, at most 72 UTF-8 bytes, no null characters or line breaks. |
+| `newPassword` | JSON body | Yes | Nonblank replacement: 8–72 Unicode code points, at most 72 UTF-8 bytes, no null characters or line breaks. |
 
 #### Request example
 
@@ -1453,7 +1453,7 @@ Uses the same field names and JSON types as [FunctionalComponentRequest](#functi
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `username` | string | Required and nonempty. Unique account username. |
-| `password` | string | Required and nonempty, at most 64 Java characters; never returned by this API. |
+| `password` | string | Required and nonempty, at most 72 Java characters; never returned by this API. |
 | `role` | string | Required: `USER` or `ADMIN`. |
 
 ### AppUserSummary
@@ -1468,7 +1468,7 @@ Uses the same field names and JSON types as [FunctionalComponentRequest](#functi
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `currentPassword` | string | Required, nonblank, at most 72 Java characters. |
-| `newPassword` | string | Required; 8–64 Unicode code points, nonblank, at most 72 UTF-8 bytes. Null characters and line breaks are not allowed. |
+| `newPassword` | string | Required; 8–72 Unicode code points, nonblank, at most 72 UTF-8 bytes. Null characters and line breaks are not allowed. |
 
 ### CommentRequest
 

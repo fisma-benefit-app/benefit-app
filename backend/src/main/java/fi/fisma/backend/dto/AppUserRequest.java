@@ -14,7 +14,7 @@ public class AppUserRequest {
   String username;
 
   @NotEmpty(message = "Password is required")
-  @Size(max = 64, message = "Password must not exceed 64 characters")
+  @Size(max = 72, message = "Password must not exceed 72 characters")
   @Schema(accessMode = Schema.AccessMode.WRITE_ONLY)
   String password;
 

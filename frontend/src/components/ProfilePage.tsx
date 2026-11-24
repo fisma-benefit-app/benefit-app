@@ -7,7 +7,7 @@ import { useNavigate } from "react-router";
 import ConfirmModal from "./ConfirmModal";
 
 const MIN_PASSWORD_LENGTH = 8;
-const MAX_PASSWORD_LENGTH = 64;
+const MAX_PASSWORD_LENGTH = 72;
 const MAX_PASSWORD_BYTES = 72;
 
 export default function ProfilePage() {
