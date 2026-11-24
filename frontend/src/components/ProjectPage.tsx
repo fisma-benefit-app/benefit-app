@@ -22,6 +22,7 @@ import { Project, TGenericComponent } from "../lib/types.ts";
 import { createNewProjectVersion } from "../api/project.ts";
 import DraggableFunctionalComponent from "./DraggableFunctionalComponent.tsx";
 import MasonryComponentGrid from "./MasonryComponentGrid.tsx";
+import ProjectOwnerBadge from "./ProjectOwnerBadge.tsx";
 import ComponentDragPreview from "./ComponentDragPreview.tsx";
 import ComponentSelectionBar from "./ComponentSelectionBar.tsx";
 import useComponentReorder from "../hooks/useComponentReorder.ts";
@@ -554,6 +555,16 @@ export default function ProjectPage() {
                   <div className="text-left break-words">
                     {project?.projectName}
                   </div>
+                  {project && (
+                    <>
+                      <div className="text-left font-medium mt-1">
+                        {translations.projectList.owner}:
+                      </div>
+                      <div className="text-left">
+                        <ProjectOwnerBadge project={project} />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
               <ViewOnlyTooltipWrapper message={viewOnlyTip}>

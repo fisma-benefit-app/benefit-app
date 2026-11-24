@@ -32,8 +32,11 @@ import {
 } from "../api/project.ts";
 import { useAlert } from "../hooks/useAlert.ts";
 import useAppUser from "../hooks/useAppUser.tsx";
+import ProjectOwnerBadge from "./ProjectOwnerBadge.tsx";
+import { getProjectOwner } from "../lib/projectOwner.ts";
 type SortKey =
   | "projectName"
+  | "owner"
   | "version"
   | "createdAt"
   | "versionCreatedAt"
@@ -79,6 +82,8 @@ export default function ProjectList() {
     switch (key) {
       case "projectName":
         return project.projectName;
+      case "owner":
+        return getProjectOwner(project)?.username ?? "";
       case "version":
         return project.version;
       case "createdAt":
@@ -162,6 +167,11 @@ export default function ProjectList() {
       key: "projectName",
       label: projectListTranslation.projectName,
       widthClassName: "w-1/5",
+    },
+    {
+      key: "owner",
+      label: projectListTranslation.owner,
+      widthClassName: "w-1/8",
     },
     {
       key: "version",
@@ -309,6 +319,9 @@ export default function ProjectList() {
                     >
                       {project.projectName}
                     </Link>
+                  </td>
+                  <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap overflow-hidden">
+                    <ProjectOwnerBadge project={project} />
                   </td>
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap">
                     v{project.version}
