@@ -47,23 +47,33 @@ export const convertToCSV = (
     headers.push("subComponents");
   }
 
-  const headerRow = headers.map((h) => translations[h] || h).join(delimiter);
-
   const encodeCell = (v: unknown) => {
     if (v == null) return "";
-    let s = String(v).replace(/"/g, '""');
+    let s = String(v);
 
-    // Change decimal delimiters so excel doesn't turn them into dates
-    // TODO: This might need to be adjusted for different locales
+    // CSV quoting preserves the field boundary. An apostrophe tells spreadsheets
+    // to import formula-like values as text, including after leading whitespace
+    // or control characters. JavaScript numbers can keep their numeric format.
     if (
+      typeof v !== "number" &&
+      /^[\s\p{Cc}\p{Cf}]*[=+\-@＝＋－＠\t\r\n]/u.test(s)
+    ) {
+      s = "'" + s;
+    } else if (
+      // Use a decimal comma so Excel does not interpret decimals as dates.
       typeof v === "number" ||
       (!isNaN(Number(v)) && v.toString().trim() !== "")
     ) {
       s = s.replace(".", ",");
     }
 
+    s = s.replace(/"/g, '""');
     return s.includes(delimiter) || /["\r\n]/.test(s) ? `"${s}"` : s;
   };
+
+  const headerRow = headers
+    .map((h) => encodeCell(translations[h] || h))
+    .join(delimiter);
 
   const data = rows.map((r) =>
     headers.map((h) => encodeCell(r[h])).join(delimiter),
