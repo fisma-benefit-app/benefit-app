@@ -20,7 +20,7 @@ Written on 2026-11-14. Checked against Scalingo CLI 1.51.1. This guide's command
 
 ## Deploying the backend
 
-[Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml) deploys the backend and frontend on pushes to `main`, then runs Playwright. To redeploy, run that workflow manually on `main`.
+[Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml) publishes the frontend on pushes to `main`. Scalingo auto-deploys the backend from `main` when its checks pass. After confirming the backend revision, run the workflow manually on `main` to run Playwright.
 
 ### Before deploying
 

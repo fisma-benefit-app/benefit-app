@@ -14,24 +14,27 @@ To rotate the key, generate an Ed25519 key pair, add the new public key under **
 
 ## Scalingo testing environment
 
-[Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml) runs on pushes to `main`. You can rerun it manually from Actions on `main`. It deploys the backend from the workflow commit, checks health and browser access, publishes the frontend, then runs Playwright against the published commit.
+[Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml) publishes the testing frontend on pushes to `main`. Scalingo’s GitHub integration automatically deploys the backend from `main` once its GitHub checks finish.
 
 ### Scalingo setup
 
 - App: [`benefit-testing` in `osc-fr1`](https://dashboard.scalingo.com/apps/osc-fr1/benefit-testing). API: `https://benefit-testing.osc-fr1.scalingo.io`.
 - Set `PROJECT_DIR=backend` and configure the testing PostgreSQL add-on, `SPRING_DATASOURCE_*` variables, and testing `JWT_PRIVATE_KEY` as described in the [Scalingo setup guide](scalingo_deployment.md).
 - Set `CORS_ALLOWED_ORIGINS` to include `https://fisma-benefit-app-testing.github.io`, then restart or redeploy the app. The value is an origin without a path.
-- Leave Scalingo’s GitHub auto-deploy disabled for this app. GitHub Actions submits the backend archive and waits for Scalingo to finish deploying it.
+- In **Deploy → Configuration**, link `fisma-benefit-app/benefit-app` and enable **Automatic deploy** for `main`.
 - Initialize the testing database and provision a dedicated Playwright user that can create and delete its own projects. [Scalingo maintenance](scalingo_maintenance.md) covers logs, backups, and manual migrations.
 
 ### GitHub Actions secrets
 
 | Secret | Value |
 | --- | --- |
-| `SCALINGO_TESTING_API_TOKEN` | API token for a Scalingo account with deploy access to `benefit-testing`. Use an account whose access is limited to testing. |
 | `TESTING_PAGES_DEPLOY_KEY` | The private half of the write deploy key on the testing Pages repository. |
 | `SCALINGO_E2E_TEST_USERNAME` | Dedicated Playwright test username in the testing database. |
 | `SCALINGO_E2E_TEST_PASSWORD` | Password for that user. |
+
+### Run Playwright after deployment
+
+Confirm in the Scalingo deployment history that the latest successful deployment is the current `main` commit. Then run **Deploy Scalingo testing** on `main` from GitHub Actions. The manual run republishes the frontend, checks backend health and CORS, waits for Pages to serve that commit, and runs Playwright. Playwright is manual at this stage because Scalingo waits for push checks to finish before starting the backend deployment.
 
 ## Backup Database
 
@@ -107,7 +110,7 @@ Frontend build logs (GitHub Actions) can be found here: https://github.com/fisma
 
 Every deployment can be run manually. Use these steps if something goes wrong with the automated workflow.
 
-- To redeploy testing, run **Deploy Scalingo testing** from Actions on `main`.
+- To redeploy testing manually, deploy `main` from the Scalingo app dashboard, then run **Deploy Scalingo testing** from Actions on `main`.
 - manual frontend deployments to GitHub Pages are done from CLI
 
 ## Manual deployment to the production backend in Heroku

@@ -234,7 +234,7 @@ Do this whenever a secret has been pasted somewhere it shouldn't be, and once af
 
 ## 9. Enable the testing deployment workflow
 
-Follow the [testing deployment setup](./deployment_guide.md#scalingo-testing-environment) for the GitHub Actions secrets and CORS settings. The workflow deploys `benefit-testing`, publishes the [testing frontend](https://fisma-benefit-app-testing.github.io/scalingo/), and runs Playwright.
+Follow the [testing deployment setup](./deployment_guide.md#scalingo-testing-environment) for the GitHub Actions secrets and CORS settings. Scalingo auto-deploys `benefit-testing` from `main`. The workflow publishes the [testing frontend](https://fisma-benefit-app-testing.github.io/scalingo/) and supports running Playwright after deployment.
 
 ## What went wrong on the way
 

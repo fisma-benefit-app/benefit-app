@@ -21,51 +21,9 @@ env:
   TESTING_BASE_PATH: /scalingo/
 
 jobs:
-  deploy-backend:
-    name: Deploy backend to Scalingo testing
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Install the Scalingo CLI
-        working-directory: ${{ runner.temp }}
-        run: |
-          curl --fail --silent --show-error --location --output scalingo.tar.gz \
-            https://github.com/Scalingo/cli/releases/download/1.52.0/scalingo_1.52.0_linux_amd64.tar.gz
-          echo 'ced4bbd616235738288c4789e9940a821b27e5e5ba8f13250543f97f51682651  scalingo.tar.gz' | sha256sum --check
-          tar -xzf scalingo.tar.gz --strip-components=1 scalingo_1.52.0_linux_amd64/scalingo
-          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
-
-      - name: Deploy the backend from this commit
-        env:
-          SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_TESTING_API_TOKEN }}
-        run: |
-          : "${SCALINGO_API_TOKEN:?Set the SCALINGO_TESTING_API_TOKEN Actions secret}"
-          git archive --format=tar.gz --prefix=benefit-app/ --output="$RUNNER_TEMP/benefit-backend.tar.gz" "$GITHUB_SHA" backend/
-          scalingo login --api-token "$SCALINGO_API_TOKEN"
-          scalingo --region osc-fr1 --app benefit-testing deploy "$RUNNER_TEMP/benefit-backend.tar.gz" "$GITHUB_SHA"
-
-      - name: Verify backend health and browser access
-        run: |
-          curl --fail --silent --show-error --max-time 10 --retry 5 "$TESTING_API_URL/actuator/health" |
-            jq -e '.status == "UP"'
-          curl --fail --silent --show-error --max-time 10 --dump-header - --output /dev/null \
-            --request OPTIONS \
-            --header "Origin: $TESTING_PAGES_ORIGIN" \
-            --header 'Access-Control-Request-Method: POST' \
-            --header 'Access-Control-Request-Headers: authorization,x-benefit-login' \
-            "$TESTING_API_URL/token" |
-            tr -d '\r' | grep -Fix "access-control-allow-origin: $TESTING_PAGES_ORIGIN" ||
-            { echo "Set CORS_ALLOWED_ORIGINS on benefit-testing to include $TESTING_PAGES_ORIGIN"; exit 1; }
-
   deploy-frontend:
     name: Publish testing frontend to GitHub Pages
-    needs: deploy-backend
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -115,11 +73,27 @@ jobs:
 
   e2e-tests:
     name: Run E2E tests against Scalingo testing environment
+    # Scalingo waits for push checks to finish before deploying. Run this job
+    # from Actions after the backend deployment has completed.
+    if: github.event_name == 'workflow_dispatch'
     needs: deploy-frontend
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
+      - name: Verify backend health and browser access
+        run: |
+          curl --fail --silent --show-error --max-time 10 --retry 5 "$TESTING_API_URL/actuator/health" |
+            jq -e '.status == "UP"'
+          curl --fail --silent --show-error --max-time 10 --dump-header - --output /dev/null \
+            --request OPTIONS \
+            --header "Origin: $TESTING_PAGES_ORIGIN" \
+            --header 'Access-Control-Request-Method: POST' \
+            --header 'Access-Control-Request-Headers: authorization,x-benefit-login' \
+            "$TESTING_API_URL/token" |
+            tr -d '\r' | grep -Fix "access-control-allow-origin: $TESTING_PAGES_ORIGIN" ||
+            { echo "Set CORS_ALLOWED_ORIGINS on benefit-testing to include $TESTING_PAGES_ORIGIN"; exit 1; }
+
       - name: Checkout code
         uses: actions/checkout@v7
 
