@@ -1,5 +1,7 @@
 name: Deploy Scalingo testing
 
+# Scalingo's GitHub integration deploys the backend from main. This workflow
+# publishes the frontend to GitHub Pages and can run Playwright after deployment.
 on:
   push:
     branches: [main]
@@ -12,9 +14,12 @@ defaults:
   run:
     shell: bash
 
+# Keep two runs from publishing or testing over each other on the shared site.
 concurrency:
   group: scalingo-testing-${{ github.ref }}
 
+# Vite embeds the public API URL into the frontend at build time. The Pages
+# origin is also the origin that the backend must allow in CORS.
 env:
   TESTING_API_URL: https://benefit-testing.osc-fr1.scalingo.io
   TESTING_PAGES_ORIGIN: https://fisma-benefit-app-testing.github.io
@@ -73,14 +78,16 @@ jobs:
 
   e2e-tests:
     name: Run E2E tests against Scalingo testing environment
-    # Scalingo waits for push checks to finish before deploying. Run this job
-    # from Actions after the backend deployment has completed.
+    # Scalingo waits for push checks before deploying the backend. Dispatch
+    # this workflow on main after confirming the backend revision in Scalingo.
     if: github.event_name == 'workflow_dispatch'
     needs: deploy-frontend
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
+      # Health checks server readiness. The preflight checks whether the Pages
+      # frontend can send the headers used by the browser login request.
       - name: Verify backend health and browser access
         run: |
           curl --fail --silent --show-error --max-time 10 --retry 5 "$TESTING_API_URL/actuator/health" |
@@ -104,8 +111,8 @@ jobs:
           cache: "npm"
           cache-dependency-path: playwright/package-lock.json
 
-      # GitHub Pages publishes a minute or so after the push, and write-version.mjs puts this
-      # run's commit SHA into version.json, so wait until the new build is what's served.
+      # Wait for Pages to serve this run's frontend commit. version.json
+      # describes the Pages build. Check the backend revision in Scalingo.
       - name: Wait for the deployed frontend
         run: |
           for attempt in $(seq 30); do

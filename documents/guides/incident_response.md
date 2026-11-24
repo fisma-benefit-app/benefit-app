@@ -17,7 +17,7 @@ Open the affected frontend from the [service list](../../README.md#services-and-
 
 | Environment | Management / backend target | Health check |
 | --- | --- | --- |
-| Heroku production | [Dashboard: fisma-benefit-app](https://dashboard.heroku.com/apps/fisma-benefit-app) | Use the app's **Open app** URL and append `/actuator/health`. |
+| Scalingo production | [Dashboard: osc-fr1 / benefit](https://dashboard.scalingo.com/apps/osc-fr1/benefit) | [Backend health](https://benefit.osc-fr1.scalingo.io/actuator/health) |
 | Scalingo testing | [Dashboard: osc-fr1 / benefit-testing](https://dashboard.scalingo.com/apps/osc-fr1/benefit-testing) | [Backend health](https://benefit-testing.osc-fr1.scalingo.io/actuator/health) |
 | Local development | Repository checkout, development Compose stack | [Backend health](http://localhost:8080/actuator/health) |
 | Self-hosted / UpCloud | Server checkout and `docker-compose.prod.yaml`; see [server guide](upcloud_deployment.md) for access/setup | On the server's public origin, request `/api/actuator/health` through nginx. |
@@ -25,26 +25,6 @@ Open the affected frontend from the [service list](../../README.md#services-and-
 A successful health response reports `UP`. Also test the failing user action: health alone does not prove login, frontend configuration, permissions, or saving work.
 
 Get server addresses and access credentials from the current administrators.
-
-### Heroku status and logs
-
-Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli), then authenticate:
-
-```bash
-heroku --version
-heroku login
-```
-
-Production, read-only checks:
-
-```bash
-heroku ps --app fisma-benefit-app
-heroku releases --app fisma-benefit-app
-heroku logs --app fisma-benefit-app --num=200
-heroku logs --app fisma-benefit-app --tail
-```
-
-Stop a log stream with Ctrl+C. To narrow output to web dynos, add `--dyno=web` to the log command. Save relevant sanitized evidence promptly since the provider log history is limited. See [Heroku logging](https://devcenter.heroku.com/articles/logging).
 
 ### Scalingo status and logs
 
@@ -56,7 +36,7 @@ scalingo --app benefit-testing --region osc-fr1 deployments
 scalingo --app benefit-testing --region osc-fr1 logs --follow
 ```
 
-Check which job failed in [Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml). The frontend exposes its deployed revision in [version.json](https://fisma-benefit-app-testing.github.io/scalingo/version.json). The [maintenance guide](scalingo_maintenance.md) covers database checks and backups.
+For production, replace `benefit-testing` with `benefit` in the commands above. For testing, check which job failed in [Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml). The frontend exposes its deployed revision in [version.json](https://fisma-benefit-app-testing.github.io/scalingo/version.json). The [maintenance guide](scalingo_maintenance.md) covers database checks and backups.
 
 ### Local or self-hosted Docker logs
 
@@ -92,14 +72,14 @@ Add `-f` to `logs` to follow output. Frontend runtime errors are in the browser 
 
 ### Restart or roll back
 
-Use the provider’s [Heroku process controls](https://devcenter.heroku.com/articles/dynos) or [Scalingo container controls](https://doc.scalingo.com/tools/cli/features) for the affected service. A restart interrupts requests. Capture evidence first, confirm the target, and tell other responders what you are changing. These examples restart only the backend process:
+Use [Scalingo container controls](https://doc.scalingo.com/tools/cli/features) for the affected service. A restart interrupts requests. Capture evidence first, confirm the target, and tell other responders what you are changing. These examples restart only the backend process:
 
 ```bash
-# Heroku production; use fisma-benefit-app-testing for Heroku testing
-heroku ps:restart web --app fisma-benefit-app
-
 # Scalingo testing
-scalingo --app fisma-benefit-app --region osc-fr1 restart
+scalingo --app benefit-testing --region osc-fr1 restart
+
+# Scalingo production
+scalingo --app benefit --region osc-fr1 restart
 
 # Self-hosted server, from its checkout
 docker compose -f docker-compose.prod.yaml restart backend
@@ -107,7 +87,7 @@ docker compose -f docker-compose.prod.yaml restart backend
 
 For local development, backend startup under `dev` deletes and reseeds data. Follow [development troubleshooting](development.md#troubleshoot-by-symptom) instead of applying server procedures blindly.
 
-If an incident began with a deployment, identify the last working revision and compare schema/configuration requirements before rolling back. Use the provider's release/deployment controls and the [deployment guide](deployment_guide.md); coordinate the frontend and backend revisions. A [Heroku release rollback](https://devcenter.heroku.com/articles/releases#rollback) does not restore database contents or undo migrations. A frontend deployment may need its own recovery.
+If an incident began with a deployment, identify the last working revision and compare schema/configuration requirements before rolling back. Use the provider's release/deployment controls and the [deployment guide](deployment_guide.md); coordinate the frontend and backend revisions. A [Scalingo rollback](https://doc.scalingo.com/platform/app/rollback) redeploys the backend revision. Check database compatibility and restore the matching frontend separately if needed.
 
 On a server, `update_server.sh` pulls code, builds, backs up, applies migrations, and restarts; it is a deployment, not a simple restart.
 
@@ -117,16 +97,15 @@ A browser hard reload is the first step for stale assets. Clearing site storage 
 
 For local Vite and Gradle build problems, use [development cache guidance](development.md#caches-and-build-artifacts). Avoid whole-machine Docker prune or deleting database volumes during hosted recovery.
 
-### Heroku build cache
+### Scalingo deployment cache
 
-Use this only when build logs point to stale/corrupt build artifacts. Select the affected app; the example targets **Heroku testing**:
+If a build fails because of stale cached artifacts, clear the deployment cache for the affected Scalingo app. This example targets testing.
 
 ```bash
-heroku plugins:install @heroku-cli/heroku-builds
-heroku builds:cache:purge --app fisma-benefit-app-testing
+scalingo --app benefit-testing --region osc-fr1 deployment-delete-cache
 ```
 
-The [official procedure](https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache) clears artifacts for the next build. Then deploy the intended revision through the normal Benefit deployment workflow. Purging alone does not change the running release. For production, explicitly select `fisma-benefit-app` only after confirming that production's build is affected.
+The [cache reset](https://doc.scalingo.com/platform/deployment/cache) applies to the next build. Redeploy the intended revision through the [deployment guide](deployment_guide.md).
 
 ## Protect data while recovering
 

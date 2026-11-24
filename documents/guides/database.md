@@ -30,9 +30,9 @@ If you have PostgreSQL installed locally:
 psql -h localhost -p 5433 -U <username> <database>
 ```
 
-## 2. Production and Testing Databases (Heroku Postgres)
+## 2. Production and Testing Databases (Scalingo PostgreSQL)
 
-The production and testing databases are hosted on Heroku Postgres. Database seeding is controlled through environment configuration, and the branch-specific safety convention is that the default shared backend file must not carry a seed- or schema-init mode set to `always`.
+Production and testing use separate Scalingo PostgreSQL databases. The shared backend configuration sets SQL initialization to `never`. Use manual migrations for hosted databases.
 
 Database migrations are manual. See (/backend/src/main/resources/migrations/). On a self-hosted server (`docker-compose.prod.yaml`), `./update_server.sh` applies them and records them in the `schema_migrations` table; see the [UpCloud guide](./upcloud_deployment.md#updating-to-a-newer-version).
 
@@ -80,21 +80,20 @@ assessments, follow the isolated setup in [security_audit.md](security_audit.md)
 
 [`documents/test-data/kitchen_sink_project.sql`](../test-data/kitchen_sink_project.sql) inserts the "[Kitchen sink] Every component type + MLA" project from the dev seed into a database that is not seeded. Unlike the seed files it deletes nothing, takes new ids from the sequences and links the project to one existing user. See the comments at the top of the script for usage.
 
-### Access via Heroku CLI
+### Access via Scalingo CLI
+
+Use an authenticated [Scalingo CLI](https://doc.scalingo.com/tools/cli/introduction). Choose the command for the database you intend to access.
 
 ```sh
-heroku login # If not logged in already
-heroku pg:psql HEROKU_PRODUCTION_POSTGRES_DB_NAME --app=fisma-benefit-app # production database
-heroku pg:psql HEROKU_TESTING_POSTGRES_DB_NAME --app=fisma-benefit-app-testing # testing database
-heroku pg:backups:capture --app=fisma-benefit-app
-# Ctrl + D to exit
+scalingo --app benefit-testing --region osc-fr1 pgsql-console # testing
+scalingo --app benefit --region osc-fr1 pgsql-console # production
 ```
 
-See Heroku's dashboard or `backend-credentials` repository for Heroku PostgreSQL database names.
+See the [Scalingo maintenance guide](scalingo_maintenance.md#backups) for backups. Use the corresponding app name for the database you intend to back up.
 
 ### Access via direct psql
 
-You can also connect using credentials from Heroku Dashboard:
+You can also connect using the affected Scalingo app’s [database connection details](scalingo_deployment.md#4-find-the-database-connection-details):
 
 ```sh
 psql -h <host> -p <port> -U <username> <database>
@@ -106,14 +105,14 @@ You’ll be prompted for the password.
 
 - 1. Install [DBeaver](https://dbeaver.io/download/).
 - 2. Go to Database → New Connection → PostgreSQL.
-- 3. Enter the values from Heroku (host, port, database, username, password).
+- 3. Enter the connection details from the affected Scalingo app (host, port, database, username, password).
 - 4. Click Finish. The database schema and tables will appear in the left-hand panel.
 
 ### Update database manually
 
 If you need to update the database manually (i.e. change password or add new user), follow these steps:
 
-1. Access the database via your preferred method (Heroku CLI, psql, DBeaver, or pgAdmin).
+1. Access the database via your preferred method (Scalingo CLI, psql, DBeaver, or pgAdmin).
 2. Run this SQL statement
 
 ```sql
@@ -158,8 +157,7 @@ jdbc:postgresql://ec2-00-00-00-00.compute-1.amazonaws.com:5433/fisma_db
 
 ## 4. Credentials
 
-- Source of truth: All database credentials are stored in the private `backend-credentials` repository.
-- Alternative: You can also view credentials in the Heroku dashboard.
+- Use the affected Scalingo app’s **Environment** tab for current database credentials.
 
 Never commit credentials to this repository.
 

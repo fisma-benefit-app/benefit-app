@@ -36,101 +36,18 @@ To rotate the key, generate an Ed25519 key pair, add the new public key under **
 
 Confirm in the Scalingo deployment history that the latest successful deployment is the current `main` commit. Then run **Deploy Scalingo testing** on `main` from GitHub Actions. The manual run republishes the frontend, checks backend health and CORS, waits for Pages to serve that commit, and runs Playwright. Playwright is manual at this stage because Scalingo waits for push checks to finish before starting the backend deployment.
 
-## Backup Database
+## Database backups
 
-Before any deployment, ensure a database backup is taken. Replace the quoted placeholders below with the confirmed target; prefer protected client configuration for credentials rather than putting passwords in shell history. Treat dumps as sensitive data. Restore only after coordinating the recovery point and writes with the service owner; see the [database guide](database.md). There's two ways of doing this:
+Confirm the target app and take a backup before applying migrations. Use the [Scalingo backup procedure](scalingo_maintenance.md#backups) with the app listed in the [database guide](database.md#access-via-scalingo-cli). Coordinate restores with the service owner.
 
-1) Back up via Heroku (requires login)
+## Production deployments
 
-```bash
-# Go to Heroku Postman add-on
-# Go to durability -> Create manual backup
-```
+1. Open the [production Scalingo app](https://dashboard.scalingo.com/apps/osc-fr1/benefit) and manually deploy the intended revision from `main`. Apply any required migrations in the order described in the [database guide](database.md).
+2. Confirm the deployment succeeded and the [production health endpoint](https://benefit.osc-fr1.scalingo.io/actuator/health) reports `UP`.
+3. If publishing the production frontend, run [Run deployments](../../.github/workflows/run-deployments.yml) manually on `main` after verifying it points to the intended release. The workflow reads the backend URL from the GitHub Actions variable `PRODUCTION_URL`.
+4. Verify login in the [production app](https://fisma-benefit-app.github.io/benefit-app/).
 
-2) Back up via terminal
-
-```bash
-# Get credentials from the backend-credentials repo.
-```
-```bash
-# Make database backup
-pg_dump '<db-url>' > backup.sql
-
-# Example: pg_dump postgres://username:password@host:port/dbname > backup.sql
-```
-
-```bash
-# To restore the database if needed
-psql '<db-url>' < backup.sql
-
-# Example: psql postgres://username:password@host:port/dbname < backup.sql
-```
-
-
-## Automatic deployments
-
-Automatic deployments are used when deploying the app to production and testing environments. This is the usual way to do deployments.
-
-### Testing deployments
-
-See [Scalingo testing environment](#scalingo-testing-environment) for the automatic workflow.
-
-### Production deployments
-
-Production deployment is initiated **manually**, but it runs **automatically**. To deploy to production environments, follow these steps:
-
-1. Open Heroku production app: https://dashboard.heroku.com/apps/fisma-benefit-app
-2. Go to Deploy tab
-3. Ensure GitHub repository `fisma-benefit-app/benefit-app` is connected: we use the same repository for both testing and production deployments
-4. Under `Manual deploy`, select `main` branch and click `Deploy Branch`
-5. This triggers the `run-deployments` GitHub Actions workflow which
-
-- echos a message that backend production deployment is handled by Heroku and not the workflow itself
-- deploys frontend to GitHub Pages production environment
-
-Heroku deploys only the `backend` directory thanks to the `subdir-heroku-buildpack` using the `PROJECT_PATH` config variable.
-
-The testing frontends are on a [separate GitHub Pages site](#testing-github-pages-site), so a production deployment doesn't affect them.
-
-- Production URL: https://fisma-benefit-app.github.io/benefit-app/
-- Testing URL: https://fisma-benefit-app-testing.github.io/scalingo/
-
-### Production logging
-
-Use Heroku CLI to monitor backend logs:
-
-```bash
-heroku login
-heroku logs --tail --app fisma-benefit-app
-```
-
-Frontend build logs (GitHub Actions) can be found here: https://github.com/fisma-benefit-app/benefit-app/actions (look for “pages-build-deployment”)
-
-## Manual deployments
-
-Every deployment can be run manually. Use these steps if something goes wrong with the automated workflow.
-
-- To redeploy testing manually, deploy `main` from the Scalingo app dashboard, then run **Deploy Scalingo testing** from Actions on `main`.
-- manual frontend deployments to GitHub Pages are done from CLI
-
-## Manual deployment to the production backend in Heroku
-
-Follow these steps:
-
-1. Open https://dashboard.heroku.com/apps/fisma-benefit-app.
-2. Go to Deploy tab
-3. Ensure GitHub repository (`fisma-benefit-app/benefit-app`) is connected: we use the same repository for both testing and production deployments
-4. Under `Manual deploy`, select `main` branch and click `Deploy Branch`
-5. This deploys only the backend to Heroku (thanks to `subdir-heroku-buildpack`)
-
-### Backend logging
-
-Use Heroku CLI to monitor backend logs:
-
-```bash
-heroku login
-heroku logs --tail --app fisma-benefit-app # production logs
-```
+For testing, see [Scalingo testing environment](#scalingo-testing-environment). To redeploy testing manually, deploy `main` from the testing Scalingo dashboard, then run **Deploy Scalingo testing** on `main` from Actions.
 
 ## Manual deployment to frontend from CLI
 
@@ -149,7 +66,7 @@ Create or edit `frontend/.env.production` and `frontend/.env.testing` with the c
 
 ```bash
 # .env.production
-VITE_API_URL=https://fisma-benefit-app-XXXXXXXXX.herokuapp.com
+VITE_API_URL=https://benefit.osc-fr1.scalingo.io
 VITE_BASE_PATH=/benefit-app/
 ```
 
@@ -159,7 +76,7 @@ VITE_API_URL=https://benefit-testing.osc-fr1.scalingo.io
 VITE_BASE_PATH=/scalingo/
 ```
 
-`VITE_BASE_PATH` must be set here so that Vite knows to dynamically set the base path according to the run deployment script. Without `VITE_BASE_PATH`, deployment fails. You also need the correct backend URLs for `VITE_API_URL`. You can find the URLs in the `backend-credentials` repository.
+`VITE_BASE_PATH` must be set here so that Vite knows to dynamically set the base path according to the run deployment script. Without `VITE_BASE_PATH`, deployment fails. You also need the correct backend URLs for `VITE_API_URL`. The hosted URLs are shown above.
 
 ### 3. Build & Deploy
 
@@ -199,7 +116,7 @@ These run:
 
 ## Self-hosted server with Docker
 
-For a server of your own (e.g. UpCloud) instead of Heroku and GitHub Pages, run the whole stack from `docker-compose.prod.yaml`. For a step-by-step walkthrough from an empty server to a working login, see the [UpCloud deployment guide](./upcloud_deployment.md).
+For a server of your own (e.g. UpCloud) instead of Scalingo and GitHub Pages, run the whole stack from `docker-compose.prod.yaml`. For a step-by-step walkthrough from an empty server to a working login, see the [UpCloud deployment guide](./upcloud_deployment.md).
 
 ```bash
 docker compose -f docker-compose.prod.yaml up -d --build
