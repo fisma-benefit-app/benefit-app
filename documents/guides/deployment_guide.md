@@ -52,14 +52,16 @@ For a manual backup in the database dashboard, open **Backups → Logical backup
 
 1. Open the [production Scalingo app](https://dashboard.scalingo.com/apps/osc-fr1/benefit) and manually deploy the intended revision from `main`. Apply any required migrations in the order described in the [database guide](database.md).
 2. Confirm the deployment succeeded and the [production health endpoint](https://benefit.osc-fr1.scalingo.io/actuator/health) reports `UP`.
-3. If publishing the production frontend, run [Run deployments](../../.github/workflows/run-deployments.yml) manually on `main` after verifying it points to the intended release. The workflow reads the backend URL from the GitHub Actions variable `PRODUCTION_URL`.
-4. Verify login in the [production app](https://fisma-benefit-app.github.io/benefit-app/).
+3. Copy the full commit SHA from that successful Scalingo deployment. Run [Publish production frontend](../../.github/workflows/run-deployments.yml) on `main` and paste it into `backend_sha`. The workflow builds from the supplied commit, even if `main` has advanced since the backend deploy. It reads the API URL from the GitHub Actions variable `PRODUCTION_URL`.
+4. Confirm the workflow verified the [Pages SHA](https://fisma-benefit-app.github.io/benefit-app/version.json), then verify login in the [production app](https://fisma-benefit-app.github.io/benefit-app/). The Scalingo history is the source for the backend SHA.
+
+Leave **Automatic deploy** disabled on the production Scalingo app. If the Pages publish fails, check the currently deployed SHA in Scalingo, then retry the frontend workflow with that SHA.
 
 For testing, see [Scalingo testing environment](#scalingo-testing-environment). To redeploy testing manually, deploy `main` from the testing Scalingo dashboard, then run **Deploy Scalingo testing** on `main` from Actions.
 
 ## Manual deployment to frontend from CLI
 
-To publish the frontend to GitHub Pages from the CLI, follow these steps.
+For normal production frontend publishes, use the workflow above. If recovering from the CLI, check out the exact commit serving production in Scalingo before publishing.
 
 ### 1. Install dependencies
 
@@ -99,11 +101,11 @@ npm run deploy:testing
 ```
 
 ```bash
-# To deploy to production environment
-git switch main
-git pull
+# To recover the production frontend
+git fetch origin main
+git switch --detach SCALINGO_DEPLOYMENT_SHA
 cd frontend
-npm run deploy:production
+GITHUB_SHA=$(git rev-parse HEAD) npm run deploy:production
 ```
 
 `deploy:testing` pushes to the [testing GitHub Pages site](#testing-github-pages-site) over SSH, so your own SSH key needs write access to `fisma-benefit-app-testing/fisma-benefit-app-testing.github.io`.
