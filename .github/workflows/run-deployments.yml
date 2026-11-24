@@ -1,7 +1,8 @@
 name: Publish production frontend
 
-# Deploy the backend manually in Scalingo first, then copy the SHA from
-# the successful benefit deployment here.
+# Deploy the backend manually in the Scalingo benefit app. Start this workflow
+# after that deploy succeeds and copy its full SHA from the deployment history.
+# The supplied SHA is the handoff from Scalingo. This workflow publishes Pages.
 on:
   workflow_dispatch:
     inputs:
@@ -10,8 +11,10 @@ on:
         required: true
         type: string
 
+# The publish job grants the repository write permission needed for gh-pages.
 permissions: {}
 
+# Keep two manual runs from publishing to the same Pages branch at once.
 concurrency:
   group: benefit-production-pages
 
@@ -28,13 +31,16 @@ jobs:
         shell: bash
 
     steps:
+      # Start at the dispatch commit on main and fetch its history so the job
+      # can verify earlier release commits. Configure Git for publishing later.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      # The workflow runs from main. A release can use an earlier commit if
-      # main advanced after the manual backend deployment.
+      # Check that the input names a real commit in main's history. It can be
+      # older than the dispatch commit if main advanced after the backend deploy.
+      # The step output carries the selected SHA through the build and checks.
       - name: Check out the deployed backend revision
         id: release
         env:
@@ -62,7 +68,8 @@ jobs:
         run: npm ci
 
       # PRODUCTION_URL is the public API origin under Settings → Secrets and
-      # variables → Actions → Variables. Vite embeds it and the Pages base path.
+      # variables → Actions → Variables. VITE_BASE_PATH is the site's
+      # /benefit-app/ path. Vite uses both values when building the frontend.
       - name: Build the matching production frontend
         working-directory: frontend
         env:
@@ -71,11 +78,13 @@ jobs:
           RELEASE_SHA: ${{ steps.release.outputs.sha }}
         run: |
           npm run build:production
-          # Record the deployed commit even if the run started from newer main.
+          # write:version reads GITHUB_SHA. Override it for this command so
+          # version.json records the release SHA instead of the dispatch SHA.
           GITHUB_SHA="$RELEASE_SHA" npm run write:version
           jq -e --arg sha "$RELEASE_SHA" '.sha == $sha' dist/version.json
 
-      # GitHub supplies GITHUB_TOKEN for the gh-pages branch push.
+      # GitHub generates GITHUB_TOKEN for this run. The deploy script uses the
+      # authenticated origin to push to gh-pages in the same repository.
       - name: Configure Git for publishing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -84,11 +93,14 @@ jobs:
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git remote set-url origin "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
 
-      # Publish the verified dist directory without rebuilding via predeploy.
+      # The npm flag skips predeploy so gh-pages publishes the dist directory
+      # whose version.json was already checked.
       - name: Publish the matching frontend to production Pages
         working-directory: frontend
         run: npm --ignore-scripts run deploy:production
 
+      # The git push finishes before Pages necessarily serves the new build.
+      # Poll the public version.json and require the selected SHA.
       - name: Confirm Pages serves the selected commit
         env:
           RELEASE_SHA: ${{ steps.release.outputs.sha }}
