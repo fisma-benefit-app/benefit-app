@@ -313,6 +313,7 @@ export const translations = {
       newFunctionalComponent: "New Functional Component",
       comments: "Comments",
       commentsTitle: "Comments",
+      calculationReportComments: "Calculation report comments",
       projectViewOnly: "You have view-only access to this project.",
       viewOnlyDisabledTip:
         "This button is disabled because you have view-only access to this project.",
@@ -759,6 +760,7 @@ export const translations = {
       saveProject: "Tallenna",
       newFunctionalComponent: "Lisää toiminnallinen komponentti",
       comments: "Kommentit",
+      calculationReportComments: "Laskentaraportin kommentit",
       commentsTitle: "Kommentit",
       projectViewOnly: "Sinulla on tähän projektiin vain katseluoikeus.",
       viewOnlyDisabledTip:

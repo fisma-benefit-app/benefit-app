@@ -3,12 +3,14 @@ import useProjectComments from "../hooks/useProjectComments.ts";
 
 type CommentsPanelProps = {
   comments: ReturnType<typeof useProjectComments>;
+  title: string;
   // Archived versions show comments read-only.
   isLatest: boolean;
 };
 
 export default function CommentsPanel({
   comments: state,
+  title,
   isLatest,
 }: CommentsPanelProps) {
   const translation = useTranslations().projectPage;
@@ -30,9 +32,7 @@ export default function CommentsPanel({
 
   return (
     <div className="mt-3 border border-gray-300 p-3 bg-gray-50 rounded">
-      <div className="mb-2 text-sm font-medium">
-        {translation.commentsTitle}
-      </div>
+      <div className="mb-2 text-sm font-medium">{title}</div>
 
       {!isLatest && (
         <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-700">

@@ -45,7 +45,7 @@ export default function useProjectComments(
     };
 
     loadProjectComments();
-  }, [projectId, sessionToken]);
+  }, [projectId, sessionToken, resource]);
 
   const handleCreateComment = async () => {
     if (!projectId || !commentText.trim()) return;
