@@ -62,8 +62,7 @@ public class CalculationReportCommentController {
       Authentication authentication,
       UriComponentsBuilder ucb) {
     var savedComment =
-        calculationReportCommentService.createComment(
-            projectId, request, authentication.getName());
+        calculationReportCommentService.createComment(projectId, request, authentication.getName());
     URI location =
         ucb.path("/projects/{projectId}/calculation-report-comments/{commentId}")
             .buildAndExpand(projectId, savedComment.id())
