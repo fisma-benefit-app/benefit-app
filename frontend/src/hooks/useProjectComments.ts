@@ -4,6 +4,7 @@ import {
   createProjectComment,
   updateProjectComment,
   deleteProjectComment,
+  CommentResource,
 } from "../api/comments.ts";
 import { CommentResponse } from "../lib/types.ts";
 
@@ -12,6 +13,7 @@ import { CommentResponse } from "../lib/types.ts";
 export default function useProjectComments(
   sessionToken: string | null,
   projectId: number | undefined,
+  resource: CommentResource,
 ) {
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -31,6 +33,7 @@ export default function useProjectComments(
       try {
         const projectComments = await fetchProjectComments(
           sessionToken,
+          resource,
           projectId,
         );
         setComments(projectComments);
@@ -50,6 +53,7 @@ export default function useProjectComments(
     try {
       const createdComment = await createProjectComment(
         sessionToken,
+        resource,
         projectId,
         { text: commentText.trim() },
       );
@@ -80,6 +84,7 @@ export default function useProjectComments(
     try {
       const updatedComment = await updateProjectComment(
         sessionToken,
+        resource,
         projectId,
         editingCommentId,
         { text: editingText.trim() },
@@ -100,7 +105,7 @@ export default function useProjectComments(
     if (!projectId) return;
 
     try {
-      await deleteProjectComment(sessionToken, projectId, commentId);
+      await deleteProjectComment(sessionToken, resource, projectId, commentId);
       setComments((prev) => prev.filter((comment) => comment.id !== commentId));
       if (editingCommentId === commentId) {
         handleCancelEditingComment();

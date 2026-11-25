@@ -2,8 +2,13 @@ import { CommentRequest, CommentResponse } from "../lib/types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Project comments and calculation report comments share the same API shape
+// under different paths.
+export type CommentResource = "comments" | "calculation-report-comments";
+
 const fetchProjectComments = async (
   sessionToken: string | null,
+  resource: CommentResource,
   projectId: number | undefined,
 ): Promise<CommentResponse[]> => {
   if (!sessionToken) {
@@ -13,7 +18,7 @@ const fetchProjectComments = async (
     throw new Error("Request needs the id of the project!");
   }
 
-  const fetchURL = `${API_URL}/projects/${projectId}/comments`;
+  const fetchURL = `${API_URL}/projects/${projectId}/${resource}`;
   const headers = {
     Authorization: sessionToken,
   };
@@ -34,6 +39,7 @@ const fetchProjectComments = async (
 
 const createProjectComment = async (
   sessionToken: string | null,
+  resource: CommentResource,
   projectId: number | undefined,
   request: CommentRequest,
 ): Promise<CommentResponse> => {
@@ -44,7 +50,7 @@ const createProjectComment = async (
     throw new Error("Request needs the id of the project!");
   }
 
-  const fetchURL = `${API_URL}/projects/${projectId}/comments`;
+  const fetchURL = `${API_URL}/projects/${projectId}/${resource}`;
   const headers = {
     Authorization: sessionToken,
     "Content-Type": "application/json",
@@ -86,6 +92,7 @@ const createProjectComment = async (
 
 const updateProjectComment = async (
   sessionToken: string | null,
+  resource: CommentResource,
   projectId: number | undefined,
   commentId: number,
   request: CommentRequest,
@@ -97,7 +104,7 @@ const updateProjectComment = async (
     throw new Error("Request needs the id of the project!");
   }
 
-  const fetchURL = `${API_URL}/projects/${projectId}/comments/${commentId}`;
+  const fetchURL = `${API_URL}/projects/${projectId}/${resource}/${commentId}`;
   const headers = {
     Authorization: sessionToken,
     "Content-Type": "application/json",
@@ -123,6 +130,7 @@ const updateProjectComment = async (
 
 const deleteProjectComment = async (
   sessionToken: string | null,
+  resource: CommentResource,
   projectId: number | undefined,
   commentId: number,
 ): Promise<void> => {
@@ -133,7 +141,7 @@ const deleteProjectComment = async (
     throw new Error("Request needs the id of the project!");
   }
 
-  const fetchURL = `${API_URL}/projects/${projectId}/comments/${commentId}`;
+  const fetchURL = `${API_URL}/projects/${projectId}/${resource}/${commentId}`;
   const headers = {
     Authorization: sessionToken,
   };
