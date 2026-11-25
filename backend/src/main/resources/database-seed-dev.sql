@@ -34,6 +34,7 @@
 -- class per frontend/src/lib/fc-constants.ts's componentParameterResetMap). Seed data that doesn't
 -- follow those rules can hide bugs in the exact area that broke in #704-#707.
 
+DELETE FROM calculation_report_comments;
 DELETE FROM comments;
 DELETE FROM projects_app_users;
 DELETE FROM functional_components;
