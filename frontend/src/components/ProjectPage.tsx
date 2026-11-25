@@ -82,7 +82,11 @@ export default function ProjectPage() {
   const [error, setError] = useState<string>("");
 
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
-  const projectComments = useProjectComments(sessionToken, project?.id);
+  const projectComments = useProjectComments(
+    sessionToken,
+    project?.id,
+    "comments",
+  );
   const {
     commentsOpen,
     setCommentsOpen,
@@ -90,6 +94,12 @@ export default function ProjectPage() {
     setCommentToDeleteId,
     handleDeleteComment,
   } = projectComments;
+
+  const calculationReportComments = useProjectComments(
+    sessionToken,
+    project?.id,
+    "calculation-report-comments",
+  );
 
   const columnCount = useColumnCount(isCompactMode, isPanelOpen);
 
@@ -636,7 +646,36 @@ export default function ProjectPage() {
               </button>
 
               {commentsOpen && project && (
-                <CommentsPanel comments={projectComments} isLatest={isLatest} />
+                <CommentsPanel
+                  comments={projectComments}
+                  title={translation.commentsTitle}
+                  isLatest={isLatest}
+                />
+              )}
+
+              <button
+                onClick={() =>
+                  calculationReportComments.setCommentsOpen((prev) => !prev)
+                }
+                className="w-full bg-fisma-blue hover:bg-fisma-dark-blue text-white py-3 px-4 mt-2 cursor-pointer flex items-center justify-center gap-2"
+                disabled={!project || loadingProject}
+                aria-expanded={calculationReportComments.commentsOpen}
+              >
+                {translation.calculationReportComments}
+                <FontAwesomeIcon
+                  icon={faChevronDown}
+                  className={`text-xs transition-transform ${
+                    calculationReportComments.commentsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {calculationReportComments.commentsOpen && project && (
+                <CommentsPanel
+                  comments={calculationReportComments}
+                  title={translation.calculationReportComments}
+                  isLatest={isLatest}
+                />
               )}
             </div>
 
@@ -813,6 +852,19 @@ export default function ProjectPage() {
           }}
         />
       </div>
+
+      <ConfirmModal
+        message={translation.deleteCommentConfirmation}
+        open={calculationReportComments.commentToDeleteId !== null}
+        setOpen={() => calculationReportComments.setCommentToDeleteId(null)}
+        onConfirm={() => {
+          const { commentToDeleteId, handleDeleteComment } =
+            calculationReportComments;
+          if (commentToDeleteId !== null) {
+            handleDeleteComment(commentToDeleteId);
+          }
+        }}
+      />
     </>
   );
 }
