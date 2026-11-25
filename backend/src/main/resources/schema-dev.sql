@@ -2,7 +2,7 @@
 -- This file is used by database-seed-dev.sql to create the database schema for development purposes. 
 -- It is not used in production nor testing environments. Please see migration docs for migrating the database schema in production or testing.
 
-+DROP TABLE IF EXISTS calculation_report_comments, comments, projects_app_users, functional_components, projects, app_users;
+DROP TABLE IF EXISTS calculation_report_comments, comments, projects_app_users, functional_components, projects, app_users;
 
 CREATE TABLE IF NOT EXISTS revoked_tokens
 (
