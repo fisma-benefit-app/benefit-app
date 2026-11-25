@@ -1,6 +1,3 @@
-public class CalculationReportCommentService {
-    
-}
 package fi.fisma.backend.service;
 
 import fi.fisma.backend.domain.CalculationReportComment;

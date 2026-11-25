@@ -1,6 +1,3 @@
-public class CalculationReportCommentController {
-    
-}
 package fi.fisma.backend.api;
 
 import fi.fisma.backend.dto.CalculationReportCommentRequest;
