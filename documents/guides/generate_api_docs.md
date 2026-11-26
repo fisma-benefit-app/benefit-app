@@ -32,7 +32,7 @@ Compare the exported paths and schemas with `api.md`, and update every affected 
 5. The successful status, headers where relevant, and response body. Explicitly identify excerpts; never show a body for `204`.
 6. Errors and what the caller should do next.
 
-Keep explanations of `lockVersion`, `session_version`, version history, membership, and component links in **Concepts and conventions**, then link to them from endpoints. Distinguish client-supplied fields from backend-managed JWT claims. Document replacement behavior and data-preservation requirements next to update operations.
+Keep explanations of `lockNumber`, `session_version`, version history, membership, and component links in **Concepts and conventions**, then link to them from endpoints. Distinguish client-supplied fields from backend-managed JWT claims. Document replacement behavior and data-preservation requirements next to update operations.
 
 Keep the endpoint order in the same groups as the current reference. Put reusable object definitions under **Field reference** instead of flattening their nested fields into every endpoint. A readable successful example is more useful than a large generated object full of placeholders. Use a placeholder for a JWT rather than publishing a usable token.
 

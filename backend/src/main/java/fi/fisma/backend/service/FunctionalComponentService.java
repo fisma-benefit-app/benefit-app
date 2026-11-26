@@ -121,7 +121,7 @@ public class FunctionalComponentService {
 
   /**
    * Saves the project as changed even though only its components changed. Touching updatedAt makes
-   * the project row dirty, so its lockVersion increments and another tab holding the old copy has
+   * the project row dirty, so its lockNumber increments and another tab holding the old copy has
    * its next save rejected. The flush makes the increment visible in the response.
    */
   private Project saveAsNewProjectState(Project project) {

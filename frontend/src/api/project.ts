@@ -278,7 +278,7 @@ const updateProject = async (
       mapComponentToRequest,
     ),
     calculationDate: project.calculationDate ?? null,
-    lockVersion: project.lockVersion ?? 0,
+    lockNumber: project.lockNumber ?? 0,
   };
 
   const response = await fetch(fetchURL, {
@@ -294,7 +294,7 @@ const updateProject = async (
     if (response.status === 409) {
       const body = await response.json().catch(() => null);
       const isStale =
-        body?.code === "STALE_LOCK_VERSION" ||
+        body?.code === "STALE_LOCK_NUMBER" ||
         body?.code === "NOT_LATEST_VERSION";
 
       throw new ConflictError(isStale ? "notLatestVersion" : "savedElsewhere");

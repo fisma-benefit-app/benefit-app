@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS projects
     report_notes        VARCHAR(5000),
     updated_at          TIMESTAMP(0),
     deleted_at          TIMESTAMP(0),
-    lock_version        BIGINT NOT NULL DEFAULT 0
+    lock_number         BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_projects_family_id ON projects (family_id);

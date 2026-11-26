@@ -159,7 +159,7 @@ paths:
       - Project Management
       summary: Update a project
       description: "Updates an existing project if the authenticated user owns it.\
-        \ Only the latest version can be updated, the request must carry the lockVersion\
+        \ Only the latest version can be updated, the request must carry the lockNumber\
         \ it is based on, and neither the version number nor the project's users can\
         \ be changed"
       operationId: updateProject
@@ -197,7 +197,7 @@ paths:
               schema:
                 type: string
         "409":
-          description: "Not the latest version, or the project changed since lockVersion\
+          description: "Not the latest version, or the project changed since lockNumber\
             \ was read"
           content:
             application/json:
@@ -1075,10 +1075,10 @@ components:
           description: Optional calculation notes printed on the report
           maxLength: 5000
           minLength: 0
-        lockVersion:
+        lockNumber:
           type: integer
           format: int64
-          description: The project's lockVersion from the response the edit is based
+          description: The project's lockNumber from the response the edit is based
             on. Required when updating a project; the update is rejected with 409
             if the project has changed since.
           example: 3
@@ -1272,7 +1272,7 @@ components:
           format: date-time
           description: Last update timestamp
           example: 2025-09-25T15:45:00
-        lockVersion:
+        lockNumber:
           type: integer
           format: int64
           description: Optimistic-lock counter. Send it back unchanged when updating

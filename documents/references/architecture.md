@@ -50,7 +50,7 @@ The accepted [backend ADR](adr_backend.md) explains why the backend is organized
 
 `AppUserProvider` supplies login/session state, persisted through `authStorage` in localStorage. `ProjectsProvider` supplies accessible projects and version-selection helpers. `ProjectPage` keeps the currently edited project locally, with a ref used by debounced saving.
 
-The browser's edited state can be newer than the last server response. A successful save carries the server's new `lockVersion` forward while preserving edits made during the request. A conflict is a decision point, not permission to replace local state silently.
+The browser's edited state can be newer than the last server response. A successful save carries the server's new `lockNumber` forward while preserving edits made during the request. A conflict is a decision point, not permission to replace local state silently.
 
 See [state management](state_management.md) for the detailed pattern. Some examples in that existing reference need updating; compare them with the current `ProjectPage` and hooks, especially deletion responses and ownership checks.
 
@@ -65,13 +65,13 @@ sequenceDiagram
 
     User->>Editor: Edit the latest owned project
     Editor->>Editor: Update state and schedule save
-    Editor->>API: PUT project with JWT and lockVersion
+    Editor->>API: PUT project with JWT and lockNumber
     API->>DB: Load account and project state
     DB-->>API: Current persisted state
 
     alt Save succeeds
         API->>DB: Apply changes and flush
-        DB-->>API: Updated project and lockVersion
+        DB-->>API: Updated project and lockNumber
         API-->>Editor: 200 with ProjectResponse
         Editor->>Editor: Carry counter forward and preserve newer edits
     else Project changed or became archived
@@ -85,7 +85,7 @@ sequenceDiagram
 
 Manual and debounced saves share `persistProject` in `ProjectPage`. Normal autosave waits about five seconds after edits. Component operations can flush pending saves. The backend remains authoritative for owner access, latest-version restrictions, and concurrency even when the UI disables controls.
 
-`lockVersion` is a save counter, while `version` identifies the calculation version. A stale counter is rejected. A project update replaces submitted values; it does not merge arbitrary omitted fields. Component creation/deletion also advance the counter. See the [API concepts](api.md#project-versions-and-lockversion) for the exact client contract.
+`lockNumber` is a save counter, while `version` identifies the calculation version. A stale counter is rejected. A project update replaces submitted values; it does not merge arbitrary omitted fields. Component creation/deletion also advance the counter. See the [API concepts](api.md#project-versions-and-locknumber) for the exact client contract.
 
 ## Understand the data model
 

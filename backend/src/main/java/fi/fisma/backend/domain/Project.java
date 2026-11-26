@@ -75,10 +75,10 @@ public class Project {
   private LocalDateTime deletedAt;
 
   // Optimistic lock: a save made from an outdated copy of the project is rejected. Named
-  // lockVersion because `version` is the project's own version number.
+  // lockNumber because `version` is the project's own version number.
   @Version
-  @Column(name = "lock_version")
-  private Long lockVersion;
+  @Column(name = "lock_number")
+  private Long lockNumber;
 
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
   private Set<FunctionalComponent> functionalComponents = new HashSet<>();

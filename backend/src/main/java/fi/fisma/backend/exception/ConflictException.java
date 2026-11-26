@@ -4,8 +4,8 @@ public class ConflictException extends RuntimeException {
   /** The project has a newer version, so this one is archived and read-only. */
   public static final String NOT_LATEST_VERSION = "NOT_LATEST_VERSION";
 
-  /** The project was saved by someone else since the request's lockVersion was read. */
-  public static final String STALE_LOCK_VERSION = "STALE_LOCK_VERSION";
+  /** The project was saved by someone else since the request's lockNumber was read. */
+  public static final String STALE_LOCK_NUMBER = "STALE_LOCK_NUMBER";
 
   /** Username is already taken when creating a new user */
   public static final String USERNAME_ALREADY_EXISTS = "USERNAME_ALREADY_EXISTS";

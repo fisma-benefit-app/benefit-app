@@ -18,7 +18,7 @@ export default function useDebounce<
     pendingCallRef.current = null;
     if (call) {
       // Wait for a save already running: two overlapping saves would carry the same
-      // lockVersion and the second would be rejected as a conflict with the first.
+      // lockNumber and the second would be rejected as a conflict with the first.
       const running = (runningCallRef.current ?? Promise.resolve())
         .catch(() => undefined)
         .then(call)

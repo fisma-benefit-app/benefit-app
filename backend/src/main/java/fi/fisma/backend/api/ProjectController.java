@@ -64,7 +64,7 @@ public class ProjectController {
   @Operation(
       summary = "Update a project",
       description =
-          "Updates an existing project if the authenticated user owns it. Only the latest version can be updated, the request must carry the lockVersion it is based on, and neither the version number nor the project's users can be changed")
+          "Updates an existing project if the authenticated user owns it. Only the latest version can be updated, the request must carry the lockNumber it is based on, and neither the version number nor the project's users can be changed")
   @ApiResponse(responseCode = "200", description = "Project updated successfully")
   @ApiResponse(
       responseCode = "400",
@@ -76,7 +76,7 @@ public class ProjectController {
       content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
   @ApiResponse(
       responseCode = "409",
-      description = "Not the latest version, or the project changed since lockVersion was read",
+      description = "Not the latest version, or the project changed since lockNumber was read",
       content =
           @Content(
               mediaType = "application/json",
