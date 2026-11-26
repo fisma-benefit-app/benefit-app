@@ -84,6 +84,7 @@ export const componentTypeOptions: ComponentTypeOptions[] = [
     className: "Non-interactive end-user output service",
     componentTypeOptions: [
       "forms",
+      "reports",
       "emails for text messages",
       "monitor screens",
     ],
