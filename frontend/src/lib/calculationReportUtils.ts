@@ -19,6 +19,7 @@ import {
   reportTableLayout,
   spanningCell,
   textCell,
+  compactTableLayout,
 } from "./pdf/pdfReportLayout";
 import {
   CellValue,
@@ -36,7 +37,7 @@ const CONTENT_WIDTH_PT = mmToPt(297) - 2 * mmToPt(10);
 // 0.5 pt grid line). It's a fixed width rather than "*" because pdfmake widens a "*" column to
 // fit its longest word, so one very long word pushed the table off the page (#997).
 const withTitleColumn = (otherWidths: number[]) => [
-  CONTENT_WIDTH_PT - otherWidths.reduce((sum, width) => sum + width + 8.5, 9),
+  CONTENT_WIDTH_PT - otherWidths.reduce((sum, width) => sum + width + 6.5, 7),
   ...otherWidths,
 ];
 
@@ -46,14 +47,14 @@ const COMPONENT_COLUMN_COUNT = 10;
 // Fixed widths (pt) for everything but the title, which takes the remaining space. The wide
 // table is why this report is landscape.
 const COMPONENT_TABLE_WIDTHS = withTitleColumn([
-  110, 90, 50, 52, 54, 52, 72, 52, 52,
+  100, 82, 46, 52, 52, 50, 56, 58, 58,
 ]);
 
 // The MLA components table has an extra "parent" column after the title, so the other columns
 // are a little narrower.
 const MLA_COLUMN_COUNT = COMPONENT_COLUMN_COUNT + 1;
 const MLA_TABLE_WIDTHS = withTitleColumn([
-  95, 100, 80, 42, 48, 50, 48, 62, 46, 46,
+  100, 86, 78, 44, 50, 50, 48, 54, 54, 54,
 ]);
 
 // Columns from Data Elements onwards hold numbers and are right-aligned
@@ -433,12 +434,15 @@ export const generateCalculationReportPDF = async (
   const currentSubComponents = subComponentsOf(project);
   const oldSubComponents = subComponentsOf(oldProject);
 
+  const hasSignificantDiff = (current: number, previous: number) =>
+    Math.abs(current - previous) >= 0.005;
+
   // --- HELPER FUNCTION: Compare the change ---
   const formatTotalWithDiff = (current: number, previous: number) => {
-    if (current === previous) return current.toFixed(2);
+    if (!hasSignificantDiff(current, previous)) return current.toFixed(2);
 
     const diff = current - previous;
-    const sign = diff > 0 ? "+" : "-";
+    const sign = diff > 0 ? "+" : "";
 
     return `${current.toFixed(2)} FP (${sign}${diff.toFixed(2)} FP)`;
   };
@@ -446,7 +450,7 @@ export const generateCalculationReportPDF = async (
   const totalCell = (current: number, previous: number) =>
     changedCell(
       formatTotalWithDiff(current, previous),
-      !isFirstVersion && current !== previous,
+      !isFirstVersion && hasSignificantDiff(current, previous),
       PDF_COLORS.changedBlue,
       { bold: true, fillColor: PDF_COLORS.tableHeaderFill, alignment: "right" },
     );
@@ -520,6 +524,9 @@ export const generateCalculationReportPDF = async (
       COMPONENT_COLUMN_COUNT,
       FIRST_NUMBER_COLUMN,
     ),
+    layout: compactTableLayout,
+    fontSize: 9.5,
+    headerFontSize: 9,
   });
 
   const mlaTable = reportTable({
@@ -543,6 +550,9 @@ export const generateCalculationReportPDF = async (
       MLA_COLUMN_COUNT,
       FIRST_NUMBER_COLUMN + 1,
     ),
+    layout: compactTableLayout,
+    fontSize: 9.5,
+    headerFontSize: 9,
   });
 
   // --- HELPER FUNCTION: Summary Table ---
@@ -566,6 +576,7 @@ export const generateCalculationReportPDF = async (
         widths: ["*", 110, 130],
         margin: [0, 4, 0, 0],
         headerAlignments: ["left", "right", "right"],
+        fontSize: 9.5,
       }),
     ],
   });

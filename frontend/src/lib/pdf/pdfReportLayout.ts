@@ -98,6 +98,7 @@ export type CellOptions = {
   color?: string;
   fillColor?: string;
   alignment?: "left" | "center" | "right";
+  fontSize?: number;
   // Extra left indent in points, e.g. for subcomponent rows.
   indent?: number;
 };
@@ -108,10 +109,12 @@ const toText = (value: string | number | null | undefined) =>
 export const headerCell = (
   text: string,
   alignment?: CellOptions["alignment"],
+  fontSize?: number,
 ): TableCell => ({
   text,
   style: "tableHeader",
   ...(alignment ? { alignment } : {}),
+  ...(fontSize ? { fontSize } : {}),
 });
 
 export const textCell = (
@@ -152,6 +155,9 @@ type ReportTableOptions = {
   margin?: [number, number, number, number];
   // Per-column header alignment, e.g. "right" above right-aligned number columns
   headerAlignments?: CellOptions["alignment"][];
+  layout?: CustomTableLayout;
+  fontSize?: number;
+  headerFontSize?: number;
 };
 
 // A table with a repeating header row. There is deliberately no bottom margin: when a table ends
@@ -166,6 +172,9 @@ export const reportTable = ({
   widths,
   margin = [0, 4, 0, 0],
   headerAlignments,
+  layout = reportTableLayout,
+  fontSize,
+  headerFontSize,
 }: ReportTableOptions): ContentTable => ({
   table: {
     headerRows: 1,
@@ -174,13 +183,14 @@ export const reportTable = ({
     widths,
     body: [
       headers.map((header, index) =>
-        headerCell(header, headerAlignments?.[index]),
+        headerCell(header, headerAlignments?.[index], headerFontSize),
       ),
       ...rows,
     ],
   },
-  layout: reportTableLayout,
+  layout,
   margin,
+  ...(fontSize ? { fontSize } : {}),
 });
 
 // Keeps a block (e.g. a heading plus its short table) on one page where it fits.
@@ -188,3 +198,11 @@ export const keepTogether = (...content: Content[]): Content => ({
   unbreakable: true,
   stack: content,
 });
+
+export const compactTableLayout: CustomTableLayout = {
+  ...reportTableLayout,
+  paddingLeft: () => 3,
+  paddingRight: () => 3,
+  paddingTop: () => 2.5,
+  paddingBottom: () => 2.5,
+};
