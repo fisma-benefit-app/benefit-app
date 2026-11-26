@@ -84,5 +84,7 @@ CREATE TABLE IF NOT EXISTS projects_app_users
     id              BIGSERIAL PRIMARY KEY,
     project_id      BIGINT NOT NULL REFERENCES projects (id),
     app_user_id     BIGINT NOT NULL REFERENCES app_users (id),
-    role_in_project VARCHAR(20) NOT NULL DEFAULT 'MEMBER'
+    role_in_project VARCHAR(20) NOT NULL DEFAULT 'MEMBER',
+    CONSTRAINT chk_projects_app_users_role_in_project
+        CHECK (role_in_project IN ('OWNER', 'MEMBER'))
 )
