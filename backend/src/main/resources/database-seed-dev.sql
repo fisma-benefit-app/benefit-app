@@ -35,7 +35,7 @@
 -- follow those rules can hide bugs in the exact area that broke in #704-#707.
 
 DELETE FROM calculation_report_comments;
-DELETE FROM comments;
+DELETE FROM project_comments;
 DELETE FROM projects_app_users;
 DELETE FROM functional_components;
 DELETE FROM projects;
@@ -369,7 +369,7 @@ VALUES  (1, 1, 1, 'OWNER'),
         (19, 10, 1, 'OWNER'),
         (20, 10, 6, 'MEMBER');
 
-INSERT INTO comments (id, text, project_id)
+INSERT INTO project_comments (id, text, project_id)
 VALUES  (1, 'This is a comment for project-x', 1),
         (2, 'Reference project - see file header comment in database-seed-dev.sql for what each component in here is for.', 4),
         (3, 'Muistetaan käydä läpi jäljellä olevat hakemukset ennen viikon loppua.', 8),
@@ -382,4 +382,4 @@ SELECT setval('app_users_id_seq', (SELECT MAX(id) FROM app_users));
 SELECT setval('projects_id_seq', (SELECT MAX(id) FROM projects));
 SELECT setval('functional_components_id_seq', (SELECT MAX(id) FROM functional_components));
 SELECT setval('projects_app_users_id_seq', (SELECT MAX(id) FROM projects_app_users));
-SELECT setval('comments_id_seq', (SELECT MAX(id) FROM comments));
+SELECT setval('comments_id_seq', (SELECT MAX(id) FROM project_comments));

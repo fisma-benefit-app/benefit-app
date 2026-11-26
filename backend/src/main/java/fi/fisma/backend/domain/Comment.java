@@ -21,7 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "comments")
+@Table(name = "project_comments")
 public class Comment {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
