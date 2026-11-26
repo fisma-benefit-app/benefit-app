@@ -80,19 +80,19 @@ public class ProjectService {
    * @throws EntityNotFoundException if the project is not found or the user is not a member
    * @throws UnauthorizedException if the user is not an owner of the project
    * @throws ConflictException if the project is not the latest version, or has changed since the
-   *     request's lockVersion was read
-   * @throws IllegalStateException if the request has no lockVersion or changes the version number
+   *     request's lockNumber was read
+   * @throws IllegalStateException if the request has no lockNumber or changes the version number
    */
   public ProjectResponse updateProject(
       Long projectId, ProjectRequest projectUpdate, String username) {
     var project = lockProjectFamily(projectId, username);
     requireLatestVersion(project, username);
-    if (projectUpdate.getLockVersion() == null) {
-      throw new IllegalStateException("lockVersion is required when updating a project");
+    if (projectUpdate.getLockNumber() == null) {
+      throw new IllegalStateException("lockNumber is required when updating a project");
     }
-    if (!Objects.equals(projectUpdate.getLockVersion(), project.getLockVersion())) {
+    if (!Objects.equals(projectUpdate.getLockNumber(), project.getLockNumber())) {
       throw new ConflictException(
-          ConflictException.STALE_LOCK_VERSION,
+          ConflictException.STALE_LOCK_NUMBER,
           "The project was changed by someone else. Reload it and try again.");
     }
     if (projectUpdate.getVersion() != project.getVersion()) {
@@ -106,7 +106,7 @@ public class ProjectService {
     }
 
     var updatedProject = projectMapper.updateEntityFromRequest(project, projectUpdate);
-    // Flush so the response carries the incremented lockVersion.
+    // Flush so the response carries the incremented lockNumber.
     projectRepository.flush();
     return projectMapper.toResponse(updatedProject);
   }

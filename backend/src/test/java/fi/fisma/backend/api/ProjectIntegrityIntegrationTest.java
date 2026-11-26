@@ -703,8 +703,8 @@ class ProjectIntegrityIntegrationTest {
             .andExpect(status().isOk())
             .andReturn();
     JsonNode response = objectMapper.readTree(saved.getResponse().getContentAsString());
-    assertThat(response.path("lockVersion").asLong())
-        .isGreaterThan(tabA.path("lockVersion").asLong());
+    assertThat(response.path("lockNumber").asLong())
+        .isGreaterThan(tabA.path("lockNumber").asLong());
 
     // Tab B still holds the old copy, so its save must not win.
     mockMvc
@@ -714,10 +714,10 @@ class ProjectIntegrityIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body(name, 1, tabB, List.of(), Set.of(), "from tab B")))
         .andExpect(status().isConflict())
-        .andExpect(jsonPath("$.code").value("STALE_LOCK_VERSION"));
+        .andExpect(jsonPath("$.code").value("STALE_LOCK_NUMBER"));
     assertThat(getProject(mallory, id).path("reportNotes").isNull()).isTrue();
 
-    // A client that carries the returned lockVersion forward can keep saving.
+    // A client that carries the returned lockNumber forward can keep saving.
     mockMvc
         .perform(
             put("/projects/{id}", id)
@@ -728,7 +728,7 @@ class ProjectIntegrityIntegrationTest {
   }
 
   @Test
-  void putWithoutLockVersionIsRejected() throws Exception {
+  void putWithoutLockNumberIsRejected() throws Exception {
     String name = "no-lock-" + suffix;
     long id = createProject(mallory, name);
 
@@ -786,14 +786,14 @@ class ProjectIntegrityIntegrationTest {
   }
 
   @Test
-  void addingAComponentReturnsALockVersionTheNextSaveCanUse() throws Exception {
+  void addingAComponentReturnsALockNumberTheNextSaveCanUse() throws Exception {
     String name = "add-then-save-" + suffix;
     long id = createProject(mallory, name);
-    long before = getProject(mallory, id).path("lockVersion").asLong();
+    long before = getProject(mallory, id).path("lockNumber").asLong();
 
     JsonNode afterAdd = postComponent(mallory, id, component("First"));
 
-    assertThat(afterAdd.path("lockVersion").asLong()).isGreaterThan(before);
+    assertThat(afterAdd.path("lockNumber").asLong()).isGreaterThan(before);
     mockMvc
         .perform(
             put("/projects/{id}", id)
@@ -1021,7 +1021,7 @@ class ProjectIntegrityIntegrationTest {
     return body(name, version, current, components, projectAppUserIds, null);
   }
 
-  /** A project request the way the frontend sends it; {@code current} supplies the lockVersion. */
+  /** A project request the way the frontend sends it; {@code current} supplies the lockNumber. */
   private String body(
       String name,
       int version,
@@ -1036,8 +1036,8 @@ class ProjectIntegrityIntegrationTest {
     request.put("reportNotes", reportNotes);
     request.put("functionalComponents", components);
     request.put("projectAppUserIds", projectAppUserIds);
-    if (current != null && current.hasNonNull("lockVersion")) {
-      request.put("lockVersion", current.get("lockVersion").asLong());
+    if (current != null && current.hasNonNull("lockNumber")) {
+      request.put("lockNumber", current.get("lockNumber").asLong());
     }
     return objectMapper.writeValueAsString(request);
   }

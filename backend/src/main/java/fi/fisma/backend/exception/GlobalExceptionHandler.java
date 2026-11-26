@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(
             new ConflictResponse(
-                ConflictException.STALE_LOCK_VERSION,
+                ConflictException.STALE_LOCK_NUMBER,
                 "The project was changed by someone else. Reload it and try again."));
   }
 

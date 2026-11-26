@@ -72,7 +72,7 @@ export default function ProjectsProvider({
     try {
       const familyKey = getProjectFamilyKey(updatedProject);
       // The backend only accepts edits to the latest version and renames the older
-      // versions with it. Fetch it fresh so the rename carries its current lockVersion.
+      // versions with it. Fetch it fresh so the rename carries its current lockNumber.
       const latestVersion = projects
         .filter((p) => getProjectFamilyKey(p) === familyKey)
         .reduce(
@@ -90,10 +90,10 @@ export default function ProjectsProvider({
           if (getProjectFamilyKey(project) === familyKey) {
             return {
               ...project,
-              lockVersion:
+              lockNumber:
                 project.id === updatedResponse.id
-                  ? updatedResponse.lockVersion
-                  : project.lockVersion,
+                  ? updatedResponse.lockNumber
+                  : project.lockNumber,
               projectName: updatedProject.projectName,
             };
           }

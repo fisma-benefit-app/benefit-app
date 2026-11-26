@@ -180,13 +180,10 @@ export default function ProjectPage() {
   }, [project]);
 
   // The backend rejects a save made from an outdated copy of the project, so carry the new
-  // lockVersion forward after each save. Edits made while the save was in flight stay as they are.
-  const applySavedLockVersion = (saved: {
-    id: number;
-    lockVersion: number;
-  }) => {
+  // lockNumber forward after each save. Edits made while the save was in flight stay as they are.
+  const applySavedLockNumber = (saved: { id: number; lockNumber: number }) => {
     const carry = (p: Project | null) =>
-      p && p.id === saved.id ? { ...p, lockVersion: saved.lockVersion } : p;
+      p && p.id === saved.id ? { ...p, lockNumber: saved.lockNumber } : p;
     projectRef.current = carry(projectRef.current);
     setProject(carry);
   };
@@ -253,7 +250,7 @@ export default function ProjectPage() {
         functionalComponents: normalized,
       };
 
-      applySavedLockVersion(await updateProject(sessionToken, editedProject));
+      applySavedLockNumber(await updateProject(sessionToken, editedProject));
 
       if (notify) {
         updateNotification(
@@ -311,8 +308,8 @@ export default function ProjectPage() {
 
   const keepMyChanges = () => {
     if (!savedElsewhere || !canEdit) return;
-    // Their lockVersion makes this tab's next save go through, replacing the other tab's save.
-    applySavedLockVersion(savedElsewhere);
+    // Their lockNumber makes this tab's next save go through, replacing the other tab's save.
+    applySavedLockNumber(savedElsewhere);
     saveConflictRef.current = false;
     if (archivingVersion) {
       setArchivingVersion(false);
@@ -432,7 +429,7 @@ export default function ProjectPage() {
     if (!canEdit) return;
 
     isManuallySaved.current = true;
-    // The ref carries the lockVersion applied after a save conflict, which this render's
+    // The ref carries the lockNumber applied after a save conflict, which this render's
     // project does not have yet.
     const currentProject = projectRef.current;
     if (currentProject) {

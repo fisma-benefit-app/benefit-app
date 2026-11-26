@@ -41,7 +41,7 @@ public class ProjectRequest {
 
   @Schema(
       description =
-          "The project's lockVersion from the response the edit is based on. Required when updating a project; the update is rejected with 409 if the project has changed since.",
+          "The project's lockNumber from the response the edit is based on. Required when updating a project; the update is rejected with 409 if the project has changed since.",
       example = "3")
-  private Long lockVersion;
+  private Long lockNumber;
 }

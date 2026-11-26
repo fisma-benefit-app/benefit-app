@@ -33,7 +33,7 @@ public record ProjectResponse(
             description =
                 "Optimistic-lock counter. Send it back unchanged when updating the project; a stale value is rejected with 409",
             example = "3")
-        Long lockVersion,
+        Long lockNumber,
     @Schema(description = "Whether the project is active") boolean active,
     @Schema(description = "Functional components in the project")
         Set<FunctionalComponentResponse> functionalComponents,

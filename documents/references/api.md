@@ -79,7 +79,7 @@ curl --request GET \
   --header "Authorization: Bearer $BENEFIT_TOKEN"
 ```
 
-Replace `7` with the ID you received. Keep the returned `version`, `lockVersion`, and existing field values when [updating the project](#update-a-project). If creating a project returns `409`, choose a name you do not already have access to.
+Replace `7` with the ID you received. Keep the returned `version`, `lockNumber`, and existing field values when [updating the project](#update-a-project). If creating a project returns `409`, choose a name you do not already have access to.
 
 ## Concepts and conventions
 
@@ -91,17 +91,17 @@ Endpoint examples assume the variables from the quickstart. Set `PROJECT_ID`, `C
 
 The `role` of an account (`USER` or `ADMIN`) and its `roleInProject` (`OWNER` or `MEMBER`) are different. An administrator can create user accounts; administration does not bypass the project ownership checks.
 
-### Project versions and lockVersion
+### Project versions and lockNumber
 
 Projects with the same backend-assigned `familyId` belong to the same version history. Display names do not establish identity; independently created and duplicated projects start separate families. The highest `version` is the latest; older versions can be read but cannot be edited. A new project version has its own project ID.
 
-`version` is the calculation's version number. `lockVersion` is a separate save counter that protects against concurrent edits:
+`version` is the calculation's version number. `lockNumber` is a separate save counter that protects against concurrent edits:
 
-1. Fetch a project with `GET /projects/{id}` and retain its current `lockVersion`.
+1. Fetch a project with `GET /projects/{id}` and retain its current `lockNumber`.
 2. Send that value unchanged in `PUT /projects/{id}` with your edit.
-3. Keep the new `lockVersion` returned after a successful save.
+3. Keep the new `lockNumber` returned after a successful save.
 
-If another request saves first, your old counter is rejected with `409` and `STALE_LOCK_VERSION`. Fetch the current state, compare changes, and reapply your edit deliberately. Merely replacing the counter in an old request can overwrite someone else's work. Component creation and deletion also advance the project's save counter, so fetch fresh project state after those operations.
+If another request saves first, your old counter is rejected with `409` and `STALE_LOCK_NUMBER`. Fetch the current state, compare changes, and reapply your edit deliberately. Merely replacing the counter in an old request can overwrite someone else's work. Component creation and deletion also advance the project's save counter, so fetch fresh project state after those operations.
 
 **A project update is a full update, not a partial patch.** Omitted report fields and dates become `null`. Preserve the complete component tree, including subcomponents, when saving an existing calculation. Sending only the one field you changed is not sufficient.
 
@@ -135,14 +135,14 @@ Validation and service permission errors usually return text. Conflict responses
 
 ```json
 {
-  "code": "STALE_LOCK_VERSION",
+  "code": "STALE_LOCK_NUMBER",
   "message": "The project was changed by someone else. Reload it and try again."
 }
 ```
 
 | Code | Meaning | Recovery |
 | --- | --- | --- |
-| `STALE_LOCK_VERSION` | The project changed since the state you edited, or during your save. | Fetch the current state, compare, and reapply your changes with its current `lockVersion`. |
+| `STALE_LOCK_NUMBER` | The project changed since the state you edited, or during your save. | Fetch the current state, compare, and reapply your changes with its current `lockNumber`. |
 | `NOT_LATEST_VERSION` | You tried to change an archived version. | Open the latest version; changing the request's `version` field cannot make this project editable. |
 | `PROJECT_NAME_ALREADY_EXISTS` | You already have access to a project with the requested creation name. | Choose another name, or use the existing project. |
 | `USERNAME_ALREADY_EXISTS` | The account username is already taken. | Choose another username. |
@@ -322,7 +322,7 @@ curl --include --request GET \
     "reportContactDetails": "Benefit team",
     "reportNotes": "Initial review.",
     "updatedAt": "2026-11-18T17:06:23",
-    "lockVersion": 0,
+    "lockNumber": 0,
     "active": true,
     "functionalComponents": [],
     "projectAppUsers": [
@@ -386,7 +386,7 @@ curl --include --request GET \
   "reportContactDetails": "Benefit team",
   "reportNotes": "Initial review.",
   "updatedAt": "2026-11-18T17:06:23",
-  "lockVersion": 0,
+  "lockNumber": 0,
   "active": true,
   "functionalComponents": [],
   "projectAppUsers": [
@@ -427,7 +427,7 @@ Bearer JWT; any active account.
 | --- | --- | --- | --- |
 | `projectName` | JSON body | Yes | Nonblank name, at most 255 characters. |
 | `version` | JSON body | Yes | Use `1` for a new calculation. |
-| Other fields | JSON body | No | See [ProjectRequest](#projectrequest); `lockVersion` is not needed for creation. |
+| Other fields | JSON body | No | See [ProjectRequest](#projectrequest); `lockNumber` is not needed for creation. |
 
 #### Request example
 
@@ -470,7 +470,7 @@ Unlike update and duplicate, creation does not return a project body.
 
 `PUT /projects/{id}`
 
-Save changes to the latest version. Fetch the current project first, preserve its existing values, and send its current `lockVersion`. Renaming also renames its archived versions.
+Save changes to the latest version. Fetch the current project first, preserve its existing values, and send its current `lockNumber`. Renaming also renames its archived versions.
 
 #### Authentication and permissions
 
@@ -483,7 +483,7 @@ Bearer JWT. You must be an **OWNER** of this project. A view-only member receive
 | `id` | path | Yes | Project ID. |
 | `projectName` | JSON body | Yes | Current name, unless intentionally renaming. |
 | `version` | JSON body | Yes | Keep the existing value unchanged. |
-| `lockVersion` | JSON body | Yes | Counter from the project response you edited. |
+| `lockNumber` | JSON body | Yes | Counter from the project response you edited. |
 | Remaining fields | JSON body | Preserve existing values | Complete calculation and report fields; see [ProjectRequest](#projectrequest). |
 
 #### Request example
@@ -500,7 +500,7 @@ curl --include --request PUT \
   "calculationDate": "2026-11-18",
   "reportContactDetails": "Benefit team",
   "reportNotes": "Reviewed with the project owner.",
-  "lockVersion": 0
+  "lockNumber": 0
 }'
 ```
 
@@ -519,7 +519,7 @@ curl --include --request PUT \
   "reportContactDetails": "Benefit team",
   "reportNotes": "Reviewed with the project owner.",
   "updatedAt": "2026-11-18T17:06:22",
-  "lockVersion": 1,
+  "lockNumber": 1,
   "active": true,
   "functionalComponents": [],
   "projectAppUsers": [
@@ -535,7 +535,7 @@ curl --include --request PUT \
 }
 ```
 
-The example updates a note on a project with no components. Keep your own component tree when editing an existing calculation. The returned `lockVersion` is the counter to use for the next edit.
+The example updates a note on a project with no components. Keep your own component tree when editing an existing calculation. The returned `lockNumber` is the counter to use for the next edit.
 
 #### Errors and recovery
 
@@ -551,17 +551,17 @@ The example updates a note on a project with no components. Keep your own compon
 
 ```json
 {
-  "code": "STALE_LOCK_VERSION",
+  "code": "STALE_LOCK_NUMBER",
   "message": "The project was changed by someone else. Reload it and try again."
 }
 ```
 
 Fetch the current project, compare it with your edit, and reapply the changes you still want. Retry with the new state and its counter. If the code is `NOT_LATEST_VERSION`, open the latest project version instead.
 
-Omitting `lockVersion` returns `400` with this text body:
+Omitting `lockNumber` returns `400` with this text body:
 
 ```text
-lockVersion is required when updating a project
+lockNumber is required when updating a project
 ```
 
 ### Create a new project version
@@ -661,7 +661,7 @@ curl --include --request POST \
   "reportContactDetails": "Benefit team",
   "reportNotes": "Reviewed with the project owner.",
   "updatedAt": "2026-11-18T17:06:23",
-  "lockVersion": 0,
+  "lockNumber": 0,
   "active": true,
   "functionalComponents": [],
   "projectAppUsers": [
@@ -772,7 +772,7 @@ curl --include --request POST \
   "reportContactDetails": "Benefit team",
   "reportNotes": "Reviewed with the project owner.",
   "updatedAt": "2026-11-18T17:06:23",
-  "lockVersion": 1,
+  "lockNumber": 1,
   "active": true,
   "functionalComponents": [],
   "projectAppUsers": [
@@ -903,7 +903,7 @@ Selected fields from the returned [ProjectResponse](#projectresponse); timestamp
   "id": 11,
   "projectName": "Benefit documentation example",
   "version": 1,
-  "lockVersion": 2,
+  "lockNumber": 2,
   "functionalComponents": [
     {
       "id": 9301,
@@ -939,7 +939,7 @@ Selected fields from the returned [ProjectResponse](#projectresponse); timestamp
 }
 ```
 
-Returns the whole updated [ProjectResponse](#projectresponse), not just the new component. Keep its new `lockVersion`. If you supply `parentFCId`, that parent must be active in the same project.
+Returns the whole updated [ProjectResponse](#projectresponse), not just the new component. Keep its new `lockNumber`. If you supply `parentFCId`, that parent must be active in the same project.
 
 #### Errors and recovery
 
@@ -982,7 +982,7 @@ curl --include --request DELETE \
 
 No response body.
 
-Fetch the project again before the next full update: deletion advances `lockVersion` but this response has no body.
+Fetch the project again before the next full update: deletion advances `lockNumber` but this response has no body.
 
 #### Errors and recovery
 
@@ -1382,7 +1382,7 @@ The endpoint sections explain what to send for each operation. These tables desc
 | `calculationDate` | date or null | `YYYY-MM-DD`; omission clears it during a project update. |
 | `reportContactDetails` | string or null | At most 2,000 characters; omission clears it during an update. |
 | `reportNotes` | string or null | At most 5,000 characters; omission clears it during an update. |
-| `lockVersion` | integer | Required for project updates; use the current response's value. Not a project version number and not needed for creation. |
+| `lockNumber` | integer | Required for project updates; use the current response's value. Not a project version number and not needed for creation. |
 
 ### ProjectResponse
 
@@ -1398,7 +1398,7 @@ The endpoint sections explain what to send for each operation. These tables desc
 | `reportContactDetails` | string or null | Report contact details. |
 | `reportNotes` | string or null | Report notes. |
 | `updatedAt` | date-time | Last update time, falling back to creation time. |
-| `lockVersion` | integer | Current save counter for the next full update. |
+| `lockNumber` | integer | Current save counter for the next full update. |
 | `active` | boolean | Whether the project is not soft-deleted. It does **not** mean this is the latest version. |
 | `functionalComponents` | array of FunctionalComponentResponse | Active top-level components, with children nested under their parent. Use `orderPosition` for display ordering; do not assume array order is meaningful. |
 | `projectAppUsers` | array of ProjectAppUserResponse | Accounts and their project-specific roles. |
