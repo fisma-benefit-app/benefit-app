@@ -137,7 +137,7 @@ export default function LoginForm() {
               (e.target as HTMLInputElement).setCustomValidity("")
             }
             required
-            className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+            className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white!"
           />
         </div>
 
@@ -160,7 +160,7 @@ export default function LoginForm() {
               (e.target as HTMLInputElement).setCustomValidity("")
             }
             required
-            className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+            className="w-full p-2 pl-10 border-2 border-fisma-dark-blue bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white!"
           />
           <button
             type="button"

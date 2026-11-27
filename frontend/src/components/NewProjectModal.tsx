@@ -414,7 +414,7 @@ export default function NewProjectModal({
                 setError(null);
               }}
               required
-              className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+              className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white!"
             />
             <div className="flex justify-evenly items-center">
               <button
@@ -470,7 +470,7 @@ export default function NewProjectModal({
                     setError(null);
                   }}
                   required
-                  className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+                  className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white!"
                 />
               </div>
             )}
