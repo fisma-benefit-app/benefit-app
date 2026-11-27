@@ -439,6 +439,7 @@ export const translations = {
       accountDeleteFailed: "Failed to delete account",
     },
     shortcutTooltip: {
+      buttonLabel: "Keyboard shortcuts",
       toggleViewTip: "Press V to toggle between Compact and Full View.",
       newComponentTip: "Press N to add a new functional component.",
       componentDragTip:
@@ -889,6 +890,7 @@ export const translations = {
       accountDeleteFailed: "Tilin poistaminen epäonnistui",
     },
     shortcutTooltip: {
+      buttonLabel: "Pikanäppäimet",
       toggleViewTip:
         "Paina V vaihtaaksesi kokonaisnäkymän ja tiiviin väkymän välillä.",
       newComponentTip: "Paina N lisätäksesi uuden toiminnallisen komponentin.",
