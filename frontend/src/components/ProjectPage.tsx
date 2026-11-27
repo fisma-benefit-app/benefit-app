@@ -520,7 +520,11 @@ export default function ProjectPage() {
         <button
           className="bg-fisma-blue hover:bg-fisma-dark-blue text-white px-4 py-3 rounded flex items-center gap-2"
           onClick={() => setIsSummaryMenuOpen(!isSummaryMenuOpen)}
-          aria-label="Toggle summary menu"
+          aria-label={
+            isSummaryMenuOpen
+              ? translation.closeSummary
+              : translation.openSummary
+          }
         >
           <FontAwesomeIcon icon={isSummaryMenuOpen ? faTimes : faBars} />
         </button>
@@ -533,7 +537,9 @@ export default function ProjectPage() {
         <button
           onClick={() => setIsPanelOpen(!isPanelOpen)}
           className="bg-white text-gray-500 hover:bg-gray-100 hover:text-fisma-blue w-6 h-10 rounded-l-md border border-gray-300 border-r-0 shadow-[-2px_0_5px_rgba(0,0,0,0.08)] flex items-center justify-center transition-colors"
-          title={isPanelOpen ? "Close sidebar" : "Open sidebar"}
+          title={
+            isPanelOpen ? translation.closeSummary : translation.openSummary
+          }
         >
           <FontAwesomeIcon
             icon={isPanelOpen ? faChevronRight : faChevronLeft}

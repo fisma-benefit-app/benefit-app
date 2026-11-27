@@ -80,9 +80,18 @@ export default function ProjectReportFields({
           }}
           locale={language === "fi" ? fi : enUS}
           dateFormat={language === "fi" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
+          previousMonthAriaLabel={translation.datePicker.previousMonth}
+          previousMonthButtonLabel={translation.datePicker.previousMonth}
+          nextMonthAriaLabel={translation.datePicker.nextMonth}
+          nextMonthButtonLabel={translation.datePicker.nextMonth}
+          monthAriaLabelPrefix={translation.datePicker.month}
+          chooseDayAriaLabelPrefix={translation.datePicker.chooseDay}
+          disabledDayAriaLabelPrefix={translation.datePicker.unavailableDay}
           className="border-2 border-gray-400 px-3 py-2 w-full text-sm"
           disabled={!canEdit || loadingProject}
           isClearable
+          clearButtonTitle={translation.datePicker.clearDate}
+          ariaLabelClose={translation.datePicker.clearDate}
         />
       </div>
 
