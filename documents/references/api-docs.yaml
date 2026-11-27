@@ -22,6 +22,8 @@ tags:
   description: Endpoints for managing functional components within projects
 - name: Token Generation
   description: Endpoint for generating token
+- name: Calculation Report Comment Management
+  description: Endpoints for managing calculation report comments
 - name: Comment Management
   description: Endpoints for managing project comments
 paths:
@@ -116,6 +118,79 @@ paths:
             text/plain:
               schema:
                 type: string
+      security:
+      - bearerAuth: []
+  /projects/{projectId}/calculation-report-comments/{commentId}:
+    put:
+      tags:
+      - Calculation Report Comment Management
+      summary: Update a calculation report comment
+      description: Updates an existing calculation report comment for the specified
+        project
+      operationId: updateComment_1
+      parameters:
+      - name: projectId
+        in: path
+        description: ID of the project
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: commentId
+        in: path
+        description: ID of the comment to update
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculationReportCommentRequest"
+        required: true
+      responses:
+        "200":
+          description: Comment updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CalculationReportCommentResponse"
+        "404":
+          description: Comment or project not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CalculationReportCommentResponse"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Calculation Report Comment Management
+      summary: Delete a calculation report comment
+      description: Deletes a calculation report comment belonging to the specified
+        project
+      operationId: deleteComment_1
+      parameters:
+      - name: projectId
+        in: path
+        description: ID of the project
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: commentId
+        in: path
+        description: ID of the comment to delete
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Comment deleted successfully
+        "404":
+          description: Comment or project not found
       security:
       - bearerAuth: []
   /projects/{id}:
@@ -453,6 +528,68 @@ paths:
             text/plain:
               schema:
                 type: string
+      security:
+      - bearerAuth: []
+  /projects/{projectId}/calculation-report-comments:
+    get:
+      tags:
+      - Calculation Report Comment Management
+      summary: Get calculation report comments for a project
+      description: Retrieves all calculation report comments for the specified project
+        that the user can access
+      operationId: getComments_1
+      parameters:
+      - name: projectId
+        in: path
+        description: ID of the project
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Comments returned successfully
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalculationReportCommentResponse"
+        "404":
+          description: Project not found
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalculationReportCommentResponse"
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Calculation Report Comment Management
+      summary: Create a calculation report comment
+      description: Creates a new calculation report comment for the specified project
+      operationId: createComment_1
+      parameters:
+      - name: projectId
+        in: path
+        description: ID of the project
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculationReportCommentRequest"
+        required: true
+      responses:
+        "201":
+          description: Comment created successfully
+        "400":
+          description: Invalid comment data
       security:
       - bearerAuth: []
   /projects/{id}/versions:
@@ -922,6 +1059,37 @@ components:
           format: int64
           description: ID of the project version this comment belongs to
           example: 7
+    CalculationReportCommentRequest:
+      type: object
+      description: Request object for creating or updating a calculation report comment
+      properties:
+        text:
+          type: string
+          description: Comment text
+          example: The totals were reviewed with the customer
+          maxLength: 2000
+          minLength: 0
+      required:
+      - text
+    CalculationReportCommentResponse:
+      type: object
+      description: Response object containing a calculation report comment tied to
+        a project version
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier of the comment
+          example: 1
+        text:
+          type: string
+          description: Comment text
+          example: The totals were reviewed with the customer
+        projectId:
+          type: integer
+          format: int64
+          description: ID of the project version this comment belongs to
+          example: 7
     FunctionalComponentRequest:
       type: object
       description: Request object for creating or updating functional components within
@@ -1350,7 +1518,8 @@ components:
           minLength: 1
         password:
           type: string
-          description: Nonblank password containing 8 to 72 Unicode code points and at most 72 UTF-8 bytes. Null characters and line breaks are not allowed.
+          description: Nonblank password containing 8 to 72 Unicode code points and
+            at most 72 UTF-8 bytes. Null characters and line breaks are not allowed.
           writeOnly: true
         role:
           type: string

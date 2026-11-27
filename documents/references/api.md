@@ -107,7 +107,7 @@ If another request saves first, your old counter is rejected with `409` and `STA
 
 ### Owners, members, and comments
 
-An `OWNER` can edit the latest calculation, create versions, duplicate or delete a project, and manage membership. A `MEMBER` has view-only access to calculation data. Both roles can read, create, update, and delete comments on accessible projects, including archived versions. Comments are tied to a particular project ID, not the entire version history, and comment edits are not limited to their author.
+An `OWNER` can edit the latest calculation, create versions, duplicate or delete a project, and manage membership. A `MEMBER` has view-only access to calculation data. Both roles can read, create, update, and delete project comments and calculation report comments on accessible projects, including archived versions. The interface makes archived versions read-only. Each collection is tied to a particular project ID, comments are not copied to new versions, and edits are not limited to their author.
 
 Sharing and removing access apply across the project's existing versions. New versions copy membership and roles. A duplicate starts a separate project at version 1, owned only by the caller.
 
@@ -995,6 +995,8 @@ Fetch the project again before the next full update: deletion advances `lockNumb
 
 ## Comments
 
+Project comments and calculation report comments are separate collections with the same request and response fields. Use the matching resource path and comment ID for each collection. The API permits both project roles to modify comments on archived versions even though the interface displays them read-only.
+
 ### List project comments
 
 `GET /projects/{projectId}/comments`
@@ -1180,6 +1182,54 @@ No response body.
 | `401` | The token is missing, invalid, expired, or revoked. | Sign in again and use the returned token. |
 | `403` | The comment belongs to a different project. | Use its actual project ID. |
 | `404` | Project or comment is unavailable. | Check access and both IDs. |
+
+### Calculation report comments
+
+These endpoints manage a separate collection from project comments. Both **OWNER** and **MEMBER** can use them on accessible project versions, including archived versions. They use the same [request](#commentrequest) and [response](#commentresponse) fields and validation as project comments: text is required, nonblank, and at most 2,000 characters. The frontend trims text before sending it.
+
+| Method | Path | Success |
+| --- | --- | --- |
+| GET | `/projects/{projectId}/calculation-report-comments` | `200 OK`, array of comments, ordered by ID; an empty collection returns `[]`. |
+| POST | `/projects/{projectId}/calculation-report-comments` | `201 Created`, no body; `Location` identifies the created comment. |
+| PUT | `/projects/{projectId}/calculation-report-comments/{commentId}` | `200 OK`, updated comment. |
+| DELETE | `/projects/{projectId}/calculation-report-comments/{commentId}` | `204 No Content`, no body; deletion is permanent. |
+
+There is no single-comment GET endpoint. The ID in `Location` is used for update and delete, or retrieve IDs by listing the collection. A comment ID must identify a calculation report comment belonging to the specified project.
+
+```bash
+# List
+curl --include --request GET \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/calculation-report-comments" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+
+# Create
+curl --include --request POST \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/calculation-report-comments" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{"text":"The totals were reviewed with the customer."}'
+
+# Update
+curl --include --request PUT \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/calculation-report-comments/$COMMENT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{"text":"The revised totals were reviewed."}'
+
+# Delete
+curl --include --request DELETE \
+  --url "$BENEFIT_API_URL/projects/$PROJECT_ID/calculation-report-comments/$COMMENT_ID" \
+  --header "Authorization: Bearer $BENEFIT_TOKEN"
+```
+
+A list contains objects such as `{"id": 8, "text": "The totals were reviewed with the customer.", "projectId": 11}`; PUT returns a single object in that shape. POST returns a `Location` such as `/projects/11/calculation-report-comments/8` and no body.
+
+| Status | When it happens | What to do |
+| --- | --- | --- |
+| `400` | Text is missing, blank, or too long. | Correct the request. |
+| `401` | The token is missing, invalid, expired, or revoked. | Sign in again. |
+| `403` | The comment belongs to a different project. | Use its actual project ID. |
+| `404` | The project is unavailable to the account or the comment does not exist. | Check access and both IDs. |
 
 ## User accounts
 
