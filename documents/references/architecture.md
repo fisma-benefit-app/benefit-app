@@ -22,7 +22,6 @@ The API is part of the backend, not a separate service between Spring and React.
 | --- | --- | --- |
 | Local Docker | Compose runs Vite, Spring Boot, and PostgreSQL; source directories are mounted. | Browser requests still reach the backend using `VITE_API_URL`. |
 | Hosted frontend and backend | GitHub Pages serves assets; a backend host runs Spring and connects to its database. | The browser runs calculations and sends authenticated API requests. |
-| Self-hosted production-style Compose | nginx serves the frontend and forwards API requests to the backend. | Services still enforce the same permissions, session checks, and persistence rules. |
 
 `VITE_API_URL` and `VITE_BASE_PATH` are frontend build settings. CORS is a backend origin policy. Neither is a replacement for authentication. Consult [deployment guidance](../guides/deployment_guide.md) for actual environment URLs and procedures; hosted settings require verification.
 

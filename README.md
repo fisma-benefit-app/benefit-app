@@ -42,7 +42,6 @@ Run Docker commands from the repository root. Hosted log commands require the re
 | Read production backend logs | `scalingo --app benefit --region osc-fr1 logs --follow` |
 | Read Scalingo testing backend logs | `scalingo --app benefit-testing --region osc-fr1 logs --follow` |
 | Check hosted health, status, and recent changes | [Environment checks](documents/guides/incident_response.md#identify-and-check-the-environment) |
-| Read self-hosted server logs | On the server checkout: `docker compose -f docker-compose.prod.yaml logs --tail=200 backend` |
 | Find build, test, or deployment logs | [GitHub Actions](https://github.com/fisma-benefit-app/benefit-app/actions) |
 | Refresh frontend caches | See [Caches](#caches) below |
 | Deploy or check what is running | [Deployment and operations](documents/guides/deployment_guide.md) |

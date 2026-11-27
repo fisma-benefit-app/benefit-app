@@ -34,9 +34,8 @@ The API owns the client-visible contract. Authentication explains its internal s
 ## Operate and maintain
 
 - [Incident response](guides/incident_response.md): start here during an outage; health, logs, caches, recovery, and verification.
-- [Deployment guide](guides/deployment_guide.md): shared deployment guidance and Heroku procedures.
+- [Deployment guide](guides/deployment_guide.md): Scalingo and GitHub Pages deployment procedures.
 - [Scalingo setup](guides/scalingo_deployment.md) and [Scalingo maintenance](guides/scalingo_maintenance.md): installation and routine operation. These are planned for consolidation.
-- [Self-hosted / UpCloud guide](guides/upcloud_deployment.md): production-style Docker setup.
 - [Database guide](guides/database.md): migration and initialization boundaries.
 - [Versioning](guides/versioning.md): release branches, tags, and release notes.
 - [API documentation maintenance](guides/generate_api_docs.md): maintain the reference and export OpenAPI.

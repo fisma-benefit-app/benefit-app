@@ -2,7 +2,7 @@
 
 Trivy complements Dependabot and CodeQL by scanning a freshly built backend JAR
 and the frontend npm lockfile. These are CI artifacts, not necessarily the exact
-artifacts deployed to Heroku, Scalingo or GitHub Pages. The original image-scan
+artifacts deployed to Scalingo or GitHub Pages. The original image-scan
 pilot is recorded in [security audit #959](https://github.com/fisma-benefit-app/benefit-app/issues/959)
 and [PR #977](https://github.com/fisma-benefit-app/benefit-app/pull/977).
 
@@ -63,4 +63,4 @@ fix. A clean scan does not establish that an application is secure.
 
 This workflow scans vulnerabilities only. It does not scan Docker image or hosted
 operating-system packages, PostgreSQL, secrets, configuration or application
-behavior. Heroku and Scalingo runtime security must be assessed separately.
+behavior. Scalingo runtime security must be assessed separately.

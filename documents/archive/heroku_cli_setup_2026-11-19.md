@@ -1,4 +1,4 @@
-> **Historical document — archived 2026-11-19.** Superseded by [current guidance](../guides/incident_response.md#heroku-status-and-logs). Commands and configuration below may be outdated or destructive; use the current guide for operational work.
+> **Historical document — archived 2026-11-19.** Superseded by [current guidance](../guides/incident_response.md#scalingo-status-and-logs). Commands and configuration below may be outdated or destructive; use the current guide for operational work.
 
 ## Heroku CLI Setup
 

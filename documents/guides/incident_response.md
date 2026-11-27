@@ -20,7 +20,6 @@ Open the affected frontend from the [service list](../../README.md#services-and-
 | Scalingo production | [Dashboard: osc-fr1 / benefit](https://dashboard.scalingo.com/apps/osc-fr1/benefit) | [Backend health](https://benefit.osc-fr1.scalingo.io/actuator/health) |
 | Scalingo testing | [Dashboard: osc-fr1 / benefit-testing](https://dashboard.scalingo.com/apps/osc-fr1/benefit-testing) | [Backend health](https://benefit-testing.osc-fr1.scalingo.io/actuator/health) |
 | Local development | Repository checkout, development Compose stack | [Backend health](http://localhost:8080/actuator/health) |
-| Self-hosted / UpCloud | Server checkout and `docker-compose.prod.yaml`; see [server guide](upcloud_deployment.md) for access/setup | On the server's public origin, request `/api/actuator/health` through nginx. |
 
 A successful health response reports `UP`. Also test the failing user action: health alone does not prove login, frontend configuration, permissions, or saving work.
 
@@ -38,20 +37,13 @@ scalingo --app benefit-testing --region osc-fr1 logs --follow
 
 For production, replace `benefit-testing` with `benefit` in the commands above. For testing, check which job failed in [Deploy Scalingo testing](../../.github/workflows/deploy-scalingo-testing.yml). The frontend exposes its deployed revision in [version.json](https://fisma-benefit-app-testing.github.io/scalingo/version.json). The [maintenance guide](scalingo_maintenance.md) covers database checks and backups.
 
-### Local or self-hosted Docker logs
+### Local Docker logs
 
 For local development, run from the repository root:
 
 ```bash
 docker compose ps
 docker compose logs --tail=200 backend frontend db
-```
-
-For a self-hosted server, run from its checkout and explicitly select the production Compose file:
-
-```bash
-docker compose -f docker-compose.prod.yaml ps
-docker compose -f docker-compose.prod.yaml logs --tail=200 backend frontend db
 ```
 
 Add `-f` to `logs` to follow output. Frontend runtime errors are in the browser Console and Network tabs; container logs show the server side. GitHub Pages build/deploy failures are in [Actions](https://github.com/fisma-benefit-app/benefit-app/actions). Local backend test reports are in `backend/build/reports/tests/test/` after a test run.
@@ -81,15 +73,11 @@ scalingo --app benefit-testing --region osc-fr1 restart
 # Scalingo production
 scalingo --app benefit --region osc-fr1 restart
 
-# Self-hosted server, from its checkout
-docker compose -f docker-compose.prod.yaml restart backend
 ```
 
 For local development, backend startup under `dev` deletes and reseeds data. Follow [development troubleshooting](development.md#troubleshoot-by-symptom) instead of applying server procedures blindly.
 
 If an incident began with a deployment, identify the last working revision and compare schema/configuration requirements before rolling back. Use the provider's release/deployment controls and the [deployment guide](deployment_guide.md); coordinate the frontend and backend revisions. A [Scalingo rollback](https://doc.scalingo.com/platform/app/rollback) redeploys the backend revision. Check database compatibility and restore the matching frontend separately if needed.
-
-On a server, `update_server.sh` pulls code, builds, backs up, applies migrations, and restarts; it is a deployment, not a simple restart.
 
 ## Caches: target the failing layer
 

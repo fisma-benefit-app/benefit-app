@@ -34,11 +34,11 @@ psql -h localhost -p 5433 -U <username> <database>
 
 Production and testing use separate Scalingo PostgreSQL databases. The shared backend configuration sets SQL initialization to `never`. Use manual migrations for hosted databases.
 
-Database migrations are manual. See (/backend/src/main/resources/migrations/). On a self-hosted server (`docker-compose.prod.yaml`), `./update_server.sh` applies them and records them in the `schema_migrations` table; see the [UpCloud guide](./upcloud_deployment.md#updating-to-a-newer-version).
+Database migrations are manual. See [migrations](../../backend/src/main/resources/migrations/).
 
 ### Project family IDs
 
-Stop the old backend before applying `2026_11_15_projects_family_id.sql`, then start the updated backend. On a self-hosted deployment, run `docker compose -f docker-compose.prod.yaml stop backend` before `./update_server.sh`. An archive request handled by the old backend after the backfill would give the new version a separate family ID.
+Stop the old backend before applying `2026_11_15_projects_family_id.sql`, then start the updated backend. An archive request handled by the old backend after the backfill would give the new version a separate family ID.
 
 The migration links legacy rows when their stored creation and version timestamps support a single, consecutive same-name history. Ambiguous rows, including archives created within the timestamp resolution of the original project, get separate family IDs. Review any split history against trusted records before correcting family IDs, since a family ID controls how later membership changes propagate. The migration leaves existing membership rows as recorded.
 

@@ -103,8 +103,7 @@ This is standard HTTP Basic auth: `username:password` encoded in Base64. Base64 
 
 | Environment                                    | Connection | Notes                                                                                                                                                                                                               |
 | ---------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Production (Heroku), testing (Scalingo)        | HTTPS      | The platforms terminate TLS. The frontend on GitHub Pages is HTTPS too, so the browser would block calls to a plain-HTTP API as mixed content.                                                                      |
-| Self-hosted stack (`docker-compose.prod.yaml`) | **HTTP**   | nginx only listens on port 80, so the password and every JWT cross the network unencrypted. Put a TLS reverse proxy (e.g. Caddy) in front before real users log in, see [deployment_guide.md](deployment_guide.md). |
+| Production and testing (Scalingo)               | HTTPS      | The platforms terminate TLS. The frontend on GitHub Pages is HTTPS too, so the browser would block calls to a plain-HTTP API as mixed content.                                                                      |
 | Local development                              | HTTP       | `localhost` only.                                                                                                                                                                                                   |
 
 Basic authentication is limited to `POST /token`, where clients must send `X-Benefit-Login: 1`. HTML forms cannot set this header, and cross-origin browser scripts need a successful CORS preflight to send it. Protected API routes and session renewal use a Bearer token.
@@ -278,8 +277,7 @@ next authenticated interaction. Their remote UI is not cleared instantaneously.
 #### Deployment compatibility and rollback
 
 Apply `2026_11_14_app_users_session_version.sql` manually before deploying the new
-backend (the self-hosted updater applies migrations as documented in
-[database.md](database.md)). The migration adds a non-null version with default
+backend (see [database.md](database.md)). The migration adds a non-null version with default
 zero; it neither seeds nor changes existing passwords. JWTs without the claim are
 explicitly treated as version zero, so existing sessions survive deployment until
 the account's first password change. Malformed version claims are rejected.
@@ -304,7 +302,7 @@ Blacklist checks query for an entry whose expiry is still in the future. Expired
 
 | Key         | Where                                                                                                           | Used by                                      |
 | ----------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| Private key | `JWT_PRIVATE_KEY` environment variable: root `.env` locally, config vars on Heroku, Environment tab on Scalingo. Mapped to `jwt.private.key` | `JwtEncoder` (sign)                          |
+| Private key | `JWT_PRIVATE_KEY` environment variable: root `.env` locally, Environment tab on Scalingo. Mapped to `jwt.private.key` | `JwtEncoder` (sign)                          |
 | Public key  | Derived from the private key at startup (`SecurityConfig.publicKey()`). Not stored anywhere                     | `JwtDecoder` (verify), `JwtEncoder` (key id) |
 
 - The private key must be a PKCS#8 PEM (`-----BEGIN PRIVATE KEY-----`). `SecurityConfig.parsePrivateKey()` accepts real newlines or literal `\n`, so the key can sit on one line in an env var. If the key can't be parsed, startup fails with `JWT_PRIVATE_KEY is not a valid RSA private key`.
@@ -324,7 +322,7 @@ These follow from the design above and are worth knowing when debugging or chang
 - **Deleting an account works through the database, not the token.** `AccountSessionValidator` requires an active account, so an existing JWT is rejected on protected requests and renewal after deletion. Resource lookups also filter on `deleted_at IS NULL`.
 - **A login lasts at most 30 days**, however often the session is extended. After that the user has to log in again.
 - **Tokens are readable by page JavaScript** (localStorage), so an XSS bug would expose them. The prod and testing frontends share one GitHub Pages origin and so share localStorage, which is why the keys are prefixed with the base path.
-- **Credentials are only as private as the connection.** Basic auth and Bearer tokens are not encrypted by the app, so HTTPS is required ([#528](https://github.com/fisma-benefit-app/benefit-app/issues/528)). Heroku and Scalingo provide it. The self-hosted stack doesn't yet.
+- **Credentials are only as private as the connection.** Basic auth and Bearer tokens are not encrypted by the app, so HTTPS is required ([#528](https://github.com/fisma-benefit-app/benefit-app/issues/528)). Scalingo provides it.
 - `/auth/logout` declares `204 No Content` through `@ResponseStatus`; verify actual status and revocation behavior against the assessed revision rather than inferring success from an empty response.
 
 ## Testing with Postman

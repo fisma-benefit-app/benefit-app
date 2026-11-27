@@ -242,7 +242,7 @@ Each entry says how to recognise the problem.
 - **The connection string showed `<password>`.** The database dashboard masks the password. The real value is in the **app's** Environment tab (`SCALINGO_POSTGRESQL_URL`).
 - **The JDBC URL format.** Using the `postgres://user:password@host...` URL directly in Spring doesn't work. It needs `jdbc:postgresql://host:port/db` plus separate username and password variables (step 5).
 - **`scalingo restart` printed nothing.** The login had worked; the command just gave no output while waiting on the platform. The dashboard's **Restart** button and **Logs** tab are a reliable alternative.
-- **No Docker on Scalingo.** Scalingo can't run our own Dockerfile or `docker-compose.prod.yaml`. It builds from source with buildpacks. The Docker Image add-on only lets you *download* the images Scalingo built, not upload your own.
+- **No Docker on Scalingo.** Scalingo can't run our own Dockerfile or Docker Compose stack. It builds from source with buildpacks. The Docker Image add-on only lets you *download* the images Scalingo built, not upload your own.
 
 ## See also
 
