@@ -47,6 +47,7 @@ export default function ComponentClassIcons({
         borderColor: colors.border,
       }}
       title={fullLabel}
+      role="img"
       aria-label={fullLabel}
     >
       {icons.map((icon, index) => (

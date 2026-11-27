@@ -35,7 +35,7 @@ export const FunctionalPointSummary = ({
   const translation = useTranslations();
   const { sortedProjects, returnLatestOrPreviousVersion } = useProjects();
   const { showNotification } = useAlert();
-  const [activeTab, setActiveTab] = useState<"calculations" | "mla">(
+  const [selectedTab, setSelectedTab] = useState<"calculations" | "mla">(
     "calculations",
   );
 
@@ -66,6 +66,7 @@ export const FunctionalPointSummary = ({
 
   // MLA calculations
   const hasMLA = hasMLAComponents(project.functionalComponents);
+  const activeTab = hasMLA ? selectedTab : "calculations";
   const mlaLayerDetails = hasMLA
     ? calculateMLALayerDetails(project.functionalComponents)
     : null;
@@ -108,9 +109,10 @@ export const FunctionalPointSummary = ({
       {hasMLA && (
         <div role="tablist" className="flex border-b mb-4">
           <button
+            id="calculations-tab"
             role="tab"
             aria-selected={activeTab === "calculations"}
-            onClick={() => setActiveTab("calculations")}
+            onClick={() => setSelectedTab("calculations")}
             className={`px-4 py-2 font-medium transition-colors ${
               activeTab === "calculations"
                 ? "border-b-2 border-blue-600 text-blue-600"
@@ -120,9 +122,10 @@ export const FunctionalPointSummary = ({
             {translation.functionalPointSummary.calculationsTab}
           </button>
           <button
+            id="mla-tab"
             role="tab"
             aria-selected={activeTab === "mla"}
-            onClick={() => setActiveTab("mla")}
+            onClick={() => setSelectedTab("mla")}
             className={`px-4 py-2 font-medium transition-colors ${
               activeTab === "mla"
                 ? "border-b-2 border-blue-600 text-blue-600"
@@ -136,11 +139,9 @@ export const FunctionalPointSummary = ({
 
       {/* Tab Content */}
       <div
-        role="tabpanel"
-        id={activeTab === "calculations" ? "calculations-panel" : "mla-panel"}
-        aria-labelledby={
-          activeTab === "calculations" ? "calculations-tab" : "mla-tab"
-        }
+        role={hasMLA ? "tabpanel" : undefined}
+        id={hasMLA ? `${activeTab}-panel` : undefined}
+        aria-labelledby={hasMLA ? `${activeTab}-tab` : undefined}
         className="overflow-y-auto pr-2"
       >
         {activeTab === "calculations" ? (
