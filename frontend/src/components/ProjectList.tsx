@@ -1,10 +1,5 @@
 import { getProjectFamilyKey } from "../lib/projectFamily";
-import {
-  type AriaAttributes,
-  type KeyboardEvent,
-  useMemo,
-  useState,
-} from "react";
+import { type AriaAttributes, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -106,16 +101,6 @@ export default function ProjectList() {
     });
   };
 
-  const onHeaderKeyDown = (key: SortKey) => (e: KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      toggleSort(key);
-    }
-  };
-
-  const sortableHeaderClassName =
-    "bg-fisma-blue p-3 text-left text-white whitespace-nowrap cursor-pointer hover:bg-fisma-dark-blue transition-colors";
-
   const displayedProjects = useMemo(() => {
     const latestProjects = getLatestVersion(sortedProjects);
 
@@ -149,12 +134,13 @@ export default function ProjectList() {
       <FontAwesomeIcon
         icon={sort.dir === "asc" ? faChevronUp : faChevronDown}
         className="ml-1 text-xs"
+        aria-hidden="true"
       />
     );
   };
 
   const ariaSort = (key: SortKey): AriaAttributes["aria-sort"] => {
-    if (!sort || sort.key !== key) return "none";
+    if (!sort || sort.key !== key) return undefined;
     return sort.dir === "asc" ? "ascending" : "descending";
   };
 
@@ -266,20 +252,24 @@ export default function ProjectList() {
               {sortableColumns.map((col) => (
                 <th
                   key={col.key}
-                  className={`${sortableHeaderClassName} ${col.widthClassName}`}
+                  scope="col"
+                  className={`bg-fisma-blue text-white ${col.widthClassName}`}
                   aria-sort={ariaSort(col.key)}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => toggleSort(col.key)}
-                  onKeyDown={onHeaderKeyDown(col.key)}
                 >
-                  <div className="flex items-center select-none">
+                  <button
+                    type="button"
+                    className="flex w-full cursor-pointer items-center whitespace-nowrap select-none p-3 hover:bg-fisma-dark-blue transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"
+                    onClick={() => toggleSort(col.key)}
+                  >
                     {col.label}
                     {sortArrow(col.key)}
-                  </div>
+                  </button>
                 </th>
               ))}
-              <th className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5">
+              <th
+                scope="col"
+                className="bg-fisma-blue p-3 text-left text-white whitespace-nowrap w-1/5"
+              >
                 <div className="flex items-center">
                   <span className="text-sm">
                     {projectListTranslation.actions}
@@ -294,18 +284,9 @@ export default function ProjectList() {
                 <tr
                   key={project.id}
                   className="cursor-pointer hover:bg-blue-200 transition-colors"
-                  role="button"
-                  tabIndex={0}
                   onClick={() => {
                     setSelectedProject(project);
                     navigate(`/project/${project.id}`);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setSelectedProject(project);
-                      navigate(`/project/${project.id}`);
-                    }
                   }}
                 >
                   <td className="border-b-2 border-fisma-light-gray p-1 whitespace-nowrap overflow-hidden truncate">
