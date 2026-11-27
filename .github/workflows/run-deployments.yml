@@ -31,6 +31,13 @@ jobs:
         shell: bash
 
     steps:
+      # The public backend URL is embedded in the frontend during the build.
+      # Check it before installing dependencies or publishing to Pages.
+      - name: Check production API URL
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+        run: ': "${PRODUCTION_URL:?Set the PRODUCTION_URL repository Actions variable to the production backend URL}"'
+
       # Start at the dispatch commit on main and fetch its history so the job
       # can verify earlier release commits. Configure Git for publishing later.
       - uses: actions/checkout@v7

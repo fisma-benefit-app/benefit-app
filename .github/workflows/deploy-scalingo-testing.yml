@@ -2,6 +2,8 @@ name: Deploy Scalingo testing
 
 # Scalingo's GitHub integration deploys the backend from main. This workflow
 # publishes the frontend to GitHub Pages and can run Playwright after deployment.
+# Frontend publishing runs independently of backend deployment and other checks,
+# so the two sites can temporarily serve different revisions.
 on:
   push:
     branches: [main]
@@ -18,12 +20,12 @@ defaults:
 concurrency:
   group: scalingo-testing-${{ github.ref }}
 
-# These public URLs and paths are workflow environment variables. Vite embeds
-# TESTING_API_URL and TESTING_BASE_PATH in the frontend at build time.
+# TESTING_API_URL comes from the repository Actions variable. Vite embeds it
+# and TESTING_BASE_PATH in the frontend at build time.
 # TESTING_PAGES_ORIGIN must match an origin in the Scalingo app's
 # CORS_ALLOWED_ORIGINS. Playwright combines it with TESTING_BASE_PATH.
 env:
-  TESTING_API_URL: https://benefit-testing.osc-fr1.scalingo.io
+  TESTING_API_URL: ${{ vars.SCALINGO_TESTING_URL }}
   TESTING_PAGES_ORIGIN: https://fisma-benefit-app-testing.github.io
   TESTING_BASE_PATH: /scalingo/
 
@@ -35,6 +37,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      # Fail before installing dependencies or publishing if configuration is missing.
+      - name: Check testing URLs
+        run: |
+          : "${TESTING_API_URL:?Set the SCALINGO_TESTING_URL repository Actions variable to the testing backend URL}"
+          : "${TESTING_PAGES_ORIGIN:?Set TESTING_PAGES_ORIGIN to the testing frontend origin}"
+
       - name: Checkout code
         uses: actions/checkout@v7
 
