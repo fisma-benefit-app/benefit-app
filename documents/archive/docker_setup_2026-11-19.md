@@ -21,7 +21,7 @@ docker --version
 - `docker-compose.yaml` (root) – defines services: database, backend, frontend.
 - `backend/Dockerfile.dev` – builds and runs the Spring Boot backend with Gradle.
 - `frontend/Dockerfile.dev` – builds and runs the Vite frontend.
-- `docker-compose.prod.yaml`, `backend/Dockerfile`, `frontend/Dockerfile` – the production-style stack for a self-hosted server. Not for local development; see the [deployment guide](../guides/deployment_guide.md#self-hosted-server-with-docker).
+- `docker-compose.prod.yaml`, `backend/Dockerfile`, `frontend/Dockerfile` – the production-style stack for a self-hosted server. Not for local development; see the [deployment guide](self_hosted_deployment_2026-11-27.md#self-hosted-server-with-docker).
 - `application.yaml` (backend resources) – configures datasource.
   - Local: uses values from docker-compose.yaml
   - Heroku: uses injected environment variables

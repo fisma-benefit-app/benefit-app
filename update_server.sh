@@ -19,7 +19,7 @@
 # it stops before building and names it.
 #
 # Backups go to $BACKUP_DIR (default /var/backups/fisma-benefit-app).
-# Setting up a new server is manual: see documents/guides/upcloud_deployment.md.
+# Setting up a new server is manual: see documents/archive/upcloud_deployment_2026-11-27.md.
 
 set -Eeuo pipefail
 export LC_ALL=C # byte order for sorting and comparing migration file names
@@ -108,7 +108,7 @@ main() {
     step "Checking $(git branch --show-current) at $(git rev-parse --short HEAD) (running: $previous)"
     [ -z "$(git status --porcelain --untracked-files=no)" ] ||
         die "The repository has local changes (see git status). Commit, stash or discard them first."
-    [ -f .env ] || die "No .env in $(pwd). See documents/guides/upcloud_deployment.md."
+    [ -f .env ] || die "No .env in $(pwd). See documents/archive/upcloud_deployment_2026-11-27.md."
     check_env "$(cat "$COMPOSE_FILE_NAME")" "The checked-out $COMPOSE_FILE_NAME"
     if $dry_run; then
         "${COMPOSE[@]}" exec -T db pg_isready -q > /dev/null 2>&1 ||

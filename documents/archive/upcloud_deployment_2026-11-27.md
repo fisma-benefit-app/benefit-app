@@ -1,8 +1,10 @@
+> **Historical document — archived 2026-11-27.** This procedure is no longer maintained; use the [current deployment guide](../guides/deployment_guide.md) for active environments.
+
 # UpCloud Deployment Guide
 
 This is how the whole app (Postgres, backend and frontend) was first deployed to an UpCloud Linux server with Docker Compose on 2026-09-25, written as steps you can repeat. At the end the app opens at `http://<server-ip>` and you can log in.
 
-The [deployment guide](./deployment_guide.md#self-hosted-server-with-docker) describes the production Compose stack itself. This guide is the hands-on walkthrough, and the [lessons](#what-went-wrong-on-the-way) at the end explain the problems we hit along the way.
+The [deployment guide](./self_hosted_deployment_2026-11-27.md#self-hosted-server-with-docker) describes the production Compose stack itself. This guide is the hands-on walkthrough, and the [lessons](#what-went-wrong-on-the-way) at the end explain the problems we hit along the way.
 
 > **Warning:** the stack serves everything over plain HTTP, so passwords and tokens cross the network unencrypted. It's fine for a test server. Before real users log in, put a TLS reverse proxy (e.g. Caddy) in front of port 80.
 
@@ -282,5 +284,5 @@ The first attempts (issues #718–#722, #738, #742) and the successful run on 20
 
 ## See also
 
-- [Deployment guide: self-hosted server with Docker](./deployment_guide.md#self-hosted-server-with-docker): the stack's services, variables and the "backend outside Docker" fallback
-- [Database guide](./database.md): profiles, seeding and manual migrations
+- [Deployment guide: self-hosted server with Docker](./self_hosted_deployment_2026-11-27.md#self-hosted-server-with-docker): the stack's services, variables and the "backend outside Docker" fallback
+- [Database guide](../guides/database.md): profiles, seeding and manual migrations
