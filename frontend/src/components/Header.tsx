@@ -20,7 +20,6 @@ import { savePendingChanges } from "../lib/pendingSave";
 const showTestVersion = /localhost|testing/.test(window.location.href);
 
 const Header = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { appUser, loggedIn, logout } = useAppUser();
   const [isProjectModalOpen, setProjectModalOpen] = useState(false);
@@ -30,6 +29,7 @@ const Header = () => {
   const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
   const translation = useTranslations().header;
 
