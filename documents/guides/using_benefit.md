@@ -114,7 +114,9 @@ From the project list, use **Share** on a project you own. Enter an existing acc
 
 Removing access applies across the project's existing versions. Avoid leaving a shared project without an owner; the current implementation has an open [ownership-preservation issue](https://github.com/fisma-benefit-app/benefit-app/issues/1081).
 
-Open **Comments** within the project to discuss the calculation. In the current interface, comments on archived versions are read-only. Comments belong to the selected version; do not expect a comment added to one version to appear as a comment on every other version.
+Open **Comments** for project discussion and **Calculation report comments** for a separate set of report-related comments. Project participants can add, edit, or delete either type on the latest version, including comments written by another participant. In the interface both panels are read-only on archived versions. Each comment belongs to the selected project version; comments are not copied to a new version.
+
+**Report calculation notes** are a separate project field included in the overview report. Calculation report comments are not currently included in either PDF report.
 
 ## Prepare and export a report
 
