@@ -38,6 +38,8 @@ To rotate the key, generate an Ed25519 key pair, add the new public key under **
 | `SCALINGO_E2E_TEST_USERNAME` | Dedicated Playwright test username in the testing database. |
 | `SCALINGO_E2E_TEST_PASSWORD` | Password for that user. |
 
+Set the repository Actions variable `SCALINGO_TESTING_URL` to `https://benefit-testing.osc-fr1.scalingo.io` before running the workflow.
+
 ### Run Playwright after deployment
 
 Confirm in the Scalingo deployment history that the latest successful deployment is the current `main` commit. Then run **Deploy Scalingo testing** on `main` from GitHub Actions. The manual run republishes the frontend, checks backend health and CORS, waits for Pages to serve that commit, and runs Playwright. Playwright is manual at this stage because Scalingo waits for push checks to finish before starting the backend deployment.
