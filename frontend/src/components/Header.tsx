@@ -1,6 +1,6 @@
 import useAppUser from "../hooks/useAppUser";
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -29,6 +29,7 @@ const Header = () => {
   const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
   const translation = useTranslations().header;
 
@@ -52,11 +53,9 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close mobile menu when navigating
-  const handleNavigation = (path: string) => {
-    navigate(path);
+  useEffect(() => {
     setMobileMenuOpen(false);
-  };
+  }, [location]);
 
   const handleLogout = () => {
     setConfirmModalOpen(true);
@@ -67,7 +66,6 @@ const Header = () => {
   const handleProfileClick = () => {
     navigate("/profile");
     setUserDropdownOpen(false);
-    setMobileMenuOpen(false);
   };
 
   const tryLogout = async () => {
@@ -218,7 +216,7 @@ const Header = () => {
             </button>
             <button
               className="w-full text-left px-6 py-4 hover:bg-fisma-dark-blue border-b border-fisma-dark-blue flex items-center gap-3"
-              onClick={() => handleNavigation("/")}
+              onClick={() => navigate("/")}
             >
               <FontAwesomeIcon icon={faHome} />
               {translation.home}
