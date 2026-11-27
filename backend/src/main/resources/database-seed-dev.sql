@@ -382,4 +382,4 @@ SELECT setval('app_users_id_seq', (SELECT MAX(id) FROM app_users));
 SELECT setval('projects_id_seq', (SELECT MAX(id) FROM projects));
 SELECT setval('functional_components_id_seq', (SELECT MAX(id) FROM functional_components));
 SELECT setval('projects_app_users_id_seq', (SELECT MAX(id) FROM projects_app_users));
-SELECT setval('comments_id_seq', (SELECT MAX(id) FROM project_comments));
+SELECT setval('project_comments_id_seq', (SELECT MAX(id) FROM project_comments));
