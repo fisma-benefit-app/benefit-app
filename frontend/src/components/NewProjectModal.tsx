@@ -60,22 +60,22 @@ export default function NewProjectModal({
   }, [view, open]);
 
   const handleSubmitError = async (err: unknown, fallback: string) => {
+    if (err instanceof ProjectNameTakenError) {
+      setError(translation.nameTakenError);
+      inputRef.current?.focus();
+      return;
+    }
     if (err instanceof Error && err.message === "Unauthorized!") {
       await logout();
     }
-    setError(
-      err instanceof ProjectNameTakenError
-        ? translation.nameTakenError
-        : err instanceof Error
-          ? err.message
-          : fallback,
-    );
+    setError(err instanceof Error ? err.message : fallback);
   };
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError(translation.noNameError);
+      inputRef.current?.focus();
       return;
     }
 
@@ -122,6 +122,7 @@ export default function NewProjectModal({
 
     if (!name.trim()) {
       setError(translation.noNameError);
+      inputRef.current?.focus();
       return;
     }
 
@@ -461,6 +462,7 @@ export default function NewProjectModal({
                   {translation.projectName || "Project Name:"}
                 </label>
                 <input
+                  ref={inputRef}
                   type="text"
                   maxLength={60}
                   placeholder={translation.placeholderText}
