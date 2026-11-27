@@ -350,10 +350,9 @@ export default function NewProjectModal({
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[4px] z-999">
       <div className="bg-fisma-blue p-4 shadow-2xl lg w-96">
         <h2 className="text-white text-2xl font-bold text-center bg-fisma-dark-blue mb-4 -mx-4 -mt-4 px-4 py-2">
-          {view === "selection" && (translation.header || "New Project")}
-          {view === "create" &&
-            (translation.createNew || "Create Blank Project")}
-          {view === "import" && (translation.importCsv || "Import from CSV")}
+          {view === "selection" && translation.header}
+          {view === "create" && translation.createNew}
+          {view === "import" && translation.importCsv}
         </h2>
 
         <div className="min-h-8 mb-4 flex items-center justify-center">
@@ -376,12 +375,14 @@ export default function NewProjectModal({
               onClick={() => setView("create")}
               className="w-full text-white bg-fisma-dark-blue hover:brightness-70 p-3 font-semibold"
             >
-              {translation.createNew || "Create Blank Project"}
+              {translation.createNew}
             </button>
 
             <div className="flex items-center justify-center space-x-2">
               <hr className="w-1/3 border-gray-400" />
-              <span className="text-gray-600 text-sm font-bold">OR</span>
+              <span className="text-gray-600 text-sm font-bold">
+                {translation.or}
+              </span>
               <hr className="w-1/3 border-gray-400" />
             </div>
 
@@ -389,7 +390,7 @@ export default function NewProjectModal({
               onClick={() => setView("import")}
               className="w-full text-white bg-green-700 hover:brightness-70 p-3 font-semibold"
             >
-              {translation.importCsv || "Import from CSV"}
+              {translation.importCsv}
             </button>
 
             <button
@@ -426,7 +427,7 @@ export default function NewProjectModal({
                 }}
                 className="w-30 text-white bg-fisma-dark-blue hover:brightness-70 p-2"
               >
-                {translation.back || "Back"}
+                {translation.back}
               </button>
               <button
                 type="submit"
@@ -443,7 +444,7 @@ export default function NewProjectModal({
           <form onSubmit={handleImport} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2 p-4 border-2 border-dashed border-fisma-dark-blue bg-white">
               <label className="text-sm font-bold text-fisma-dark-blue">
-                {translation.chooseCsvFile || "Choose CSV File:"}
+                {translation.chooseCsvFile}
               </label>
               <input
                 type="file"
@@ -458,7 +459,7 @@ export default function NewProjectModal({
             {selectedFile && (
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-bold text-fisma-dark-blue">
-                  {translation.projectName || "Project Name:"}
+                  {translation.projectName}
                 </label>
                 <input
                   type="text"
@@ -485,14 +486,14 @@ export default function NewProjectModal({
                 }}
                 className="w-1/2 text-white bg-gray-500 hover:brightness-70 p-2"
               >
-                {translation.back || "Back"}
+                {translation.back}
               </button>
               <button
                 type="submit"
                 disabled={loading || !selectedFile}
                 className={`w-1/2 text-white p-2 ${!selectedFile ? "bg-gray-400 cursor-not-allowed" : "bg-green-700 hover:brightness-70"}`}
               >
-                {translation.import || "Import"}
+                {translation.import}
               </button>
             </div>
           </form>

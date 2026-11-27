@@ -400,7 +400,7 @@ export default function ProjectList() {
                         handleDuplicate(project.id);
                       }}
                       className="text-gray-500 hover:text-fisma-blue p-2 transition-colors"
-                      title="Duplicate Project"
+                      title={projectListTranslation.duplicateProject}
                     >
                       <FontAwesomeIcon icon={faCopy} />
                     </button>

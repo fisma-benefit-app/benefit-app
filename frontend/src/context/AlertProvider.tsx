@@ -8,6 +8,7 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { AlertContext, Notification, NotificationType } from "./AlertContext";
+import useTranslations from "../hooks/useTranslations";
 
 export function AlertProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -101,6 +102,8 @@ function NotificationToast({
   action?: Notification["action"];
   onClose: () => void;
 }) {
+  const { close } = useTranslations().errorModal;
+
   useEffect(() => {
     if (isVisible && type !== "loading" && type !== "error") {
       const timer = setTimeout(() => onClose(), 5000);
@@ -166,7 +169,7 @@ function NotificationToast({
           <button
             onClick={onClose}
             className="ml-3 text-red-700 hover:text-red-900 transition"
-            aria-label="Close"
+            aria-label={close}
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>
