@@ -58,11 +58,15 @@ export default function ProjectReportFields({
   return (
     <>
       <div className="mt-2">
-        <div className="text-left font-medium">
+        <label
+          htmlFor="report-calculation-date"
+          className="block text-left font-medium"
+        >
           {translation.calculationDate}
-        </div>
+        </label>
         <DatePicker
           key={language}
+          id="report-calculation-date"
           selected={
             project?.calculationDate
               ? isoDateToLocalDate(project.calculationDate)
