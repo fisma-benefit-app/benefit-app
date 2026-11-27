@@ -159,7 +159,7 @@ export default function CreateNewUserModal({
               setRole(e.target.value as AppUserRole);
             }}
             required
-            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white!"
           >
             <option value="" disabled>
               {translation.selectARole}
@@ -183,7 +183,7 @@ export default function CreateNewUserModal({
               setUsername(e.target.value);
             }}
             required
-            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white!"
           />
 
           <label
@@ -199,7 +199,7 @@ export default function CreateNewUserModal({
               setPassword(e.target.value);
             }}
             required
-            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white!"
           />
           <p className="text-xs text-white/90">
             {translation.passwordLengthRequirements}
@@ -218,7 +218,7 @@ export default function CreateNewUserModal({
               setConfirmPassword(e.target.value);
             }}
             required
-            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus:outline-none"
+            className="w-full p-2 border-2 border-fisma-dark-blue bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white!"
           />
 
           <div className="mt-5 flex items-center gap-3">
