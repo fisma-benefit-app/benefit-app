@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   ProjectNameTakenError,
@@ -69,6 +69,7 @@ const QuickCalculation = () => {
   const [markAllComplete, setMarkAllComplete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const projectNameInputRef = useRef<HTMLInputElement>(null);
 
   const counts = Object.fromEntries(
     quickCalculationItems.map(({ key }) => [key, toCount(countInputs[key])]),
@@ -111,6 +112,7 @@ const QuickCalculation = () => {
     e.preventDefault();
     if (!projectName.trim()) {
       setError(newProjectTranslation.noNameError);
+      projectNameInputRef.current?.focus();
       return;
     }
 
@@ -168,16 +170,15 @@ const QuickCalculation = () => {
       await fetchAllProjects(sessionToken).then(setProjects);
       navigate(`/project/${idOfNewProject}`);
     } catch (err) {
+      if (err instanceof ProjectNameTakenError) {
+        setError(newProjectTranslation.nameTakenError);
+        projectNameInputRef.current?.focus();
+        return;
+      }
       if (err instanceof Error && err.message === "Unauthorized!") {
         await logout();
       }
-      setError(
-        err instanceof ProjectNameTakenError
-          ? newProjectTranslation.nameTakenError
-          : err instanceof Error
-            ? err.message
-            : "Unexpected error.",
-      );
+      setError(err instanceof Error ? err.message : "Unexpected error.");
     } finally {
       setLoading(false);
     }
@@ -333,6 +334,7 @@ const QuickCalculation = () => {
             </p>
             <div className="flex flex-col gap-4 max-w-[400px]">
               <input
+                ref={projectNameInputRef}
                 type="text"
                 maxLength={60}
                 placeholder={newProjectTranslation.placeholderText}
