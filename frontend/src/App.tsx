@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
+import { useState } from "react";
 import LoadingSpinner from "./components/LoadingSpinner.tsx";
 import Header from "./components/Header.tsx";
 import LoginForm from "./components/LoginForm.tsx";
@@ -8,11 +9,14 @@ import ProfilePage from "./components/ProfilePage.tsx";
 import ScrollToTopButton from "./components/ScrollToTopButton.tsx";
 import useAppUser from "./hooks/useAppUser.tsx";
 import QuickCalculation from "./components/QuickCalculation.tsx";
+import NewProjectModal from "./components/NewProjectModal.tsx";
 
 const showTestVersion = /localhost|testing/.test(window.location.href);
 
 export default function App() {
   const { loadingAuth, loggedIn } = useAppUser();
+  const [isProjectModalOpen, setProjectModalOpen] = useState(false);
+  const openNewProject = () => setProjectModalOpen(true);
 
   return (
     <div
@@ -21,7 +25,7 @@ export default function App() {
         minHeight: "100vh",
       }}
     >
-      <Header />
+      <Header onNewProject={openNewProject} />
       <main>
         {loadingAuth ? (
           <LoadingSpinner />
@@ -34,7 +38,13 @@ export default function App() {
 
             <Route
               path="/"
-              element={loggedIn ? <ProjectList /> : <Navigate to="/login" />}
+              element={
+                loggedIn ? (
+                  <ProjectList onNewProject={openNewProject} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
             />
             <Route
               path="/profile"
@@ -53,6 +63,10 @@ export default function App() {
           </Routes>
         )}
       </main>
+      <NewProjectModal
+        open={isProjectModalOpen}
+        setOpen={setProjectModalOpen}
+      />
       <ScrollToTopButton />
     </div>
   );

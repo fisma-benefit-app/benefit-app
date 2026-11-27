@@ -10,7 +10,6 @@ import {
   faTimes,
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
-import NewProjectModal from "./NewProjectModal";
 import CreateNewUserModal from "./CreateNewUserModal";
 import ConfirmModal from "./ConfirmModal";
 import useLanguage from "../hooks/useLanguage";
@@ -19,10 +18,9 @@ import { savePendingChanges } from "../lib/pendingSave";
 
 const showTestVersion = /localhost|testing/.test(window.location.href);
 
-const Header = () => {
+const Header = ({ onNewProject }: { onNewProject: () => void }) => {
   const navigate = useNavigate();
   const { appUser, loggedIn, logout } = useAppUser();
-  const [isProjectModalOpen, setProjectModalOpen] = useState(false);
   const [isUserModalOpen, setUserModalOpen] = useState(false);
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -110,7 +108,7 @@ const Header = () => {
                 </button>
                 <button
                   className="flex items-center text-lg px-5 hover:bg-fisma-dark-blue"
-                  onClick={() => setProjectModalOpen(true)}
+                  onClick={onNewProject}
                   title={translation.newProject}
                 >
                   <FontAwesomeIcon icon={faPlus} />
@@ -226,7 +224,7 @@ const Header = () => {
             <button
               className="w-full text-left px-6 py-4 hover:bg-fisma-dark-blue border-b border-fisma-dark-blue flex items-center gap-3"
               onClick={() => {
-                setProjectModalOpen(true);
+                onNewProject();
                 setMobileMenuOpen(false);
               }}
             >
@@ -265,10 +263,6 @@ const Header = () => {
           </div>
         )}
       </header>
-      <NewProjectModal
-        open={isProjectModalOpen}
-        setOpen={setProjectModalOpen}
-      />
       <CreateNewUserModal open={isUserModalOpen} setOpen={setUserModalOpen} />
       <ConfirmModal
         message={translation.logoutWarning}

@@ -130,7 +130,10 @@ export const translations = {
       owner: "Owner",
       youAreOwner: "You own this project",
       youAreMember: "You are a member of this project",
-      noProjectsCouldBeFound: "No projects could be found.",
+      noMatchingProjects: "No projects match your search.",
+      emptyProjectsTitle: "No projects yet",
+      emptyProjectsHelp:
+        "Create a project to add components or start with a quick estimate.",
       editProjectName: "Edit Project Name",
       edit: "Edit",
       delete: "Delete",
@@ -579,7 +582,10 @@ export const translations = {
       owner: "Omistaja",
       youAreOwner: "Omistat tämän projektin",
       youAreMember: "Olet tämän projektin jäsen",
-      noProjectsCouldBeFound: "Projekteja ei löytynyt.",
+      noMatchingProjects: "Hakua vastaavia projekteja ei löytynyt.",
+      emptyProjectsTitle: "Ei vielä projekteja",
+      emptyProjectsHelp:
+        "Luo projekti ja lisää komponentteja tai aloita arviolla pikalaskurissa.",
       editProjectName: "Muokkaa projektin nimeä",
       edit: "Muokkaa",
       delete: "Poista",

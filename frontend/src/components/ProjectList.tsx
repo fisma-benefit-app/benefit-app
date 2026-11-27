@@ -44,7 +44,11 @@ type SortKey =
 
 type SortDirection = "asc" | "desc";
 
-export default function ProjectList() {
+export default function ProjectList({
+  onNewProject,
+}: {
+  onNewProject: () => void;
+}) {
   const { sortedProjects, loading, handleDelete, handleUpdate, setProjects } =
     useProjects();
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -197,6 +201,42 @@ export default function ProjectList() {
 
   if (loading) return <LoadingSpinner />;
 
+  const versionFooter = commitSha && (
+    <div className="text-[11px] text-gray-500 mt-2 break-all">
+      {projectListTranslation.githubCommitSha}
+      <code className="font-mono">{commitSha}</code>
+    </div>
+  );
+
+  if (sortedProjects.length === 0) {
+    return (
+      <div className="flex flex-col h-screen p-4 pt-20">
+        <div className="mx-auto my-8 w-full max-w-lg text-center">
+          <h1 className="text-xl font-semibold">
+            {projectListTranslation.emptyProjectsTitle}
+          </h1>
+          <p className="mt-2">{projectListTranslation.emptyProjectsHelp}</p>
+          <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              className="cursor-pointer bg-fisma-blue px-4 py-2 text-white hover:bg-fisma-dark-blue"
+              onClick={onNewProject}
+            >
+              {translation.header.newProject}
+            </button>
+            <Link
+              to="/quickcalculation"
+              className="px-4 py-2 text-fisma-dark-blue underline"
+            >
+              {translation.header.quickcalculation}
+            </Link>
+          </div>
+        </div>
+        {versionFooter}
+      </div>
+    );
+  }
+
   // Looked up from the list so the member list updates once a user has been added.
   const shareProject =
     sortedProjects.find((project) => project.id === shareProjectId) ?? null;
@@ -259,8 +299,16 @@ export default function ProjectList() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+      <p role="status" className="text-center">
+        {displayedProjects.length === 0
+          ? projectListTranslation.noMatchingProjects
+          : ""}
+      </p>
       <div className="overflow-x-auto w-full">
-        <table className="min-w-full table-fixed border-collapse">
+        <table
+          hidden={displayedProjects.length === 0}
+          className="min-w-full table-fixed border-collapse"
+        >
           <thead>
             <tr>
               {sortableColumns.map((col) => (
@@ -289,8 +337,8 @@ export default function ProjectList() {
             </tr>
           </thead>
           <tbody>
-            {displayedProjects.length > 0 ? (
-              displayedProjects.map((project) => (
+            {displayedProjects.map((project) => {
+              return (
                 <tr
                   key={project.id}
                   className="cursor-pointer hover:bg-blue-200 transition-colors"
@@ -417,22 +465,11 @@ export default function ProjectList() {
                     </button>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="text-center text-fisma-gray p-4">
-                  {projectListTranslation.noProjectsCouldBeFound}
-                </td>
-              </tr>
-            )}
+              );
+            })}
           </tbody>
         </table>
-        {commitSha && (
-          <div className="text-[11px] text-gray-500 mt-2 break-all">
-            {projectListTranslation.githubCommitSha}
-            <code className="font-mono">{commitSha}</code>
-          </div>
-        )}
+        {versionFooter}
       </div>
       <ConfirmModal
         message={`${projectListTranslation.confirmDelete} "${selectedProject?.projectName}"?`}
